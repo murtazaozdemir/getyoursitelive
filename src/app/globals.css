@@ -1,26 +1,106 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #1a1a1a;
+  --surface: #242424;
+  --surface-2: #2d2d2d;
+  --text: #f8f8f8;
+  --muted: #c8c8c8;
+  --border: #424242;
+  --accent: #ff6b00;
+  --accent-ink: #111111;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root[data-theme="industrial"] {
+  --bg: #1a1a1a;
+  --surface: #242424;
+  --surface-2: #2d2d2d;
+  --text: #f8f8f8;
+  --muted: #c8c8c8;
+  --border: #444444;
+  --accent: #ff6b00;
+  --accent-ink: #0f0f0f;
+}
+
+:root[data-theme="modern"] {
+  --bg: #ffffff;
+  --surface: #f8fafc;
+  --surface-2: #eef2ff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #cbd5e1;
+  --accent: #0066ff;
+  --accent-ink: #ffffff;
+}
+
+:root[data-theme="luxury"] {
+  --bg: #0a0a0a;
+  --surface: #161616;
+  --surface-2: #1f1f1f;
+  --text: #f5f5dc;
+  --muted: #d9d6c3;
+  --border: #3e3217;
+  --accent: #d4af37;
+  --accent-ink: #0a0a0a;
+}
+
+:root[data-theme="friendly"] {
+  --bg: #faf9f6;
+  --surface: #ffffff;
+  --surface-2: #f3eee8;
+  --text: #283136;
+  --muted: #5e6972;
+  --border: #d9d4cb;
+  --accent: #e07a5f;
+  --accent-ink: #ffffff;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.transition-theme,
+.transition-theme * {
+  transition:
+    background-color 400ms ease,
+    color 400ms ease,
+    border-color 400ms ease,
+    box-shadow 400ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .transition-theme,
+  .transition-theme * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+.input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0.72rem 0.9rem;
+  color: var(--text);
+}
+
+.input::placeholder {
+  color: var(--muted);
 }
