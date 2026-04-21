@@ -1,6 +1,19 @@
 import type { NextConfig } from "next";
+import { execSync } from "child_process";
+
+function getCommitCount() {
+  try {
+    return execSync("git rev-list --count HEAD").toString().trim();
+  } catch {
+    return "0";
+  }
+}
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
+    NEXT_PUBLIC_APP_VERSION: `v${getCommitCount()}`,
+  },
   // Server-rendered. Each request is served fresh from the storage layer
   // (local filesystem in dev, Cloudflare R2 in production). This replaces
   // the previous `output: "export"` static build.

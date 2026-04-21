@@ -5,9 +5,10 @@ import puppeteer from "puppeteer-core";
 
 export const maxDuration = 60;
 
-// CSS selector for each named section of the business site
-const SECTION_SELECTORS: Record<string, string> = {
-  hero: "#home",
+// CSS selector for each named section of the business site.
+// null = capture the full viewport (no element pick), e.g. hero includes the nav bar.
+const SECTION_SELECTORS: Record<string, string | null> = {
+  hero: null,        // full viewport — includes header/nav
   services: "#services",
   contact: "#contact",
 };
@@ -56,16 +57,13 @@ export async function GET(request: NextRequest) {
 async function proxyToService(
   serviceUrl: string,
   targetUrl: string,
-  selector: string,
+  selector: string | null,
   cacheDir: string,
   cachePath: string,
 ): Promise<NextResponse> {
   try {
-    const params = new URLSearchParams({
-      url: targetUrl,
-      pick: selector,
-      width: String(PAGE_WIDTH),
-    });
+    const params = new URLSearchParams({ url: targetUrl, width: String(PAGE_WIDTH) });
+    if (selector) params.set("pick", selector);
     const res = await fetch(`${serviceUrl}/screenshot?${params}`, {
       signal: AbortSignal.timeout(55_000),
     });
@@ -87,7 +85,7 @@ async function proxyToService(
 
 async function runLocally(
   targetUrl: string,
-  selector: string,
+  selector: string | null,
   cacheDir: string,
   cachePath: string,
 ): Promise<NextResponse> {
@@ -102,12 +100,17 @@ async function runLocally(
     const page = await browser.newPage();
     await page.setViewport({ width: PAGE_WIDTH, height: 900 });
     await page.goto(targetUrl, { waitUntil: "networkidle0", timeout: 30000 });
-    await page.waitForSelector(selector, { timeout: 5000 });
-    const element = await page.$(selector);
-    if (!element) {
-      return new NextResponse("Section not found", { status: 404 });
+    let buf: Buffer | Uint8Array;
+    if (!selector) {
+      buf = await page.screenshot({ type: "png" }) as Buffer;
+    } else {
+      await page.waitForSelector(selector, { timeout: 5000 });
+      const element = await page.$(selector);
+      if (!element) {
+        return new NextResponse("Section not found", { status: 404 });
+      }
+      buf = await element.screenshot({ type: "png" }) as Buffer;
     }
-    const buf = await element.screenshot({ type: "png" });
     mkdirSync(cacheDir, { recursive: true });
     writeFileSync(cachePath, buf as Buffer);
     return new NextResponse(buf as unknown as BodyInit, {

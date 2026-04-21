@@ -21,6 +21,14 @@ export function AdminHeader({ user }: { user: SessionUser }) {
             <span className="admin-header-mark">GYSL</span>
             <span className="admin-header-title">Admin</span>
           </Link>
+          <span className="admin-header-build">
+            {process.env.NEXT_PUBLIC_APP_VERSION}
+            <span className="admin-header-build-time">
+              {new Date(process.env.NEXT_PUBLIC_BUILD_TIME ?? "").toLocaleString("en-US", {
+                month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true,
+              })}
+            </span>
+          </span>
           <nav className="admin-header-nav">
             <Link href="/admin" className="admin-header-nav-link">Sites</Link>
             <Link href="/admin/prospects" className="admin-header-nav-link">Prospects</Link>
