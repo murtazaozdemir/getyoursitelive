@@ -1,0 +1,34 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { getCurrentUser } from "@/lib/session";
+import { AdminHeader } from "./admin-header";
+import "./admin.css";
+
+export const metadata: Metadata = {
+  title: "Admin · Get Your Site Live",
+  robots: { index: false, follow: false },
+};
+
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const user = await getCurrentUser();
+
+  return (
+    <div className="admin-shell" data-theme="modern">
+      {/* Login page hides the header — middleware ensures user is present everywhere else */}
+      {user && <AdminHeader user={user} />}
+      <main className="admin-main">{children}</main>
+      <footer className="admin-footer">
+        <div className="admin-footer-inner">
+          <span>Get Your Site Live · Admin</span>
+          <Link href="/" className="admin-footer-link">
+            Back to public site
+          </Link>
+        </div>
+      </footer>
+    </div>
+  );
+}

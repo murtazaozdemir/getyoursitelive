@@ -1,0 +1,425 @@
+/* ── Proposal print page ─────────────────────────────────────────────── */
+
+/* Toolbar (screen only) */
+.proposal-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 2rem;
+  background: #1a1a1a;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  font-size: 0.875rem;
+}
+
+.proposal-toolbar-label {
+  opacity: 0.7;
+}
+
+.proposal-print-btn {
+  padding: 0.5rem 1.25rem;
+  background: #fff;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.proposal-print-btn:hover {
+  background: #e5e5e5;
+}
+
+/* ── Proposal body ───────────────────────────────────────────────────── */
+
+.proposal {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 3rem 2.5rem 4rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 11pt;
+  color: #111;
+  line-height: 1.6;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+
+.proposal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #111;
+  margin-bottom: 2.5rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 9pt;
+}
+
+.proposal-header-from,
+.proposal-header-to {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.proposal-header-to {
+  text-align: right;
+}
+
+.proposal-header-label {
+  color: #888;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.proposal-header-shopname {
+  font-size: 12pt;
+  color: #111;
+}
+
+/* ── Hero ────────────────────────────────────────────────────────────── */
+
+.proposal-hero {
+  margin-bottom: 2.5rem;
+}
+
+.proposal-hero-headline {
+  font-size: 30pt;
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0 0 0.75rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.proposal-hero-accent {
+  color: #1a6b50;
+}
+
+.proposal-hero-sub {
+  font-size: 11.5pt;
+  color: #333;
+  max-width: 540px;
+  margin: 0;
+}
+
+/* ── Opening letter ─────────────────────────────────────────────────── */
+
+.proposal-letter {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.proposal-salutation {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 10.5pt;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+  color: #111;
+}
+
+/* ── Sections ────────────────────────────────────────────────────────── */
+
+.proposal-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.proposal-section:last-of-type {
+  border-bottom: none;
+}
+
+.proposal-section-title {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 10pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #1a6b50;
+  margin: 0 0 0.75rem;
+}
+
+.proposal-body {
+  margin: 0 0 0.5rem;
+  color: #222;
+}
+
+.proposal-body--bold {
+  font-weight: 700;
+  font-size: 11.5pt;
+}
+
+.proposal-body--small {
+  font-size: 9pt;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+/* ── Comparison table ────────────────────────────────────────────────── */
+
+.proposal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: system-ui, sans-serif;
+  font-size: 9.5pt;
+  margin: 0.75rem 0;
+}
+
+.proposal-table th {
+  text-align: center;
+  padding: 0.4rem 0.5rem;
+  font-weight: 600;
+  border-bottom: 1px solid #ccc;
+  color: #555;
+  font-size: 8.5pt;
+}
+
+.proposal-table th:first-child {
+  text-align: left;
+}
+
+.proposal-table td {
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+.proposal-table td:first-child {
+  text-align: left;
+  color: #444;
+}
+
+.proposal-table td.yes {
+  color: #1a6b50;
+  font-weight: 700;
+}
+
+.proposal-table td.no {
+  color: #bbb;
+}
+
+.proposal-table-highlight {
+  background: #f0f8f4;
+}
+
+.proposal-table-highlight td {
+  border-bottom: 2px solid #1a6b50;
+}
+
+/* ── Checklist ───────────────────────────────────────────────────────── */
+
+.proposal-checklist {
+  list-style: none;
+  margin: 0.5rem 0 0.75rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 1rem;
+}
+
+.proposal-checklist--single {
+  grid-template-columns: 1fr;
+}
+
+.proposal-checklist li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 10pt;
+}
+
+.proposal-check {
+  color: #1a6b50;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.proposal-no-fees {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.875rem;
+  background: #f5f5f5;
+  border-left: 3px solid #1a6b50;
+  font-size: 9.5pt;
+  font-family: system-ui, sans-serif;
+  color: #333;
+}
+
+/* ── Domains ─────────────────────────────────────────────────────────── */
+
+.proposal-domains {
+  display: flex;
+  gap: 0.75rem;
+  margin: 0.75rem 0 0.5rem;
+  flex-wrap: wrap;
+}
+
+.proposal-domain-chip {
+  padding: 0.4rem 0.875rem;
+  background: #f0f8f4;
+  border: 1.5px solid #1a6b50;
+  border-radius: 4px;
+  font-family: "Courier New", monospace;
+  font-size: 10pt;
+  font-weight: 700;
+  color: #1a6b50;
+}
+
+/* ── Demo URL ────────────────────────────────────────────────────────── */
+
+.proposal-section--demo {
+  background: #f9f9f9;
+  padding: 1.25rem 1.5rem;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  border-bottom: 1px solid #ddd !important;
+}
+
+.proposal-preview-photos {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.proposal-preview-photo {
+  width: 100%;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.proposal-preview-photo--wide {
+  aspect-ratio: 16 / 10;
+}
+
+.proposal-preview-photo--narrow {
+  aspect-ratio: 9 / 16;
+}
+
+.proposal-demo-url {
+  margin-top: 0.5rem;
+  font-family: "Courier New", monospace;
+  font-size: 11pt;
+  font-weight: 700;
+  color: #1a6b50;
+  word-break: break-all;
+}
+
+/* ── Math callout ────────────────────────────────────────────────────── */
+
+.proposal-section--math {
+  text-align: center;
+  padding: 1.5rem;
+  background: #111;
+  color: #fff;
+  border-radius: 6px;
+  border-bottom: none !important;
+}
+
+.proposal-math-line {
+  font-size: 16pt;
+  font-family: system-ui, sans-serif;
+  margin: 0 0 0.4rem;
+  color: #fff;
+}
+
+.proposal-math-sub {
+  font-size: 9.5pt;
+  color: #aaa;
+  margin: 0;
+}
+
+/* ── Next steps ──────────────────────────────────────────────────────── */
+
+.proposal-steps {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.proposal-steps li {
+  margin-bottom: 0.3rem;
+  font-size: 10.5pt;
+}
+
+/* ── Footer / contact ────────────────────────────────────────────────── */
+
+.proposal-footer {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #111;
+}
+
+.proposal-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-family: system-ui, sans-serif;
+  font-size: 9.5pt;
+  margin-bottom: 1rem;
+}
+
+.proposal-contact-name {
+  font-size: 11pt;
+  margin-bottom: 0.1rem;
+}
+
+.proposal-contact-demo {
+  margin-top: 0.25rem;
+  color: #555;
+}
+
+.proposal-footer-ps {
+  font-size: 9pt;
+  color: #666;
+  font-style: italic;
+  margin: 0;
+}
+
+/* ── Print styles ────────────────────────────────────────────────────── */
+
+@media print {
+  .no-print { display: none !important; }
+
+  body { margin: 0; background: #fff; }
+
+  .proposal {
+    max-width: 100%;
+    padding: 1.5cm 1.8cm;
+  }
+
+  .proposal-hero-headline { font-size: 26pt; }
+
+  .proposal-section--math {
+    background: #111 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+
+  .proposal-table-highlight {
+    background: #f0f8f4 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .proposal-domain-chip {
+    border: 1.5px solid #1a6b50 !important;
+    color: #1a6b50 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* Try to keep sections from splitting across pages */
+  .proposal-section { page-break-inside: avoid; }
+  .proposal-table { page-break-inside: avoid; }
+}

@@ -925,8 +925,8 @@ body {
 
 .hero-headline {
   margin-top: 1.75rem;
-  font-size: clamp(2.75rem, 6vw, 5rem);
-  line-height: 0.98;
+  font-size: clamp(1.5rem, 2.2vw, 1.875rem);
+  line-height: 1.15;
   letter-spacing: -0.025em;
   font-weight: 700;
   font-family: var(--font-display), system-ui, sans-serif;
@@ -953,14 +953,14 @@ body {
 
 .hero-lead {
   margin-top: 1.25rem;
-  font-size: 1.125rem;
+  font-size: 1rem;
   line-height: 1.6;
   color: var(--text-secondary);
   max-width: 32rem;
 }
 
 @media (min-width: 768px) {
-  .hero-lead { font-size: 1.25rem; }
+  .hero-lead { font-size: 1.0625rem; }
 }
 
 .hero-actions {
@@ -995,14 +995,75 @@ body {
   letter-spacing: 0.01em;
 }
 
+/* High-visibility style pass so improvements are unmistakable */
+.premium-refresh .section-shell {
+  position: relative;
+}
+
+.premium-refresh .section-shell:not(:first-of-type)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(84rem, calc(100% - 2.5rem));
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 35%, var(--border)), transparent);
+}
+
+.premium-refresh .section-title {
+  font-size: clamp(2.1rem, 4.6vw, 3.2rem);
+  letter-spacing: -0.03em;
+}
+
+.premium-refresh .content-card,
+.premium-refresh .stat-card,
+.premium-refresh .pricing-card,
+.premium-refresh .deal-card {
+  border-width: 1px;
+  border-color: color-mix(in srgb, var(--accent) 20%, var(--border));
+  box-shadow:
+    0 18px 42px -26px color-mix(in srgb, var(--text) 60%, transparent),
+    0 2px 0 0 color-mix(in srgb, var(--accent) 18%, transparent) inset;
+}
+
+.premium-refresh .content-card:hover,
+.premium-refresh .stat-card:hover,
+.premium-refresh .pricing-card:hover,
+.premium-refresh .deal-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 28px 56px -28px color-mix(in srgb, var(--text) 70%, transparent),
+    0 2px 0 0 color-mix(in srgb, var(--accent) 28%, transparent) inset;
+}
+
+.premium-refresh .hero-headline {
+  font-size: clamp(1.5rem, 2.2vw, 1.875rem);
+}
+
+.premium-refresh .hero-image-wrap {
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  box-shadow:
+    0 40px 80px -30px color-mix(in srgb, var(--text) 75%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent) inset;
+}
+
+.premium-refresh .btn-primary {
+  box-shadow: 0 10px 26px -12px color-mix(in srgb, var(--accent) 72%, transparent);
+}
+
+.premium-refresh .btn-secondary {
+  border-color: color-mix(in srgb, var(--accent) 36%, var(--border));
+}
+
 /* ==================================================================
    PREMIUM POLISH LAYER
    Consistent hierarchy, spacing, and depth across all themes.
    ================================================================== */
 
 .section-shell {
-  padding-top: clamp(4.5rem, 7vw, 6.5rem);
-  padding-bottom: clamp(4.5rem, 7vw, 6.5rem);
+  padding-top: clamp(3rem, 5vw, 4.5rem);
+  padding-bottom: clamp(3rem, 5vw, 4.5rem);
 }
 
 .section-title {
@@ -1144,7 +1205,6 @@ body {
 }
 
 .testimonial-quote {
-  max-width: 46ch;
   line-height: 1.55;
   color: var(--text-secondary);
 }
@@ -1162,14 +1222,31 @@ body {
 }
 
 @media (max-width: 767px) {
+  .premium-refresh .section-title {
+    font-size: clamp(1.75rem, 7.8vw, 2.25rem);
+  }
+
+  .premium-refresh .hero-headline {
+    font-size: clamp(1.5rem, 7vw, 1.875rem);
+  }
+
+  .premium-refresh .content-card,
+  .premium-refresh .stat-card,
+  .premium-refresh .pricing-card,
+  .premium-refresh .deal-card {
+    box-shadow:
+      0 14px 32px -22px color-mix(in srgb, var(--text) 65%, transparent),
+      0 1px 0 0 color-mix(in srgb, var(--accent) 20%, transparent) inset;
+  }
+
   .hero-grid {
     padding: 1.75rem 0.9rem 2.5rem;
     gap: 1.6rem;
   }
 
   .hero-headline {
-    font-size: clamp(2.05rem, 10.2vw, 2.7rem);
-    line-height: 1.02;
+    font-size: clamp(1.75rem, 8vw, 2.25rem);
+    line-height: 1.1;
   }
 
   .hero-lead {
@@ -1211,8 +1288,8 @@ body {
   }
 
   .section-shell {
-    padding-top: clamp(3.1rem, 10vw, 4rem);
-    padding-bottom: clamp(3.1rem, 10vw, 4rem);
+    padding-top: clamp(2.25rem, 8vw, 3rem);
+    padding-bottom: clamp(2.25rem, 8vw, 3rem);
   }
 
   .section-title {
@@ -1274,6 +1351,18 @@ body {
     width: 2.65rem;
     height: 2.65rem;
   }
+
+  .hero-image {
+    object-position: 56% 40%;
+  }
+
+  .about-image {
+    object-position: 52% 42%;
+  }
+
+  .team-image {
+    object-position: 50% 30%;
+  }
 }
 
 /* ---- Right column (visual) ------------------------------------------ */
@@ -1304,7 +1393,55 @@ body {
 
 .hero-image {
   object-fit: cover;
-  object-position: center;
+  object-position: 50% 42%;
+  filter: saturate(1.04) contrast(1.04);
+}
+
+.hero-image-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, color-mix(in srgb, #000 28%, transparent) 0%, transparent 48%),
+    linear-gradient(to right, color-mix(in srgb, var(--accent) 8%, transparent) 0%, transparent 60%);
+}
+
+.about-image-frame {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border));
+  box-shadow: 0 20px 42px -28px color-mix(in srgb, var(--text) 62%, transparent);
+}
+
+.about-image {
+  object-fit: cover;
+  object-position: 50% 44%;
+  filter: saturate(1.03) contrast(1.02);
+}
+
+.about-image-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, color-mix(in srgb, #000 20%, transparent), transparent 52%);
+}
+
+.team-image-frame {
+  position: relative;
+}
+
+.team-image {
+  object-position: 50% 34%;
+  filter: saturate(1.04) contrast(1.03);
+}
+
+.team-image-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, color-mix(in srgb, #000 24%, transparent), transparent 54%);
 }
 
 /* Credibility card — sits in the LEFT column under the CTAs.

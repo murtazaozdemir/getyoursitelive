@@ -1,0 +1,364 @@
+{
+  "slug": "star-auto",
+  "category": "Auto Repair",
+  "theme": "modern",
+  "businessInfo": {
+    "name": "Star Auto Repair Center",
+    "tagline": "Clifton's Trusted Mechanic Since 2001.",
+    "founded": 2001,
+    "phone": "(124) 567-8888",
+    "emergencyPhone": "(124) 567-8889",
+    "email": "contact@starautoclifton.com",
+    "address": "123 Bird Street, Clifton, NJ 07011",
+    "hours": "Mon-Fri: 8am-6pm, Sat: 9am-3pm, Sun: Closed",
+    "logoUrl": "",
+    "social": {
+      "facebook": "https://facebook.com/starautoclifton",
+      "instagram": "https://instagram.com/starautoclifton",
+      "linkedin": "",
+      "youtube": ""
+    }
+  },
+  "hoursSchedule": {
+    "mon": {
+      "open": "08:00",
+      "close": "18:00"
+    },
+    "tue": {
+      "open": "08:00",
+      "close": "18:00"
+    },
+    "wed": {
+      "open": "08:00",
+      "close": "18:00"
+    },
+    "thu": {
+      "open": "08:00",
+      "close": "18:00"
+    },
+    "fri": {
+      "open": "08:00",
+      "close": "18:00"
+    },
+    "sat": {
+      "open": "09:00",
+      "close": "15:00"
+    },
+    "sun": null
+  },
+  "hero": {
+    "eyebrowPrefix": "Family-owned since",
+    "headline": "Expert care for your car.",
+    "lead": "Same-day service, clear communication, and repairs performed by AES-certified technicians.",
+    "primaryCta": "Explore Services",
+    "secondaryCta": "Request Estimate",
+    "whyTitle": "Why our customers choose us",
+    "heroImage": "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=1400",
+    "whyBullets": [
+      "Photo-backed diagnostics before any repair.",
+      "Same-day turnaround on most repairs.",
+      "24-month / 24,000-mile warranty on parts and labor.",
+      "Friendly advisors who explain options in plain language.",
+      "Extra 2"
+    ]
+  },
+  "about": {
+    "heading": "Star Auto Repair Center - Where Expertise Meets Honesty",
+    "narrative": "We are a family-operated repair facility trusted by Clifton drivers. Every recommendation includes photos, transparent pricing, and practical guidance.",
+    "bullets": [
+      "Free digital inspections with photos and videos",
+      "Written warranties on parts and labor",
+      "No surprise pricing before work begins"
+    ],
+    "primaryImage": "https://images.pexels.com/photos/4489713/pexels-photo-4489713.jpeg?auto=compress&cs=tinysrgb&w=1400",
+    "secondaryImage": "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=1400",
+    "whyUsCards": [
+      {
+        "title": "Honest Diagnostics",
+        "description": "We show photos of every issue before recommending repairs."
+      },
+      {
+        "title": "Same-Day Service",
+        "description": "Most repairs are completed in 24 hours."
+      },
+      {
+        "title": "Digital Updates",
+        "description": "Text and email progress reports from check-in to pickup."
+      },
+      {
+        "title": "2-Year Warranty",
+        "description": "24,000-mile parts and labor protection included."
+      }
+    ]
+  },
+  "stats": [
+    {
+      "label": "Years Experience",
+      "value": 15,
+      "suffix": "+"
+    },
+    {
+      "label": "Happy Clients",
+      "value": 12450,
+      "suffix": "+"
+    },
+    {
+      "label": "Services Done",
+      "value": 28500,
+      "suffix": "+"
+    },
+    {
+      "label": "Expert Technicians",
+      "value": 12,
+      "suffix": "+"
+    }
+  ],
+  "services": [
+    {
+      "id": "diagnostic",
+      "name": "Engine Diagnostic",
+      "priceRange": "$79-$129",
+      "duration": "30-60 min",
+      "description": "Full-system diagnostic scan to identify engine warning lights, performance issues, and hidden problems.",
+      "features": [
+        "OBD-II scan and live data",
+        "Check engine code reading",
+        "Written diagnostic report",
+        "Repair recommendations"
+      ]
+    },
+    {
+      "id": "brakes",
+      "name": "Brake Repair",
+      "priceRange": "$129-$349",
+      "duration": "1-2 hours",
+      "description": "Complete brake service — pads, rotors, calipers, fluid. Safe stopping power restored.",
+      "features": [
+        "Pad and rotor replacement",
+        "Caliper and line inspection",
+        "Brake fluid flush",
+        "Pre- and post-service test drive"
+      ]
+    },
+    {
+      "id": "oil",
+      "name": "Oil & Filter Change",
+      "priceRange": "$39-$79",
+      "duration": "20-30 min",
+      "description": "Keep your engine running clean with quality oil and a premium filter, plus a quick safety check.",
+      "features": [
+        "Conventional or synthetic oil",
+        "OEM-quality filter",
+        "Fluid top-off",
+        "Multi-point inspection"
+      ]
+    },
+    {
+      "id": "tires",
+      "name": "Tires & Alignment",
+      "priceRange": "$69-$229",
+      "duration": "45-90 min",
+      "description": "Tire mounting, balancing, rotation, and alignment — everything to keep your wheels turning straight.",
+      "features": [
+        "Tire rotation and balance",
+        "4-wheel alignment",
+        "Tread depth check",
+        "Tire pressure adjustment"
+      ]
+    },
+    {
+      "id": "inspection",
+      "name": "NJ State Inspection",
+      "priceRange": "Included with service",
+      "duration": "30 min",
+      "description": "NJ state safety and emissions inspection. Fast turnaround, pass-or-we-fix-it guarantee.",
+      "features": [
+        "Full safety inspection",
+        "Emissions test",
+        "Pre-inspection courtesy check",
+        "Same-day results"
+      ]
+    }
+  ],
+  "deals": [
+    {
+      "id": "oil-special",
+      "title": "Oil Change Special",
+      "description": "Full synthetic, OEM filter, multi-point check",
+      "price": "$39",
+      "originalPrice": "$69",
+      "badge": "Limited time"
+    },
+    {
+      "id": "nj-inspection",
+      "title": "Free NJ Inspection",
+      "description": "Free with any service over $99",
+      "price": "Free",
+      "badge": "Always"
+    },
+    {
+      "id": "tire-rotation",
+      "title": "Tire Rotation & Balance",
+      "description": "Full set rotated, road-tested",
+      "price": "$29",
+      "originalPrice": "$49",
+      "badge": "This week"
+    }
+  ],
+  "pricing": [
+    {
+      "id": "oil-change",
+      "name": "Oil Change",
+      "price": "$49",
+      "note": "Synthetic blend + 27-point inspection",
+      "popular": false
+    },
+    {
+      "id": "brake-service",
+      "name": "Brake Service",
+      "price": "$189",
+      "note": "Pads, rotor inspection, safety check",
+      "popular": true
+    },
+    {
+      "id": "full-diagnostic",
+      "name": "Full Diagnostic",
+      "price": "$89",
+      "note": "Digital scan + road test report",
+      "popular": false
+    }
+  ],
+  "teamMembers": [
+    {
+      "name": "Demo Owner",
+      "role": "Owner & Lead Mechanic",
+      "experience": "20+ years",
+      "specialty": "Domestic and import repair",
+      "image": "https://images.pexels.com/photos/4489743/pexels-photo-4489743.jpeg?auto=compress&cs=tinysrgb&w=800"
+    },
+    {
+      "name": "Demo Technician",
+      "role": "Senior Technician",
+      "experience": "10+ years",
+      "specialty": "Diagnostics and brake systems",
+      "image": "https://images.pexels.com/photos/4489730/pexels-photo-4489730.jpeg?auto=compress&cs=tinysrgb&w=800"
+    }
+  ],
+  "testimonials": [
+    {
+      "name": "Demo Customer A",
+      "vehicle": "2019 Toyota Camry",
+      "quote": "Fair prices, honest diagnosis, and they finished when they said they would. Will be back."
+    },
+    {
+      "name": "Demo Customer B",
+      "vehicle": "2015 Ford Escape",
+      "quote": "Been coming here for five years. They've never pushed a repair I didn't need."
+    },
+    {
+      "name": "Extra Name",
+      "vehicle": "Extra Vehicle",
+      "quote": "Extra review"
+    }
+  ],
+  "faqs": [
+    {
+      "id": "appointment",
+      "question": "Do I need an appointment?",
+      "answer": "Walk-ins welcome, but booking ahead guarantees same-day service. We confirm within 30 minutes."
+    },
+    {
+      "id": "repair-time",
+      "question": "How long do repairs typically take?",
+      "answer": "Most services complete in 2 hours or less. Larger jobs we confirm timing before work begins."
+    },
+    {
+      "id": "brands",
+      "question": "Do you work on all car brands?",
+      "answer": "Yes. We service domestic, Asian, and European vehicles including late-model hybrids."
+    },
+    {
+      "id": "financing",
+      "question": "Do you offer financing?",
+      "answer": "Yes — we partner with Sunbit for 0% APR financing on qualifying repairs. Ask at check-in."
+    },
+    {
+      "id": "waiting",
+      "question": "Is there a waiting area?",
+      "answer": "Absolutely. Complimentary coffee, Wi-Fi, and a quiet workspace while you wait."
+    },
+    {
+      "id": "warranty",
+      "question": "What is your warranty?",
+      "answer": "24 months / 24,000 miles on parts and labor — industry-leading, included on every repair."
+    },
+    {
+      "id": "faq-1776671401734-p27l",
+      "question": "Extra Q",
+      "answer": "Extra A"
+    }
+  ],
+  "emergency": {
+    "heading": "Car Won't Start? We're Here 24/7.",
+    "description": "Emergency towing, after-hours repairs, and loaner car options available.",
+    "ctaLabel": "Call Emergency Line"
+  },
+  "contact": {
+    "heading": "Request Service",
+    "description": "Tell us what your vehicle needs and we'll confirm timing and pricing quickly.",
+    "bookButtonLabel": "Book Service",
+    "extraServiceOptions": [
+      "General Inspection",
+      "Other"
+    ]
+  },
+  "footer": {
+    "visitHeading": "Visit & Contact",
+    "servicesHeading": "Services",
+    "locationLabel": "Location",
+    "phoneLabel": "Phone",
+    "copyrightSuffix": "All rights reserved."
+  },
+  "sectionTitles": {
+    "services": "Our Services",
+    "dealsEyebrow": "Current Specials",
+    "deals": "Deals this month",
+    "dealsLede": "Limited-time offers. Mention this page when you book.",
+    "pricing": "Transparent Pricing",
+    "team": "Meet Our Technicians",
+    "testimonials": "What Customers Say",
+    "faq": "Frequently Asked Questions",
+    "dealsCta": "Claim this offer",
+    "pricingPopular": "Popular",
+    "pricingRegular": "No surprises"
+  },
+  "navLabels": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "technicians": "Technicians",
+    "contact": "Contact"
+  },
+  "visibility": {
+    "showAbout": true,
+    "showAboutWhyUs": true,
+    "showStats": true,
+    "showServices": true,
+    "showDeals": true,
+    "showPricing": true,
+    "showTeam": true,
+    "showTestimonials": true,
+    "showFaq": true,
+    "showEmergencyBanner": true,
+    "showBooking": true,
+    "showContactInfo": true,
+    "showMap": true,
+    "showHours": true,
+    "showHeroImage": true,
+    "showHeroCard": true,
+    "showHeroEyebrow": true,
+    "showHeroCtas": true,
+    "showHeroHeadline": true,
+    "showHeroLead": true
+  }
+}

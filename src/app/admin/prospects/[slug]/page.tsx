@@ -1,0 +1,125 @@
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { getProspect, PIPELINE_STAGES } from "@/lib/prospects";
+import { getCurrentUser } from "@/lib/session";
+import { canManageBusinesses } from "@/lib/users";
+import { ProspectActions } from "./prospect-actions";
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+export default async function ProspectDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const user = await getCurrentUser();
+  if (!user) return null;
+  if (!canManageBusinesses(user)) redirect("/admin");
+
+  const { slug } = await params;
+  const prospect = await getProspect(slug);
+  if (!prospect) notFound();
+
+  const currentStageIdx = PIPELINE_STAGES.findIndex((s) => s.status === prospect.status);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const previewUrl = `${siteUrl}/${slug}`;
+
+  return (
+    <div className="admin-page">
+      <div className="admin-page-header">
+        <div>
+          <p className="admin-eyebrow">
+            <Link href="/admin/prospects" className="admin-back-link">
+              ← Prospects
+            </Link>
+          </p>
+          <h1 className="admin-h1">{prospect.name}</h1>
+          <p className="admin-lede">
+            {prospect.phone && <span>{prospect.phone}</span>}
+            {prospect.phone && prospect.address && <span> &middot; </span>}
+            {prospect.address && <span>{prospect.address}</span>}
+          </p>
+        </div>
+        <div className="admin-page-header-actions">
+          <a
+            href={previewUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="admin-btn admin-btn--primary"
+          >
+            View preview site →
+          </a>
+          <Link href={`/${slug}/admin`} className="admin-btn admin-btn--ghost">
+            Edit site
+          </Link>
+        </div>
+      </div>
+
+      {/* Pipeline stage selector */}
+      <section className="admin-section">
+        <h2 className="admin-section-title">Pipeline stage</h2>
+        <div className="prospect-stages">
+          {PIPELINE_STAGES.map(({ status, label }, i) => (
+            <ProspectActions
+              key={status}
+              slug={slug}
+              action="status"
+              status={status}
+              label={label}
+              active={prospect.status === status}
+              past={i < currentStageIdx}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Preview link to copy */}
+      <section className="admin-section">
+        <h2 className="admin-section-title">Preview link</h2>
+        <p className="admin-section-lede">
+          Send this to the mechanic. It looks like a finished website — no
+          mention of pricing or your brand.
+        </p>
+        <div className="prospect-preview-row">
+          <code className="prospect-preview-url">{previewUrl}</code>
+          <ProspectActions slug={slug} action="copy" previewUrl={previewUrl} />
+        </div>
+      </section>
+
+      {/* Notes */}
+      <section className="admin-section">
+        <h2 className="admin-section-title">Notes</h2>
+        <ProspectActions slug={slug} action="add-note" />
+
+        {prospect.notes.length > 0 && (
+          <ul className="prospect-notes">
+            {prospect.notes.map((note) => (
+              <li key={note.id} className="prospect-note">
+                <p className="prospect-note-text">{note.text}</p>
+                <p className="prospect-note-date">{formatDate(note.createdAt)}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Danger zone */}
+      <section className="admin-section admin-section--danger">
+        <h2 className="admin-section-title">Delete prospect</h2>
+        <p className="admin-section-lede">
+          Removes the prospect record and the preview site at{" "}
+          <code>/{slug}</code>. This cannot be undone.
+        </p>
+        <ProspectActions slug={slug} action="delete" />
+      </section>
+    </div>
+  );
+}

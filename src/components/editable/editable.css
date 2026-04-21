@@ -1,0 +1,384 @@
+/* =============================================================
+   WYSIWYG edit-mode affordances.
+   Only active when a parent has .edit-mode.
+   Loaded by /[slug]/admin/edit/layout.tsx — never on the public site.
+   ============================================================= */
+
+.edit-mode {
+  --edit-outline: #0e5a4fcc;       /* matches admin accent */
+  --edit-outline-soft: #0e5a4f22;
+  --edit-danger: #b3261e;
+}
+
+/* ----- Editable element hover/focus state ----- */
+.edit-mode .editable {
+  position: relative;
+  cursor: text;
+  outline: 1px dashed transparent;
+  outline-offset: 4px;
+  border-radius: 3px;
+  transition: outline-color 140ms, background-color 140ms;
+}
+.edit-mode .editable:hover,
+.edit-mode .editable:focus-visible {
+  outline-color: var(--edit-outline);
+  background-color: var(--edit-outline-soft);
+}
+.edit-mode .editable--empty {
+  outline-color: var(--edit-outline);
+  background-color: var(--edit-outline-soft);
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.edit-mode .editable-pencil {
+  opacity: 0;
+  pointer-events: none;
+  width: 14px;
+  height: 14px;
+  margin-left: 0.4em;
+  vertical-align: middle;
+  color: var(--edit-outline);
+  transition: opacity 140ms;
+}
+.edit-mode .editable:hover .editable-pencil,
+.edit-mode .editable:focus-visible .editable-pencil {
+  opacity: 1;
+}
+
+/* ----- Editable input (when swapped in on click) ----- */
+.edit-mode .editable-input {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  background: #fff;
+  border: 2px solid var(--edit-outline);
+  border-radius: 4px;
+  padding: 2px 6px;
+  width: 100%;
+  box-sizing: border-box;
+  outline: none;
+  box-shadow: 0 0 0 4px var(--edit-outline-soft);
+}
+.edit-mode .editable-input--textarea {
+  resize: vertical;
+  min-height: 2em;
+  font-family: inherit;
+}
+
+/* ----- List item controls ----- */
+.edit-mode .editable-list-item {
+  position: relative;
+}
+.edit-mode .editable-list-controls {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  background: #fff;
+  border: 1px solid #c9c5bc;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms;
+  z-index: 10;
+}
+.edit-mode .editable-list-item:hover .editable-list-controls,
+.edit-mode .editable-list-item:focus-within .editable-list-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.edit-mode .editable-icon-btn {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #5a5a5a;
+}
+.edit-mode .editable-icon-btn svg {
+  width: 14px;
+  height: 14px;
+}
+.edit-mode .editable-icon-btn:hover:not(:disabled) {
+  background: #f0eee9;
+  color: #1a1a1a;
+}
+.edit-mode .editable-icon-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.edit-mode .editable-icon-btn--danger:hover:not(:disabled) {
+  background: var(--edit-danger);
+  color: #fff;
+}
+
+/* ----- Add button (appears at end of each list) ----- */
+.edit-mode .editable-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.5rem 0.9rem;
+  background: transparent;
+  color: var(--edit-outline);
+  border: 1px dashed var(--edit-outline);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  transition: background-color 140ms;
+}
+.edit-mode .editable-add-btn:hover {
+  background: var(--edit-outline-soft);
+}
+.edit-mode .editable-add-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ----- Save state indicator (top-right floating pill) ----- */
+.save-indicator {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #ffffffee;
+  backdrop-filter: blur(8px);
+  border: 1px solid #e2dfd9;
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+  transition: background-color 180ms, color 180ms, border-color 180ms;
+}
+.save-indicator-icon {
+  width: 14px;
+  height: 14px;
+}
+.save-indicator-icon--spin {
+  animation: save-spin 0.8s linear infinite;
+}
+@keyframes save-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.save-indicator--idle {
+  color: #5a5a5a;
+}
+.save-indicator--saving {
+  color: #0e5a4f;
+}
+.save-indicator--saved {
+  color: #0e5a4f;
+  background: #e5f2ef;
+  border-color: #0e5a4f44;
+}
+.save-indicator--error {
+  color: var(--edit-danger);
+  background: #fbe9e7;
+  border-color: #f1c2bb;
+}
+
+/* ----- Section block toolbar (edit mode) ----- */
+.edit-mode .section-block {
+  position: relative;
+  border-top: 2px dashed color-mix(in srgb, var(--edit-outline) 35%, transparent);
+  border-bottom: 2px dashed color-mix(in srgb, var(--edit-outline) 35%, transparent);
+  margin: 16px 0;
+  transition: opacity 180ms;
+}
+.edit-mode .section-block--hidden .section-block-content {
+  opacity: 0.35;
+  pointer-events: none;
+}
+.edit-mode .section-block-toolbar {
+  position: sticky;
+  top: 68px;  /* sits below the sticky site header when scrolling */
+  z-index: 30;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 16px;
+  background: #ffffffef;
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid color-mix(in srgb, var(--edit-outline) 35%, transparent);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--edit-outline);
+  font-weight: 700;
+}
+.edit-mode .section-block-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.edit-mode .section-block-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--edit-outline) 35%, transparent);
+  border-radius: 999px;
+  color: var(--edit-outline);
+  font: inherit;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background-color 140ms, border-color 140ms;
+}
+.edit-mode .section-block-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+.edit-mode .section-block-toggle:hover {
+  background: var(--edit-outline-soft);
+  border-color: var(--edit-outline);
+}
+.edit-mode .section-block--hidden .section-block-toggle {
+  background: #fbe9e7;
+  border-color: var(--edit-danger);
+  color: var(--edit-danger);
+}
+.edit-mode .section-block-overlay {
+  padding: 8px 16px;
+  background: #fbe9e7;
+  color: var(--edit-danger);
+  font-size: 13px;
+  text-align: center;
+  border-bottom: 1px solid #f1c2bb;
+}
+
+/* ----- Editable image (click-to-upload) ----- */
+.edit-mode .editable-image {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.edit-mode .editable-image-file-input {
+  display: none;
+}
+.edit-mode .editable-image-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms;
+}
+.edit-mode .editable-image:hover .editable-image-controls,
+.edit-mode .editable-image:focus-within .editable-image-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+.edit-mode .editable-image-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--edit-outline);
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--edit-outline) 35%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 140ms, border-color 140ms, color 140ms;
+}
+.edit-mode .editable-image-btn:hover:not(:disabled) {
+  background: var(--edit-outline-soft);
+  border-color: var(--edit-outline);
+}
+.edit-mode .editable-image-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.edit-mode .editable-image-btn--danger {
+  color: var(--edit-danger);
+  border-color: color-mix(in srgb, var(--edit-danger) 35%, transparent);
+}
+.edit-mode .editable-image-btn--danger:hover:not(:disabled) {
+  background: #fbe9e7;
+  border-color: var(--edit-danger);
+}
+.edit-mode .editable-image-btn--danger .editable-image-btn-label {
+  display: none;
+}
+.edit-mode .editable-image-icon {
+  width: 12px;
+  height: 12px;
+}
+.edit-mode .editable-image-icon--spin {
+  animation: save-spin 0.8s linear infinite;
+}
+.edit-mode .editable-image-error {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: var(--edit-danger);
+  background: #fbe9e7;
+  border: 1px solid #f1c2bb;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+/* ----- HoursList in edit mode ----- */
+.edit-mode .hours-list--edit {
+  display: grid;
+  gap: 8px;
+}
+.edit-mode .hours-list-row--edit {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+.edit-mode .hours-list-closed-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #5a5a5a;
+  margin-right: 12px;
+}
+.edit-mode .hours-list-time-input {
+  font: inherit;
+  font-size: 14px;
+  padding: 4px 8px;
+  border: 1px solid #c9c5bc;
+  border-radius: 4px;
+  background: #fff;
+}
+.edit-mode .hours-list-time-input:focus {
+  outline: none;
+  border-color: var(--edit-outline);
+  box-shadow: 0 0 0 3px var(--edit-outline-soft);
+}
+.edit-mode .hours-list-time-sep {
+  margin: 0 8px;
+  color: #8a8a8a;
+}

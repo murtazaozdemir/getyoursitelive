@@ -1,5 +1,7 @@
 import { MetadataRoute } from "next";
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
+
 export const dynamic = "force-static";
 
 export default function robots(): MetadataRoute.Robots {
@@ -7,7 +9,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
+      disallow: ["/admin/", "/*/admin/"],
     },
-    sitemap: "https://precisionautocare.example.com/sitemap.xml",
+    sitemap: `${BASE_URL}/sitemap.xml`,
   };
 }

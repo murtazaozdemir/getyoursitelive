@@ -39,3 +39,23 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# sqlite database (local/dev; committed seed scripts recreate it)
+/db/db.sqlite
+/db/db.sqlite-journal
+/db/db.sqlite-wal
+/db/db.sqlite-shm
+
+# user-uploaded files (logo, photos, etc.) — not tracked in git
+/public/uploads/
+
+# sensitive data — not for public repo
+data/users.json
+data/prospects.json
+
+# internal sales docs — not for public repo
+HANDOUT-PROPOSAL-*.md
+HANDOUT-PROPOSAL-*.docx
+INTERNAL-*.md
+AutoRepairSiteTemp/
+client-site/
