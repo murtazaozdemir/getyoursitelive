@@ -33,6 +33,7 @@ export interface SessionUser {
   role: UserRole;
   name: string;
   ownedSlug: string | null;
+  createdAt?: string;
 }
 
 const USERS_KEY = "users.json";
@@ -138,6 +139,30 @@ export async function updateUserPassword(id: string, newPassword: string): Promi
   await writeJson(storage, USERS_KEY, users);
 }
 
+export async function updateUserEmail(id: string, newEmail: string): Promise<void> {
+  const users = await loadUsers();
+  const idx = users.findIndex((u) => u.id === id);
+  if (idx === -1) throw new Error(`No user with id ${id}`);
+
+  const normalized = newEmail.trim().toLowerCase();
+  if (users.some((u) => u.id !== id && u.email.toLowerCase() === normalized)) {
+    throw new Error(`Email ${newEmail} is already in use`);
+  }
+
+  users[idx].email = normalized;
+  const storage = await getStorage();
+  await writeJson(storage, USERS_KEY, users);
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  const users = await loadUsers();
+  const filtered = users.filter((u) => u.id !== id);
+  if (filtered.length === users.length) throw new Error(`No user with id ${id}`);
+
+  const storage = await getStorage();
+  await writeJson(storage, USERS_KEY, filtered);
+}
+
 // ---------------------------------------------------------------
 // Authorization helpers
 // ---------------------------------------------------------------
@@ -170,5 +195,6 @@ function toSessionUser(u: User): SessionUser {
     role: u.role,
     name: u.name,
     ownedSlug: u.ownedSlug,
+    createdAt: u.createdAt,
   };
 }

@@ -38,6 +38,9 @@ export function AdminHeader({ user }: { user: SessionUser }) {
           <nav className="admin-header-nav">
             <Link href="/admin" className="admin-header-nav-link">Sites</Link>
             <Link href="/admin/prospects" className="admin-header-nav-link">Prospects</Link>
+            {user.role === "admin" && (
+              <Link href="/admin/users" className="admin-header-nav-link">Users</Link>
+            )}
           </nav>
         </div>
 
@@ -48,6 +51,9 @@ export function AdminHeader({ user }: { user: SessionUser }) {
               {user.role === "admin" ? "Admin" : "Owner"}
             </span>
           </span>
+          <Link href="/admin/account" className="admin-btn admin-btn--ghost">
+            My Account
+          </Link>
           <button type="button" className="admin-btn admin-btn--ghost" onClick={handleLogout}>
             Sign out
           </button>

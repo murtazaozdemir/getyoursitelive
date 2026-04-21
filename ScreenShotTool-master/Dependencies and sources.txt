@@ -1,0 +1,55 @@
+﻿DEPENDENCIES
+
+MarkdownToRtf
+https://github.com/snjo/MarkdownToRtf
+Used in HelpForm.cs
+Used for presenting Markdown files in the Help Form. If removed, only offline Help is affected.
+
+SharpPDF-GDI
+https://www.nuget.org/packages/PDFsharp-gdi
+Used in SaveToPdf.cs
+Used for converting image files to PDFs, without using print to PDF. If removed, print to a PDF printer would still be possible.
+
+FrameworkExtract.System.Deployment
+https://www.nuget.org/packages/FrameworkExtract.System.Deployment
+Previously used in About.cs
+Used to show correct version number in ClickOnce deployed versions
+
+CLASSES FROM OTHER AUTHORS
+
+DotNetPixelSnoop
+https://github.com/kgodden/DotNetPixelSnoop/
+Used in BmpPixelSnoop.cs
+Used for GetPixel and SetPixel in editor, greatly improves performance compared to regular GetPixel/SetPixel
+
+
+LINKS TO VARIOUS PIECES OF CODE AND INSPIRATION MENTIONED THROUGHOUT THE CODE
+
+Classes\BlendModes.cs
+	Line   5:	// https://en.wikipedia.org/wiki/Blend_modes
+Classes\ColorTools.cs (2 hits)
+	Line  9:	// https://stackoverflow.com/questions/596216/formula-to-determine-perceived-brightness-of-rgb-color
+	Line 10:	// https://en.wikipedia.org/wiki/Relative_luminance
+Classes\EditorCanvas.cs (2 hits)
+	Line  401:	// https://www.codingdefined.com/2015/04/solved-bitmapclone-out-of-memory.html
+	Line  414:	// https://www.codingdefined.com/2015/04/solved-bitmapclone-out-of-memory.html
+Classes\GraphicSymbol\GsBlur.cs (1 hit)
+	Line 80:	// https://www.codingdefined.com/2015/04/solved-bitmapclone-out-of-memory.html
+Classes\GraphicSymbol\GsImage.cs (1 hit)
+	Line 215:	// modified from https://jsfiddle.net/w8r/9rnnk545/
+Classes\ImageView\CaptureModule.cs (1 hit)
+	Line 398:	// https://www.codingdefined.com/2015/04/solved-bitmapclone-out-of-memory.html
+Classes\PanelNoScroll.cs (1 hit)
+	Line  7:	// from https://stackoverflow.com/questions/419774/how-can-you-stop-a-winforms-panel-from-scrolling/912610#912610
+Classes\Print.cs (2 hits)
+	Line  13:	// https://learn.microsoft.com/en-us/dotnet/api/system.drawing.printing?view=dotnet-plat-ext-8.0
+	Line  14:	// other options: https://craftmypdf.com/blog/5-ways-to-generate-pdfs-with-c-sharp/
+Forms\ColorDialogAlpha.cs (1 hit)
+	Line 119:	// https://stackoverflow.com/questions/62203098/c-sharp-how-do-i-order-a-list-of-colors-in-the-order-of-a-rainbow
+Forms\MainForm.cs (6 hits)
+	Line  496:	// https://stackoverflow.com/questions/1922040/how-to-resize-an-image-c-sharp
+	Line  851:	// https://stackoverflow.com/questions/1484759/quality-of-a-saved-jpg-in-c-sharp
+	Line  875:	// https://stackoverflow.com/questions/309485/c-sharp-sanitize-file-name
+	Line  887:	// https://stackoverflow.com/questions/5878963/getting-active-window-coordinates-and-height-width-in-c-sharp
+Program.cs (1 hit)
+	Line 15:	// see https://aka.ms/applicationconfiguration.

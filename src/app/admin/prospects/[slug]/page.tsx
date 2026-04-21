@@ -49,17 +49,28 @@ export default async function ProspectDetailPage({
           </p>
         </div>
         <div className="admin-page-header-actions">
-          <a
-            href={previewUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="admin-btn admin-btn--primary"
-          >
-            View preview site →
-          </a>
-          <Link href={`/${slug}/admin`} className="admin-btn admin-btn--ghost">
-            Edit site
-          </Link>
+          <div className="prospect-header-domains">
+            <ProspectActions
+              slug={slug}
+              action="edit-domains"
+              domain1={prospect.domain1 ?? ""}
+              domain2={prospect.domain2 ?? ""}
+              domain3={prospect.domain3 ?? ""}
+            />
+          </div>
+          <div className="prospect-header-btns">
+            <a
+              href={previewUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="admin-btn admin-btn--primary"
+            >
+              View preview site →
+            </a>
+            <Link href={`/${slug}/admin`} className="admin-btn admin-btn--ghost">
+              Edit site
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -90,19 +101,6 @@ export default async function ProspectDetailPage({
           name={prospect.name}
           phone={prospect.phone ?? ""}
           address={prospect.address ?? ""}
-        />
-      </section>
-
-      {/* Domain names */}
-      <section className="admin-section">
-        <h2 className="admin-section-title">Domain names</h2>
-        <p className="admin-section-lede">Track domain options you're considering for this business.</p>
-        <ProspectActions
-          slug={slug}
-          action="edit-domains"
-          domain1={prospect.domain1 ?? ""}
-          domain2={prospect.domain2 ?? ""}
-          domain3={prospect.domain3 ?? ""}
         />
       </section>
 

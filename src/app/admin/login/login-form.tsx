@@ -2,11 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export function LoginForm({ nextPath }: { nextPath: string }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -17,7 +19,7 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, rememberMe }),
     });
 
     if (!res.ok) {
@@ -77,6 +79,17 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
         />
       </label>
 
+      <div className="admin-checkbox-row">
+        <input
+          id="remember-me"
+          type="checkbox"
+          checked={rememberMe}
+          onChange={(e) => setRememberMe(e.target.checked)}
+          disabled={isPending}
+        />
+        <label htmlFor="remember-me">Remember me for 30 days</label>
+      </div>
+
       {error && (
         <div className="admin-auth-error" role="alert">
           {error}
@@ -86,6 +99,10 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
       <button type="submit" className="admin-btn admin-btn--primary" disabled={isPending}>
         {isPending ? "Signing in\u2026" : "Sign in"}
       </button>
+
+      <Link href="/admin/forgot-password" className="admin-auth-link">
+        Forgot password?
+      </Link>
     </form>
   );
 }

@@ -245,43 +245,34 @@ function EditDomainsForm({
   }
 
   return (
-    <form className="prospect-edit-info-form" onSubmit={handleSubmit}>
-      <div className="admin-field">
-        <label className="admin-label">Domain 1</label>
-        <input
-          className="admin-input"
-          value={domain1}
-          onChange={(e) => setDomain1(e.target.value)}
-          disabled={isPending}
-          placeholder="e.g. starauto.com"
-        />
-      </div>
-      <div className="admin-field">
-        <label className="admin-label">Domain 2</label>
-        <input
-          className="admin-input"
-          value={domain2}
-          onChange={(e) => setDomain2(e.target.value)}
-          disabled={isPending}
-          placeholder="e.g. star-auto-repair.com"
-        />
-      </div>
-      <div className="admin-field">
-        <label className="admin-label">Domain 3</label>
-        <input
-          className="admin-input"
-          value={domain3}
-          onChange={(e) => setDomain3(e.target.value)}
-          disabled={isPending}
-          placeholder="e.g. starautoclifton.com"
-        />
-      </div>
+    <form className="prospect-domains-form" onSubmit={handleSubmit}>
+      <input
+        className="admin-input prospect-domain-input"
+        value={domain1}
+        onChange={(e) => setDomain1(e.target.value)}
+        disabled={isPending}
+        placeholder="Domain 1 (e.g. starauto.com)"
+      />
+      <input
+        className="admin-input prospect-domain-input"
+        value={domain2}
+        onChange={(e) => setDomain2(e.target.value)}
+        disabled={isPending}
+        placeholder="Domain 2"
+      />
+      <input
+        className="admin-input prospect-domain-input"
+        value={domain3}
+        onChange={(e) => setDomain3(e.target.value)}
+        disabled={isPending}
+        placeholder="Domain 3"
+      />
       <button
         type="submit"
-        className="admin-btn admin-btn--primary"
+        className="admin-btn admin-btn--ghost prospect-domain-save"
         disabled={isPending}
       >
-        {isPending ? "Saving…" : saved ? "Saved ✓" : "Save domains"}
+        {isPending ? "…" : saved ? "Saved ✓" : "Save"}
       </button>
     </form>
   );
