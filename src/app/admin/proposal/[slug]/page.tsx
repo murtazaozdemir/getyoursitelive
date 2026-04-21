@@ -223,8 +223,8 @@ export default async function ProposalPage({
               className="proposal-screenshot"
             />
             <img
-              src={`/api/screenshot?slug=${slug}&section=team`}
-              alt="Website — team &amp; testimonials"
+              src={`/api/screenshot?slug=${slug}&section=contact`}
+              alt="Website — contact &amp; address"
               className="proposal-screenshot"
             />
           </div>

@@ -3,16 +3,14 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import puppeteer from "puppeteer-core";
 
-// Y-offsets (px from top) for each section of the business site
-const SECTION_OFFSETS: Record<string, number> = {
-  hero: 0,
-  services: 2050,
-  team: 3200,
+// CSS selector for each named section of the business site
+const SECTION_SELECTORS: Record<string, string> = {
+  hero: "#home",
+  services: "#services",
+  contact: "#contact",
 };
 
-const CROP_HEIGHT = 700;
-const PAGE_WIDTH = 1200;
-const PAGE_HEIGHT = 5000;
+const PAGE_WIDTH = 1280;
 const CACHE_DIR = join(process.cwd(), "public", "proposal-screenshots");
 
 export async function GET(request: NextRequest) {
@@ -20,7 +18,7 @@ export async function GET(request: NextRequest) {
   const slug = searchParams.get("slug");
   const section = searchParams.get("section") ?? "hero";
 
-  if (!slug || !(section in SECTION_OFFSETS)) {
+  if (!slug || !(section in SECTION_SELECTORS)) {
     return new NextResponse("Bad request", { status: 400 });
   }
 
@@ -36,7 +34,7 @@ export async function GET(request: NextRequest) {
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const targetUrl = `${siteUrl}/${slug}`;
-  const yOffset = SECTION_OFFSETS[section];
+  const selector = SECTION_SELECTORS[section];
 
   // Pick the right Chromium executable
   let executablePath: string;
@@ -60,13 +58,19 @@ export async function GET(request: NextRequest) {
     });
 
     const page = await browser.newPage();
-    await page.setViewport({ width: PAGE_WIDTH, height: PAGE_HEIGHT });
+    // Wide viewport so the page renders desktop layout; height is auto (full page)
+    await page.setViewport({ width: PAGE_WIDTH, height: 900 });
     await page.goto(targetUrl, { waitUntil: "networkidle0", timeout: 20000 });
 
-    const buf = await page.screenshot({
-      type: "png",
-      clip: { x: 0, y: yOffset, width: PAGE_WIDTH, height: CROP_HEIGHT },
-    });
+    // Wait for the target section to appear
+    await page.waitForSelector(selector, { timeout: 5000 });
+    const element = await page.$(selector);
+    if (!element) {
+      return new NextResponse("Section not found", { status: 404 });
+    }
+
+    // Screenshot exactly the element's bounding box — no guessing offsets
+    const buf = await element.screenshot({ type: "png" });
 
     // Cache to disk for subsequent requests
     mkdirSync(cacheDir, { recursive: true });
