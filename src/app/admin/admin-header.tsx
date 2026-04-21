@@ -21,14 +21,20 @@ export function AdminHeader({ user }: { user: SessionUser }) {
             <span className="admin-header-mark">GYSL</span>
             <span className="admin-header-title">Admin</span>
           </Link>
-          <span className="admin-header-build">
-            {process.env.NEXT_PUBLIC_APP_VERSION}
-            {" ("}
-            {new Date(process.env.NEXT_PUBLIC_BUILD_TIME ?? "").toLocaleString("en-US", {
-              month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true,
-            })}
-            {")"}
-          </span>
+          {(() => {
+            const version = process.env.NEXT_PUBLIC_APP_VERSION;
+            const raw = process.env.NEXT_PUBLIC_BUILD_TIME;
+            const d = raw ? new Date(raw) : null;
+            const dateStr = d && !isNaN(d.getTime())
+              ? d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true })
+              : null;
+            if (!version && !dateStr) return null;
+            return (
+              <span className="admin-header-build">
+                {version}{dateStr ? ` (${dateStr})` : ""}
+              </span>
+            );
+          })()}
           <nav className="admin-header-nav">
             <Link href="/admin" className="admin-header-nav-link">Sites</Link>
             <Link href="/admin/prospects" className="admin-header-nav-link">Prospects</Link>
