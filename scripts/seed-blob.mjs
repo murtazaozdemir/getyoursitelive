@@ -1,8 +1,11 @@
 /**
- * One-time script to upload all local data/ files to Vercel Blob.
+ * Upload local data/ files to Vercel Blob.
  *
- * Usage:
- *   BLOB_READ_WRITE_TOKEN=<your token> node scripts/seed-blob.mjs
+ * Usage — platform (uploads everything):
+ *   BLOB_READ_WRITE_TOKEN=<token> node scripts/seed-blob.mjs
+ *
+ * Usage — single customer site (uploads only their business file):
+ *   BLOB_READ_WRITE_TOKEN=<token> node scripts/seed-blob.mjs star-auto
  *
  * Get the token from: Vercel dashboard → Storage → your Blob store → .env.local
  */
@@ -12,6 +15,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const DATA_DIR = new URL("../data", import.meta.url).pathname;
+const slugFilter = process.argv[2] ?? null;
 
 async function listFiles(dir, base = "") {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -27,14 +31,26 @@ async function listFiles(dir, base = "") {
   return files;
 }
 
+function shouldInclude(rel) {
+  if (!slugFilter) return true;
+  // Always include the business file for this slug and users.json
+  return rel === `businesses/${slugFilter}.json` || rel === "users.json";
+}
+
 async function main() {
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
     console.error("Set BLOB_READ_WRITE_TOKEN before running this script.");
     process.exit(1);
   }
 
-  const files = await listFiles(DATA_DIR);
-  console.log(`Uploading ${files.length} files to Vercel Blob...`);
+  const allFiles = await listFiles(DATA_DIR);
+  const files = allFiles.filter(shouldInclude);
+
+  if (slugFilter) {
+    console.log(`Uploading customer site data for: ${slugFilter}`);
+  } else {
+    console.log(`Uploading all platform data (${files.length} files)...`);
+  }
 
   for (const rel of files) {
     const content = await readFile(join(DATA_DIR, rel), "utf-8");
