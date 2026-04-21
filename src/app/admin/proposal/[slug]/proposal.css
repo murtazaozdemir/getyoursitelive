@@ -291,6 +291,9 @@
 .proposal-preview-photo {
   width: 100%;
   height: auto;
+  max-height: 420px;
+  object-fit: cover;
+  object-position: top;
   display: block;
   border-radius: 4px;
   border: 1px solid #ddd;
