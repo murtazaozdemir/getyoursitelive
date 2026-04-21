@@ -62,3 +62,7 @@ HANDOUT-PROPOSAL-*.docx
 INTERNAL-*.md
 AutoRepairSiteTemp/
 client-site/
+
+# unrelated tools in project root — not part of this repo
+ScreenShotTool-master/
+rest-screenshoot-master/
