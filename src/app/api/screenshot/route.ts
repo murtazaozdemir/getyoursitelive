@@ -3,6 +3,9 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import puppeteer from "puppeteer-core";
 
+// Give Vercel enough time to download Chromium + navigate + screenshot
+export const maxDuration = 60;
+
 // CSS selector for each named section of the business site
 const SECTION_SELECTORS: Record<string, string> = {
   hero: "#home",
@@ -11,7 +14,11 @@ const SECTION_SELECTORS: Record<string, string> = {
 };
 
 const PAGE_WIDTH = 1280;
-const CACHE_DIR = join(process.cwd(), "public", "proposal-screenshots");
+
+// Vercel's filesystem is read-only except /tmp — write cache there in prod
+const CACHE_DIR = process.env.VERCEL
+  ? join("/tmp", "proposal-screenshots")
+  : join(process.cwd(), "public", "proposal-screenshots");
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -22,7 +29,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse("Bad request", { status: 400 });
   }
 
-  // Serve from disk cache if available (avoids re-launching Chrome)
+  // Serve from cache if available (avoids re-launching Chrome)
   const cacheDir = join(CACHE_DIR, slug);
   const cachePath = join(cacheDir, `${section}.png`);
   if (existsSync(cachePath)) {
@@ -58,21 +65,19 @@ export async function GET(request: NextRequest) {
     });
 
     const page = await browser.newPage();
-    // Wide viewport so the page renders desktop layout; height is auto (full page)
     await page.setViewport({ width: PAGE_WIDTH, height: 900 });
-    await page.goto(targetUrl, { waitUntil: "networkidle0", timeout: 20000 });
+    await page.goto(targetUrl, { waitUntil: "networkidle0", timeout: 30000 });
 
-    // Wait for the target section to appear
+    // Wait for the target section then screenshot its exact bounding box
     await page.waitForSelector(selector, { timeout: 5000 });
     const element = await page.$(selector);
     if (!element) {
       return new NextResponse("Section not found", { status: 404 });
     }
 
-    // Screenshot exactly the element's bounding box — no guessing offsets
     const buf = await element.screenshot({ type: "png" });
 
-    // Cache to disk for subsequent requests
+    // Cache for subsequent requests
     mkdirSync(cacheDir, { recursive: true });
     writeFileSync(cachePath, buf as Buffer);
 
