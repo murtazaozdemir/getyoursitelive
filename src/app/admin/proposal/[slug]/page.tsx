@@ -213,18 +213,18 @@ export default async function ProposalPage({
 
           <div className="proposal-screenshots">
             <img
-              src="/proposal-screenshots/desktop.png"
-              alt="Website — desktop view"
+              src={`/api/screenshot?slug=${slug}&section=hero`}
+              alt="Website — hero section"
               className="proposal-screenshot"
             />
             <img
-              src="/proposal-screenshots/fullpage.png"
-              alt="Website — full page"
+              src={`/api/screenshot?slug=${slug}&section=services`}
+              alt="Website — services section"
               className="proposal-screenshot"
             />
             <img
-              src="/proposal-screenshots/mobile.png"
-              alt="Website — mobile view"
+              src={`/api/screenshot?slug=${slug}&section=team`}
+              alt="Website — team &amp; testimonials"
               className="proposal-screenshot"
             />
           </div>
