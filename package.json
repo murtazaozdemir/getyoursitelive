@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1034.0",
     "@hookform/resolvers": "^5.2.2",
     "@sparticuz/chromium-min": "^147.0.2",
     "bcryptjs": "^3.0.2",
