@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* ==================================================================
+   THEME SYSTEM
+   Each theme defines the same CSS variables so component styles are
+   theme-agnostic. Applied via `data-theme` attribute on :root OR on
+   any wrapping element (useful for per-business pages).
+   ================================================================== */
+
 :root {
   --bg: #1a1a1a;
   --surface: #242424;
@@ -9,6 +16,26 @@
   --border: #424242;
   --accent: #ff6b00;
   --accent-ink: #111111;
+
+  /* Extended vars — enhanced themes use these for richer styling */
+  --accent-soft: color-mix(in srgb, var(--accent) 15%, transparent);
+  --accent-glow: color-mix(in srgb, var(--accent) 25%, transparent);
+  --surface-elevated: var(--surface-2);
+  --text-secondary: var(--muted);
+  --shadow-color: 0 0% 0%;
+  --shadow-strength: 0.12;
+
+  /* Radii */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Typographic scale for section rhythm */
+  --font-display: var(--font-geist-sans);
+  --font-body: var(--font-geist-sans);
+  --font-accent: var(--font-geist-mono);
 }
 
 @theme inline {
@@ -18,7 +45,9 @@
   --font-mono: var(--font-geist-mono);
 }
 
-:root[data-theme="industrial"] {
+/* ----- INDUSTRIAL ------------------------------------------------- */
+:root[data-theme="industrial"],
+[data-theme="industrial"] {
   --bg: #1a1a1a;
   --surface: #242424;
   --surface-2: #2d2d2d;
@@ -27,20 +56,68 @@
   --border: #444444;
   --accent: #ff6b00;
   --accent-ink: #0f0f0f;
+  --accent-soft: color-mix(in srgb, #ff6b00 15%, transparent);
+  --accent-glow: color-mix(in srgb, #ff6b00 25%, transparent);
+  --surface-elevated: #2d2d2d;
+  --text-secondary: #c8c8c8;
+  --shadow-color: 0 0% 0%;
+  --shadow-strength: 0.4;
+
+  /* Industrial-theme-specific typography: Chakra Petch for display
+     (mechanical, geometric), Geist for body, JetBrains Mono for accents. */
+  --font-display: var(--font-chakra-petch);
+  --font-body: var(--font-geist-sans);
+  --font-accent: var(--font-jetbrains-mono);
 }
 
-:root[data-theme="modern"] {
-  --bg: #ffffff;
-  --surface: #f8fafc;
-  --surface-2: #eef2ff;
-  --text: #0f172a;
-  --muted: #64748b;
-  --border: #cbd5e1;
-  --accent: #0066ff;
-  --accent-ink: #ffffff;
+/* When Industrial is active, display headings pick up Chakra Petch */
+[data-theme="industrial"] .hero-headline,
+[data-theme="industrial"] .hero-card-title,
+[data-theme="industrial"] .brand-name,
+[data-theme="industrial"] .deals-title,
+[data-theme="industrial"] .deal-title {
+  font-family: var(--font-chakra-petch), "Chakra Petch", system-ui, sans-serif;
+  letter-spacing: -0.015em;
+  font-weight: 700;
 }
 
-:root[data-theme="luxury"] {
+/* Slightly tighter tracking on uppercase eyebrow labels for that
+   industrial/engineering-spec-sheet feel */
+[data-theme="industrial"] .deals-eyebrow,
+[data-theme="industrial"] .trust-pill {
+  font-family: var(--font-jetbrains-mono), monospace;
+  letter-spacing: 0.1em;
+}
+
+/* ----- MODERN (strengthened — the star of this refactor) ---------- */
+:root[data-theme="modern"],
+[data-theme="modern"] {
+  /* Palette — sophisticated deep-blue editorial meets clean-tech modern.
+     Moved away from the generic "SaaS blue on white" look. */
+  --bg: #FAFAF7;              /* warm off-white, not pure white */
+  --surface: #FFFFFF;
+  --surface-2: #F1F1EC;       /* subtle warm gray for alternating bands */
+  --surface-elevated: #FFFFFF;
+  --text: #0B0D0C;            /* rich near-black, warmer than slate */
+  --muted: #5A5E5B;           /* warm gray, not cold slate */
+  --text-secondary: #3F4341;
+  --border: #E4E1D9;          /* warm hairline border */
+  --accent: #0A5D56;           /* deep teal-green — confident, not generic blue */
+  --accent-ink: #FAFAF7;
+  --accent-soft: color-mix(in srgb, #0A5D56 10%, transparent);
+  --accent-glow: color-mix(in srgb, #0A5D56 20%, transparent);
+  --shadow-color: 200 10% 15%;
+  --shadow-strength: 0.08;
+
+  /* Modern-theme-specific typography */
+  --font-display: var(--font-fraunces);
+  --font-body: var(--font-instrument-sans);
+  --font-accent: var(--font-jetbrains-mono);
+}
+
+/* ----- LUXURY (unchanged) ----------------------------------------- */
+:root[data-theme="luxury"],
+[data-theme="luxury"] {
   --bg: #0a0a0a;
   --surface: #161616;
   --surface-2: #1f1f1f;
@@ -49,9 +126,17 @@
   --border: #3e3217;
   --accent: #d4af37;
   --accent-ink: #0a0a0a;
+  --accent-soft: color-mix(in srgb, #d4af37 15%, transparent);
+  --accent-glow: color-mix(in srgb, #d4af37 25%, transparent);
+  --surface-elevated: #1f1f1f;
+  --text-secondary: #d9d6c3;
+  --shadow-color: 0 0% 0%;
+  --shadow-strength: 0.5;
 }
 
-:root[data-theme="friendly"] {
+/* ----- FRIENDLY (unchanged) --------------------------------------- */
+:root[data-theme="friendly"],
+[data-theme="friendly"] {
   --bg: #faf9f6;
   --surface: #ffffff;
   --surface-2: #f3eee8;
@@ -60,7 +145,17 @@
   --border: #d9d4cb;
   --accent: #e07a5f;
   --accent-ink: #ffffff;
+  --accent-soft: color-mix(in srgb, #e07a5f 15%, transparent);
+  --accent-glow: color-mix(in srgb, #e07a5f 25%, transparent);
+  --surface-elevated: #ffffff;
+  --text-secondary: #5e6972;
+  --shadow-color: 25 15% 30%;
+  --shadow-strength: 0.1;
 }
+
+/* ==================================================================
+   BASE
+   ================================================================== */
 
 html {
   scroll-behavior: smooth;
@@ -69,6 +164,7 @@ html {
 body {
   background: var(--bg);
   color: var(--text);
+  font-family: var(--font-body), system-ui, sans-serif;
 }
 
 .transition-theme,
@@ -81,26 +177,1214 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
+  html { scroll-behavior: auto; }
   .transition-theme,
-  .transition-theme * {
-    transition: none !important;
-    animation: none !important;
-  }
+  .transition-theme * { transition: none !important; animation: none !important; }
 }
+
+/* ==================================================================
+   REUSABLE UTILITY CLASSES
+   (replaces inline style props in components)
+   ================================================================== */
 
 .input {
   width: 100%;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: var(--surface);
   padding: 0.72rem 0.9rem;
   color: var(--text);
+  font-family: var(--font-body), system-ui, sans-serif;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.input::placeholder { color: var(--muted); }
+
+/* Hero text shadows — formerly inline, now a proper class */
+.text-shadow-hero {
+  text-shadow:
+    0 2px 16px rgba(0, 0, 0, 0.55),
+    0 1px 3px rgba(0, 0, 0, 0.75);
+}
+.text-shadow-hero-sub {
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
 }
 
-.input::placeholder {
+/* ==================================================================
+   MODERN THEME — SITE-SPECIFIC ENHANCEMENTS
+   Targeted styling that only applies when Modern theme is active.
+   ================================================================== */
+
+[data-theme="modern"] .site-container {
+  /* Subtle warm paper texture via gradient — gives depth without heaviness */
+  background:
+    radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--accent) 4%, transparent) 0%, transparent 50%),
+    radial-gradient(circle at 80% 100%, color-mix(in srgb, var(--accent) 3%, transparent) 0%, transparent 50%),
+    var(--bg);
+}
+
+[data-theme="modern"] .heading-display {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 0.98;
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+}
+[data-theme="modern"] .heading-display em {
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 100;
+  color: var(--accent);
+}
+
+[data-theme="modern"] .heading-section {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1;
+  font-variation-settings: "opsz" 96, "SOFT" 40;
+}
+[data-theme="modern"] .heading-section em {
+  font-style: italic;
+  color: var(--accent);
+  font-variation-settings: "opsz" 96, "SOFT" 100;
+}
+
+[data-theme="modern"] .label-eyebrow {
+  font-family: var(--font-accent), monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+[data-theme="modern"] .prose-lead {
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* Modern-themed "card" — warm paper feel with precise hairline border,
+   soft shadow only on hover to stay subtle */
+[data-theme="modern"] .card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              border-color 300ms;
+}
+[data-theme="modern"] .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -12px hsl(var(--shadow-color) / var(--shadow-strength));
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+}
+
+/* Accent button — base style shared across themes */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 0.95rem;
+  transition: transform 200ms, box-shadow 200ms, background-color 200ms;
+  box-shadow: 0 4px 14px -4px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -6px color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 92%, black);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 600;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 0.95rem;
+  transition: border-color 200ms, background-color 200ms;
+}
+.btn-secondary:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* Modern theme tunes the shared buttons */
+[data-theme="modern"] .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 0.95rem;
+  transition: transform 200ms, box-shadow 200ms, background-color 200ms;
+  box-shadow: 0 4px 14px -4px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+[data-theme="modern"] .btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -6px color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 92%, black);
+}
+
+[data-theme="modern"] .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 600;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 0.95rem;
+  transition: border-color 200ms, background-color 200ms;
+}
+[data-theme="modern"] .btn-secondary:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* Modern-themed section divider */
+[data-theme="modern"] .section-divider {
+  height: 1px;
+  background: linear-gradient(to right,
+    transparent 0%,
+    var(--border) 20%,
+    var(--border) 80%,
+    transparent 100%);
+  margin: 0 auto;
+  max-width: 80rem;
+}
+
+/* Number glyph for "How it works" / process — big serif numeral */
+[data-theme="modern"] .numeral-display {
+  font-family: var(--font-display), Georgia, serif;
+  font-variation-settings: "opsz" 144, "SOFT" 100;
+  font-weight: 300;
+  color: var(--accent);
+  line-height: 0.85;
+}
+
+/* Pricing card "popular" highlight */
+[data-theme="modern"] .card-popular {
+  background: linear-gradient(135deg, var(--surface) 0%, color-mix(in srgb, var(--accent) 5%, var(--surface)) 100%);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  box-shadow: 0 10px 40px -15px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* ==================================================================
+   DEALS / PROMOTIONS SECTION
+   Current-specials cards with optional strikethrough original price.
+   ================================================================== */
+
+.deals-section {
+  background: var(--surface-2);
+  padding: 4rem 1rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+@media (min-width: 768px) {
+  .deals-section { padding: 5rem 2rem; }
+}
+
+.deals-section-inner {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+.deals-section-head {
+  text-align: center;
+  max-width: 42rem;
+  margin: 0 auto 3rem;
+}
+
+.deals-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: var(--font-accent), monospace;
+}
+
+.deals-title {
+  margin-top: 1rem;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--text);
+}
+
+[data-theme="modern"] .deals-title {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 400;
+  font-variation-settings: "opsz" 96, "SOFT" 40;
+}
+
+.deals-lede {
+  margin-top: 0.75rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.deals-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+}
+
+.deal-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem;
+  transition: transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              border-color 250ms,
+              box-shadow 250ms;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.deal-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  box-shadow: 0 12px 32px -12px color-mix(in srgb, var(--text) 30%, transparent);
+}
+
+.deal-badge {
+  align-self: flex-start;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: var(--font-accent), monospace;
+}
+
+.deal-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+}
+[data-theme="modern"] .deal-title {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 500;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+}
+
+.deal-desc {
+  color: var(--text-secondary);
+  font-size: 0.925rem;
+  line-height: 1.55;
+  flex: 1;
+}
+
+.deal-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.deal-price {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.deal-price-original {
+  text-decoration: line-through;
   color: var(--muted);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.deal-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  transition: gap 200ms ease;
+}
+.deal-cta:hover { gap: 0.7rem; }
+
+/* ==================================================================
+   WEEKLY HOURS LIST
+   Multi-line definition list. Day name left, hours right.
+   ================================================================== */
+
+.hours-list {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.hours-list-row {
+  display: grid;
+  grid-template-columns: minmax(8rem, auto) 1fr;
+  gap: 1rem;
+  align-items: baseline;
+  font-size: 0.9rem;
+}
+
+.hours-list-day {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.hours-list-time {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.hours-list-time--closed {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ==================================================================
+   OPEN / CLOSED STATUS INDICATOR
+   Live-updating pill that shows whether the business is currently open
+   (plus "Closes at X" / "Opens at Y tomorrow").
+   ================================================================== */
+
+.open-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.open-status-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.open-status-label { font-weight: 600; }
+
+.open-status-detail {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.open-status--open .open-status-label { color: #10b981; }
+.open-status--open .open-status-dot {
+  background: #10b981;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #10b981 25%, transparent);
+  animation: openPulse 2.2s ease-in-out infinite;
+}
+
+.open-status--closed .open-status-label { color: #ef4444; }
+.open-status--closed .open-status-dot { background: #ef4444; }
+
+.open-status--placeholder { opacity: 0; }
+
+@keyframes openPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.6; transform: scale(0.85); }
+}
+
+/* ==================================================================
+   THEME SWITCHER — custom dropdown with icons + checkmark
+   "Theme [icon] ⌄"   →   menu with all themes, ✓ on the active one
+   ================================================================== */
+
+.theme-switcher {
+  position: relative;
+  display: inline-block;
+}
+
+.theme-switcher-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+.theme-switcher-trigger:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+  background: var(--accent-soft);
+}
+.theme-switcher-trigger:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.theme-switcher-label {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.theme-switcher-current-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.theme-switcher-chevron {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--muted);
+  transition: transform 200ms ease;
+  flex-shrink: 0;
+}
+.theme-switcher-chevron--open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown menu --------------------------------------------------------- */
+
+.theme-switcher-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 50;
+  min-width: 12rem;
+  padding: 0.35rem;
+  margin: 0;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 12px 32px -10px color-mix(in srgb, var(--text) 25%, transparent),
+    0 4px 12px -4px color-mix(in srgb, var(--text) 15%, transparent);
+  animation: themeMenuIn 140ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes themeMenuIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.theme-switcher-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.7rem;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: calc(var(--radius-md) - 0.25rem);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 120ms ease;
+}
+.theme-switcher-option:hover {
+  background: var(--accent-soft);
+}
+
+.theme-switcher-option--selected {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.theme-switcher-option-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.theme-switcher-option-label {
+  flex: 1;
+}
+
+.theme-switcher-check {
+  width: 1rem;
+  height: 1rem;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ==================================================================
+   SITE HEADER — BRAND MARK
+   Gives the business name real presence in the nav.
+   ================================================================== */
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--text);
+  text-decoration: none;
+  line-height: 1;
+  transition: opacity 200ms ease;
+  /* Allow the brand to shrink before pushing nav items off-screen. */
+  min-width: 0;
+  flex-shrink: 1;
+}
+.brand:hover { opacity: 0.85; }
+
+.brand-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.brand-logo {
+  width: auto;
+  height: 2rem;
+  max-width: 9rem;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+@media (min-width: 768px) {
+  .brand-logo { height: 2.4rem; max-width: 12rem; }
+}
+
+.brand-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  /* If the shop name is long, ellipsize rather than pushing nav items off. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  color: var(--text);
+}
+
+@media (min-width: 768px) {
+  .brand-icon { width: 1.75rem; height: 1.75rem; }
+  .brand-name { font-size: 1.5rem; }
+}
+
+/* Modern theme — use Fraunces for an editorial, high-presence brand mark */
+[data-theme="modern"] .brand-name {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 48, "SOFT" 40;
+  letter-spacing: -0.01em;
+  font-size: 1.45rem;
+}
+
+@media (min-width: 768px) {
+  [data-theme="modern"] .brand-name { font-size: 1.75rem; }
+}
+
+/* Industrial / Luxury / Friendly — bolder and tighter than default */
+[data-theme="industrial"] .brand-name,
+[data-theme="luxury"] .brand-name,
+[data-theme="friendly"] .brand-name {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+/* ==================================================================
+   HERO SECTION — works across themes, optimized for Modern
+   Left half: theme-background with big typography + trust + CTAs
+   Right half: contained photo + floating credibility card
+   ================================================================== */
+
+.hero-section {
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  position: relative;
+}
+
+.hero-grid {
+  max-width: 90rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+  display: grid;
+  gap: 3rem;
+  /* Start-align so left/right columns don't vertically center when one
+     is much shorter than the other (e.g. after blocks are toggled off). */
+  align-items: start;
+}
+
+/* Grid items must opt out of min-content-width or they'll overflow
+   whenever any child (headline, image, card) exceeds the track size. */
+.hero-text,
+.hero-visual {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Force hero-text children to stack vertically, in DOM order.
+   Prevents any float, grid, or stray rule from placing the card beside
+   the CTAs. */
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Every direct child of hero-text stays inside the column, no exceptions. */
+.hero-text > * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .hero-grid {
+    padding: 3rem 3rem 4rem;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 4rem;
+    /* Hero sizes to its content; no forced min-height so hiding
+       blocks lets the page collapse smoothly. */
+  }
+}
+
+/* ---- Left column (text) --------------------------------------------- */
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-family: var(--font-accent), monospace;
+  text-transform: uppercase;
+}
+
+.hero-eyebrow-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  animation: heroPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes heroPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.55; transform: scale(0.9); }
+}
+
+.hero-headline {
+  margin-top: 1.75rem;
+  font-size: clamp(2.75rem, 6vw, 5rem);
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  font-weight: 700;
+  font-family: var(--font-display), system-ui, sans-serif;
+  color: var(--text);
+  max-width: 14ch;
+}
+
+.hero-headline-accent {
+  display: inline;
+  font-style: normal;
+  color: var(--accent);
+}
+
+/* Modern theme — swap accent to italic serif for editorial flourish */
+[data-theme="modern"] .hero-headline {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 400;
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+}
+[data-theme="modern"] .hero-headline-accent {
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 100;
+}
+
+.hero-lead {
+  margin-top: 1.25rem;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 32rem;
+}
+
+@media (min-width: 768px) {
+  .hero-lead { font-size: 1.25rem; }
+}
+
+.hero-actions {
+  margin-top: 2.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.hero-cta-row .btn-primary,
+.hero-cta-row .btn-secondary {
+  min-height: 3rem;
+}
+
+.hero-trust-strip {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.hero-trust-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.3rem 0.72rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  background: color-mix(in srgb, var(--accent-soft) 42%, transparent);
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  letter-spacing: 0.01em;
+}
+
+/* ==================================================================
+   PREMIUM POLISH LAYER
+   Consistent hierarchy, spacing, and depth across all themes.
+   ================================================================== */
+
+.section-shell {
+  padding-top: clamp(4.5rem, 7vw, 6.5rem);
+  padding-bottom: clamp(4.5rem, 7vw, 6.5rem);
+}
+
+.section-title {
+  font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1.06;
+  font-size: clamp(1.9rem, 4vw, 2.85rem);
+}
+
+[data-theme="modern"] .section-title,
+[data-theme="luxury"] .section-title {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 450;
+}
+
+.site-header {
+  border-bottom-color: color-mix(in srgb, var(--border) 78%, transparent);
+  box-shadow: 0 8px 24px -22px color-mix(in srgb, var(--text) 55%, transparent);
+}
+
+.nav-link {
+  position: relative;
+  color: var(--text-secondary);
+  font-weight: 520;
+  transition: color 180ms ease;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.35rem;
+  width: 100%;
+  height: 1px;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: var(--accent);
+  transition: transform 220ms ease;
+}
+
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.mobile-menu-button {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.mobile-nav-link {
+  font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.content-card,
+.stat-card,
+.pricing-card {
+  border-color: color-mix(in srgb, var(--border) 86%, transparent);
+  box-shadow: 0 10px 24px -20px color-mix(in srgb, var(--text) 42%, transparent);
+  transition: transform 220ms ease, box-shadow 260ms ease, border-color 220ms ease;
+}
+
+.content-card:hover,
+.stat-card:hover,
+.pricing-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+  box-shadow: 0 18px 44px -28px color-mix(in srgb, var(--text) 52%, transparent);
+}
+
+.service-pill {
+  min-height: 3rem;
+  color: var(--text-secondary);
+}
+
+.service-pill:hover {
+  background: color-mix(in srgb, var(--surface) 70%, var(--accent-soft));
+}
+
+.premium-form .input,
+.premium-form select.input,
+.premium-form textarea.input {
+  min-height: 3rem;
+  border-radius: 0.85rem;
+  border-color: color-mix(in srgb, var(--border) 84%, transparent);
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+}
+
+.premium-form textarea.input {
+  min-height: 6.5rem;
+}
+
+.premium-form .input:focus,
+.premium-form select.input:focus,
+.premium-form textarea.input:focus {
+  border-color: color-mix(in srgb, var(--accent) 70%, var(--border));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  transition: all 180ms ease;
+}
+
+.icon-button:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.testimonial-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonial-card::before {
+  content: "“";
+  position: absolute;
+  right: 1rem;
+  top: 0.35rem;
+  font-size: 4.5rem;
+  line-height: 1;
+  color: color-mix(in srgb, var(--accent) 18%, transparent);
+  pointer-events: none;
+}
+
+.testimonial-quote {
+  max-width: 46ch;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.pricing-kicker {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.pricing-price {
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+}
+
+@media (max-width: 767px) {
+  .hero-grid {
+    padding: 1.75rem 0.9rem 2.5rem;
+    gap: 1.6rem;
+  }
+
+  .hero-headline {
+    font-size: clamp(2.05rem, 10.2vw, 2.7rem);
+    line-height: 1.02;
+  }
+
+  .hero-lead {
+    margin-top: 0.9rem;
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .hero-actions {
+    margin-top: 1.35rem;
+    width: 100%;
+    gap: 0.6rem;
+  }
+
+  .hero-cta-row .btn-primary,
+  .hero-cta-row .btn-secondary {
+    flex: 1;
+    min-width: 0;
+    min-height: 2.9rem;
+    padding: 0.7rem 0.85rem;
+    font-size: 0.9rem;
+  }
+
+  .hero-trust-strip {
+    margin-top: 0.7rem;
+    gap: 0.45rem;
+  }
+
+  .hero-trust-pill {
+    font-size: 0.68rem;
+    min-height: 1.75rem;
+    padding: 0.26rem 0.55rem;
+  }
+
+  .hero-card {
+    margin-top: 1.05rem;
+    padding: 0.95rem;
+    border-radius: 0.9rem;
+  }
+
+  .section-shell {
+    padding-top: clamp(3.1rem, 10vw, 4rem);
+    padding-bottom: clamp(3.1rem, 10vw, 4rem);
+  }
+
+  .section-title {
+    font-size: clamp(1.55rem, 7vw, 1.95rem);
+    line-height: 1.08;
+  }
+
+  .content-card,
+  .stat-card,
+  .pricing-card,
+  .deal-card {
+    border-radius: 0.9rem;
+  }
+
+  .deals-section {
+    padding: 3.1rem 0.9rem;
+  }
+
+  .deals-grid {
+    gap: 1rem;
+    grid-template-columns: 1fr;
+  }
+
+  .testimonial-card {
+    padding: 1rem;
+  }
+
+  .testimonial-card::before {
+    right: 0.7rem;
+    top: 0.15rem;
+    font-size: 3.25rem;
+  }
+
+  .testimonial-quote {
+    font-size: 0.98rem;
+    line-height: 1.5;
+  }
+
+  .icon-button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .premium-form {
+    gap: 0.55rem;
+  }
+
+  .premium-form .input,
+  .premium-form select.input {
+    min-height: 2.85rem;
+    font-size: 0.95rem;
+  }
+
+  .premium-form textarea.input {
+    min-height: 5.8rem;
+  }
+
+  .mobile-menu-button {
+    width: 2.65rem;
+    height: 2.65rem;
+  }
+}
+
+/* ---- Right column (visual) ------------------------------------------ */
+
+.hero-visual {
+  position: relative;
+  min-height: 24rem;
+}
+
+.hero-image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--surface-2);
+  box-shadow:
+    0 30px 60px -25px color-mix(in srgb, var(--text) 35%, transparent),
+    0 12px 30px -15px color-mix(in srgb, var(--text) 25%, transparent);
+}
+
+@media (min-width: 768px) {
+  .hero-image-wrap {
+    aspect-ratio: 3 / 4;
+    max-height: 36rem;
+  }
+}
+
+.hero-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Credibility card — sits in the LEFT column under the CTAs.
+   No longer overlaps the image. */
+.hero-card {
+  position: relative;
+  margin-top: 2.5rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 30px -18px color-mix(in srgb, var(--text) 25%, transparent);
+  /* Use the smaller of a hard cap and the available column width — prevents
+     the card from overflowing its grid column on medium viewports. */
+  max-width: min(32rem, 100%);
+}
+
+@media (min-width: 768px) {
+  .hero-card {
+    padding: 1.75rem;
+    margin-top: 3rem;
+  }
+}
+
+.hero-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.9rem;
+  line-height: 1.3;
+}
+
+[data-theme="modern"] .hero-card-title {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 500;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+}
+
+.hero-card-city {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.hero-card-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.hero-card-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.hero-card-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: var(--accent);
+}
+
+/* ---- Decorative: subtle grid texture behind the hero in Modern theme  */
+[data-theme="modern"] .hero-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--border) 50%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--border) 50%, transparent) 1px, transparent 1px);
+  background-size: 4rem 4rem;
+  mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+  opacity: 0.4;
+  pointer-events: none;
 }
