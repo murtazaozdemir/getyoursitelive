@@ -216,16 +216,19 @@ export default async function ProposalPage({
               src={`/api/screenshot?slug=${slug}&section=hero`}
               alt="Website — hero section"
               className="proposal-screenshot"
+              loading="lazy"
             />
             <img
               src={`/api/screenshot?slug=${slug}&section=services`}
               alt="Website — services section"
               className="proposal-screenshot"
+              loading="lazy"
             />
             <img
               src={`/api/screenshot?slug=${slug}&section=contact`}
               alt="Website — contact &amp; address"
               className="proposal-screenshot"
+              loading="lazy"
             />
           </div>
         </section>
