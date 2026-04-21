@@ -212,22 +212,19 @@ export default async function ProposalPage({
           </a>
 
           <div className="proposal-screenshots">
-            {/* Desktop — hero */}
             <img
-              src={`https://image.thum.io/get/width/800/crop/480/${previewUrl}`}
-              alt={`${name} website — desktop`}
+              src="/proposal-screenshots/desktop.png"
+              alt="Website — desktop view"
               className="proposal-screenshot"
             />
-            {/* Desktop — more of the page (hero + about + services visible) */}
             <img
-              src={`https://image.thum.io/get/width/800/crop/1100/${previewUrl}`}
-              alt={`${name} website — full page`}
+              src="/proposal-screenshots/fullpage.png"
+              alt="Website — full page"
               className="proposal-screenshot"
             />
-            {/* Mobile view — completely different layout */}
             <img
-              src={`https://image.thum.io/get/width/390/crop/750/${previewUrl}`}
-              alt={`${name} website — mobile`}
+              src="/proposal-screenshots/mobile.png"
+              alt="Website — mobile view"
               className="proposal-screenshot"
             />
           </div>
@@ -243,7 +240,7 @@ export default async function ProposalPage({
               If you don&rsquo;t have photos, I can work around it.
             </li>
             <li>
-              <strong>I build your site in 5–7 business days.</strong> I use
+              <strong>I build your site in 1–2 days.</strong> I use
               modern tools that let me build quickly without cutting corners.
             </li>
             <li>
