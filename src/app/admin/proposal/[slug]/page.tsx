@@ -249,9 +249,9 @@ export default async function ProposalPage({
             the domain name, and getting everything set up and live.
           </p>
           <p className="proposal-body">
-            The first year of your domain name is included. After that, the
-            renewal goes directly to the registrar — that&rsquo;s between you
-            and them, nothing to do with me.
+            The first year of your domain name is included. After that, you
+            continue paying for it directly — it&rsquo;s a small annual fee
+            that keeps the domain yours.
           </p>
           <p className="proposal-body">
             Hosting is free as long as you stay on the same platform. No
