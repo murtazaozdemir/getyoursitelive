@@ -281,22 +281,31 @@
   border-bottom: 1px solid #ddd !important;
 }
 
-.proposal-preview-photos {
+.proposal-qr {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.5rem;
   margin-top: 1rem;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  width: fit-content;
 }
 
-.proposal-preview-photo {
-  width: 100%;
-  height: auto;
-  max-height: 420px;
-  object-fit: cover;
-  object-position: top;
+.proposal-qr-code {
+  width: 180px;
+  height: 180px;
   display: block;
-  border-radius: 4px;
-  border: 1px solid #ddd;
+}
+
+.proposal-qr-label {
+  font-family: system-ui, sans-serif;
+  font-size: 9pt;
+  color: #666;
+  margin: 0;
+  text-align: center;
 }
 
 .proposal-demo-url {

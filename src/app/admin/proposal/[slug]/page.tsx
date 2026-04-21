@@ -209,22 +209,13 @@ export default async function ProposalPage({
           </p>
           <div className="proposal-demo-url">{previewUrl}</div>
 
-          <div className="proposal-preview-photos">
+          <div className="proposal-qr">
             <img
-              src={`https://image.thum.io/get/width/1200/crop/800/noanimate/${previewUrl}`}
-              alt={`${name} — top of page`}
-              className="proposal-preview-photo"
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(previewUrl)}`}
+              alt="Scan to see your site"
+              className="proposal-qr-code"
             />
-            <img
-              src={`https://image.thum.io/get/width/1200/crop/800/noanimate/${previewUrl}#services`}
-              alt={`${name} — services section`}
-              className="proposal-preview-photo"
-            />
-            <img
-              src={`https://image.thum.io/get/width/390/crop/700/noanimate/viewportWidth/390/${previewUrl}`}
-              alt={`${name} — mobile view`}
-              className="proposal-preview-photo"
-            />
+            <p className="proposal-qr-label">Scan with your phone to see the site</p>
           </div>
         </section>
 
