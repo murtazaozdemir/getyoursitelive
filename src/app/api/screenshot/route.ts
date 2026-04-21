@@ -3,7 +3,6 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import puppeteer from "puppeteer-core";
 
-// Give Vercel enough time to download Chromium + navigate + screenshot
 export const maxDuration = 60;
 
 // CSS selector for each named section of the business site
@@ -15,7 +14,7 @@ const SECTION_SELECTORS: Record<string, string> = {
 
 const PAGE_WIDTH = 1280;
 
-// Vercel's filesystem is read-only except /tmp — write cache there in prod
+// Vercel filesystem is read-only except /tmp
 const CACHE_DIR = process.env.VERCEL
   ? join("/tmp", "proposal-screenshots")
   : join(process.cwd(), "public", "proposal-screenshots");
@@ -29,7 +28,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse("Bad request", { status: 400 });
   }
 
-  // Serve from cache if available (avoids re-launching Chrome)
+  // Serve from cache if available
   const cacheDir = join(CACHE_DIR, slug);
   const cachePath = join(cacheDir, `${section}.png`);
   if (existsSync(cachePath)) {
@@ -43,19 +42,56 @@ export async function GET(request: NextRequest) {
   const targetUrl = `${siteUrl}/${slug}`;
   const selector = SECTION_SELECTORS[section];
 
-  // Pick the right Chromium executable
-  let executablePath: string;
-  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
-    // Vercel: download Chromium from CDN into /tmp at runtime
-    const chromium = (await import("@sparticuz/chromium-min")).default;
-    executablePath = await chromium.executablePath(
-      "https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar"
-    );
-  } else {
-    // Local Mac
-    executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  // On Vercel (Hobby plan = 10s timeout, can't run Chrome locally):
+  // proxy to the gysl-screenshots Fly.io service instead.
+  const screenshotServiceUrl = process.env.SCREENSHOT_SERVICE_URL;
+  if (screenshotServiceUrl) {
+    return proxyToService(screenshotServiceUrl, targetUrl, selector, cacheDir, cachePath);
   }
 
+  // Local dev: run Chrome directly via puppeteer-core
+  return runLocally(targetUrl, selector, cacheDir, cachePath);
+}
+
+async function proxyToService(
+  serviceUrl: string,
+  targetUrl: string,
+  selector: string,
+  cacheDir: string,
+  cachePath: string,
+): Promise<NextResponse> {
+  try {
+    const params = new URLSearchParams({
+      url: targetUrl,
+      pick: selector,
+      width: String(PAGE_WIDTH),
+    });
+    const res = await fetch(`${serviceUrl}/screenshot?${params}`, {
+      signal: AbortSignal.timeout(55_000),
+    });
+    if (!res.ok) {
+      console.error("[screenshot] service returned", res.status);
+      return new NextResponse("Screenshot failed", { status: 500 });
+    }
+    const buf = Buffer.from(await res.arrayBuffer());
+    mkdirSync(cacheDir, { recursive: true });
+    writeFileSync(cachePath, buf);
+    return new NextResponse(buf, {
+      headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400" },
+    });
+  } catch (err) {
+    console.error("[screenshot] proxy failed:", err);
+    return new NextResponse("Screenshot failed", { status: 500 });
+  }
+}
+
+async function runLocally(
+  targetUrl: string,
+  selector: string,
+  cacheDir: string,
+  cachePath: string,
+): Promise<NextResponse> {
+  const executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
   let browser;
   try {
     browser = await puppeteer.launch({
@@ -63,29 +99,22 @@ export async function GET(request: NextRequest) {
       headless: true,
       args: ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
     });
-
     const page = await browser.newPage();
     await page.setViewport({ width: PAGE_WIDTH, height: 900 });
     await page.goto(targetUrl, { waitUntil: "networkidle0", timeout: 30000 });
-
-    // Wait for the target section then screenshot its exact bounding box
     await page.waitForSelector(selector, { timeout: 5000 });
     const element = await page.$(selector);
     if (!element) {
       return new NextResponse("Section not found", { status: 404 });
     }
-
     const buf = await element.screenshot({ type: "png" });
-
-    // Cache for subsequent requests
     mkdirSync(cacheDir, { recursive: true });
     writeFileSync(cachePath, buf as Buffer);
-
     return new NextResponse(buf as unknown as BodyInit, {
       headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400" },
     });
   } catch (err) {
-    console.error("[screenshot] failed:", err);
+    console.error("[screenshot] local puppeteer failed:", err);
     return new NextResponse("Screenshot failed", { status: 500 });
   } finally {
     await browser?.close();
