@@ -65,6 +65,7 @@ export default async function ProposalPage({
             <strong>Murtaza Ozdemir</strong>
             <span>Get Your Site Live · Local web design, NJ</span>
             <span>murtazaozdemir@gmail.com</span>
+            <span>862-686-1571</span>
           </div>
           <div className="proposal-header-to">
             <span className="proposal-header-label">Prepared for</span>
@@ -371,6 +372,7 @@ export default async function ProposalPage({
             <strong className="proposal-contact-name">Murtaza Ozdemir</strong>
             <span>78 Arlington Ave, Clifton, NJ 07011</span>
             <span>murtazaozdemir@gmail.com</span>
+            <span>862-686-1571</span>
           </div>
         </footer>
 
