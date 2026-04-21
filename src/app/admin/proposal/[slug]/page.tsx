@@ -207,15 +207,26 @@ export default async function ProposalPage({
             Once your domain is registered, your site will move there and
             this temporary address won&rsquo;t be used anymore.
           </p>
-          <div className="proposal-demo-url">{previewUrl}</div>
+          <a href={previewUrl} className="proposal-demo-url" target="_blank" rel="noreferrer">
+            {previewUrl}
+          </a>
 
-          <div className="proposal-qr">
+          <div className="proposal-screenshots">
             <img
-              src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(previewUrl)}`}
-              alt="Scan to see your site"
-              className="proposal-qr-code"
+              src={`https://image.thum.io/get/width/1200/crop/700/noanimate/${encodeURIComponent(previewUrl)}`}
+              alt={`${name} website — desktop view`}
+              className="proposal-screenshot"
             />
-            <p className="proposal-qr-label">Scan with your phone to see the site</p>
+            <img
+              src={`https://image.thum.io/get/width/1200/crop/700/noanimate/viewportheight/900/scroll/650/${encodeURIComponent(previewUrl)}`}
+              alt={`${name} website — services section`}
+              className="proposal-screenshot"
+            />
+            <img
+              src={`https://image.thum.io/get/width/390/crop/700/noanimate/${encodeURIComponent(previewUrl)}`}
+              alt={`${name} website — mobile view`}
+              className="proposal-screenshot"
+            />
           </div>
         </section>
 
