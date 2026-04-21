@@ -209,17 +209,20 @@ export default async function ProposalPage({
           <div className="proposal-demo-url">{previewUrl}</div>
 
           <div className="proposal-preview-photos">
-            {/* Desktop — full width crop */}
             <img
-              src={`https://image.thum.io/get/width/900/crop/600/${previewUrl}`}
-              alt={`${name} website — desktop view`}
-              className="proposal-preview-photo proposal-preview-photo--wide"
+              src={`https://api.microlink.io/?url=${encodeURIComponent(previewUrl)}&screenshot=true&meta=false&embed=screenshot.url&waitFor=2000`}
+              alt={`${name} — top of page`}
+              className="proposal-preview-photo"
             />
-            {/* Mobile — narrow viewport */}
             <img
-              src={`https://image.thum.io/get/width/390/crop/700/viewportWidth/390/${previewUrl}`}
-              alt={`${name} website — mobile view`}
-              className="proposal-preview-photo proposal-preview-photo--narrow"
+              src={`https://api.microlink.io/?url=${encodeURIComponent(previewUrl + "#services")}&screenshot=true&meta=false&embed=screenshot.url&waitFor=2000`}
+              alt={`${name} — services section`}
+              className="proposal-preview-photo"
+            />
+            <img
+              src={`https://api.microlink.io/?url=${encodeURIComponent(previewUrl)}&screenshot=true&meta=false&embed=screenshot.url&viewport.width=390&viewport.height=844&waitFor=2000`}
+              alt={`${name} — mobile view`}
+              className="proposal-preview-photo"
             />
           </div>
         </section>
