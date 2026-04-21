@@ -8,6 +8,11 @@ processes = []
 
 [env]
 
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+
 [experimental]
   auto_rollback = true
 
