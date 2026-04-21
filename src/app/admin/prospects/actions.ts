@@ -421,6 +421,23 @@ export async function addProspectNoteAction(slug: string, text: string) {
   revalidatePath(`/admin/prospects/${slug}`);
 }
 
+export async function updateProspectDomainsAction(
+  slug: string,
+  data: { domain1: string; domain2: string; domain3: string },
+): Promise<{ ok: boolean; error?: string }> {
+  const user = await getCurrentUser();
+  if (!user || !canManageBusinesses(user)) return { ok: false, error: "Unauthorized" };
+
+  await updateProspect(slug, {
+    domain1: data.domain1.trim() || undefined,
+    domain2: data.domain2.trim() || undefined,
+    domain3: data.domain3.trim() || undefined,
+  });
+
+  revalidatePath(`/admin/prospects/${slug}`);
+  return { ok: true };
+}
+
 export async function deleteProspectAction(slug: string) {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("Unauthorized");

@@ -93,6 +93,19 @@ export default async function ProspectDetailPage({
         />
       </section>
 
+      {/* Domain names */}
+      <section className="admin-section">
+        <h2 className="admin-section-title">Domain names</h2>
+        <p className="admin-section-lede">Track domain options you're considering for this business.</p>
+        <ProspectActions
+          slug={slug}
+          action="edit-domains"
+          domain1={prospect.domain1 ?? ""}
+          domain2={prospect.domain2 ?? ""}
+          domain3={prospect.domain3 ?? ""}
+        />
+      </section>
+
       {/* Preview link to copy */}
       <section className="admin-section">
         <h2 className="admin-section-title">Preview link</h2>

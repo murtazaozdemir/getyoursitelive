@@ -26,6 +26,9 @@ export interface Prospect {
   address: string;
   status: ProspectStatus;
   notes: ProspectNote[];
+  domain1?: string;
+  domain2?: string;
+  domain3?: string;
   createdAt: string;
   updatedAt: string;
 }

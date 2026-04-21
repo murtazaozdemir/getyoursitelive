@@ -6,6 +6,7 @@ import {
   addProspectNoteAction,
   deleteProspectAction,
   updateProspectInfoAction,
+  updateProspectDomainsAction,
 } from "@/app/admin/prospects/actions";
 import type { ProspectStatus } from "@/lib/prospects";
 
@@ -14,6 +15,7 @@ type ActionProps =
   | { action: "copy"; slug: string; previewUrl: string }
   | { action: "add-note"; slug: string }
   | { action: "edit-info"; slug: string; name: string; phone: string; address: string }
+  | { action: "edit-domains"; slug: string; domain1: string; domain2: string; domain3: string }
   | { action: "delete"; slug: string };
 
 export function ProspectActions(props: ActionProps) {
@@ -58,6 +60,17 @@ export function ProspectActions(props: ActionProps) {
         name={props.name}
         phone={props.phone}
         address={props.address}
+      />
+    );
+  }
+
+  if (props.action === "edit-domains") {
+    return (
+      <EditDomainsForm
+        slug={props.slug}
+        domain1={props.domain1}
+        domain2={props.domain2}
+        domain3={props.domain3}
       />
     );
   }
@@ -199,6 +212,76 @@ function EditInfoForm({
         disabled={isPending}
       >
         {isPending ? "Saving…" : saved ? "Saved ✓" : "Save changes"}
+      </button>
+    </form>
+  );
+}
+
+function EditDomainsForm({
+  slug,
+  domain1: initial1,
+  domain2: initial2,
+  domain3: initial3,
+}: {
+  slug: string;
+  domain1: string;
+  domain2: string;
+  domain3: string;
+}) {
+  const [domain1, setDomain1] = useState(initial1);
+  const [domain2, setDomain2] = useState(initial2);
+  const [domain3, setDomain3] = useState(initial3);
+  const [saved, setSaved] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaved(false);
+    startTransition(async () => {
+      await updateProspectDomainsAction(slug, { domain1, domain2, domain3 });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    });
+  }
+
+  return (
+    <form className="prospect-edit-info-form" onSubmit={handleSubmit}>
+      <div className="admin-field">
+        <label className="admin-label">Domain 1</label>
+        <input
+          className="admin-input"
+          value={domain1}
+          onChange={(e) => setDomain1(e.target.value)}
+          disabled={isPending}
+          placeholder="e.g. starauto.com"
+        />
+      </div>
+      <div className="admin-field">
+        <label className="admin-label">Domain 2</label>
+        <input
+          className="admin-input"
+          value={domain2}
+          onChange={(e) => setDomain2(e.target.value)}
+          disabled={isPending}
+          placeholder="e.g. star-auto-repair.com"
+        />
+      </div>
+      <div className="admin-field">
+        <label className="admin-label">Domain 3</label>
+        <input
+          className="admin-input"
+          value={domain3}
+          onChange={(e) => setDomain3(e.target.value)}
+          disabled={isPending}
+          placeholder="e.g. starautoclifton.com"
+        />
+      </div>
+      <button
+        type="submit"
+        className="admin-btn admin-btn--primary"
+        disabled={isPending}
+      >
+        {isPending ? "Saving…" : saved ? "Saved ✓" : "Save domains"}
       </button>
     </form>
   );
