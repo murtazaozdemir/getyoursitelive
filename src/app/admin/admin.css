@@ -700,6 +700,29 @@
   color: var(--admin-text-soft);
   font-style: italic;
 }
+.prospect-card-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 5px 0 0;
+}
+.prospect-chip {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.prospect-chip--complete {
+  background: #d1fae5;
+  color: #065f46;
+}
+.prospect-chip--warn {
+  background: #fef3c7;
+  color: #92400e;
+}
 
 /* Status badges */
 .prospect-badge {

@@ -4,6 +4,24 @@ import { listProspects, PIPELINE_STAGES, type Prospect } from "@/lib/prospects";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 
+function cardChips(p: Prospect) {
+  const allDomains = p.domain1?.trim() && p.domain2?.trim() && p.domain3?.trim();
+  const anyDomain = p.domain1?.trim() || p.domain2?.trim() || p.domain3?.trim();
+  const hasAddress = !!p.address?.trim();
+
+  const chips: { label: string; cls: string }[] = [];
+
+  if (allDomains && hasAddress) {
+    chips.push({ label: "Completed", cls: "prospect-chip--complete" });
+  } else {
+    if (!hasAddress) chips.push({ label: "Address missing", cls: "prospect-chip--warn" });
+    if (!anyDomain) chips.push({ label: "Domains missing", cls: "prospect-chip--warn" });
+    else if (!allDomains) chips.push({ label: "Domains incomplete", cls: "prospect-chip--warn" });
+  }
+
+  return chips;
+}
+
 function statusColor(status: Prospect["status"]) {
   const map: Record<string, string> = {
     found: "prospect-badge--found",
@@ -64,26 +82,38 @@ export default async function ProspectsPage() {
                 {byStatus[status].length === 0 ? (
                   <div className="prospect-empty-col">Empty</div>
                 ) : (
-                  byStatus[status].map((p) => (
-                    <Link
-                      key={p.slug}
-                      href={`/admin/prospects/${p.slug}`}
-                      className="prospect-card"
-                    >
-                      <p className="prospect-card-name">{p.name}</p>
-                      {p.phone && (
-                        <p className="prospect-card-meta">{p.phone}</p>
-                      )}
-                      {p.address && (
-                        <p className="prospect-card-meta">{p.address}</p>
-                      )}
-                      {p.notes.length > 0 && (
-                        <p className="prospect-card-notes">
-                          {p.notes.length} note{p.notes.length !== 1 ? "s" : ""}
-                        </p>
-                      )}
-                    </Link>
-                  ))
+                  byStatus[status].map((p) => {
+                    const chips = cardChips(p);
+                    return (
+                      <Link
+                        key={p.slug}
+                        href={`/admin/prospects/${p.slug}`}
+                        className="prospect-card"
+                      >
+                        <p className="prospect-card-name">{p.name}</p>
+                        {p.phone && (
+                          <p className="prospect-card-meta">{p.phone}</p>
+                        )}
+                        {p.address && (
+                          <p className="prospect-card-meta">{p.address}</p>
+                        )}
+                        {chips.length > 0 && (
+                          <div className="prospect-card-chips">
+                            {chips.map((c) => (
+                              <span key={c.label} className={`prospect-chip ${c.cls}`}>
+                                {c.label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {p.notes.length > 0 && (
+                          <p className="prospect-card-notes">
+                            {p.notes.length} note{p.notes.length !== 1 ? "s" : ""}
+                          </p>
+                        )}
+                      </Link>
+                    );
+                  })
                 )}
               </div>
             </div>
