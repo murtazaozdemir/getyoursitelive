@@ -963,3 +963,101 @@
   display: flex;
   gap: 8px;
 }
+
+/* =================================================================
+   Audit log
+   ================================================================= */
+
+.audit-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  background: var(--admin-surface);
+}
+
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.audit-table thead tr {
+  background: var(--admin-surface-2);
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.audit-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--admin-text-soft);
+  white-space: nowrap;
+}
+
+.audit-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--admin-border);
+  vertical-align: top;
+}
+
+.audit-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.audit-row--danger td {
+  background: #fff5f5;
+}
+
+.audit-cell-date {
+  white-space: nowrap;
+  color: var(--admin-text-muted);
+  font-size: 12px;
+}
+
+.audit-cell-who {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.audit-cell-slug {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--admin-text-soft);
+}
+
+.audit-cell-detail {
+  color: var(--admin-text-soft);
+  max-width: 300px;
+}
+
+.audit-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.audit-badge--default {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.audit-badge--danger {
+  background: #fce4e4;
+  color: var(--admin-danger);
+}
+
+.audit-badge--warn {
+  background: #fff3e0;
+  color: var(--admin-warn);
+}
+
+.audit-badge--muted {
+  background: var(--admin-surface-2);
+  color: var(--admin-text-soft);
+}

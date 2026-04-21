@@ -16,6 +16,7 @@ import {
 import { saveBusiness, getBusinessBySlug, deleteBusiness } from "@/lib/db";
 import type { Business } from "@/lib/business-types";
 import type { ThemeName } from "@/types/site";
+import { logAudit } from "@/lib/audit-log";
 
 function nameToSlug(name: string): string {
   return name
@@ -354,6 +355,7 @@ export async function createProspectAction(
     updatedAt: now,
   });
 
+  await logAudit({ userEmail: user.email, userName: user.name, action: "create_prospect", slug, detail: name });
   revalidatePath("/admin/prospects");
   revalidatePath(`/${slug}`);
 
@@ -365,6 +367,7 @@ export async function updateProspectStatusAction(slug: string, status: ProspectS
   if (!user || !canManageBusinesses(user)) throw new Error("Unauthorized");
 
   await updateProspect(slug, { status });
+  await logAudit({ userEmail: user.email, userName: user.name, action: "prospect_status", slug, detail: status });
   revalidatePath("/admin/prospects");
   revalidatePath(`/admin/prospects/${slug}`);
 }
@@ -403,6 +406,7 @@ export async function updateProspectInfoAction(
     await saveBusiness(biz);
   }
 
+  await logAudit({ userEmail: user.email, userName: user.name, action: "update_prospect_info", slug, detail: name.trim() });
   revalidatePath("/admin/prospects");
   revalidatePath(`/admin/prospects/${slug}`);
   revalidatePath(`/${slug}`);
@@ -442,6 +446,7 @@ export async function deleteProspectAction(slug: string) {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("Unauthorized");
 
+  await logAudit({ userEmail: user.email, userName: user.name, action: "delete_prospect", slug });
   await deleteProspect(slug);
   await deleteBusiness(slug);
 

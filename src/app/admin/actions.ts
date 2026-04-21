@@ -6,6 +6,7 @@ import { canEditBusiness, canManageBusinesses } from "@/lib/users";
 import { getCurrentUser } from "@/lib/session";
 import type { Business } from "@/lib/business-types";
 import { validateBusiness } from "@/lib/business-validation";
+import { logAudit } from "@/lib/audit-log";
 
 /**
  * Server actions for admin mutations. Every action:
@@ -47,6 +48,14 @@ export async function saveBusinessAction(
       await saveBusiness(incoming);
     }
 
+    await logAudit({
+      userEmail: user.email,
+      userName: user.name,
+      action: "save_business",
+      slug: incoming.slug,
+      detail: incoming.slug !== slug ? `Renamed slug from "${slug}" to "${incoming.slug}"` : undefined,
+    });
+
     revalidatePath(`/${incoming.slug}`);
     revalidatePath(`/admin`);
     revalidatePath(`/${incoming.slug}/admin`);
@@ -70,6 +79,7 @@ export async function createBusinessAction(
   if (existing) return { ok: false, error: `Slug "${initial.slug}" is already taken.` };
 
   await saveBusiness(initial);
+  await logAudit({ userEmail: user.email, userName: user.name, action: "create_business", slug: initial.slug });
   revalidatePath("/admin");
   revalidatePath(`/${initial.slug}`);
   return { ok: true, slug: initial.slug };
@@ -83,6 +93,7 @@ export async function deleteBusinessAction(
   if (!canManageBusinesses(user)) return { ok: false, error: "FORBIDDEN" };
 
   await deleteBusiness(slug);
+  await logAudit({ userEmail: user.email, userName: user.name, action: "delete_business", slug });
   revalidatePath("/admin");
   return { ok: true };
 }
