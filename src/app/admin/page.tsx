@@ -64,7 +64,7 @@ export default async function AdminDashboard() {
               </div>
               <div className="admin-biz-card-actions">
                 <Link
-                  href={`/${biz.slug}/admin/edit`}
+                  href={`/admin/prospects/${biz.slug}`}
                   className="admin-btn admin-btn--primary"
                 >
                   Edit
