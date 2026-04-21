@@ -23,11 +23,11 @@ export function AdminHeader({ user }: { user: SessionUser }) {
           </Link>
           <span className="admin-header-build">
             {process.env.NEXT_PUBLIC_APP_VERSION}
-            <span className="admin-header-build-time">
-              {new Date(process.env.NEXT_PUBLIC_BUILD_TIME ?? "").toLocaleString("en-US", {
-                month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true,
-              })}
-            </span>
+            {" ("}
+            {new Date(process.env.NEXT_PUBLIC_BUILD_TIME ?? "").toLocaleString("en-US", {
+              month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true,
+            })}
+            {")"}
           </span>
           <nav className="admin-header-nav">
             <Link href="/admin" className="admin-header-nav-link">Sites</Link>

@@ -518,17 +518,10 @@
 }
 .admin-header-build {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--admin-text-soft);
-  letter-spacing: 0.04em;
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-.admin-header-build-time {
-  font-size: 10px;
-  font-weight: 400;
-  opacity: 0.65;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 .admin-header-nav {
   display: flex;
