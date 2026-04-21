@@ -60,6 +60,9 @@ export async function getStorage(): Promise<Storage> {
   if (backend === "r2") {
     const { createR2Storage } = await import("@/lib/storage-r2");
     storageInstance = createR2Storage();
+  } else if (backend === "blob") {
+    const { createBlobStorage } = await import("@/lib/storage-blob");
+    storageInstance = createBlobStorage();
   } else {
     const { createLocalStorage } = await import("@/lib/storage-local");
     storageInstance = createLocalStorage();
