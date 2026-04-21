@@ -213,17 +213,17 @@ export default async function ProposalPage({
 
           <div className="proposal-screenshots">
             <img
-              src={`https://image.thum.io/get/width/1200/crop/700/noanimate/${encodeURIComponent(previewUrl)}`}
+              src={`https://image.thum.io/get/width/1200/crop/700/${previewUrl}`}
               alt={`${name} website — desktop view`}
               className="proposal-screenshot"
             />
             <img
-              src={`https://image.thum.io/get/width/1200/crop/700/noanimate/viewportheight/900/scroll/650/${encodeURIComponent(previewUrl)}`}
+              src={`https://image.thum.io/get/width/1200/crop/700/viewportheight/1400/crop/700/${previewUrl}`}
               alt={`${name} website — services section`}
               className="proposal-screenshot"
             />
             <img
-              src={`https://image.thum.io/get/width/390/crop/700/noanimate/${encodeURIComponent(previewUrl)}`}
+              src={`https://image.thum.io/get/width/390/crop/700/${previewUrl}`}
               alt={`${name} website — mobile view`}
               className="proposal-screenshot"
             />
