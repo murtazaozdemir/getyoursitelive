@@ -257,17 +257,14 @@ export default async function ProposalPage({
             the domain name, and getting everything set up and live.
           </p>
           <p className="proposal-body">
-            After that, two small ongoing costs go directly to the
-            providers — not to me:
+            The first year of your domain name is included. After that, the
+            renewal goes directly to the registrar — that&rsquo;s between you
+            and them, nothing to do with me.
           </p>
-          <ul className="proposal-cost-list">
-            <li>Domain renewal: around <strong>$15 a year</strong></li>
-            <li>Hosting: around <strong>$10–20 a month</strong></li>
-          </ul>
-          <div className="proposal-no-fees">
-            No monthly fees from me. No subscriptions. No maintenance plans.
-            Once the site is built, you own it.
-          </div>
+          <p className="proposal-body">
+            Hosting is free as long as you stay on the same platform. No
+            monthly bills, no subscriptions from me.
+          </p>
         </section>
 
         {/* ── THE MATH ───────────────────────────────────────────── */}
