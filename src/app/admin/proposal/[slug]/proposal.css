@@ -329,6 +329,38 @@
   margin: 0;
 }
 
+/* ── Q&A ─────────────────────────────────────────────────────────────── */
+
+.proposal-qa {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.proposal-qa-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.proposal-qa-item:last-child {
+  border-bottom: none;
+}
+
+.proposal-qa-q {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 10pt;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 0.3rem;
+}
+
+.proposal-qa-a {
+  font-size: 10pt;
+  color: #444;
+  margin: 0;
+  line-height: 1.6;
+}
+
 /* ── Next steps ──────────────────────────────────────────────────────── */
 
 .proposal-steps {
