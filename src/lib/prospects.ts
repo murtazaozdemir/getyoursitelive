@@ -50,6 +50,19 @@ export async function getProspect(slug: string): Promise<Prospect | null> {
   return all.find((p) => p.slug === slug) ?? null;
 }
 
+/** Strip all non-digit characters for phone comparison */
+export function normalizePhone(phone: string): string {
+  return phone.replace(/\D/g, "");
+}
+
+/** Find a prospect with the same phone number (ignoring formatting) */
+export async function findProspectByPhone(phone: string): Promise<Prospect | null> {
+  const normalized = normalizePhone(phone);
+  if (normalized.length < 7) return null; // too short to be meaningful
+  const all = await readAll();
+  return all.find((p) => normalizePhone(p.phone) === normalized) ?? null;
+}
+
 export async function createProspect(prospect: Prospect): Promise<void> {
   const all = await readAll();
   all.push(prospect);

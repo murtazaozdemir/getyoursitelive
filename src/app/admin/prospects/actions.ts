@@ -9,6 +9,8 @@ import {
   updateProspect,
   deleteProspect,
   getProspect,
+  findProspectByPhone,
+  normalizePhone,
   type ProspectStatus,
 } from "@/lib/prospects";
 import { saveBusiness, getBusinessBySlug, deleteBusiness } from "@/lib/db";
@@ -317,12 +319,24 @@ export async function createProspectAction(
   const slug = nameToSlug(name);
   if (!slug) return { ok: false, error: "Could not generate a valid slug from that name." };
 
+  // Block duplicate slug (same or very similar name)
   const existing = await getBusinessBySlug(slug);
   if (existing) {
     return {
       ok: false,
-      error: `A business with slug "${slug}" already exists. Try a slightly different name.`,
+      error: `A business with that name already exists (slug "${slug}"). Check the prospects list — it may already be there.`,
     };
+  }
+
+  // Block duplicate phone number
+  if (phone && normalizePhone(phone).length >= 7) {
+    const phoneMatch = await findProspectByPhone(phone);
+    if (phoneMatch) {
+      return {
+        ok: false,
+        error: `Phone ${phone} is already on file for "${phoneMatch.name}". Check the prospects list before adding again.`,
+      };
+    }
   }
 
   const business = prospectBusiness(slug, name, phone, address);
@@ -364,6 +378,17 @@ export async function updateProspectInfoAction(
 
   const { name, phone, address } = data;
   if (!name.trim()) return { ok: false, error: "Name is required." };
+
+  // Block if new phone belongs to a different prospect
+  if (phone && normalizePhone(phone).length >= 7) {
+    const phoneMatch = await findProspectByPhone(phone);
+    if (phoneMatch && phoneMatch.slug !== slug) {
+      return {
+        ok: false,
+        error: `Phone ${phone} is already on file for "${phoneMatch.name}".`,
+      };
+    }
+  }
 
   // Update prospect record
   await updateProspect(slug, { name: name.trim(), phone: phone.trim(), address: address.trim() });
