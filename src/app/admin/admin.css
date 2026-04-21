@@ -774,6 +774,12 @@
 }
 
 /* Notes */
+.prospect-edit-info-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 480px;
+}
 .prospect-note-form {
   display: flex;
   gap: 8px;

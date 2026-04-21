@@ -355,6 +355,35 @@ export async function updateProspectStatusAction(slug: string, status: ProspectS
   revalidatePath(`/admin/prospects/${slug}`);
 }
 
+export async function updateProspectInfoAction(
+  slug: string,
+  data: { name: string; phone: string; address: string },
+): Promise<{ ok: boolean; error?: string }> {
+  const user = await getCurrentUser();
+  if (!user || !canManageBusinesses(user)) return { ok: false, error: "Unauthorized" };
+
+  const { name, phone, address } = data;
+  if (!name.trim()) return { ok: false, error: "Name is required." };
+
+  // Update prospect record
+  await updateProspect(slug, { name: name.trim(), phone: phone.trim(), address: address.trim() });
+
+  // Keep business JSON in sync (name, phone, address)
+  const biz = await getBusinessBySlug(slug);
+  if (biz) {
+    biz.businessInfo.name = name.trim();
+    biz.businessInfo.phone = phone.trim();
+    biz.businessInfo.address = address.trim();
+    biz.businessInfo.emergencyPhone = phone.trim();
+    await saveBusiness(biz);
+  }
+
+  revalidatePath("/admin/prospects");
+  revalidatePath(`/admin/prospects/${slug}`);
+  revalidatePath(`/${slug}`);
+  return { ok: true };
+}
+
 export async function addProspectNoteAction(slug: string, text: string) {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("Unauthorized");

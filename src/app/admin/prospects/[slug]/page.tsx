@@ -81,6 +81,18 @@ export default async function ProspectDetailPage({
         </div>
       </section>
 
+      {/* Edit contact info */}
+      <section className="admin-section">
+        <h2 className="admin-section-title">Contact info</h2>
+        <ProspectActions
+          slug={slug}
+          action="edit-info"
+          name={prospect.name}
+          phone={prospect.phone ?? ""}
+          address={prospect.address ?? ""}
+        />
+      </section>
+
       {/* Preview link to copy */}
       <section className="admin-section">
         <h2 className="admin-section-title">Preview link</h2>

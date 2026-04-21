@@ -5,6 +5,7 @@ import {
   updateProspectStatusAction,
   addProspectNoteAction,
   deleteProspectAction,
+  updateProspectInfoAction,
 } from "@/app/admin/prospects/actions";
 import type { ProspectStatus } from "@/lib/prospects";
 
@@ -12,6 +13,7 @@ type ActionProps =
   | { action: "status"; slug: string; status: ProspectStatus; label: string; active: boolean; past: boolean }
   | { action: "copy"; slug: string; previewUrl: string }
   | { action: "add-note"; slug: string }
+  | { action: "edit-info"; slug: string; name: string; phone: string; address: string }
   | { action: "delete"; slug: string };
 
 export function ProspectActions(props: ActionProps) {
@@ -47,6 +49,17 @@ export function ProspectActions(props: ActionProps) {
 
   if (props.action === "add-note") {
     return <AddNoteForm slug={props.slug} />;
+  }
+
+  if (props.action === "edit-info") {
+    return (
+      <EditInfoForm
+        slug={props.slug}
+        name={props.name}
+        phone={props.phone}
+        address={props.address}
+      />
+    );
   }
 
   if (props.action === "delete") {
@@ -109,6 +122,83 @@ function AddNoteForm({ slug }: { slug: string }) {
         disabled={!text.trim() || isPending}
       >
         {isPending ? "Saving…" : "Add note"}
+      </button>
+    </form>
+  );
+}
+
+function EditInfoForm({
+  slug,
+  name: initialName,
+  phone: initialPhone,
+  address: initialAddress,
+}: {
+  slug: string;
+  name: string;
+  phone: string;
+  address: string;
+}) {
+  const [name, setName] = useState(initialName);
+  const [phone, setPhone] = useState(initialPhone);
+  const [address, setAddress] = useState(initialAddress);
+  const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setSaved(false);
+    startTransition(async () => {
+      const result = await updateProspectInfoAction(slug, { name, phone, address });
+      if (result.ok) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2500);
+      } else {
+        setError(result.error ?? "Save failed.");
+      }
+    });
+  }
+
+  return (
+    <form className="prospect-edit-info-form" onSubmit={handleSubmit}>
+      <div className="admin-field">
+        <label className="admin-label">Business name</label>
+        <input
+          className="admin-input"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          disabled={isPending}
+          required
+        />
+      </div>
+      <div className="admin-field">
+        <label className="admin-label">Phone</label>
+        <input
+          className="admin-input"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          disabled={isPending}
+          placeholder="(000) 000-0000"
+        />
+      </div>
+      <div className="admin-field">
+        <label className="admin-label">Address</label>
+        <input
+          className="admin-input"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          disabled={isPending}
+          placeholder="123 Main St, City, NJ 07000"
+        />
+      </div>
+      {error && <p className="admin-error">{error}</p>}
+      <button
+        type="submit"
+        className="admin-btn admin-btn--primary"
+        disabled={isPending}
+      >
+        {isPending ? "Saving…" : saved ? "Saved ✓" : "Save changes"}
       </button>
     </form>
   );
