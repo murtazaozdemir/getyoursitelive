@@ -12,7 +12,7 @@ export default async function NewProspectPage() {
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
-          <p className="admin-eyebrow">Prospects</p>
+          <p className="admin-eyebrow">Leads</p>
           <h1 className="admin-h1">Add prospect</h1>
           <p className="admin-lede">
             Enter the shop&rsquo;s details. A preview site will be auto-generated

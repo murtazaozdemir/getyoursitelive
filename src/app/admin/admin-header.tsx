@@ -36,8 +36,8 @@ export function AdminHeader({ user }: { user: SessionUser }) {
             );
           })()}
           <nav className="admin-header-nav">
-            <Link href="/admin" className="admin-header-nav-link">Sites</Link>
-            <Link href="/admin/prospects" className="admin-header-nav-link">Prospects</Link>
+            <Link href="/admin" className="admin-header-nav-link">Clients</Link>
+            <Link href="/admin/prospects" className="admin-header-nav-link">Leads</Link>
             {user.role === "admin" && (
               <Link href="/admin/users" className="admin-header-nav-link">Users</Link>
             )}

@@ -39,7 +39,7 @@ export default async function ProspectDetailPage({
         <div>
           <p className="admin-eyebrow">
             <Link href="/admin/prospects" className="admin-back-link">
-              ← Prospects
+              ← Leads
             </Link>
           </p>
           <h1 className="admin-h1">{prospect.name}</h1>

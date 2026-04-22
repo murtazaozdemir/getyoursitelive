@@ -52,7 +52,7 @@ export default async function ProspectsPage() {
       <div className="admin-page-header">
         <div>
           <p className="admin-eyebrow">Platform admin</p>
-          <h1 className="admin-h1">Prospect Pipeline</h1>
+          <h1 className="admin-h1">Lead Pipeline</h1>
           <p className="admin-lede">
             {prospects.length} prospect{prospects.length !== 1 ? "s" : ""} tracked.
             Click a card to view details or send the preview link.
