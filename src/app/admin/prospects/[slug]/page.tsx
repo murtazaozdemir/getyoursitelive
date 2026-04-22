@@ -96,6 +96,7 @@ export default async function ProspectDetailPage({
               name={prospect.name}
               phone={prospect.phone ?? ""}
               address={prospect.address ?? ""}
+              category={biz?.category ?? "Auto Repair"}
             />
           </section>
 

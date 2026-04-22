@@ -10,11 +10,20 @@ import {
 } from "@/app/admin/prospects/actions";
 import type { ProspectStatus } from "@/lib/prospects";
 
+const BUSINESS_CATEGORIES = [
+  "Auto Repair",
+  "Auto Body",
+  "Tire Shop",
+  "Auto Sales & Repair",
+  "Used Car Dealer",
+  "Other",
+] as const;
+
 type ActionProps =
   | { action: "status"; slug: string; status: ProspectStatus; label: string; active: boolean; past: boolean }
   | { action: "copy"; slug: string; previewUrl: string }
   | { action: "add-note"; slug: string }
-  | { action: "edit-info"; slug: string; name: string; phone: string; address: string }
+  | { action: "edit-info"; slug: string; name: string; phone: string; address: string; category: string }
   | { action: "edit-domains"; slug: string; domain1: string; domain2: string; domain3: string }
   | { action: "delete"; slug: string };
 
@@ -60,6 +69,7 @@ export function ProspectActions(props: ActionProps) {
         name={props.name}
         phone={props.phone}
         address={props.address}
+        category={props.category}
       />
     );
   }
@@ -145,15 +155,22 @@ function EditInfoForm({
   name: initialName,
   phone: initialPhone,
   address: initialAddress,
+  category: initialCategory,
 }: {
   slug: string;
   name: string;
   phone: string;
   address: string;
+  category: string;
 }) {
   const [name, setName] = useState(initialName);
   const [phone, setPhone] = useState(initialPhone);
   const [address, setAddress] = useState(initialAddress);
+  const [category, setCategory] = useState(
+    BUSINESS_CATEGORIES.includes(initialCategory as typeof BUSINESS_CATEGORIES[number])
+      ? initialCategory
+      : "Auto Repair"
+  );
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -163,7 +180,7 @@ function EditInfoForm({
     setError("");
     setSaved(false);
     startTransition(async () => {
-      const result = await updateProspectInfoAction(slug, { name, phone, address });
+      const result = await updateProspectInfoAction(slug, { name, phone, address, category });
       if (result.ok) {
         setSaved(true);
         setTimeout(() => setSaved(false), 2500);
@@ -184,6 +201,19 @@ function EditInfoForm({
           disabled={isPending}
           required
         />
+      </div>
+      <div className="admin-field">
+        <label className="admin-label">Business category</label>
+        <select
+          className="admin-input"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          disabled={isPending}
+        >
+          {BUSINESS_CATEGORIES.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
       </div>
       <div className="admin-field">
         <label className="admin-label">Phone</label>

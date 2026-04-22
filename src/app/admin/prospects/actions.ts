@@ -375,12 +375,12 @@ export async function updateProspectStatusAction(slug: string, status: ProspectS
 
 export async function updateProspectInfoAction(
   slug: string,
-  data: { name: string; phone: string; address: string },
+  data: { name: string; phone: string; address: string; category: string },
 ): Promise<{ ok: boolean; error?: string }> {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) return { ok: false, error: "Unauthorized" };
 
-  const { name, phone, address } = data;
+  const { name, phone, address, category } = data;
   if (!name.trim()) return { ok: false, error: "Name is required." };
 
   // Block if new phone belongs to a different prospect
@@ -397,13 +397,14 @@ export async function updateProspectInfoAction(
   // Update prospect record
   await updateProspect(slug, { name: name.trim(), phone: phone.trim(), address: address.trim() });
 
-  // Keep business JSON in sync (name, phone, address)
+  // Keep business JSON in sync (name, phone, address, category)
   const biz = await getBusinessBySlug(slug);
   if (biz) {
     biz.businessInfo.name = name.trim();
     biz.businessInfo.phone = phone.trim();
     biz.businessInfo.address = address.trim();
     biz.businessInfo.emergencyPhone = phone.trim();
+    biz.category = category.trim();
     await saveBusiness(biz);
   }
 
