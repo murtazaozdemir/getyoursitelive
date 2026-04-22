@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { listBusinesses } from "@/lib/db";
+import { listProspects } from "@/lib/prospects";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 
@@ -26,7 +27,8 @@ export default async function AdminDashboard() {
     );
   }
 
-  const all = await listBusinesses();
+  const [all, prospects] = await Promise.all([listBusinesses(), listProspects()]);
+  const prospectBySlug = Object.fromEntries(prospects.map((p) => [p.slug, p]));
 
   return (
     <div className="admin-page">
@@ -53,41 +55,59 @@ export default async function AdminDashboard() {
         </div>
       ) : (
         <ul className="admin-biz-grid">
-          {all.map((biz) => (
-            <li key={biz.slug} className="admin-biz-card">
-              <div className="admin-biz-card-body">
-                <p className="admin-biz-card-slug">/{biz.slug}</p>
-                <h2 className="admin-biz-card-name">{biz.name}</h2>
-                <p className="admin-biz-card-meta">
-                  {biz.category} &middot; {biz.address}
-                </p>
-              </div>
-              <div className="admin-biz-card-actions">
-                <Link
-                  href={`/admin/prospects/${biz.slug}`}
-                  className="admin-btn admin-btn--primary"
-                >
-                  Edit
-                </Link>
-                <Link
-                  href={`/${biz.slug}`}
-                  className="admin-btn admin-btn--ghost"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  View live &rarr;
-                </Link>
-                <Link
-                  href={`/admin/proposal/${biz.slug}`}
-                  className="admin-btn admin-btn--ghost"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Proposal
-                </Link>
-              </div>
-            </li>
-          ))}
+          {all.map((biz) => {
+            const p = prospectBySlug[biz.slug];
+            const hasAddress = !!biz.address?.trim();
+            const anyDomain = p?.domain1?.trim() || p?.domain2?.trim() || p?.domain3?.trim();
+            const missingAddress = !hasAddress;
+            const missingDomain = !anyDomain;
+            return (
+              <li key={biz.slug} className="admin-biz-card">
+                <div className="admin-biz-card-body">
+                  <p className="admin-biz-card-slug">/{biz.slug}</p>
+                  <h2 className="admin-biz-card-name">{biz.name}</h2>
+                  <p className="admin-biz-card-meta">
+                    {biz.category}
+                    {hasAddress && <> &middot; {biz.address}</>}
+                  </p>
+                  {(missingAddress || missingDomain) && (
+                    <div className="admin-biz-card-chips">
+                      {missingAddress && (
+                        <span className="prospect-chip prospect-chip--warn">No address</span>
+                      )}
+                      {missingDomain && (
+                        <span className="prospect-chip prospect-chip--warn">No domain</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="admin-biz-card-actions">
+                  <Link
+                    href={`/admin/prospects/${biz.slug}`}
+                    className="admin-btn admin-btn--primary"
+                  >
+                    Edit
+                  </Link>
+                  <Link
+                    href={`/${biz.slug}`}
+                    className="admin-btn admin-btn--ghost"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    View live &rarr;
+                  </Link>
+                  <Link
+                    href={`/admin/proposal/${biz.slug}`}
+                    className="admin-btn admin-btn--ghost"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Proposal
+                  </Link>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

@@ -303,7 +303,8 @@ If an owner tries `/admin` they're redirected to their own shop's admin.
 - [x] In-progress edits held in local state until "Save changes"
 - [ ] Audit log (who changed what, when)
 - [ ] User management UI (add/remove shop owners via admin panel — currently edit users.json directly)
-- [ ] Password change / "forgot password" flow
+- [ ] Change email flow — user can update their login email from account settings; must re-verify and update `data/users.json` via Blob write
+- [ ] Change password flow — user can update their password from account settings; bcrypt re-hash + Blob write; "forgot password" reset link via email
 
 ## Phase 4 — WYSIWYG inline editor ✅ DONE
 

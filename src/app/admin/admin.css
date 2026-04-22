@@ -262,6 +262,7 @@
   color: var(--admin-text-soft);
   margin: 4px 0 0;
 }
+.admin-biz-card-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
 .admin-biz-card-actions { display: flex; gap: 8px; }
 
 .admin-empty {
@@ -573,16 +574,39 @@
 }
 .admin-back-link:hover { color: var(--admin-text); }
 
-/* ----- Admin page header actions ----- */
-.admin-page-header-actions {
+/* ----- Prospect detail 2-col layout ----- */
+.prospect-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 24px;
+  align-items: start;
+}
+.prospect-detail-main {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  align-items: flex-end;
-  flex-shrink: 0;
+  gap: 28px;
+  min-width: 0;
 }
-.prospect-header-domains {
-  width: 260px;
+.prospect-detail-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 16px;
+}
+.prospect-sidebar-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.prospect-sidebar-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 .prospect-domains-form {
   display: flex;
@@ -598,11 +622,6 @@
   font-size: 12px !important;
   padding: 4px 12px !important;
   align-self: flex-end;
-}
-.prospect-header-btns {
-  display: flex;
-  gap: 8px;
-  align-items: center;
 }
 
 /* ----- Admin error banner ----- */

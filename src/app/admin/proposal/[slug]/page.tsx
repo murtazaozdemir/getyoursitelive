@@ -1,9 +1,26 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getBusinessBySlug } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 import { PrintButton } from "./print-button";
 import "./proposal.css";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const biz = await getBusinessBySlug(slug);
+  if (!biz) return { title: "Proposal" };
+  const date = new Date().toLocaleDateString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+  }).replace(/\//g, "-");
+  return { title: `${biz.businessInfo.name} - Proposal - ${date}` };
+}
 
 const NOISE_WORDS = [
   "auto","repair","center","shop","garage","service","services",

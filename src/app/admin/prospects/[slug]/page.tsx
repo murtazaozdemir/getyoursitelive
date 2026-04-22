@@ -48,8 +48,87 @@ export default async function ProspectDetailPage({
             {prospect.address && <span>{prospect.address}</span>}
           </p>
         </div>
-        <div className="admin-page-header-actions">
-          <div className="prospect-header-domains">
+      </div>
+
+      <div className="prospect-detail-layout">
+        {/* ── LEFT: main content ── */}
+        <div className="prospect-detail-main">
+
+          {/* Pipeline stage selector */}
+          <section className="admin-section">
+            <h2 className="admin-section-title">Pipeline stage</h2>
+            <div className="prospect-stages">
+              {PIPELINE_STAGES.map(({ status, label }, i) => (
+                <ProspectActions
+                  key={status}
+                  slug={slug}
+                  action="status"
+                  status={status}
+                  label={label}
+                  active={prospect.status === status}
+                  past={i < currentStageIdx}
+                />
+              ))}
+            </div>
+          </section>
+
+          {/* Edit contact info */}
+          <section className="admin-section">
+            <h2 className="admin-section-title">Contact info</h2>
+            <ProspectActions
+              slug={slug}
+              action="edit-info"
+              name={prospect.name}
+              phone={prospect.phone ?? ""}
+              address={prospect.address ?? ""}
+            />
+          </section>
+
+          {/* Preview link to copy */}
+          <section className="admin-section">
+            <h2 className="admin-section-title">Preview link</h2>
+            <p className="admin-section-lede">
+              Send this to the mechanic. It looks like a finished website — no
+              mention of pricing or your brand.
+            </p>
+            <div className="prospect-preview-row">
+              <code className="prospect-preview-url">{previewUrl}</code>
+              <ProspectActions slug={slug} action="copy" previewUrl={previewUrl} />
+            </div>
+          </section>
+
+          {/* Notes */}
+          <section className="admin-section">
+            <h2 className="admin-section-title">Notes</h2>
+            <ProspectActions slug={slug} action="add-note" />
+
+            {prospect.notes.length > 0 && (
+              <ul className="prospect-notes">
+                {prospect.notes.map((note) => (
+                  <li key={note.id} className="prospect-note">
+                    <p className="prospect-note-text">{note.text}</p>
+                    <p className="prospect-note-date">{formatDate(note.createdAt)}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {/* Danger zone */}
+          <section className="admin-section admin-section--danger">
+            <h2 className="admin-section-title">Delete prospect</h2>
+            <p className="admin-section-lede">
+              Removes the prospect record and the preview site at{" "}
+              <code>/{slug}</code>. This cannot be undone.
+            </p>
+            <ProspectActions slug={slug} action="delete" />
+          </section>
+        </div>
+
+        {/* ── RIGHT: sidebar ── */}
+        <aside className="prospect-detail-sidebar">
+          <div className="prospect-sidebar-card">
+            <h2 className="admin-section-title">Domain options</h2>
             <ProspectActions
               slug={slug}
               action="edit-domains"
@@ -58,91 +137,27 @@ export default async function ProspectDetailPage({
               domain3={prospect.domain3 ?? ""}
             />
           </div>
-          <div className="prospect-header-btns">
+          <div className="prospect-sidebar-btns">
             <a
               href={previewUrl}
               target="_blank"
               rel="noreferrer"
-              className="admin-btn admin-btn--primary"
+              className="admin-btn admin-btn--primary admin-btn--wide"
             >
               View preview site →
             </a>
-            <Link href={`/${slug}/admin`} className="admin-btn admin-btn--ghost">
+            <Link href={`/${slug}/admin`} className="admin-btn admin-btn--ghost admin-btn--wide">
               Edit site
             </Link>
+            <Link
+              href={`/admin/proposal/${slug}`}
+              className="admin-btn admin-btn--ghost admin-btn--wide"
+            >
+              View proposal
+            </Link>
           </div>
-        </div>
+        </aside>
       </div>
-
-      {/* Pipeline stage selector */}
-      <section className="admin-section">
-        <h2 className="admin-section-title">Pipeline stage</h2>
-        <div className="prospect-stages">
-          {PIPELINE_STAGES.map(({ status, label }, i) => (
-            <ProspectActions
-              key={status}
-              slug={slug}
-              action="status"
-              status={status}
-              label={label}
-              active={prospect.status === status}
-              past={i < currentStageIdx}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* Edit contact info */}
-      <section className="admin-section">
-        <h2 className="admin-section-title">Contact info</h2>
-        <ProspectActions
-          slug={slug}
-          action="edit-info"
-          name={prospect.name}
-          phone={prospect.phone ?? ""}
-          address={prospect.address ?? ""}
-        />
-      </section>
-
-      {/* Preview link to copy */}
-      <section className="admin-section">
-        <h2 className="admin-section-title">Preview link</h2>
-        <p className="admin-section-lede">
-          Send this to the mechanic. It looks like a finished website — no
-          mention of pricing or your brand.
-        </p>
-        <div className="prospect-preview-row">
-          <code className="prospect-preview-url">{previewUrl}</code>
-          <ProspectActions slug={slug} action="copy" previewUrl={previewUrl} />
-        </div>
-      </section>
-
-      {/* Notes */}
-      <section className="admin-section">
-        <h2 className="admin-section-title">Notes</h2>
-        <ProspectActions slug={slug} action="add-note" />
-
-        {prospect.notes.length > 0 && (
-          <ul className="prospect-notes">
-            {prospect.notes.map((note) => (
-              <li key={note.id} className="prospect-note">
-                <p className="prospect-note-text">{note.text}</p>
-                <p className="prospect-note-date">{formatDate(note.createdAt)}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* Danger zone */}
-      <section className="admin-section admin-section--danger">
-        <h2 className="admin-section-title">Delete prospect</h2>
-        <p className="admin-section-lede">
-          Removes the prospect record and the preview site at{" "}
-          <code>/{slug}</code>. This cannot be undone.
-        </p>
-        <ProspectActions slug={slug} action="delete" />
-      </section>
     </div>
   );
 }
