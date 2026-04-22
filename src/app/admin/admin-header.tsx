@@ -44,6 +44,9 @@ export function AdminHeader({ user }: { user: SessionUser }) {
             {user.role === "admin" && (
               <Link href="/admin/audit" className="admin-header-nav-link">Audit Log</Link>
             )}
+            {user.role === "admin" && (
+              <Link href="/admin/setup" className="admin-header-nav-link">Setup</Link>
+            )}
           </nav>
         </div>
 

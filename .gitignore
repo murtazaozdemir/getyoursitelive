@@ -54,7 +54,7 @@ next-env.d.ts
 
 # sensitive data — not for public repo
 data/users.json
-data/prospects.json
+# prospects.json is committed so it deploys to Vercel for the seed-blob endpoint
 
 # internal sales docs — not for public repo
 HANDOUT-PROPOSAL-*.md
