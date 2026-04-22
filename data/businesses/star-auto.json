@@ -132,7 +132,7 @@
       "name": "Brake Repair",
       "priceRange": "$129-$349",
       "duration": "1-2 hours",
-      "description": "Complete brake service — pads, rotors, calipers, fluid. Safe stopping power restored.",
+      "description": "Complete brake service \u2014 pads, rotors, calipers, fluid. Safe stopping power restored.",
       "features": [
         "Pad and rotor replacement",
         "Caliper and line inspection",
@@ -158,7 +158,7 @@
       "name": "Tires & Alignment",
       "priceRange": "$69-$229",
       "duration": "45-90 min",
-      "description": "Tire mounting, balancing, rotation, and alignment — everything to keep your wheels turning straight.",
+      "description": "Tire mounting, balancing, rotation, and alignment \u2014 everything to keep your wheels turning straight.",
       "features": [
         "Tire rotation and balance",
         "4-wheel alignment",
@@ -280,7 +280,7 @@
     {
       "id": "financing",
       "question": "Do you offer financing?",
-      "answer": "Yes — we partner with Sunbit for 0% APR financing on qualifying repairs. Ask at check-in."
+      "answer": "Yes \u2014 we partner with Sunbit for 0% APR financing on qualifying repairs. Ask at check-in."
     },
     {
       "id": "waiting",
@@ -290,7 +290,7 @@
     {
       "id": "warranty",
       "question": "What is your warranty?",
-      "answer": "24 months / 24,000 miles on parts and labor — industry-leading, included on every repair."
+      "answer": "24 months / 24,000 miles on parts and labor \u2014 industry-leading, included on every repair."
     },
     {
       "id": "faq-1776671401734-p27l",
@@ -360,5 +360,7 @@
     "showHeroCtas": true,
     "showHeroHeadline": true,
     "showHeroLead": true
-  }
+  },
+  "description": "Star Auto Repair Center is a full-service auto repair shop serving Clifton, NJ since 2001. Offers a comprehensive range of services including oil changes, brakes, engine diagnostics, and general maintenance for domestic and foreign vehicles.",
+  "industry": "Auto Repair"
 }

@@ -55,7 +55,7 @@
     "whyTitle": "Why customers keep coming back",
     "heroImage": "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=1400",
     "whyBullets": [
-      "Photo-backed diagnostics — we show you what's wrong.",
+      "Photo-backed diagnostics \u2014 we show you what's wrong.",
       "Same-day turnaround on most repairs.",
       "24-month / 24,000-mile warranty on parts and labor.",
       "Friendly, plain-language explanations."
@@ -63,11 +63,11 @@
   },
   "about": {
     "heading": "Where Expertise Meets Honesty",
-    "narrative": "Sanchez Auto Services LLC has been serving the local community for over 11 years. We're a family-owned shop that treats every customer like a neighbor — because most of our customers are. No upsells, no guesswork. Just honest work and fair prices.",
+    "narrative": "Sanchez Auto Services LLC has been serving the local community for over 11 years. We're a family-owned shop that treats every customer like a neighbor \u2014 because most of our customers are. No upsells, no guesswork. Just honest work and fair prices.",
     "bullets": [
       "Free digital inspections with photos and videos",
       "Written estimates before any work begins",
-      "No surprise pricing — ever"
+      "No surprise pricing \u2014 ever"
     ],
     "primaryImage": "https://images.pexels.com/photos/4489713/pexels-photo-4489713.jpeg?auto=compress&cs=tinysrgb&w=1400",
     "secondaryImage": "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=1400",
@@ -116,8 +116,8 @@
     {
       "id": "diagnostic",
       "name": "Engine Diagnostic",
-      "priceRange": "$79–$129",
-      "duration": "30–60 min",
+      "priceRange": "$79\u2013$129",
+      "duration": "30\u201360 min",
       "description": "Full-system diagnostic scan.",
       "features": [
         "OBD-II scan",
@@ -129,8 +129,8 @@
     {
       "id": "brakes",
       "name": "Brake Repair",
-      "priceRange": "$129–$349",
-      "duration": "1–2 hours",
+      "priceRange": "$129\u2013$349",
+      "duration": "1\u20132 hours",
       "description": "Complete brake service.",
       "features": [
         "Pad and rotor replacement",
@@ -142,8 +142,8 @@
     {
       "id": "oil",
       "name": "Oil & Filter Change",
-      "priceRange": "$39–$79",
-      "duration": "20–30 min",
+      "priceRange": "$39\u2013$79",
+      "duration": "20\u201330 min",
       "description": "Keep your engine running clean.",
       "features": [
         "Conventional or synthetic oil",
@@ -155,8 +155,8 @@
     {
       "id": "tires",
       "name": "Tires & Alignment",
-      "priceRange": "$69–$229",
-      "duration": "45–90 min",
+      "priceRange": "$69\u2013$229",
+      "duration": "45\u201390 min",
       "description": "Tire mounting, balancing, rotation, and alignment.",
       "features": [
         "Tire rotation and balance",
@@ -245,7 +245,7 @@
     {
       "id": "f1",
       "question": "How long does an oil change take?",
-      "answer": "Most oil changes are done in 30–45 minutes."
+      "answer": "Most oil changes are done in 30\u201345 minutes."
     },
     {
       "id": "f2",
@@ -320,5 +320,7 @@
     "showContactInfo": true,
     "showMap": true,
     "showHours": true
-  }
+  },
+  "description": "Full-service auto repair shop on E Railway Ave in Paterson providing maintenance and mechanical repairs for cars and trucks of all types. Serves the Paterson area and surrounding communities.",
+  "industry": "Auto Repair"
 }

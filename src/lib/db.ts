@@ -30,7 +30,7 @@ export async function getBusinessBySlug(slug: string): Promise<Business | null> 
  * Returns minimal info, not the full data.
  */
 export async function listBusinesses(): Promise<
-  Array<{ slug: string; name: string; category: string; address: string }>
+  Array<{ slug: string; name: string; category: string; address: string; industry?: string }>
 > {
   const storage = await getStorage();
   const keys = await storage.list(BUSINESSES_PREFIX);
@@ -46,6 +46,7 @@ export async function listBusinesses(): Promise<
           name: biz.businessInfo.name,
           category: biz.category,
           address: biz.businessInfo.address,
+          industry: biz.industry,
         };
       }),
   );

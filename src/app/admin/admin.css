@@ -766,6 +766,30 @@
   background: #fef3c7;
   color: #92400e;
 }
+.prospect-chip--muted {
+  background: var(--admin-border);
+  color: var(--admin-text-soft);
+}
+
+/* Section divider for non-auto-repair businesses */
+.admin-section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 32px 0 16px;
+  color: var(--admin-text-soft);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.admin-section-divider::before,
+.admin-section-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--admin-border);
+}
 
 /* Status badges */
 .prospect-badge {

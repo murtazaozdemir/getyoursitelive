@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getProspect, PIPELINE_STAGES } from "@/lib/prospects";
+import { getBusinessBySlug } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 import { ProspectActions } from "./prospect-actions";
@@ -25,7 +26,7 @@ export default async function ProspectDetailPage({
   if (!canManageBusinesses(user)) redirect("/admin");
 
   const { slug } = await params;
-  const prospect = await getProspect(slug);
+  const [prospect, biz] = await Promise.all([getProspect(slug), getBusinessBySlug(slug)]);
   if (!prospect) notFound();
 
   const currentStageIdx = PIPELINE_STAGES.findIndex((s) => s.status === prospect.status);
@@ -47,6 +48,20 @@ export default async function ProspectDetailPage({
             {prospect.phone && prospect.address && <span> &middot; </span>}
             {prospect.address && <span>{prospect.address}</span>}
           </p>
+          {biz?.industry && biz.industry !== "Auto Repair" && (
+            <p className="admin-lede" style={{ marginTop: 6 }}>
+              <span className="prospect-chip prospect-chip--muted">{biz.industry}</span>
+              {" "}
+              <span style={{ fontSize: 13, color: "var(--admin-text-soft)" }}>
+                Not in the auto repair pipeline
+              </span>
+            </p>
+          )}
+          {biz?.description && (
+            <p className="admin-lede" style={{ marginTop: 8, maxWidth: 640, fontStyle: "italic" }}>
+              {biz.description}
+            </p>
+          )}
         </div>
       </div>
 
