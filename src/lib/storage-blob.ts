@@ -1,5 +1,5 @@
 import "server-only";
-import { put, del, list, download } from "@vercel/blob";
+import { put, del, list } from "@vercel/blob";
 import type { Storage } from "@/lib/storage";
 
 /**
@@ -20,7 +20,9 @@ class BlobStorage implements Storage {
       const match = blobs.find((b) => b.pathname === key);
       if (!match) return null;
 
-      const res = await download(match.url);
+      const res = await fetch(match.url, {
+        headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` },
+      });
       if (!res.ok) return null;
       return await res.text();
     } catch {
