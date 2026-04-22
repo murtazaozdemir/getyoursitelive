@@ -35,6 +35,7 @@ class BlobStorage implements Storage {
       access: "private",
       contentType: "application/json",
       addRandomSuffix: false,
+      allowOverwrite: true,
     });
   }
 
