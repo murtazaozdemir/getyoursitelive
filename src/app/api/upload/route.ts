@@ -8,12 +8,13 @@ export const runtime = "nodejs";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
+// SVG intentionally excluded — it can contain inline <script> and would be
+// served with Content-Type: image/svg+xml, enabling stored XSS when opened directly.
 const ALLOWED_TYPES = new Set([
   "image/png",
   "image/jpeg",
   "image/jpg",
   "image/webp",
-  "image/svg+xml",
   "image/gif",
 ]);
 

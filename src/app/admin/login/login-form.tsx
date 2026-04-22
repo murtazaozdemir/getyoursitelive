@@ -37,8 +37,12 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
       | { role: "admin" | "owner"; ownedSlug: string | null }
       | undefined;
 
-    let destination = nextPath;
-    if (nextPath === "/admin" && user) {
+    // Restrict to same-origin paths only — reject protocol-relative URLs like //evil.com
+    const safeNextPath =
+      nextPath.startsWith("/") && !nextPath.startsWith("//") ? nextPath : "/admin";
+
+    let destination = safeNextPath;
+    if (safeNextPath === "/admin" && user) {
       destination =
         user.role === "owner" && user.ownedSlug
           ? `/${user.ownedSlug}/admin/edit`

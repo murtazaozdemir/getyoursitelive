@@ -12,7 +12,9 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string }>;
 }) {
   const params = await searchParams;
-  const nextPath = typeof params.next === "string" ? params.next : "/admin";
+  const raw = typeof params.next === "string" ? params.next : "";
+  // Allow only same-origin paths — reject protocol-relative and absolute URLs
+  const nextPath = raw.startsWith("/") && !raw.startsWith("//") ? raw : "/admin";
 
   return (
     <div className="admin-auth-shell">

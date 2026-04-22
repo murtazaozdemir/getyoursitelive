@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
   const limitCheck = await checkRateLimit(`reset-${ip}`);
   if (!limitCheck.allowed) {
-    return NextResponse.json({ token: null });
+    return NextResponse.json({ ok: true });
   }
 
   let body: unknown;
@@ -29,16 +29,25 @@ export async function POST(req: NextRequest) {
 
   const { email } = body as { email?: unknown };
   if (typeof email !== "string" || !email.trim()) {
-    return NextResponse.json({ token: null });
+    return NextResponse.json({ ok: true });
   }
 
   const user = await findUserByEmail(email);
+
+  // Rate-limit every call (hit or miss) — don't reward knowing valid emails
+  await recordFailedAttempt(`reset-${ip}`);
+
   if (!user) {
-    await recordFailedAttempt(`reset-${ip}`);
-    // Return same shape regardless — don't leak whether the email exists
-    return NextResponse.json({ token: null });
+    // Same response whether email exists or not — don't leak account existence
+    return NextResponse.json({ ok: true });
   }
 
   const token = await createResetToken(user.id);
-  return NextResponse.json({ token });
+
+  // TODO: send token via email (e.g. Resend) instead of logging.
+  // Token is intentionally NOT returned in the HTTP response — doing so
+  // would allow account takeover without email access.
+  console.log(`[forgot-password] reset link for ${user.email}: /admin/reset-password?token=${token}`);
+
+  return NextResponse.json({ ok: true });
 }

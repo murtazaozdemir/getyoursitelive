@@ -9,7 +9,27 @@ function getCommitCount() {
   }
 }
 
+const securityHeaders = [
+  // Prevent clickjacking — admin pages must not be iframed
+  { key: "X-Frame-Options", value: "DENY" },
+  // Prevent MIME-type sniffing
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  // Don't leak the full URL in the Referer header to third parties
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  // Disable browser features we don't use
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+];
+
 const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: securityHeaders,
+      },
+    ];
+  },
+
   env: {
     NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
     NEXT_PUBLIC_APP_VERSION: `v${getCommitCount()}`,

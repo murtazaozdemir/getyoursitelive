@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import puppeteer from "puppeteer-core";
+import { getCurrentUser } from "@/lib/session";
 
 export const maxDuration = 60;
 
@@ -21,6 +22,11 @@ const CACHE_DIR = process.env.VERCEL
   : join(process.cwd(), "public", "proposal-screenshots");
 
 export async function GET(request: NextRequest) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+
   const { searchParams } = request.nextUrl;
   const slug = searchParams.get("slug");
   const section = searchParams.get("section") ?? "hero";

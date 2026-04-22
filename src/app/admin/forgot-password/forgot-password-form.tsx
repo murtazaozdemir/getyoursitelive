@@ -5,7 +5,6 @@ import Link from "next/link";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
-  const [resetUrl, setResetUrl] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -13,19 +12,15 @@ export function ForgotPasswordForm() {
     e.preventDefault();
 
     startTransition(async () => {
-      const res = await fetch("/api/auth/forgot-password", {
+      await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
-      const data = await res.json().catch(() => ({})) as { token?: string | null };
-
+      // Always show the same message regardless of whether the email exists.
+      // This prevents leaking which addresses are registered.
       setSubmitted(true);
-
-      if (data.token) {
-        setResetUrl(`${window.location.origin}/admin/reset-password?token=${data.token}`);
-      }
     });
   }
 
@@ -33,14 +28,8 @@ export function ForgotPasswordForm() {
     return (
       <div className="admin-section">
         <p className="admin-lede">
-          If that email is registered, a reset link will appear below.
+          If that email is registered, a reset link has been sent. Check your inbox.
         </p>
-        {resetUrl && (
-          <div className="admin-reset-link-box">
-            <p className="admin-reset-link-label">Your reset link:</p>
-            <a href={resetUrl} className="admin-reset-link-url">{resetUrl}</a>
-          </div>
-        )}
         <Link href="/admin/login" className="admin-auth-link">
           Back to sign in
         </Link>
