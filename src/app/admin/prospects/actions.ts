@@ -362,14 +362,15 @@ export async function createProspectAction(
   redirect(`/admin/prospects/${slug}`);
 }
 
-export async function updateProspectStatusAction(slug: string, status: ProspectStatus) {
+export async function updateProspectStatusAction(slug: string, status: ProspectStatus): Promise<{ ok: boolean }> {
   const user = await getCurrentUser();
-  if (!user || !canManageBusinesses(user)) throw new Error("Unauthorized");
+  if (!user || !canManageBusinesses(user)) return { ok: false };
 
   await updateProspect(slug, { status });
   await logAudit({ userEmail: user.email, userName: user.name, action: "prospect_status", slug, detail: status });
   revalidatePath("/admin/prospects");
   revalidatePath(`/admin/prospects/${slug}`);
+  return { ok: true };
 }
 
 export async function updateProspectInfoAction(
@@ -413,16 +414,17 @@ export async function updateProspectInfoAction(
   return { ok: true };
 }
 
-export async function addProspectNoteAction(slug: string, text: string) {
+export async function addProspectNoteAction(slug: string, text: string): Promise<{ ok: boolean }> {
   const user = await getCurrentUser();
-  if (!user || !canManageBusinesses(user)) throw new Error("Unauthorized");
+  if (!user || !canManageBusinesses(user)) return { ok: false };
 
   const prospect = await getProspect(slug);
-  if (!prospect) throw new Error("Prospect not found");
+  if (!prospect) return { ok: false };
 
   const note = { id: `n-${Date.now()}`, text, createdAt: new Date().toISOString() };
   await updateProspect(slug, { notes: [note, ...prospect.notes] });
   revalidatePath(`/admin/prospects/${slug}`);
+  return { ok: true };
 }
 
 export async function updateProspectDomainsAction(
@@ -442,9 +444,9 @@ export async function updateProspectDomainsAction(
   return { ok: true };
 }
 
-export async function deleteProspectAction(slug: string) {
+export async function deleteProspectAction(slug: string): Promise<{ ok: boolean }> {
   const user = await getCurrentUser();
-  if (!user || !canManageBusinesses(user)) throw new Error("Unauthorized");
+  if (!user || !canManageBusinesses(user)) return { ok: false };
 
   await logAudit({ userEmail: user.email, userName: user.name, action: "delete_prospect", slug });
   await deleteProspect(slug);

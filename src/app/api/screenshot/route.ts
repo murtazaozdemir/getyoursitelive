@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
   const slug = searchParams.get("slug");
   const section = searchParams.get("section") ?? "hero";
 
-  if (!slug || !(section in SECTION_SELECTORS)) {
+  if (!slug || !/^[a-z0-9-]+$/.test(slug) || !(section in SECTION_SELECTORS)) {
     return new NextResponse("Bad request", { status: 400 });
   }
 

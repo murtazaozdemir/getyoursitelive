@@ -6,10 +6,8 @@ import { canEditBusiness } from "@/lib/users";
 
 export const runtime = "nodejs";
 
-/** Max upload size in bytes (5MB). */
 const MAX_BYTES = 5 * 1024 * 1024;
 
-/** Allowed image mime types. */
 const ALLOWED_TYPES = new Set([
   "image/png",
   "image/jpeg",
@@ -19,25 +17,7 @@ const ALLOWED_TYPES = new Set([
   "image/gif",
 ]);
 
-/**
- * POST /api/upload
- *
- * Accepts a multipart form body with:
- *   - file: the image file to upload
- *   - slug: the business slug the upload belongs to (used for folder + auth)
- *
- * Saves to /public/uploads/{slug}/{timestamp}-{sanitized-filename} and
- * returns the public URL.
- *
- * Authentication: must be an admin or the owner of the given slug.
- * Size limit: 5MB. Type allow-list: png, jpg, webp, svg, gif.
- *
- * NOTE: on Cloudflare Pages the filesystem is read-only at runtime.
- * When we migrate to R2 in production this route's body swaps to an R2
- * putObject call; the interface (POST file, receive URL) stays the same.
- */
 export async function POST(req: NextRequest) {
-  // Auth
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
@@ -62,8 +42,6 @@ export async function POST(req: NextRequest) {
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
-
-  // Validate
   if (file.size > MAX_BYTES) {
     return NextResponse.json(
       { error: `File too large. Max ${MAX_BYTES / 1024 / 1024} MB.` },
@@ -77,7 +55,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Sanitize filename: keep the extension, lowercase alphanumeric + dashes
+  // Sanitize filename
   const origName = file.name || "upload";
   const ext = path.extname(origName).toLowerCase() || ".bin";
   const base = path
@@ -88,12 +66,22 @@ export async function POST(req: NextRequest) {
     .slice(0, 48);
   const filename = `${Date.now()}-${base || "file"}${ext}`;
 
-  // Write to public/uploads/{slug}/
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  // In production (Vercel Blob configured), upload to blob storage
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    const { put } = await import("@vercel/blob");
+    const blob = await put(`uploads/${slug}/${filename}`, buffer, {
+      access: "public",
+      contentType: file.type,
+      addRandomSuffix: false,
+    });
+    return NextResponse.json({ url: blob.url });
+  }
+
+  // Local dev: write to public/uploads/
   const dir = path.join(process.cwd(), "public", "uploads", slug);
   await fs.mkdir(dir, { recursive: true });
-  const buffer = Buffer.from(await file.arrayBuffer());
   await fs.writeFile(path.join(dir, filename), buffer);
-
-  const url = `/uploads/${slug}/${filename}`;
-  return NextResponse.json({ url });
+  return NextResponse.json({ url: `/uploads/${slug}/${filename}` });
 }
