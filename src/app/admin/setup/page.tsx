@@ -26,11 +26,11 @@ function SeedSection() {
 
   return (
     <section className="admin-section">
-      <h2 className="admin-section-title">Seed Blob storage</h2>
+      <h2 className="admin-section-title">Seed storage</h2>
       <p className="admin-section-lede">
         One-time restore: copies businesses and prospects from the deployment
-        files into Vercel Blob. Use after a fresh deploy if data is missing.
-        With hybrid storage active this is rarely needed.
+        files into the configured storage backend (R2). Use after a fresh
+        deploy or when setting up a new storage bucket.
       </p>
 
       {status === "idle" && (

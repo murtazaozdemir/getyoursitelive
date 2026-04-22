@@ -2,16 +2,16 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 import { createLocalStorage } from "@/lib/storage-local";
-import { createBlobStorage } from "@/lib/storage-blob";
+import { getStorage } from "@/lib/storage";
 
 /**
  * POST /api/admin/seed-blob
  *
  * One-time endpoint: reads all data files that shipped with the deployment
  * (data/businesses/*.json and data/prospects.json) and writes them to
- * Vercel Blob storage.
+ * the configured storage backend (R2, Blob, etc.).
  *
- * Admin-only. Safe to run multiple times — existing blobs are overwritten.
+ * Admin-only. Safe to run multiple times — existing objects are overwritten.
  */
 export async function POST() {
   const user = await getCurrentUser();
@@ -20,7 +20,7 @@ export async function POST() {
   }
 
   const src = createLocalStorage();
-  const dst = createBlobStorage();
+  const dst = await getStorage();
 
   const results: { key: string; ok: boolean; error?: string }[] = [];
 
