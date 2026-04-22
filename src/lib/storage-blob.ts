@@ -1,5 +1,5 @@
 import "server-only";
-import { put, del, head, list } from "@vercel/blob";
+import { put, del, list, download } from "@vercel/blob";
 import type { Storage } from "@/lib/storage";
 
 /**
@@ -16,12 +16,11 @@ import type { Storage } from "@/lib/storage";
 class BlobStorage implements Storage {
   async read(key: string): Promise<string | null> {
     try {
-      // List blobs with this exact pathname
       const { blobs } = await list({ prefix: key, limit: 1 });
       const match = blobs.find((b) => b.pathname === key);
       if (!match) return null;
 
-      const res = await fetch(match.url);
+      const res = await download(match.url);
       if (!res.ok) return null;
       return await res.text();
     } catch {
@@ -31,7 +30,7 @@ class BlobStorage implements Storage {
 
   async write(key: string, data: string): Promise<void> {
     await put(key, data, {
-      access: "public",
+      access: "private",
       contentType: "application/json",
       addRandomSuffix: false,
     });

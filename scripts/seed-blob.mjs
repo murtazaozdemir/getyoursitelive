@@ -55,7 +55,7 @@ async function main() {
   for (const rel of files) {
     const content = await readFile(join(DATA_DIR, rel), "utf-8");
     await put(rel, content, {
-      access: "public",
+      access: "private",
       contentType: "application/json",
       addRandomSuffix: false,
     });
