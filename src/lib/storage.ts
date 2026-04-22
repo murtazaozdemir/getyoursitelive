@@ -61,8 +61,13 @@ export async function getStorage(): Promise<Storage> {
     const { createR2Storage } = await import("@/lib/storage-r2");
     storageInstance = createR2Storage();
   } else if (backend === "blob") {
+    // Hybrid: Blob is authoritative for existing data; local deployment files
+    // fill in anything not yet in Blob (new additions committed to git).
+    // Writes always go to Blob. Deletes are tombstoned so local files don't resurface them.
     const { createBlobStorage } = await import("@/lib/storage-blob");
-    storageInstance = createBlobStorage();
+    const { createLocalStorage } = await import("@/lib/storage-local");
+    const { HybridStorage } = await import("@/lib/storage-hybrid");
+    storageInstance = new HybridStorage(createBlobStorage(), createLocalStorage());
   } else {
     const { createLocalStorage } = await import("@/lib/storage-local");
     storageInstance = createLocalStorage();
