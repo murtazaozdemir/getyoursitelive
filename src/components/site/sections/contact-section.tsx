@@ -25,12 +25,14 @@ export function ContactSection({
   errors,
   onSubmit,
   watch,
+  submitted,
 }: {
   register: UseFormRegister<HomeFormValues>;
   handleSubmit: UseFormHandleSubmit<HomeFormValues>;
   errors: FieldErrors<HomeFormValues>;
-  onSubmit: () => Promise<void>;
+  onSubmit: (data: HomeFormValues) => Promise<void>;
   watch: UseFormWatch<HomeFormValues>;
+  submitted?: boolean;
 }) {
   const { businessInfo, contact, services } = useBusiness();
   const edit = useEditMode();
@@ -128,14 +130,21 @@ export function ContactSection({
                     )}
                   />
                 </ul>
-                <p className="mt-2 text-xs" style={{ color: "var(--muted)" }}>
+                <p className="mt-2 text-xs text-[var(--muted)]">
                   Tip: an option named exactly &ldquo;Other&rdquo; reveals a text input so
                   customers can describe what they need.
                 </p>
               </div>
             </div>
+          ) : submitted ? (
+            <div className="mt-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center">
+              <p className="text-2xl font-bold text-[var(--accent)]">&#10003; Request received!</p>
+              <p className="mt-2 text-[var(--muted)]">
+                We&rsquo;ll confirm your appointment by phone or email shortly.
+              </p>
+            </div>
           ) : (
-            <form onSubmit={handleSubmit(() => onSubmit())} className="premium-form mt-6 grid gap-3">
+            <form onSubmit={handleSubmit(onSubmit)} className="premium-form mt-6 grid gap-3">
               <input {...register("name")} placeholder="Full name" className="input" />
               {errors.name && <FormError message="Enter a valid name (2+ letters)." />}
               <input {...register("email")} placeholder="Email" className="input" />

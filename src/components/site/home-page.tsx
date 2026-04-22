@@ -22,7 +22,7 @@ import { DealsSection } from "@/components/site/deals-section";
 import { useThemeStore } from "@/store/theme-store";
 
 export function HomePage() {
-  const { testimonials, services, stats, theme: businessTheme } = useBusiness();
+  const { testimonials, services, stats, theme: businessTheme, slug } = useBusiness();
   const { theme, setTheme } = useThemeStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [serviceTab, setServiceTab] = useState(services[0]?.id ?? "");
@@ -37,6 +37,7 @@ export function HomePage() {
   const [faqOpen, setFaqOpen] = useState(0);
   const [showTop, setShowTop] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [submitted, setSubmitted] = useState(false);
   const [counters, setCounters] = useState<number[]>(() => stats.map(() => 0));
 
   const {
@@ -92,10 +93,28 @@ export function HomePage() {
     return () => observer.disconnect();
   }, [stats]);
 
-  const onSubmit = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    reset();
-    alert("Thanks! Your booking request has been received.");
+  const onSubmit = async (data: HomeFormValues) => {
+    const service =
+      data.service === "Other" && data.serviceOther ? data.serviceOther : data.service;
+
+    const res = await fetch("/api/booking", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        slug,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        service,
+        date: data.date,
+        message: data.message ?? "",
+      }),
+    });
+
+    if (res.ok) {
+      reset();
+      setSubmitted(true);
+    }
   };
 
   return (
@@ -144,6 +163,7 @@ export function HomePage() {
         errors={errors}
         onSubmit={onSubmit}
         watch={watch}
+        submitted={submitted}
       />
       <FooterSection />
       <BackToTopButton show={showTop} />
