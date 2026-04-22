@@ -1,6 +1,6 @@
 {
   "slug": "kmg-auto-body-llc",
-  "category": "Auto Repair",
+  "category": "Auto Body",
   "theme": "modern",
   "businessInfo": {
     "name": "KMG Auto Body LLC",
@@ -321,6 +321,5 @@
     "showMap": true,
     "showHours": true
   },
-  "description": "AAA-approved collision repair and paint shop in Clifton, NJ. Specializes in collision restoration, full paint jobs, and uses OEM-trained techniques to return vehicles to pre-accident condition.",
-  "industry": "Auto Body"
+  "description": "AAA-approved collision repair and paint shop in Clifton, NJ. Specializes in collision restoration, full paint jobs, and uses OEM-trained techniques to return vehicles to pre-accident condition."
 }

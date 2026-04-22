@@ -10,7 +10,7 @@ function BizCard({
   prospect,
   showWarnings = true,
 }: {
-  biz: { slug: string; name: string; category: string; address: string; industry?: string };
+  biz: { slug: string; name: string; category: string; address: string };
   prospect?: { domain1?: string; domain2?: string; domain3?: string } | undefined;
   showWarnings?: boolean;
 }) {
@@ -18,7 +18,7 @@ function BizCard({
   const anyDomain = prospect?.domain1?.trim() || prospect?.domain2?.trim() || prospect?.domain3?.trim();
   const missingAddress = !hasAddress;
   const missingDomain = !anyDomain;
-  const isAutoRepair = !biz.industry || biz.industry === "Auto Repair";
+  const isAutoRepair = !biz.category || biz.category === "Auto Repair";
 
   return (
     <li className="admin-biz-card">
@@ -26,12 +26,12 @@ function BizCard({
         <p className="admin-biz-card-slug">/{biz.slug}</p>
         <h2 className="admin-biz-card-name">{biz.name}</h2>
         <p className="admin-biz-card-meta">
-          {biz.industry ?? biz.category}
+          {biz.category}
           {hasAddress && <> &middot; {biz.address}</>}
         </p>
         <div className="admin-biz-card-chips">
           {!isAutoRepair && (
-            <span className="prospect-chip prospect-chip--muted">{biz.industry}</span>
+            <span className="prospect-chip prospect-chip--muted">{biz.category}</span>
           )}
           {showWarnings && missingAddress && (
             <span className="prospect-chip prospect-chip--warn">No address</span>
@@ -93,8 +93,8 @@ export default async function AdminDashboard() {
   const [all, prospects] = await Promise.all([listBusinesses(), listProspects()]);
   const prospectBySlug = Object.fromEntries(prospects.map((p) => [p.slug, p]));
 
-  const autoRepair = all.filter((b) => !b.industry || b.industry === "Auto Repair");
-  const other = all.filter((b) => b.industry && b.industry !== "Auto Repair");
+  const autoRepair = all.filter((b) => !b.category || b.category === "Auto Repair");
+  const other = all.filter((b) => b.category && b.category !== "Auto Repair");
 
   return (
     <div className="admin-page">

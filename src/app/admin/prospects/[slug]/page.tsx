@@ -48,9 +48,9 @@ export default async function ProspectDetailPage({
             {prospect.phone && prospect.address && <span> &middot; </span>}
             {prospect.address && <span>{prospect.address}</span>}
           </p>
-          {biz?.industry && biz.industry !== "Auto Repair" && (
+          {biz?.category && biz.category !== "Auto Repair" && (
             <p className="admin-lede" style={{ marginTop: 6 }}>
-              <span className="prospect-chip prospect-chip--muted">{biz.industry}</span>
+              <span className="prospect-chip prospect-chip--muted">{biz.category}</span>
               {" "}
               <span style={{ fontSize: 13, color: "var(--admin-text-soft)" }}>
                 Not in the auto repair pipeline

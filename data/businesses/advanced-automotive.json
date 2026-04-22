@@ -1,6 +1,6 @@
 {
   "slug": "advanced-automotive",
-  "category": "Auto Repair",
+  "category": "Auto Body",
   "theme": "modern",
   "businessInfo": {
     "name": "Advanced Automotive",
@@ -321,6 +321,5 @@
     "showMap": true,
     "showHours": true
   },
-  "description": "Auto body and collision repair shop in Paterson, NJ. Provides collision repair, frame work, and automotive paint services, working with all major insurance companies.",
-  "industry": "Auto Body"
+  "description": "Auto body and collision repair shop in Paterson, NJ. Provides collision repair, frame work, and automotive paint services, working with all major insurance companies."
 }

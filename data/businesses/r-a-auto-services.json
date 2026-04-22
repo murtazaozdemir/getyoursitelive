@@ -1,6 +1,6 @@
 {
   "slug": "r-a-auto-services",
-  "category": "Auto Repair",
+  "category": "Auto Sales & Repair",
   "theme": "modern",
   "businessInfo": {
     "name": "R A Auto Services",
@@ -321,6 +321,5 @@
     "showMap": true,
     "showHours": true
   },
-  "description": "Auto repair and sales shop on Jersey Street in Paterson handling brake work, muffler and exhaust, BMW repair, and towing. Also operates under 'R&A Auto Services and Sales,' offering some used vehicle sales alongside mechanical repairs.",
-  "industry": "Auto Sales & Repair"
+  "description": "Auto repair and sales shop on Jersey Street in Paterson handling brake work, muffler and exhaust, BMW repair, and towing. Also operates under 'R&A Auto Services and Sales,' offering some used vehicle sales alongside mechanical repairs."
 }

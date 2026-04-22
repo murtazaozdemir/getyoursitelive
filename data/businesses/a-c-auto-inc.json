@@ -1,6 +1,6 @@
 {
   "slug": "a-c-auto-inc",
-  "category": "Auto Repair",
+  "category": "Auto Body",
   "theme": "modern",
   "businessInfo": {
     "name": "A & C Auto Inc",
@@ -321,6 +321,5 @@
     "showMap": true,
     "showHours": true
   },
-  "description": "Auto body and collision repair shop in Garfield, NJ. Provides full collision repair, frame work, and towing services. Holds an A+ BBB rating and has been in business since 2007.",
-  "industry": "Auto Body"
+  "description": "Auto body and collision repair shop in Garfield, NJ. Provides full collision repair, frame work, and towing services. Holds an A+ BBB rating and has been in business since 2007."
 }

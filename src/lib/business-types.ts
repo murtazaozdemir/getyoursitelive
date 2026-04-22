@@ -63,15 +63,15 @@ export interface HoursSchedule {
 
 export interface Business {
   slug: string;
+  /**
+   * Business category. "Auto Repair" for standard mechanic shops.
+   * Other values ("Auto Body", "Tire Shop", "Auto Sales & Repair",
+   * "Used Car Dealer") are shown in the admin but excluded from the
+   * auto repair pipeline.
+   */
   category: string;
   /** Short 2-3 sentence description of the business, sourced from Google Maps. */
   description?: string;
-  /**
-   * Business industry type. Used to filter the auto repair prospect list.
-   * Non-"Auto Repair" values (e.g. "Auto Body", "Used Car Dealer") are shown
-   * in the admin but excluded from the auto-repair pipeline.
-   */
-  industry?: string;
   theme: ThemeName;
   businessInfo: BusinessInfo;
   hoursSchedule: HoursSchedule;

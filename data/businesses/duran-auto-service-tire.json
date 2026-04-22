@@ -1,6 +1,6 @@
 {
   "slug": "duran-auto-service-tire",
-  "category": "Auto Repair",
+  "category": "Tire Shop",
   "theme": "modern",
   "businessInfo": {
     "name": "Duran Auto Service & Tire",
@@ -321,6 +321,5 @@
     "showMap": true,
     "showHours": true
   },
-  "description": "NAPA AutoCare Center in Paterson, NJ operating since 2011, staffed by ASE-certified technicians. Specializes in tires, wheel alignment, oil changes, transmission service, and general mechanical repair.",
-  "industry": "Tire Shop"
+  "description": "NAPA AutoCare Center in Paterson, NJ operating since 2011, staffed by ASE-certified technicians. Specializes in tires, wheel alignment, oil changes, transmission service, and general mechanical repair."
 }

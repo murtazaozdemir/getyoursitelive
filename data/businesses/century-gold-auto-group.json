@@ -1,6 +1,6 @@
 {
   "slug": "century-gold-auto-group",
-  "category": "Auto Repair",
+  "category": "Used Car Dealer",
   "theme": "modern",
   "businessInfo": {
     "name": "Century Gold Auto Group",
@@ -321,6 +321,5 @@
     "showMap": true,
     "showHours": true
   },
-  "description": "Auto group located in Clifton, NJ. Based on available information, this business operates primarily as a used car sales operation rather than a mechanical repair facility.",
-  "industry": "Used Car Dealer"
+  "description": "Auto group located in Clifton, NJ. Based on available information, this business operates primarily as a used car sales operation rather than a mechanical repair facility."
 }
