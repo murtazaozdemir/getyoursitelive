@@ -7,21 +7,17 @@ import { useBusiness } from "@/lib/business-context";
 import { HomeFormValues, homeFormSchema } from "@/components/site/home.schema";
 import { BackToTopButton } from "@/components/site/back-to-top";
 import { LoadingOverlay, SiteHeader } from "@/components/site/home-chrome";
-import {
-  AboutSection,
-  HeroSection,
-  ServicesSection,
-  StatsSection,
-} from "@/components/site/home-primary-sections";
-import {
-  ContactSection,
-  EmergencyBanner,
-  FaqSection,
-  FooterSection,
-  PricingSection,
-  TechniciansSection,
-  TestimonialsSection,
-} from "@/components/site/home-secondary-sections";
+import { HeroSection } from "@/components/site/sections/hero-section";
+import { AboutSection } from "@/components/site/sections/about-section";
+import { StatsSection } from "@/components/site/sections/stats-section";
+import { ServicesSection } from "@/components/site/sections/services-section";
+import { TechniciansSection } from "@/components/site/sections/technicians-section";
+import { TestimonialsSection } from "@/components/site/sections/testimonials-section";
+import { EmergencyBanner } from "@/components/site/sections/emergency-banner";
+import { PricingSection } from "@/components/site/sections/pricing-section";
+import { FaqSection } from "@/components/site/sections/faq-section";
+import { ContactSection } from "@/components/site/sections/contact-section";
+import { FooterSection } from "@/components/site/sections/footer-section";
 import { DealsSection } from "@/components/site/deals-section";
 import { useThemeStore } from "@/store/theme-store";
 
