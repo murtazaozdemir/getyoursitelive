@@ -105,6 +105,7 @@ export default async function ProposalPage({
         <header className="proposal-header">
           <div className="proposal-header-from">
             <strong>Get Your Site Live</strong>
+            <span>getyoursitelive.com</span>
             <span>Proposal</span>
           </div>
           <div className="proposal-header-to">
