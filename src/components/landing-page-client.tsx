@@ -14,6 +14,15 @@ function resolveTheme(pref: ThemePref): ResolvedTheme {
   return h >= 7 && h < 20 ? "light" : "dark";
 }
 
+function formatBuildTime(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleString("en-US", {
+    month: "short", day: "numeric", year: "numeric",
+    hour: "numeric", minute: "2-digit", hour12: true,
+    timeZone: "UTC", timeZoneName: "short",
+  });
+}
+
 // ── Data ────────────────────────────────────────────────────────────────
 
 const FEATURES = [
@@ -108,14 +117,30 @@ function ThemeSwitcher({
 
 // ── Main component ───────────────────────────────────────────────────────
 
-export function LandingPageClient({ year }: { year: number }) {
-  const [pref, setPref] = useState<ThemePref>("dark");
+export function LandingPageClient({
+  year,
+  version,
+  buildTime,
+}: {
+  year: number;
+  version: string;
+  buildTime: string;
+}) {
+  const [pref, setPref] = useState<ThemePref>("light");
 
   // Hydrate from localStorage
   useEffect(() => {
     const saved = localStorage.getItem("lp-theme") as ThemePref | null;
     if (saved && ["dark", "light", "auto"].includes(saved)) setPref(saved);
   }, []);
+
+  // Auto mode: re-evaluate resolved theme every minute
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (pref !== "auto") return;
+    const id = setInterval(() => setTick((t) => t + 1), 60_000);
+    return () => clearInterval(id);
+  }, [pref]);
 
   function handleChange(p: ThemePref) {
     setPref(p);
@@ -307,10 +332,18 @@ export function LandingPageClient({ year }: { year: number }) {
 
       {/* ── FOOTER ── */}
       <footer className="border-t border-slate-100 px-6 py-5">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-[#E85D29]" aria-hidden />
-            <span className="lp-mono text-[11px] uppercase tracking-[0.18em] text-slate-400">Get Your Site Live</span>
+            <span className="lp-mono text-[11px] uppercase tracking-[0.18em] text-slate-400">
+              Get Your Site Live
+            </span>
+            <span className="lp-mono text-[11px] text-slate-300">
+              v{version}
+            </span>
+            <span className="lp-mono text-[11px] text-slate-300">
+              ({formatBuildTime(buildTime)})
+            </span>
           </div>
           <p className="lp-mono text-[11px] uppercase tracking-[0.18em] text-slate-400">
             © {year}
