@@ -753,16 +753,17 @@
   overflow: hidden;
 }
 .prospect-column-header {
-  padding: 10px 12px;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--admin-border);
+  background: var(--admin-text);
+  border-bottom: 2px solid var(--admin-border);
 }
 .prospect-column-count {
   font-size: 13px;
-  font-weight: 600;
-  color: var(--admin-text-muted);
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
 }
 .prospect-column-cards {
   padding: 8px;
@@ -875,6 +876,13 @@
 .prospect-badge--interested{ background: #d1fae5; color: #065f46; }
 .prospect-badge--paid      { background: #dcfce7; color: #14532d; }
 .prospect-badge--delivered { background: #f3f4f6; color: #374151; }
+
+/* Badges inside dark column headers — keep them bright */
+.prospect-column-header .prospect-badge--found     { background: rgba(255,255,255,0.15); color: #93c5fd; }
+.prospect-column-header .prospect-badge--contacted { background: rgba(255,255,255,0.15); color: #fcd34d; }
+.prospect-column-header .prospect-badge--interested{ background: rgba(255,255,255,0.15); color: #6ee7b7; }
+.prospect-column-header .prospect-badge--paid      { background: rgba(255,255,255,0.15); color: #86efac; }
+.prospect-column-header .prospect-badge--delivered { background: rgba(255,255,255,0.15); color: #d1d5db; }
 
 /* Stage selector — chevron arrow chain */
 .prospect-stages {
