@@ -263,7 +263,7 @@
   margin: 4px 0 0;
 }
 .admin-biz-card-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-.admin-biz-card-actions { display: flex; gap: 8px; }
+.admin-biz-card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .admin-empty {
   background: var(--admin-surface);
