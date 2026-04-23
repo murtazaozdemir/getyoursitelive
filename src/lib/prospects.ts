@@ -29,6 +29,10 @@ export interface Prospect {
   domain1?: string;
   domain2?: string;
   domain3?: string;
+  /** ISO timestamp of when a proposal was last generated for this lead */
+  proposalSentAt?: string;
+  /** Email of the admin who last generated the proposal */
+  proposalSentBy?: string;
   createdAt: string;
   updatedAt: string;
 }

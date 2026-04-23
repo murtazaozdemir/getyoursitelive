@@ -5,13 +5,17 @@ import { listProspects } from "@/lib/prospects";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
 function BizCard({
   biz,
   prospect,
   showWarnings = true,
 }: {
   biz: { slug: string; name: string; category: string; address: string };
-  prospect?: { domain1?: string; domain2?: string; domain3?: string } | undefined;
+  prospect?: { domain1?: string; domain2?: string; domain3?: string; proposalSentAt?: string } | undefined;
   showWarnings?: boolean;
 }) {
   const hasAddress = !!biz.address?.trim();
@@ -53,14 +57,16 @@ function BizCard({
         >
           Preview Site
         </Link>
-        {isAutoRepair && (
+        {/* Clients already paid — show proposal history, not a generate button */}
+        {isAutoRepair && prospect?.proposalSentAt && (
           <Link
             href={`/admin/proposal/${biz.slug}`}
             className="admin-btn admin-btn--ghost"
             target="_blank"
             rel="noreferrer"
+            title="View the proposal that was sent to this client"
           >
-            Proposal
+            Proposal sent {fmtDate(prospect.proposalSentAt)}
           </Link>
         )}
       </div>

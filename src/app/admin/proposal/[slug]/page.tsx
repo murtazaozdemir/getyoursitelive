@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getBusinessBySlug } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses, findUserById } from "@/lib/users";
+import { getProspect, updateProspect } from "@/lib/prospects";
 import { PrintButton } from "./print-button";
 import "./proposal.css";
 
@@ -60,6 +61,15 @@ export default async function ProposalPage({
 
   const biz = await getBusinessBySlug(slug);
   if (!biz) notFound();
+
+  // Record that this proposal was generated (fire-and-forget — don't block render)
+  const prospect = await getProspect(slug);
+  if (prospect) {
+    await updateProspect(slug, {
+      proposalSentAt: new Date().toISOString(),
+      proposalSentBy: sessionUser.email,
+    });
+  }
 
   // Build reseller contact info from the logged-in admin's profile
   const sellerName = user.name;
