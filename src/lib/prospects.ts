@@ -6,7 +6,7 @@ const PROSPECTS_KEY = "prospects.json";
 export type ProspectStatus = "found" | "contacted" | "interested" | "paid" | "delivered";
 
 export const PIPELINE_STAGES: { status: ProspectStatus; label: string }[] = [
-  { status: "found", label: "Found" },
+  { status: "found", label: "Information Complete" },
   { status: "contacted", label: "Contacted" },
   { status: "interested", label: "Interested" },
   { status: "paid", label: "Paid" },
