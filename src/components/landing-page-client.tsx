@@ -142,11 +142,11 @@ export function LandingPageClient({ year }: { year: number }) {
             <a href="#process" className="transition-colors hover:text-slate-900">How it works</a>
           </nav>
           <div className="flex items-center gap-3">
-            <ThemeSwitcher pref={pref} onChange={handleChange} />
             <ContactModal
               label="Get started →"
               className="rounded-full bg-[#E85D29] px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-[#cf4e20]"
             />
+            <ThemeSwitcher pref={pref} onChange={handleChange} />
           </div>
         </div>
       </header>
@@ -176,7 +176,7 @@ export function LandingPageClient({ year }: { year: number }) {
           </h1>
 
           <p className="lp-surface-muted mx-auto mt-7 max-w-lg text-base leading-relaxed md:text-lg">
-            A professional website on a domain you own — built in 1–2 days,
+            A professional website on a domain you own —
             fully customizable, no monthly fees. Ever.
           </p>
 
