@@ -870,6 +870,7 @@
   letter-spacing: 0.06em;
   padding: 3px 7px;
   border-radius: 999px;
+  white-space: nowrap;
 }
 .prospect-badge--found     { background: #e8f0fe; color: #1a56db; }
 .prospect-badge--contacted { background: #fef3c7; color: #92400e; }
@@ -954,6 +955,21 @@
 .prospect-stage-btn--active:hover {
   background: var(--admin-accent);
   color: var(--admin-accent-text);
+}
+
+.prospect-stage-btn--locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.prospect-stage-locked {
+  font-size: 13px;
+  color: var(--admin-text-soft);
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  background: var(--admin-surface-2);
+  border-radius: var(--admin-radius);
+  border: 1px solid var(--admin-border);
 }
 
 /* Preview link row */

@@ -364,21 +364,28 @@ export async function createProspectAction(
   redirect(`/admin/leads/${slug}`);
 }
 
-export async function updateProspectStatusAction(slug: string, status: ProspectStatus): Promise<{ ok: boolean }> {
+const FOUNDER_EMAIL = "murtaza@getyoursitelive.com";
+
+export async function updateProspectStatusAction(slug: string, status: ProspectStatus): Promise<{ ok: boolean; locked?: boolean }> {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) return { ok: false };
+
+  const existing = await getProspect(slug);
+
+  // Once a lead is contacted, it's locked to that reseller.
+  // Only the reseller who contacted it (or the Founder) can advance the stage.
+  if (existing?.contactedBy && existing.contactedBy !== user.email && user.email !== FOUNDER_EMAIL) {
+    return { ok: false, locked: true };
+  }
 
   const patch: Partial<Parameters<typeof updateProspect>[1]> & { status: ProspectStatus } = { status };
 
   // Record who first moved this lead to "contacted" — used for commission tracking.
   // Only set once; never overwrite an existing attribution.
-  if (status === "contacted") {
-    const existing = await getProspect(slug);
-    if (existing && !existing.contactedBy) {
-      patch.contactedBy = user.email;
-      patch.contactedByName = user.name;
-      patch.contactedAt = new Date().toISOString();
-    }
+  if (status === "contacted" && existing && !existing.contactedBy) {
+    patch.contactedBy = user.email;
+    patch.contactedByName = user.name;
+    patch.contactedAt = new Date().toISOString();
   }
 
   await updateProspect(slug, patch);

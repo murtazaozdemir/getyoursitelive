@@ -21,7 +21,7 @@ const BUSINESS_CATEGORIES = [
 ] as const;
 
 type ActionProps =
-  | { action: "status"; slug: string; status: ProspectStatus; label: string; active: boolean; past: boolean }
+  | { action: "status"; slug: string; status: ProspectStatus; label: string; active: boolean; past: boolean; locked?: boolean }
   | { action: "copy"; slug: string; previewUrl: string }
   | { action: "add-note"; slug: string }
   | { action: "edit-info"; slug: string; name: string; phone: string; address: string; category: string }
@@ -33,7 +33,7 @@ export function ProspectActions(props: ActionProps) {
   const [isPending, startTransition] = useTransition();
 
   if (props.action === "status") {
-    const { slug, status, label, active, past } = props;
+    const { slug, status, label, active, past, locked } = props;
     return (
       <button
         type="button"
@@ -41,11 +41,14 @@ export function ProspectActions(props: ActionProps) {
           "prospect-stage-btn",
           active ? "prospect-stage-btn--active" : "",
           past ? "prospect-stage-btn--past" : "",
+          locked && !active ? "prospect-stage-btn--locked" : "",
         ]
           .filter(Boolean)
           .join(" ")}
-        disabled={active || isPending}
+        disabled={active || isPending || (locked && !active)}
+        title={locked && !active ? "Locked — another reseller is handling this lead" : undefined}
         onClick={() => {
+          if (locked) return;
           startTransition(async () => {
             await updateProspectStatusAction(slug, status);
           });

@@ -6,6 +6,8 @@ import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 import { ProspectActions } from "./prospect-actions";
 
+const FOUNDER_EMAIL = "murtaza@getyoursitelive.com";
+
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
     month: "short",
@@ -35,6 +37,13 @@ export default async function ProspectDetailPage({
   const currentStageIdx = PIPELINE_STAGES.findIndex((s) => s.status === prospect.status);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const previewUrl = `${siteUrl}/${slug}`;
+
+  // Lock stage changes: only the reseller who first contacted it (or Founder) can advance
+  const isLocked =
+    !!prospect.contactedBy &&
+    prospect.contactedBy !== user.email &&
+    user.email !== FOUNDER_EMAIL;
+  const lockedToName = prospect.contactedByName ?? prospect.contactedBy ?? null;
 
   return (
     <div className="admin-page">
@@ -75,6 +84,11 @@ export default async function ProspectDetailPage({
           {/* Pipeline stage selector */}
           <section className="admin-section">
             <h2 className="admin-section-title">Pipeline stage</h2>
+            {isLocked && (
+              <p className="prospect-stage-locked">
+                🔒 Locked to {lockedToName} — only they can advance this lead.
+              </p>
+            )}
             <div className="prospect-stages">
               {PIPELINE_STAGES.map(({ status, label }, i) => (
                 <ProspectActions
@@ -85,6 +99,7 @@ export default async function ProspectDetailPage({
                   label={label}
                   active={prospect.status === status}
                   past={i < currentStageIdx}
+                  locked={isLocked}
                 />
               ))}
             </div>
