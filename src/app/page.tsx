@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 const FEATURES = [
   { icon: "🌐", label: "Your Own Domain", body: "Registered in your name. First year included." },
   { icon: "📱", label: "Mobile-First", body: "Looks sharp on every device — phone, tablet, desktop." },
-  { icon: "📅", label: "Booking Form", body: "Customers request appointments any time." },
+  { icon: "📋", label: "Contact Form", body: "Customers reach you directly through your site." },
   { icon: "💰", label: "Services & Pricing", body: "Your services and prices, on your terms." },
   { icon: "⭐", label: "Real Reviews", body: "Customer testimonials, prominently featured." },
   { icon: "📞", label: "One-Tap Call", body: "One tap on any phone — dials you directly." },
@@ -99,8 +99,35 @@ export default function LandingPage() {
             <h2 className="lp-display-heading text-[clamp(1.75rem,3.5vw,2.75rem)] leading-tight tracking-[-0.02em]">
               Everything included.
             </h2>
-            <p className="hidden text-sm text-slate-400 md:block">8 things. No surprises.</p>
+            <p className="hidden text-sm text-slate-400 md:block">No surprises.</p>
           </div>
+
+          {/* Admin panel — killer feature callout */}
+          <div className="mb-3 overflow-hidden rounded-xl bg-[#0F172A] p-6 md:p-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+              <div>
+                <span className="lp-mono text-[10px] uppercase tracking-[0.25em] text-[#E85D29]">
+                  ✦ Included with every site
+                </span>
+                <h3 className="mt-2 text-xl font-semibold text-white md:text-2xl">
+                  You control your site. No developer needed.
+                </h3>
+                <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/50">
+                  Every site comes with a built-in admin panel. Update your hours, services,
+                  photos, pricing, and reviews yourself — from any device, any time.
+                  Click-to-edit directly on the page. Changes go live instantly.
+                </p>
+              </div>
+              <div className="shrink-0 grid grid-cols-2 gap-2 text-xs text-white/40 md:grid-cols-1">
+                {["Edit content inline", "Upload your own photos", "Toggle sections on/off", "Update hours & pricing"].map(f => (
+                  <div key={f} className="flex items-center gap-2">
+                    <span className="text-[#E85D29]">✓</span>{f}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             {FEATURES.map(({ icon, label, body }) => (
               <div key={label} className="rounded-xl border border-slate-100 bg-slate-50 p-5">
@@ -155,8 +182,8 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-10 grid grid-cols-2 gap-3 border-t border-white/10 pt-10 sm:grid-cols-4">
-            {["Domain (yr 1 incl.)", "Mobile-ready design", "Booking form", "Services & pricing",
-              "Customer reviews", "One-tap calling", "Google Map", "No recurring fees"].map((item) => (
+            {["Domain (yr 1 incl.)", "Mobile-ready design", "Contact form", "Services & pricing",
+              "Customer reviews", "One-tap calling", "Google Map", "Admin panel included"].map((item) => (
               <div key={item} className="flex items-center gap-2 text-xs text-white/50">
                 <span className="text-[#E85D29]">✓</span>
                 {item}
