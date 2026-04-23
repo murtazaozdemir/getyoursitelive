@@ -58,9 +58,11 @@ function BizCard({
         )}
       </div>
       <div className="admin-biz-card-actions">
-        <Link href={`/admin/leads/${biz.slug}`} className="admin-btn admin-btn--primary">
-          Lead info
-        </Link>
+        {prospect && (
+          <Link href={`/admin/leads/${biz.slug}`} className="admin-btn admin-btn--primary">
+            Lead info
+          </Link>
+        )}
         <Link
           href={`/${biz.slug}`}
           className="admin-btn admin-btn--ghost"
