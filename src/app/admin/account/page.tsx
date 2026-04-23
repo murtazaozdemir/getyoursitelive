@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
-import { ChangeEmailForm, ChangePasswordForm } from "./account-actions";
+import { ProfileForm, ChangeEmailForm, ChangePasswordForm } from "./account-actions";
 
 export const metadata = {
   title: "My Account · Admin",
@@ -17,10 +17,11 @@ export default async function AccountPage() {
         <div>
           <p className="admin-eyebrow">Admin</p>
           <h1 className="admin-h1">My Account</h1>
-          <p className="admin-lede">Manage your email and password.</p>
+          <p className="admin-lede">Manage your profile, email and password.</p>
         </div>
       </div>
 
+      <ProfileForm user={user} />
       <ChangeEmailForm currentEmail={user.email} />
       <ChangePasswordForm />
     </div>

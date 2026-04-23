@@ -180,6 +180,25 @@ export async function updateUserEmail(id: string, newEmail: string): Promise<voi
   await writeJson(storage, USERS_KEY, users);
 }
 
+export async function updateUserProfile(
+  id: string,
+  fields: { name: string; phone?: string; street?: string; city?: string; zip?: string; state?: string },
+): Promise<void> {
+  const users = await loadUsers();
+  const idx = users.findIndex((u) => u.id === id);
+  if (idx === -1) throw new Error(`No user with id ${id}`);
+
+  users[idx].name = fields.name.trim();
+  users[idx].phone = fields.phone?.trim() || null;
+  users[idx].street = fields.street?.trim() || null;
+  users[idx].city = fields.city?.trim() || null;
+  users[idx].zip = fields.zip?.trim() || null;
+  users[idx].state = fields.state?.trim() || null;
+
+  const storage = await getStorage();
+  await writeJson(storage, USERS_KEY, users);
+}
+
 export async function deleteUser(id: string): Promise<void> {
   const users = await loadUsers();
   const filtered = users.filter((u) => u.id !== id);

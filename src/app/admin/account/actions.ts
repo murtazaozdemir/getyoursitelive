@@ -1,7 +1,7 @@
 "use server";
 
 import { requireUser } from "@/lib/session";
-import { verifyCredentials, updateUserEmail, updateUserPassword } from "@/lib/users";
+import { verifyCredentials, updateUserEmail, updateUserPassword, updateUserProfile } from "@/lib/users";
 
 export async function changeEmailAction(
   newEmail: string,
@@ -49,4 +49,32 @@ export async function changePasswordAction(
 
   await updateUserPassword(user.id, newPassword);
   return { ok: true };
+}
+
+export async function updateProfileAction(fields: {
+  name: string;
+  phone?: string;
+  street?: string;
+  city?: string;
+  zip?: string;
+  state?: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  let user;
+  try {
+    user = await requireUser();
+  } catch {
+    return { ok: false, error: "Unauthorized" };
+  }
+
+  if (!fields.name.trim()) {
+    return { ok: false, error: "Name is required." };
+  }
+
+  try {
+    await updateUserProfile(user.id, fields);
+    return { ok: true };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Failed to update profile.";
+    return { ok: false, error: msg };
+  }
 }
