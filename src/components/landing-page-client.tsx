@@ -39,7 +39,7 @@ const FEATURES = [
 const STEPS = [
   { n: "01", title: "We talk", body: "20 minutes. You describe your shop; I ask the questions you didn't think of." },
   { n: "02", title: "We build", body: "Live in 1–2 days. Professional tools, no shortcuts." },
-  { n: "03", title: "You review", body: "Try it on your phone. We adjust until it's exactly right." },
+  { n: "03", title: "You review", body: "Try it on your phone. Minor tweaks are included." },
   { n: "04", title: "It's yours", body: "Pay once, go live. You own it completely — forever." },
 ];
 
