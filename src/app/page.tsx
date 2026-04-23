@@ -136,16 +136,16 @@ export default function LandingPage() {
                   ✦ Included with every site
                 </span>
                 <h3 className="mt-2 text-xl font-semibold text-white md:text-2xl">
-                  You control your site. No developer needed.
+                  Fully customize your site — any time, 24/7.
                 </h3>
                 <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/50">
-                  Every site comes with a built-in admin panel. Update your hours, services,
-                  photos, pricing, and reviews yourself — from any device, any time.
-                  Click-to-edit directly on the page. Changes go live instantly.
+                  Every site comes with a built-in admin panel. Swap your own photos, rewrite
+                  your services, change your hours, update pricing — directly on the page,
+                  from your phone or laptop. No developer, no wait, no cost. Changes go live instantly.
                 </p>
               </div>
               <div className="shrink-0 grid grid-cols-2 gap-2 text-xs text-white/40 md:grid-cols-1">
-                {["Edit content inline", "Upload your own photos", "Toggle sections on/off", "Update hours & pricing"].map(f => (
+                {["Upload your own photos", "Edit any text, any time", "Update hours & pricing", "Toggle sections on/off"].map(f => (
                   <div key={f} className="flex items-center gap-2">
                     <span className="text-[#E85D29]">✓</span>{f}
                   </div>
