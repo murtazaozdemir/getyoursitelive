@@ -1,22 +1,35 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { listProspects, PIPELINE_STAGES, type Prospect } from "@/lib/prospects";
+import { listBusinesses } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
+import { FilterSortBar } from "@/app/admin/filter-bar";
+
+function parseAddress(address?: string) {
+  if (!address?.trim()) return { city: "", state: "", zip: "" };
+  const parts = address.split(",").map((s) => s.trim());
+  if (parts.length >= 3) {
+    const stateZip = parts[parts.length - 1].trim().split(/\s+/);
+    return {
+      city: parts[parts.length - 2] ?? "",
+      state: stateZip[0] ?? "",
+      zip: stateZip[1] ?? "",
+    };
+  }
+  return { city: "", state: "", zip: "" };
+}
 
 function dataChips(p: Prospect) {
   const allDomains = p.domain1?.trim() && p.domain2?.trim() && p.domain3?.trim();
   const anyDomain = p.domain1?.trim() || p.domain2?.trim() || p.domain3?.trim();
   const hasAddress = !!p.address?.trim();
-
   const chips: { label: string; cls: string }[] = [];
-
   if (!allDomains || !hasAddress) {
     if (!hasAddress) chips.push({ label: "Address missing", cls: "prospect-chip--warn" });
     if (!anyDomain) chips.push({ label: "Domains missing", cls: "prospect-chip--warn" });
     else if (!allDomains) chips.push({ label: "Domains incomplete", cls: "prospect-chip--warn" });
   }
-
   return chips;
 }
 
@@ -35,29 +48,94 @@ function statusLabel(status: Prospect["status"]) {
   return PIPELINE_STAGES.find((s) => s.status === status)?.label ?? status;
 }
 
+function unique<T>(arr: T[]): T[] {
+  return [...new Set(arr)].filter(Boolean).sort() as T[];
+}
+
+type SortKey = "createdAt" | "name" | "status" | "category" | "city" | "state" | "zip";
+
+function applySort(
+  list: (Prospect & { _city: string; _state: string; _zip: string; _category: string })[],
+  sortBy: SortKey,
+  sortDir: "asc" | "desc",
+) {
+  return [...list].sort((a, b) => {
+    let va = "";
+    let vb = "";
+    if (sortBy === "name") { va = a.name; vb = b.name; }
+    else if (sortBy === "status") { va = a.status; vb = b.status; }
+    else if (sortBy === "category") { va = a._category; vb = b._category; }
+    else if (sortBy === "city") { va = a._city; vb = b._city; }
+    else if (sortBy === "state") { va = a._state; vb = b._state; }
+    else if (sortBy === "zip") { va = a._zip; vb = b._zip; }
+    else { va = a.createdAt; vb = b.createdAt; }
+    const cmp = va.localeCompare(vb);
+    return sortDir === "asc" ? cmp : -cmp;
+  });
+}
+
 export default async function LeadsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const user = await getCurrentUser();
   if (!user) return null;
   if (!canManageBusinesses(user)) redirect("/admin");
 
-  const { view: viewParam } = await searchParams;
-  const view = viewParam === "cards" ? "cards" : "pipeline";
+  const params = await searchParams;
+  const view = params.view === "cards" ? "cards" : "pipeline";
+  const filterStatus = params.filterStatus ?? "";
+  const filterCity = params.filterCity ?? "";
+  const filterState = params.filterState ?? "";
+  const filterZip = params.filterZip ?? "";
+  const filterCategory = params.filterCategory ?? "";
+  const sortBy = (params.sortBy ?? "createdAt") as SortKey;
+  const sortDir = (params.sortDir === "asc" ? "asc" : "desc") as "asc" | "desc";
 
-  const allProspects = await listProspects();
+  const [allProspects, allBiz] = await Promise.all([listProspects(), listBusinesses()]);
+  const bizBySlug = Object.fromEntries(allBiz.map((b) => [b.slug, b]));
 
-  // Paid and delivered leads have graduated to Clients — exclude them here
-  const prospects = allProspects.filter((p) => p.status !== "paid" && p.status !== "delivered");
+  // Only active leads (not graduated to clients)
+  const active = allProspects.filter((p) => p.status !== "paid" && p.status !== "delivered");
 
+  // Enrich with parsed address + category
+  const enriched = active.map((p) => {
+    const { city, state, zip } = parseAddress(p.address);
+    const category = bizBySlug[p.slug]?.category ?? "Auto Repair";
+    return { ...p, _city: city, _state: state, _zip: zip, _category: category };
+  });
+
+  // Collect unique values for dropdowns
+  const allCities = unique(enriched.map((p) => p._city).filter(Boolean));
+  const allStates = unique(enriched.map((p) => p._state).filter(Boolean));
+  const allZips = unique(enriched.map((p) => p._zip).filter(Boolean));
+  const allCategories = unique(enriched.map((p) => p._category).filter(Boolean));
+
+  // Apply filters
+  const filtered = enriched.filter((p) => {
+    if (filterStatus && p.status !== filterStatus) return false;
+    if (filterCity && p._city.toLowerCase() !== filterCity.toLowerCase()) return false;
+    if (filterState && p._state.toUpperCase() !== filterState.toUpperCase()) return false;
+    if (filterZip && p._zip !== filterZip) return false;
+    if (filterCategory && p._category !== filterCategory) return false;
+    return true;
+  });
+
+  // Apply sort
+  const prospects = applySort(filtered, sortBy, sortDir);
+
+  // For pipeline view, group by status (after filter+sort)
   const byStatus = Object.fromEntries(
     PIPELINE_STAGES.filter(({ status }) => status !== "paid" && status !== "delivered").map(({ status }) => [
       status,
       prospects.filter((p) => p.status === status),
     ]),
-  ) as Record<Prospect["status"], Prospect[]>;
+  ) as Record<Prospect["status"], typeof prospects>;
+
+  const activeStatuses = PIPELINE_STAGES.filter(
+    ({ status }) => status !== "paid" && status !== "delivered",
+  );
 
   return (
     <div className="admin-page">
@@ -66,21 +144,20 @@ export default async function LeadsPage({
           <p className="admin-eyebrow">Platform admin</p>
           <h1 className="admin-h1">Leads</h1>
           <p className="admin-lede">
-            {prospects.length} active lead{prospects.length !== 1 ? "s" : ""}.
-            Paid leads move to Clients automatically.
+            {prospects.length} of {active.length} active lead{active.length !== 1 ? "s" : ""}.
+            {" "}Paid leads move to Clients automatically.
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          {/* View toggle */}
           <div className="admin-view-toggle">
             <Link
-              href="/admin/leads?view=pipeline"
+              href={`/admin/leads?view=pipeline`}
               className={`admin-view-toggle-btn${view === "pipeline" ? " admin-view-toggle-btn--active" : ""}`}
             >
               Pipeline
             </Link>
             <Link
-              href="/admin/leads?view=cards"
+              href={`/admin/leads?view=cards`}
               className={`admin-view-toggle-btn${view === "cards" ? " admin-view-toggle-btn--active" : ""}`}
             >
               Cards
@@ -92,17 +169,37 @@ export default async function LeadsPage({
         </div>
       </div>
 
-      {prospects.length === 0 ? (
+      <FilterSortBar
+        showStatus
+        statuses={activeStatuses.map((s) => ({ value: s.status, label: s.label }))}
+        cities={allCities}
+        states={allStates}
+        zips={allZips}
+        categories={allCategories}
+        filterStatus={filterStatus}
+        filterCity={filterCity}
+        filterState={filterState}
+        filterZip={filterZip}
+        filterCategory={filterCategory}
+        sortBy={sortBy}
+        sortDir={sortDir}
+      />
+
+      {active.length === 0 ? (
         <div className="admin-empty">
           <p>No leads yet. Add your first one.</p>
           <Link href="/admin/leads/new" className="admin-btn admin-btn--primary">
             Add lead
           </Link>
         </div>
+      ) : prospects.length === 0 ? (
+        <div className="admin-empty">
+          <p>No leads match your filters.</p>
+        </div>
       ) : view === "pipeline" ? (
         /* ── PIPELINE VIEW ────────────────────────────────────── */
         <div className="prospect-pipeline">
-          {PIPELINE_STAGES.filter(({ status }) => status !== "paid" && status !== "delivered").map(({ status, label }) => (
+          {activeStatuses.map(({ status, label }) => (
             <div key={status} className="prospect-column">
               <div className="prospect-column-header">
                 <span className={`prospect-badge ${statusBadge(status)}`}>{label}</span>
@@ -115,20 +212,14 @@ export default async function LeadsPage({
                   byStatus[status].map((p) => {
                     const chips = dataChips(p);
                     return (
-                      <Link
-                        key={p.slug}
-                        href={`/admin/leads/${p.slug}`}
-                        className="prospect-card"
-                      >
+                      <Link key={p.slug} href={`/admin/leads/${p.slug}`} className="prospect-card">
                         <p className="prospect-card-name">{p.name}</p>
                         {p.phone && <p className="prospect-card-meta">{p.phone}</p>}
                         {p.address && <p className="prospect-card-meta">{p.address}</p>}
                         {chips.length > 0 && (
                           <div className="prospect-card-chips">
                             {chips.map((c) => (
-                              <span key={c.label} className={`prospect-chip ${c.cls}`}>
-                                {c.label}
-                              </span>
+                              <span key={c.label} className={`prospect-chip ${c.cls}`}>{c.label}</span>
                             ))}
                           </div>
                         )}
@@ -167,9 +258,7 @@ export default async function LeadsPage({
                       {statusLabel(p.status)}
                     </span>
                     {chips.map((c) => (
-                      <span key={c.label} className={`prospect-chip ${c.cls}`}>
-                        {c.label}
-                      </span>
+                      <span key={c.label} className={`prospect-chip ${c.cls}`}>{c.label}</span>
                     ))}
                   </div>
                   {p.contactedByName && (
@@ -182,20 +271,10 @@ export default async function LeadsPage({
                   <Link href={`/admin/leads/${p.slug}`} className="admin-btn admin-btn--primary">
                     Lead info
                   </Link>
-                  <Link
-                    href={`/${p.slug}`}
-                    className="admin-btn admin-btn--ghost"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
+                  <Link href={`/${p.slug}`} className="admin-btn admin-btn--ghost" target="_blank" rel="noreferrer">
                     Preview Site
                   </Link>
-                  <Link
-                    href={`/admin/proposal/${p.slug}`}
-                    className="admin-btn admin-btn--ghost"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
+                  <Link href={`/admin/proposal/${p.slug}`} className="admin-btn admin-btn--ghost" target="_blank" rel="noreferrer">
                     Proposal
                   </Link>
                 </div>

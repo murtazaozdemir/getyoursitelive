@@ -4,10 +4,31 @@ import { listBusinesses } from "@/lib/db";
 import { listProspects } from "@/lib/prospects";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
+import { FilterSortBar } from "@/app/admin/filter-bar";
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
+
+function parseAddress(address?: string) {
+  if (!address?.trim()) return { city: "", state: "", zip: "" };
+  const parts = address.split(",").map((s) => s.trim());
+  if (parts.length >= 3) {
+    const stateZip = parts[parts.length - 1].trim().split(/\s+/);
+    return {
+      city: parts[parts.length - 2] ?? "",
+      state: stateZip[0] ?? "",
+      zip: stateZip[1] ?? "",
+    };
+  }
+  return { city: "", state: "", zip: "" };
+}
+
+function unique<T>(arr: T[]): T[] {
+  return [...new Set(arr)].filter(Boolean).sort() as T[];
+}
+
+type SortKey = "createdAt" | "name" | "status" | "category" | "city" | "state" | "zip";
 
 function BizCard({
   biz,
@@ -27,8 +48,6 @@ function BizCard({
 }) {
   const hasAddress = !!biz.address?.trim();
   const anyDomain = prospect?.domain1?.trim() || prospect?.domain2?.trim() || prospect?.domain3?.trim();
-  const missingAddress = !hasAddress;
-  const missingDomain = !anyDomain;
   const isAutoRepair = !biz.category || biz.category === "Auto Repair";
 
   return (
@@ -44,10 +63,10 @@ function BizCard({
           {!isAutoRepair && (
             <span className="prospect-chip prospect-chip--muted">{biz.category}</span>
           )}
-          {showWarnings && missingAddress && (
+          {showWarnings && !hasAddress && (
             <span className="prospect-chip prospect-chip--warn">No address</span>
           )}
-          {showWarnings && isAutoRepair && missingDomain && (
+          {showWarnings && isAutoRepair && !anyDomain && (
             <span className="prospect-chip prospect-chip--warn">No domain</span>
           )}
         </div>
@@ -63,15 +82,9 @@ function BizCard({
             Lead info
           </Link>
         )}
-        <Link
-          href={`/${biz.slug}`}
-          className="admin-btn admin-btn--ghost"
-          target="_blank"
-          rel="noreferrer"
-        >
+        <Link href={`/${biz.slug}`} className="admin-btn admin-btn--ghost" target="_blank" rel="noreferrer">
           Preview Site
         </Link>
-        {/* Clients already paid — show proposal history, not a generate button */}
         {isAutoRepair && prospect?.proposalSentAt && (
           <Link
             href={`/admin/proposal/${biz.slug}`}
@@ -88,40 +101,83 @@ function BizCard({
   );
 }
 
-export default async function AdminDashboard() {
+export default async function AdminDashboard({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | undefined>>;
+}) {
   const user = await getCurrentUser();
-  if (!user) return null; // middleware should catch this, defensive guard
+  if (!user) return null;
 
-  // Shop owners don't belong on the platform dashboard — route them to
-  // their own shop's admin area instead.
   if (user.role === "owner" && user.ownedSlug) {
     redirect(`/${user.ownedSlug}/admin/edit`);
   }
 
-  // Only admins from here on
   if (!canManageBusinesses(user)) {
     return (
       <div className="admin-page">
         <h1 className="admin-h1">Not authorized</h1>
-        <p className="admin-lede">
-          The platform admin dashboard is for administrators only.
-        </p>
+        <p className="admin-lede">The platform admin dashboard is for administrators only.</p>
       </div>
     );
   }
 
+  const params: Record<string, string | undefined> = await (searchParams ?? Promise.resolve({}));
+  const filterCity = params.filterCity ?? "";
+  const filterState = params.filterState ?? "";
+  const filterZip = params.filterZip ?? "";
+  const filterCategory = params.filterCategory ?? "";
+  const sortBy = (params.sortBy ?? "name") as SortKey;
+  const sortDir = (params.sortDir === "desc" ? "desc" : "asc") as "asc" | "desc";
+
   const [all, prospects] = await Promise.all([listBusinesses(), listProspects()]);
   const prospectBySlug = Object.fromEntries(prospects.map((p) => [p.slug, p]));
 
-  // Only show businesses that are paying clients (paid or delivered),
-  // or have no prospect record at all (e.g. the demo/template site).
+  // Only businesses that are paying clients (paid/delivered) or have no prospect record
   const clients = all.filter((b) => {
     const p = prospectBySlug[b.slug];
     return !p || p.status === "paid" || p.status === "delivered";
   });
 
-  const autoRepair = clients.filter((b) => !b.category || b.category === "Auto Repair");
-  const other = clients.filter((b) => b.category && b.category !== "Auto Repair");
+  // Enrich with parsed address parts
+  const enriched = clients.map((b) => {
+    const { city, state, zip } = parseAddress(b.address);
+    return { ...b, _city: city, _state: state, _zip: zip };
+  });
+
+  // Collect unique values for dropdowns
+  const allCities = unique(enriched.map((b) => b._city));
+  const allStates = unique(enriched.map((b) => b._state));
+  const allZips = unique(enriched.map((b) => b._zip));
+  const allCategories = unique(enriched.map((b) => b.category).filter(Boolean));
+
+  // Apply filters
+  const filtered = enriched.filter((b) => {
+    if (filterCity && b._city.toLowerCase() !== filterCity.toLowerCase()) return false;
+    if (filterState && b._state.toUpperCase() !== filterState.toUpperCase()) return false;
+    if (filterZip && b._zip !== filterZip) return false;
+    if (filterCategory && b.category !== filterCategory) return false;
+    return true;
+  });
+
+  // Apply sort
+  const sorted = [...filtered].sort((a, b) => {
+    let va = "";
+    let vb = "";
+    if (sortBy === "name") { va = a.name; vb = b.name; }
+    else if (sortBy === "category") { va = a.category ?? ""; vb = b.category ?? ""; }
+    else if (sortBy === "city") { va = a._city; vb = b._city; }
+    else if (sortBy === "state") { va = a._state; vb = b._state; }
+    else if (sortBy === "zip") { va = a._zip; vb = b._zip; }
+    else { va = a.name; vb = b.name; }
+    const cmp = va.localeCompare(vb);
+    return sortDir === "asc" ? cmp : -cmp;
+  });
+
+  const autoRepair = sorted.filter((b) => !b.category || b.category === "Auto Repair");
+  const other = sorted.filter((b) => b.category && b.category !== "Auto Repair");
+
+  const totalClients = clients.filter((b) => !b.category || b.category === "Auto Repair").length;
 
   return (
     <div className="admin-page">
@@ -130,8 +186,10 @@ export default async function AdminDashboard() {
           <p className="admin-eyebrow">Platform admin</p>
           <h1 className="admin-h1">Clients</h1>
           <p className="admin-lede">
-            {autoRepair.length} paying {autoRepair.length === 1 ? "client" : "clients"}.
-            {other.length > 0 && <> {other.length} other {other.length === 1 ? "business" : "businesses"} below.</>}
+            {totalClients} paying {totalClients === 1 ? "client" : "clients"}.
+            {clients.filter((b) => b.category && b.category !== "Auto Repair").length > 0 && (
+              <> {clients.filter((b) => b.category && b.category !== "Auto Repair").length} other businesses below.</>
+            )}
             {" "}Leads become clients once marked Paid in the pipeline.
           </p>
         </div>
@@ -140,40 +198,52 @@ export default async function AdminDashboard() {
         </Link>
       </div>
 
-      {autoRepair.length === 0 ? (
+      <FilterSortBar
+        cities={allCities}
+        states={allStates}
+        zips={allZips}
+        categories={allCategories}
+        filterCity={filterCity}
+        filterState={filterState}
+        filterZip={filterZip}
+        filterCategory={filterCategory}
+        sortBy={sortBy}
+        sortDir={sortDir}
+      />
+
+      {clients.length === 0 ? (
         <div className="admin-empty">
           <p>No paying clients yet. Mark a lead as Paid in the pipeline to see them here.</p>
           <Link href="/admin/leads" className="admin-btn admin-btn--primary">
             Go to Lead Pipeline
           </Link>
         </div>
+      ) : sorted.length === 0 ? (
+        <div className="admin-empty">
+          <p>No clients match your filters.</p>
+        </div>
       ) : (
-        <ul className="admin-biz-grid">
-          {autoRepair.map((biz) => (
-            <BizCard
-              key={biz.slug}
-              biz={biz}
-              prospect={prospectBySlug[biz.slug]}
-            />
-          ))}
-        </ul>
-      )}
-
-      {other.length > 0 && (
         <>
-          <div className="admin-section-divider">
-            <span>Other businesses — not in auto repair pipeline</span>
-          </div>
-          <ul className="admin-biz-grid">
-            {other.map((biz) => (
-              <BizCard
-                key={biz.slug}
-                biz={biz}
-                prospect={prospectBySlug[biz.slug]}
-                showWarnings={false}
-              />
-            ))}
-          </ul>
+          {autoRepair.length > 0 && (
+            <ul className="admin-biz-grid">
+              {autoRepair.map((biz) => (
+                <BizCard key={biz.slug} biz={biz} prospect={prospectBySlug[biz.slug]} />
+              ))}
+            </ul>
+          )}
+
+          {other.length > 0 && (
+            <>
+              <div className="admin-section-divider">
+                <span>Other businesses — not in auto repair pipeline</span>
+              </div>
+              <ul className="admin-biz-grid">
+                {other.map((biz) => (
+                  <BizCard key={biz.slug} biz={biz} prospect={prospectBySlug[biz.slug]} showWarnings={false} />
+                ))}
+              </ul>
+            </>
+          )}
         </>
       )}
     </div>

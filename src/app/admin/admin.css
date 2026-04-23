@@ -861,6 +861,51 @@
   background: var(--admin-border);
 }
 
+/* Filter + Sort bar */
+.admin-filter-bar {
+  margin-bottom: 20px;
+}
+.admin-filter-bar-selects {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.admin-filter-select {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--admin-border-strong);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 120ms;
+}
+.admin-filter-select:focus {
+  border-color: var(--admin-accent);
+}
+.admin-filter-select--sort {
+  border-style: dashed;
+  color: var(--admin-text-soft);
+}
+.admin-filter-clear {
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--admin-danger);
+  border-radius: var(--admin-radius-sm);
+  background: transparent;
+  color: var(--admin-danger);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.admin-filter-clear:hover {
+  background: var(--admin-danger);
+  color: #fff;
+}
+
 /* Status badges */
 .prospect-badge {
   display: inline-block;
