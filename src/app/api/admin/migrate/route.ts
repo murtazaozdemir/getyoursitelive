@@ -57,6 +57,32 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
   //     return { updated, skipped, log };
   //   },
 
+  // Fix dark secondary image in About section (pexels 3807517 renders nearly black)
+  "fix-about-secondary-image": async () => {
+    const DARK_URL = "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=1400";
+    const GOOD_URL = "https://images.pexels.com/photos/3807387/pexels-photo-3807387.jpeg?auto=compress&cs=tinysrgb&w=1400";
+    const storage = await getStorage();
+    const keys = (await storage.list("businesses")).filter((k) => k.endsWith(".json"));
+    let updated = 0, skipped = 0;
+    const log: string[] = [];
+
+    for (const key of keys) {
+      const biz = await readJson<Business>(storage, key);
+      if (!biz) { log.push(`${key}: not found`); skipped++; continue; }
+
+      if (biz.about?.secondaryImage === DARK_URL) {
+        const patched = { ...biz, about: { ...biz.about, secondaryImage: GOOD_URL } };
+        await writeJson(storage, key, patched);
+        log.push(`${key}: replaced dark secondary image`);
+        updated++;
+      } else {
+        skipped++;
+      }
+    }
+
+    return { updated, skipped, log };
+  },
+
 };
 
 export async function GET() {
