@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getBusinessBySlug } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
-import { canManageBusinesses } from "@/lib/users";
+import { canManageBusinesses, findUserById } from "@/lib/users";
 import { PrintButton } from "./print-button";
 import "./proposal.css";
 
@@ -50,13 +50,28 @@ export default async function ProposalPage({
 }) {
   const { slug } = await params;
 
-  const user = await getCurrentUser();
-  if (!user || !canManageBusinesses(user)) {
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser || !canManageBusinesses(sessionUser)) {
     return <div style={{ padding: "2rem" }}>Not authorized.</div>;
   }
 
+  // Fetch full user record to get phone + address fields
+  const user = await findUserById(sessionUser.id) ?? sessionUser;
+
   const biz = await getBusinessBySlug(slug);
   if (!biz) notFound();
+
+  // Build reseller contact info from the logged-in admin's profile
+  const sellerName = user.name;
+  const sellerEmail = ("email" in user) ? user.email : sessionUser.email;
+  const sellerPhone = ("phone" in user && user.phone) ? user.phone : null;
+  const sellerAddressParts = [
+    ("street" in user && user.street) ? user.street : null,
+    ("city" in user && user.city) ? user.city : null,
+    ("state" in user && user.state) ? user.state : null,
+    ("zip" in user && user.zip) ? user.zip : null,
+  ].filter(Boolean);
+  const sellerAddress = sellerAddressParts.length > 0 ? sellerAddressParts.join(", ") : null;
 
   const domains = domainSuggestions(biz.businessInfo.name);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -79,10 +94,11 @@ export default async function ProposalPage({
         {/* ── HEADER ─────────────────────────────────────────────── */}
         <header className="proposal-header">
           <div className="proposal-header-from">
-            <strong>Murtaza Ozdemir</strong>
+            <strong>{sellerName}</strong>
             <span>Get Your Site Live · Local web design, NJ</span>
-            <span>murtazaozdemir@gmail.com</span>
-            <span>862-686-1571</span>
+            <span>{sellerEmail}</span>
+            {sellerPhone && <span>{sellerPhone}</span>}
+            {sellerAddress && <span>{sellerAddress}</span>}
           </div>
           <div className="proposal-header-to">
             <span className="proposal-header-label">Prepared for</span>
@@ -391,10 +407,10 @@ export default async function ProposalPage({
         {/* ── CONTACT ────────────────────────────────────────────── */}
         <footer className="proposal-footer">
           <div className="proposal-contact">
-            <strong className="proposal-contact-name">Murtaza Ozdemir</strong>
-            <span>78 Arlington Ave, Clifton, NJ 07011</span>
-            <span>murtazaozdemir@gmail.com</span>
-            <span>862-686-1571</span>
+            <strong className="proposal-contact-name">{sellerName}</strong>
+            {sellerAddress && <span>{sellerAddress}</span>}
+            <span>{sellerEmail}</span>
+            {sellerPhone && <span>{sellerPhone}</span>}
           </div>
         </footer>
 
