@@ -267,6 +267,36 @@
 .admin-icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 .admin-icon-btn--danger:hover { background: var(--admin-danger); color: white; border-color: var(--admin-danger); }
 
+/* ----- View toggle (Pipeline / Cards) ----- */
+.admin-view-toggle {
+  display: flex;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.admin-view-toggle-btn {
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--admin-text-soft);
+  background: var(--admin-surface);
+  text-decoration: none;
+  border: none;
+  transition: background 0.15s, color 0.15s;
+}
+.admin-view-toggle-btn:hover {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+}
+.admin-view-toggle-btn--active {
+  background: var(--admin-text);
+  color: var(--admin-surface);
+}
+.admin-view-toggle-btn--active:hover {
+  background: var(--admin-text);
+  color: var(--admin-surface);
+}
+
 /* ----- Dashboard list ----- */
 .admin-biz-grid {
   list-style: none;
