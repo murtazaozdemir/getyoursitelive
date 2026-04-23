@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 const FEATURES = [
   { icon: "🌐", label: "Your Own Domain", body: "Registered in your name. First year included." },
   { icon: "📱", label: "Mobile-First", body: "Looks sharp on every device — phone, tablet, desktop." },
-  { icon: "📋", label: "Contact Form", body: "Customers reach you directly through your site." },
+  { icon: "📋", label: "Contact Us Form", body: "Customers send you a message directly from your site." },
   { icon: "💰", label: "Services & Pricing", body: "Your services and prices, on your terms." },
   { icon: "⭐", label: "Testimonials", body: "Showcase quotes from happy customers. You add and manage them." },
   { icon: "📞", label: "One-Tap Call", body: "One tap on any phone — dials you directly." },
@@ -181,7 +181,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-10 grid grid-cols-2 gap-3 border-t border-white/10 pt-10 sm:grid-cols-4">
-            {["Domain (yr 1 incl.)", "Mobile-ready design", "Contact form", "Services & pricing",
+            {["Domain (yr 1 incl.)", "Mobile-ready design", "Contact Us form", "Services & pricing",
               "Testimonials section", "One-tap calling", "Google Map", "Admin panel included"].map((item) => (
               <div key={item} className="flex items-center gap-2 text-xs text-white/50">
                 <span className="text-[#E85D29]">✓</span>
