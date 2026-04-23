@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { changeEmailAction, changePasswordAction, updateProfileAction } from "./actions";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export function ProfileForm({ user }: {
   user: { email: string; name: string; firstName?: string | null; lastName?: string | null; phone?: string | null; street?: string | null; city?: string | null; zip?: string | null; state?: string | null };
@@ -186,8 +187,7 @@ export function ChangePasswordForm() {
       <div className="admin-grid">
         <label className="admin-field">
           <span className="admin-field-label">Current password</span>
-          <input
-            type="password"
+          <PasswordInput
             autoComplete="current-password"
             required
             className="admin-input"
@@ -199,8 +199,7 @@ export function ChangePasswordForm() {
 
         <label className="admin-field">
           <span className="admin-field-label">New password</span>
-          <input
-            type="password"
+          <PasswordInput
             autoComplete="new-password"
             required
             className="admin-input"
@@ -213,8 +212,7 @@ export function ChangePasswordForm() {
 
         <label className="admin-field">
           <span className="admin-field-label">Confirm new password</span>
-          <input
-            type="password"
+          <PasswordInput
             autoComplete="new-password"
             required
             className="admin-input"

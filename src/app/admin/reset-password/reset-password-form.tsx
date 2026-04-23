@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export function ResetPasswordForm({ token }: { token: string }) {
   const router = useRouter();
@@ -57,8 +58,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
     <form className="admin-auth-form" onSubmit={handleSubmit} noValidate>
       <label className="admin-field">
         <span className="admin-field-label">New password</span>
-        <input
-          type="password"
+        <PasswordInput
           autoComplete="new-password"
           required
           className="admin-input"
@@ -71,8 +71,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
       <label className="admin-field">
         <span className="admin-field-label">Confirm new password</span>
-        <input
-          type="password"
+        <PasswordInput
           autoComplete="new-password"
           required
           className="admin-input"

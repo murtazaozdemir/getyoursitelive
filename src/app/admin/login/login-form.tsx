@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export function LoginForm({ nextPath }: { nextPath: string }) {
   const router = useRouter();
@@ -79,8 +80,7 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
 
       <label className="admin-field">
         <span className="admin-field-label">Password</span>
-        <input
-          type="password"
+        <PasswordInput
           autoComplete="current-password"
           required
           className="admin-input"

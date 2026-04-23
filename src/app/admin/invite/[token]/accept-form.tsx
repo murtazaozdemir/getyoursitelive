@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { acceptInviteAction } from "./actions";
+import { PasswordInput } from "@/components/ui/password-input";
 
 interface Props {
   token: string;
@@ -137,10 +138,9 @@ export function AcceptInviteForm({ token, email, role }: Props) {
 
       <label className="admin-field">
         <span className="admin-field-label">Password *</span>
-        <input
+        <PasswordInput
           className="admin-input"
           name="password"
-          type="password"
           required
           minLength={8}
           disabled={isPending}
@@ -151,10 +151,9 @@ export function AcceptInviteForm({ token, email, role }: Props) {
 
       <label className="admin-field">
         <span className="admin-field-label">Confirm password *</span>
-        <input
+        <PasswordInput
           className="admin-input"
           name="confirmPassword"
-          type="password"
           required
           minLength={8}
           disabled={isPending}
