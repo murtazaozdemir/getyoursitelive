@@ -96,6 +96,7 @@ export default async function ProposalPage({
   const domains = domainSuggestions(biz.businessInfo.name);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const previewUrl = `${siteUrl}/${slug}`;
+  const shortUrl = prospect?.shortId ? `${siteUrl}/p/${prospect.shortId}` : null;
   const today = new Date().toLocaleDateString("en-US", {
     month: "long", day: "numeric", year: "numeric",
   });
@@ -261,6 +262,11 @@ export default async function ProposalPage({
           <a href={previewUrl} className="proposal-demo-url" target="_blank" rel="noreferrer">
             {previewUrl}
           </a>
+          {shortUrl && (
+            <p style={{ marginTop: 8, fontSize: 14, color: "var(--proposal-soft)" }}>
+              Short link (easier to type): <strong>{shortUrl}</strong>
+            </p>
+          )}
 
           <div className="proposal-screenshots">
             <img

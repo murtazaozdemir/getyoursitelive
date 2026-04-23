@@ -53,6 +53,7 @@ export default async function ProspectDetailPage({
   const currentStageIdx = PIPELINE_STAGES.findIndex((s) => s.status === prospect.status);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const previewUrl = `${siteUrl}/${slug}`;
+  const shortUrl = prospect.shortId ? `${siteUrl}/p/${prospect.shortId}` : null;
 
   // Lock stage changes: only the reseller who first contacted it (or Founder) can advance
   const isLocked =
@@ -152,6 +153,14 @@ export default async function ProspectDetailPage({
               </a>
               <ProspectActions slug={slug} action="copy" previewUrl={previewUrl} />
             </div>
+            {shortUrl && (
+              <p style={{ marginTop: 10, fontSize: 13, color: "var(--admin-text-soft)" }}>
+                Short link for print:{" "}
+                <a href={shortUrl} target="_blank" rel="noreferrer" style={{ fontWeight: 600, color: "var(--admin-text)" }}>
+                  {shortUrl}
+                </a>
+              </p>
+            )}
           </section>
 
           {/* Notes */}

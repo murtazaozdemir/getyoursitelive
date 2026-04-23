@@ -21,6 +21,7 @@ export interface ProspectNote {
 
 export interface Prospect {
   slug: string;
+  shortId?: number;        // Short numeric ID for easy-to-type URLs: getyoursitelive.com/p/42
   name: string;
   phone: string;
   address: string;
@@ -76,9 +77,16 @@ export async function findProspectByPhone(phone: string): Promise<Prospect | nul
   return all.find((p) => normalizePhone(p.phone) === normalized) ?? null;
 }
 
+export async function getProspectByShortId(shortId: number): Promise<Prospect | null> {
+  const all = await readAll();
+  return all.find((p) => p.shortId === shortId) ?? null;
+}
+
 export async function createProspect(prospect: Prospect): Promise<void> {
   const all = await readAll();
-  all.push(prospect);
+  // Assign the next sequential short ID
+  const maxId = all.reduce((max, p) => Math.max(max, p.shortId ?? 0), 0);
+  all.push({ ...prospect, shortId: maxId + 1 });
   await writeAll(all);
 }
 
