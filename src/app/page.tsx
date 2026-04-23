@@ -35,7 +35,7 @@ const FEATURES = [
 
 const STEPS = [
   { n: "01", title: "We talk", body: "20 minutes. You describe your shop; I ask the questions you didn't think of." },
-  { n: "02", title: "I build", body: "Live in 5–7 business days. Professional tools, no shortcuts." },
+  { n: "02", title: "We build", body: "Live in 1–2 days. Professional tools, no shortcuts." },
   { n: "03", title: "You review", body: "Try it on your phone. We adjust until it's exactly right." },
   { n: "04", title: "It's yours", body: "Pay once, go live. You own it completely — forever." },
 ];
@@ -66,29 +66,55 @@ export default function LandingPage() {
 
       {/* ── HERO ── */}
       <section className="bg-[#0F172A] px-6 pb-16 pt-20 text-white md:pb-20 md:pt-28">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="lp-mono inline-block rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-white/50">
-            Flat fee · No monthly fees · Yours forever
-          </span>
-          <h1 className="lp-display-heading mt-6 text-[clamp(2.75rem,7vw,6rem)] leading-[0.9] tracking-[-0.025em]">
-            A real website<br />for your shop.
+        <div className="mx-auto max-w-4xl text-center">
+
+          {/* Mock browser bar */}
+          <div className="mx-auto mb-10 flex max-w-xs items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2.5">
+            <div className="flex shrink-0 gap-1">
+              <span className="h-2 w-2 rounded-full bg-white/10" />
+              <span className="h-2 w-2 rounded-full bg-white/10" />
+              <span className="h-2 w-2 rounded-full bg-white/10" />
+            </div>
+            <div className="flex flex-1 items-center justify-center gap-1.5 overflow-hidden">
+              <span className="text-green-400 text-xs">🔒</span>
+              <span className="lp-mono truncate text-xs text-white/40">
+                your<span className="text-white font-semibold">shop</span>.com
+              </span>
+            </div>
+          </div>
+
+          <h1 className="lp-display-heading text-[clamp(2.75rem,7.5vw,6.5rem)] leading-[0.88] tracking-[-0.025em]">
+            Your own .com.<br />
+            <span className="text-white/30">Not a Facebook page.</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-white/50 md:text-lg">
-            Professional websites for auto repair shops and local businesses.
-            Built in 5–7 days. No subscriptions. No agencies.
+
+          <p className="mx-auto mt-7 max-w-lg text-base leading-relaxed text-white/40 md:text-lg">
+            A professional website on a domain you own — built in 1–2 days,
+            fully customizable, no monthly fees. Ever.
           </p>
+
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <ContactModal
-              label="Start your project →"
+              label="Get your site live →"
               className="rounded-full bg-[#E85D29] px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#cf4e20]"
             />
             <a
               href="#features"
-              className="rounded-full border border-white/10 px-7 py-3 text-sm font-medium text-white/60 transition-colors hover:border-white/20 hover:text-white/80"
+              className="rounded-full border border-white/10 px-7 py-3 text-sm font-medium text-white/40 transition-colors hover:border-white/20 hover:text-white/60"
             >
               See what&rsquo;s included
             </a>
           </div>
+
+          {/* Social proof strip */}
+          <div className="lp-mono mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-[11px] uppercase tracking-[0.18em] text-white/20">
+            <span>✓ Domain registered in your name</span>
+            <span className="hidden sm:inline">·</span>
+            <span>✓ Live in 1–2 days</span>
+            <span className="hidden sm:inline">·</span>
+            <span>✓ You own it forever</span>
+          </div>
+
         </div>
       </section>
 
@@ -147,7 +173,7 @@ export default function LandingPage() {
             <h2 className="lp-display-heading text-[clamp(1.75rem,3.5vw,2.75rem)] leading-tight tracking-[-0.02em]">
               Four steps.
             </h2>
-            <p className="hidden text-sm text-slate-400 md:block">Start to live in under 2 weeks.</p>
+            <p className="hidden text-sm text-slate-400 md:block">Start to live in 1–2 days.</p>
           </div>
           <div className="grid gap-px overflow-hidden rounded-xl border border-slate-100 bg-slate-100 md:grid-cols-4">
             {STEPS.map(({ n, title, body }) => (
@@ -170,7 +196,7 @@ export default function LandingPage() {
                 Ready to get started?
               </h2>
               <p className="mt-3 max-w-md text-sm leading-relaxed text-white/50">
-                Domain included for the first year. Live in under two weeks.
+                Domain included for the first year. Live in 1–2 days.
                 No monthly fees, ever. You own the domain and site outright.
               </p>
             </div>
