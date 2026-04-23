@@ -5,9 +5,14 @@ import { useRouter } from "next/navigation";
 import { changeEmailAction, changePasswordAction, updateProfileAction } from "./actions";
 
 export function ProfileForm({ user }: {
-  user: { name: string; phone?: string | null; street?: string | null; city?: string | null; zip?: string | null; state?: string | null };
+  user: { email: string; name: string; firstName?: string | null; lastName?: string | null; phone?: string | null; street?: string | null; city?: string | null; zip?: string | null; state?: string | null };
 }) {
-  const [name, setName] = useState(user.name ?? "");
+  // Derive firstName/lastName from legacy name if not yet split
+  const defaultFirst = user.firstName ?? user.name.split(" ")[0] ?? "";
+  const defaultLast = user.lastName ?? user.name.split(" ").slice(1).join(" ") ?? "";
+
+  const [firstName, setFirstName] = useState(defaultFirst);
+  const [lastName, setLastName] = useState(defaultLast);
   const [phone, setPhone] = useState(user.phone ?? "");
   const [street, setStreet] = useState(user.street ?? "");
   const [city, setCity] = useState(user.city ?? "");
@@ -22,7 +27,7 @@ export function ProfileForm({ user }: {
     setError(null);
     setSuccess(false);
     startTransition(async () => {
-      const result = await updateProfileAction({ name, phone, street, city, zip, state });
+      const result = await updateProfileAction({ firstName, lastName, phone, street, city, zip, state });
       if (!result.ok) { setError(result.error ?? "Failed to update."); return; }
       setSuccess(true);
     });
@@ -34,8 +39,17 @@ export function ProfileForm({ user }: {
 
       <div className="admin-grid">
         <label className="admin-field">
-          <span className="admin-field-label">Full name</span>
-          <input type="text" required className="admin-input" value={name} onChange={(e) => setName(e.target.value)} disabled={isPending} />
+          <span className="admin-field-label">First name</span>
+          <input type="text" required className="admin-input" value={firstName} onChange={(e) => setFirstName(e.target.value)} disabled={isPending} />
+        </label>
+        <label className="admin-field">
+          <span className="admin-field-label">Last name</span>
+          <input type="text" className="admin-input" value={lastName} onChange={(e) => setLastName(e.target.value)} disabled={isPending} />
+        </label>
+        <label className="admin-field">
+          <span className="admin-field-label">Email</span>
+          <input type="email" className="admin-input" value={user.email} disabled readOnly style={{ opacity: 0.6 }} />
+          <span style={{ fontSize: 12, color: "var(--admin-text-soft)", marginTop: 4 }}>To change your email, use the section below.</span>
         </label>
         <label className="admin-field">
           <span className="admin-field-label">Phone</span>
@@ -63,7 +77,7 @@ export function ProfileForm({ user }: {
       {success && <p className="admin-editor-message admin-editor-message--ok">Profile saved.</p>}
 
       <div className="admin-actions">
-        <button type="submit" className="admin-btn admin-btn--primary" disabled={isPending || !name.trim()}>
+        <button type="submit" className="admin-btn admin-btn--primary" disabled={isPending || !firstName.trim()}>
           {isPending ? "Saving\u2026" : "Save profile"}
         </button>
       </div>
@@ -71,7 +85,7 @@ export function ProfileForm({ user }: {
   );
 }
 
-export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
+export function ChangeEmailForm({ currentEmail: _ }: { currentEmail: string }) {
   const router = useRouter();
   const [newEmail, setNewEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -99,7 +113,6 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
     <form className="admin-section" onSubmit={handleSubmit}>
       <h2 className="admin-section-title">Change email</h2>
       <p className="admin-lede">
-        Currently signed in as <strong>{currentEmail}</strong>.
         After saving you will be signed out and must log in with the new email.
       </p>
 

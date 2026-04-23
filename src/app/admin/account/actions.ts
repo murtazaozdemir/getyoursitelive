@@ -52,7 +52,8 @@ export async function changePasswordAction(
 }
 
 export async function updateProfileAction(fields: {
-  name: string;
+  firstName: string;
+  lastName: string;
   phone?: string;
   street?: string;
   city?: string;
@@ -66,8 +67,8 @@ export async function updateProfileAction(fields: {
     return { ok: false, error: "Unauthorized" };
   }
 
-  if (!fields.name.trim()) {
-    return { ok: false, error: "Name is required." };
+  if (!fields.firstName.trim()) {
+    return { ok: false, error: "First name is required." };
   }
 
   try {

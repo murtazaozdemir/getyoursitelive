@@ -20,7 +20,10 @@ export interface User {
   email: string;
   passwordHash: string;
   role: UserRole;
+  /** Legacy combined name — kept for backward compat. Prefer firstName + lastName. */
   name: string;
+  firstName?: string | null;
+  lastName?: string | null;
   /** Required when role is "owner"; null for admins */
   ownedSlug: string | null;
   phone?: string | null;
@@ -37,6 +40,8 @@ export interface SessionUser {
   email: string;
   role: UserRole;
   name: string;
+  firstName?: string | null;
+  lastName?: string | null;
   ownedSlug: string | null;
   phone?: string | null;
   street?: string | null;
@@ -182,13 +187,15 @@ export async function updateUserEmail(id: string, newEmail: string): Promise<voi
 
 export async function updateUserProfile(
   id: string,
-  fields: { name: string; phone?: string; street?: string; city?: string; zip?: string; state?: string },
+  fields: { firstName: string; lastName: string; phone?: string; street?: string; city?: string; zip?: string; state?: string },
 ): Promise<void> {
   const users = await loadUsers();
   const idx = users.findIndex((u) => u.id === id);
   if (idx === -1) throw new Error(`No user with id ${id}`);
 
-  users[idx].name = fields.name.trim();
+  users[idx].firstName = fields.firstName.trim();
+  users[idx].lastName = fields.lastName.trim();
+  users[idx].name = [fields.firstName.trim(), fields.lastName.trim()].filter(Boolean).join(" ");
   users[idx].phone = fields.phone?.trim() || null;
   users[idx].street = fields.street?.trim() || null;
   users[idx].city = fields.city?.trim() || null;
@@ -249,7 +256,14 @@ function toSessionUser(u: User): SessionUser {
     email: u.email,
     role: u.role,
     name: u.name,
+    firstName: u.firstName ?? null,
+    lastName: u.lastName ?? null,
     ownedSlug: u.ownedSlug,
+    phone: u.phone ?? null,
+    street: u.street ?? null,
+    city: u.city ?? null,
+    zip: u.zip ?? null,
+    state: u.state ?? null,
     createdAt: u.createdAt,
   };
 }
