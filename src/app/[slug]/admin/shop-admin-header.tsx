@@ -35,7 +35,7 @@ export function ShopAdminHeader({
       <div className="admin-header-inner">
         <div className="admin-header-brand">
           <Link href={`/${slug}/admin/edit`} className="admin-header-brand-link">
-            <span className="admin-header-mark">ADMIN</span>
+            <span className="admin-header-mark">SITE EDITOR</span>
             <span className="admin-header-title">{businessName}</span>
           </Link>
         </div>

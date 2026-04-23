@@ -117,9 +117,9 @@ export default async function ProspectDetailPage({
             </div>
           </section>
 
-          {/* Client login */}
+          {/* Business owner login */}
           <section className="admin-section">
-            <h2 className="admin-section-title">Client login</h2>
+            <h2 className="admin-section-title">Business Owner Login</h2>
             {existingOwner ? (
               <p className="admin-section-lede">
                 Login already created for{" "}
@@ -130,7 +130,7 @@ export default async function ProspectDetailPage({
             ) : (
               <>
                 <p className="admin-section-lede">
-                  Create a login so the client can sign in and edit their own site.
+                  Create a login so the business owner can sign in and edit their own site.
                   Share the credentials with them — they can change the password from their account page.
                 </p>
                 <ProspectActions slug={slug} action="create-login" />

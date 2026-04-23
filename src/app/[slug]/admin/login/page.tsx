@@ -6,7 +6,7 @@ import { canEditBusiness } from "@/lib/users";
 import { LoginForm } from "@/app/admin/login/login-form";
 
 export const metadata: Metadata = {
-  title: "Sign in · Admin",
+  title: "Business Owner Login",
   robots: { index: false, follow: false },
 };
 
@@ -30,9 +30,9 @@ export default async function ShopLoginPage({
       <div className="admin-auth-card">
         <div className="admin-auth-header">
           <div className="admin-auth-brand">{business.businessInfo.name}</div>
-          <h1 className="admin-auth-title">Sign in to edit your site</h1>
+          <h1 className="admin-auth-title">Business Owner Login</h1>
           <p className="admin-auth-subtitle">
-            Use the credentials your administrator provided. Forgot them? Use the link below.
+            Use the credentials provided to you. Forgot them? Use the link below.
           </p>
         </div>
         <LoginForm nextPath={`/${slug}/admin`} />

@@ -325,7 +325,7 @@ function CreateLoginForm({ slug }: { slug: string }) {
   if (done) {
     return (
       <p className="admin-section-lede" style={{ color: "var(--admin-text-soft)" }}>
-        ✓ Login created. Share the credentials with the client.
+        ✓ Business Owner Login created. Share the credentials with them.
       </p>
     );
   }
