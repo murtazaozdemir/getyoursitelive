@@ -51,7 +51,7 @@ function BizCard({
           target="_blank"
           rel="noreferrer"
         >
-          View live &rarr;
+          Preview Site
         </Link>
         {isAutoRepair && (
           <Link
