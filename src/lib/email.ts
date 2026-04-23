@@ -1,6 +1,6 @@
 import "server-only";
 
-const FROM = process.env.RESEND_FROM_EMAIL ?? "GYSL Admin <noreply@getyoursitelive.com>";
+const FROM = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
 
 interface SendResult {
   ok: boolean;
@@ -40,7 +40,8 @@ export async function sendAdminInviteEmail(opts: {
     return { ok: true };
   }
 
-  const { error } = await resend.emails.send({
+  console.log(`[invite-email] sending from=${FROM} to=${opts.to}`);
+  const { data, error } = await resend.emails.send({
     from: FROM,
     to: opts.to,
     subject: "You've been invited to Get Your Site Live",
@@ -48,9 +49,10 @@ export async function sendAdminInviteEmail(opts: {
   });
 
   if (error) {
-    console.error("[invite-email] resend error", error);
+    console.error("[invite-email] resend error", JSON.stringify(error));
     return { ok: false, error: error.message };
   }
+  console.log(`[invite-email] sent id=${data?.id}`);
 
   return { ok: true };
 }
