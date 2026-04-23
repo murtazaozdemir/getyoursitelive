@@ -59,6 +59,12 @@ export async function findUserById(id: string): Promise<User | null> {
   return users.find((u) => u.id === id) ?? null;
 }
 
+export async function findOwnerBySlug(slug: string): Promise<SessionUser | null> {
+  const users = await loadUsers();
+  const found = users.find((u) => u.role === "owner" && u.ownedSlug === slug);
+  return found ? toSessionUser(found) : null;
+}
+
 export async function listUsers(): Promise<SessionUser[]> {
   const users = await loadUsers();
   return users.map(toSessionUser);

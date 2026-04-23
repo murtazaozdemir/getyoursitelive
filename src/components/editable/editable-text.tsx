@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type JSX, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ElementType, type JSX, type ReactNode } from "react";
 import { Pencil } from "lucide-react";
 
 /**
@@ -102,13 +102,16 @@ export function EditableText({
   const displayed = value || placeholder;
   const isEmpty = !value;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const Element = Tag as any;
+  const Element = Tag as ElementType;
+  // Heading elements (h1–h6) already have an implicit role; adding role="button"
+  // on top creates an accessibility conflict. We use tabIndex + onKeyDown to
+  // retain keyboard accessibility without overriding the semantic role.
+  const isHeading = /^h[1-6]$/.test(Tag as string);
   return (
     <Element
       className={`editable ${isEmpty ? "editable--empty" : ""} ${className}`}
       onClick={() => setIsEditing(true)}
-      role="button"
+      {...(!isHeading && { role: "button" })}
       tabIndex={0}
       aria-label="Edit"
       onKeyDown={(e: React.KeyboardEvent) => {

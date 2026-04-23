@@ -90,8 +90,6 @@ function blankBusiness(slug: string, name: string, theme: ThemeName): Business {
       extraServiceOptions: ["General Inspection", "Other"],
     },
     footer: {
-      visitHeading: "Visit & Contact",
-      servicesHeading: "Services",
       locationLabel: "Location",
       phoneLabel: "Phone",
       copyrightSuffix: "All rights reserved.",

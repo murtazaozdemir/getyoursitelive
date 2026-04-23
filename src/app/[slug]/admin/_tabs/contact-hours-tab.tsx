@@ -119,18 +119,6 @@ export function ContactHoursTab({
             onChange={(e) => patchInfo("address", e.target.value)}
           />
         </label>
-        <label className="admin-field admin-field--wide">
-          <span className="admin-field-label">Hours summary (display string)</span>
-          <input
-            className="admin-input"
-            type="text"
-            value={info.hours}
-            onChange={(e) => patchInfo("hours", e.target.value)}
-          />
-          <span className="admin-field-help">
-            Short human-readable version shown in the footer.
-          </span>
-        </label>
       </div>
 
       <h3 className="admin-subsection-title">Social links</h3>

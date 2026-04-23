@@ -7,6 +7,7 @@ import {
   deleteProspectAction,
   updateProspectInfoAction,
   updateProspectDomainsAction,
+  createOwnerLoginAction,
 } from "@/app/admin/prospects/actions";
 import type { ProspectStatus } from "@/lib/prospects";
 
@@ -25,6 +26,7 @@ type ActionProps =
   | { action: "add-note"; slug: string }
   | { action: "edit-info"; slug: string; name: string; phone: string; address: string; category: string }
   | { action: "edit-domains"; slug: string; domain1: string; domain2: string; domain3: string }
+  | { action: "create-login"; slug: string }
   | { action: "delete"; slug: string };
 
 export function ProspectActions(props: ActionProps) {
@@ -83,6 +85,10 @@ export function ProspectActions(props: ActionProps) {
         domain3={props.domain3}
       />
     );
+  }
+
+  if (props.action === "create-login") {
+    return <CreateLoginForm slug={props.slug} />;
   }
 
   if (props.action === "delete") {
@@ -303,6 +309,87 @@ function EditDomainsForm({
         disabled={isPending}
       >
         {isPending ? "…" : saved ? "Saved ✓" : "Save"}
+      </button>
+    </form>
+  );
+}
+
+function CreateLoginForm({ slug }: { slug: string }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [done, setDone] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  if (done) {
+    return (
+      <p className="admin-section-lede" style={{ color: "var(--admin-text-soft)" }}>
+        ✓ Login created. Share the credentials with the client.
+      </p>
+    );
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    startTransition(async () => {
+      const result = await createOwnerLoginAction(slug, { name, email, password });
+      if (result.ok) {
+        setDone(true);
+      } else {
+        setError(result.error ?? "Failed to create login.");
+      }
+    });
+  }
+
+  return (
+    <form className="prospect-edit-info-form" onSubmit={handleSubmit}>
+      <div className="admin-field">
+        <label className="admin-label">Client name</label>
+        <input
+          className="admin-input"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          disabled={isPending}
+          required
+          placeholder="Jane Smith"
+        />
+      </div>
+      <div className="admin-field">
+        <label className="admin-label">Login email</label>
+        <input
+          className="admin-input"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={isPending}
+          required
+          placeholder="owner@theirshop.com"
+        />
+      </div>
+      <div className="admin-field">
+        <label className="admin-label">Temporary password</label>
+        <input
+          className="admin-input"
+          type="text"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={isPending}
+          required
+          minLength={8}
+          placeholder="Min. 8 characters"
+          autoComplete="off"
+        />
+        <span className="admin-field-help">Share this with the client. They can change it after login.</span>
+      </div>
+      {error && <p className="admin-error">{error}</p>}
+      <button
+        type="submit"
+        className="admin-btn admin-btn--primary"
+        disabled={isPending || !name.trim() || !email.trim() || password.length < 8}
+      >
+        {isPending ? "Creating…" : "Create login"}
       </button>
     </form>
   );

@@ -74,20 +74,10 @@ export function ContactForm() {
   if (status === "sent") {
     return (
       <div className="mt-12">
-        <p
-          className="text-[10px] uppercase tracking-[0.3em] text-[#E85D29]"
-          style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-        >
+        <p className="lp-mono text-[10px] uppercase tracking-[0.3em] text-[#E85D29]">
           ✓ Received
         </p>
-        <h3
-          className="mt-4 text-5xl leading-[0.95] tracking-[-0.01em] md:text-6xl"
-          style={{
-            fontFamily: "var(--font-fraunces), Georgia, serif",
-            fontVariationSettings: "'opsz' 144, 'SOFT' 100",
-            fontWeight: 300,
-          }}
-        >
+        <h3 className="lp-display-numeral mt-4 text-5xl leading-[0.95] tracking-[-0.01em] md:text-6xl">
           Thank you.
         </h3>
         <p className="mt-6 max-w-lg text-base leading-[1.6] text-[#C9C2B3] md:text-lg">
@@ -96,8 +86,7 @@ export function ContactForm() {
         <button
           type="button"
           onClick={() => setStatus("idle")}
-          className="mt-8 text-[10px] uppercase tracking-[0.3em] text-[#C9C2B3] underline decoration-[#C9C2B3]/40 underline-offset-[6px] transition-colors hover:text-[#E85D29] hover:decoration-[#E85D29]"
-          style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
+          className="lp-mono mt-8 text-[10px] uppercase tracking-[0.3em] text-[#C9C2B3] underline decoration-[#C9C2B3]/40 underline-offset-[6px] transition-colors hover:text-[#E85D29] hover:decoration-[#E85D29]"
         >
           Send another →
         </button>
@@ -126,11 +115,7 @@ export function ContactForm() {
         <button
           type="submit"
           disabled={status === "sending"}
-          className="group relative text-2xl transition-all hover:gap-6 disabled:opacity-50 md:text-3xl"
-          style={{
-            fontFamily: "var(--font-fraunces), Georgia, serif",
-            fontVariationSettings: "'opsz' 48, 'SOFT' 60",
-          }}
+          className="lp-display-cta group relative text-2xl transition-all hover:gap-6 disabled:opacity-50 md:text-3xl"
         >
           <span className="inline-flex items-baseline gap-4 border-b-2 border-[#E85D29] pb-2">
             <span className="italic">
@@ -141,19 +126,11 @@ export function ContactForm() {
         </button>
 
         {status === "error" && (
-          <p
-            className="text-xs text-[#E85D29]"
-            style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-          >
-            ✕ {errorMsg}
-          </p>
+          <p className="lp-mono text-xs text-[#E85D29]">✕ {errorMsg}</p>
         )}
 
         {!FORMSPREE_ENDPOINT && (
-          <p
-            className="text-[10px] uppercase tracking-[0.22em] text-[#6B6660]"
-            style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-          >
+          <p className="lp-mono text-[10px] uppercase tracking-[0.22em] text-[#6B6660]">
             · dev mode: logs to console
           </p>
         )}
@@ -178,35 +155,20 @@ function Field({
   className?: string;
 }) {
   const labelCls =
-    "block text-[10px] uppercase tracking-[0.25em] text-[#C9C2B3] mb-2";
+    "lp-mono block text-[10px] uppercase tracking-[0.25em] text-[#C9C2B3] mb-2";
   const fieldCls =
-    "w-full bg-transparent border-0 border-b border-[#C9C2B3]/40 pb-2 text-lg text-[#F5EFE3] placeholder-[#6B6660] outline-none transition-colors focus:border-[#E85D29] focus:ring-0";
+    "lp-body w-full bg-transparent border-0 border-b border-[#C9C2B3]/40 pb-2 text-lg text-[#F5EFE3] placeholder-[#6B6660] outline-none transition-colors focus:border-[#E85D29] focus:ring-0";
 
   return (
     <label className={`block ${className}`}>
-      <span
-        className={labelCls}
-        style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-      >
+      <span className={labelCls}>
         {label}
         {required && <span className="text-[#E85D29] ml-1">*</span>}
       </span>
       {textarea ? (
-        <textarea
-          name={name}
-          required={required}
-          rows={3}
-          className={`${fieldCls} resize-none`}
-          style={{ fontFamily: "var(--font-instrument-sans), sans-serif" }}
-        />
+        <textarea name={name} required={required} rows={3} className={`${fieldCls} resize-none`} />
       ) : (
-        <input
-          type={type}
-          name={name}
-          required={required}
-          className={fieldCls}
-          style={{ fontFamily: "var(--font-instrument-sans), sans-serif" }}
-        />
+        <input type={type} name={name} required={required} className={fieldCls} />
       )}
     </label>
   );

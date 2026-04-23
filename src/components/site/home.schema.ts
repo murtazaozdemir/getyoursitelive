@@ -6,7 +6,8 @@ export const homeFormSchema = z
     email: z.string().email(),
     phone: z
       .string()
-      .regex(/^(\(\d{3}\)\s?|\d{3}[-.\s]?)\d{3}[-.\s]?\d{4}$/, "Enter a valid US phone number"),
+      .min(7, "Enter a valid phone number")
+      .max(20, "Enter a valid phone number"),
     service: z.string().min(1, "Please select a service"),
     serviceOther: z.string().optional(),
     date: z.string().refine((value) => {

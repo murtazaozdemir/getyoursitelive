@@ -65,7 +65,15 @@ export function EditModeProvider({
 
     void (async () => {
       const res = await saveBusinessAction(originalSlugRef.current, next);
-      if (latestRef.current !== next) return;
+      // A newer save superseded this one — but if it failed, surface the error
+      // rather than silently discarding it.
+      if (latestRef.current !== next) {
+        if (!res.ok) {
+          setSaveState("error");
+          setErrorMessage(res.error);
+        }
+        return;
+      }
       if (res.ok) {
         setSaveState("saved");
         window.setTimeout(() => {

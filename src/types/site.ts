@@ -118,8 +118,6 @@ export interface ContactContent {
 
 /** Footer section copy. */
 export interface FooterContent {
-  visitHeading: string;        // legacy, no longer rendered (kept for back-compat)
-  servicesHeading: string;     // legacy, no longer rendered
   locationLabel: string;       // e.g. "Location"
   phoneLabel: string;          // e.g. "Phone"
   copyrightSuffix: string;     // e.g. "All rights reserved."

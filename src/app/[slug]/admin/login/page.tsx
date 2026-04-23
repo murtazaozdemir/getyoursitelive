@@ -32,7 +32,7 @@ export default async function ShopLoginPage({
           <div className="admin-auth-brand">{business.businessInfo.name}</div>
           <h1 className="admin-auth-title">Sign in to edit your site</h1>
           <p className="admin-auth-subtitle">
-            Use the credentials your administrator provided.
+            Use the credentials your administrator provided. Forgot them? Use the link below.
           </p>
         </div>
         <LoginForm nextPath={`/${slug}/admin`} />

@@ -49,15 +49,21 @@ export function getOpenStatus(
   if (today) {
     const openMins = minutesFromHHMM(today.open);
     const closeMins = minutesFromHHMM(today.close);
-    if (nowMins >= openMins && nowMins < closeMins) {
+    // Handle midnight-spanning spans (e.g. 20:00–02:00): closeMins < openMins
+    const spansminight = closeMins <= openMins;
+    const isOpen = spansminight
+      ? nowMins >= openMins || nowMins < closeMins
+      : nowMins >= openMins && nowMins < closeMins;
+
+    if (isOpen) {
       return {
         isOpen: true,
         label: "Open now",
         detail: `Closes at ${formatTime12(today.close)}`,
       };
     }
-    // Before opening time today
-    if (nowMins < openMins) {
+    // Before opening time today (only meaningful for non-midnight-spanning spans)
+    if (!spansminight && nowMins < openMins) {
       return {
         isOpen: false,
         label: "Closed",

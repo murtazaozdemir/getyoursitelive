@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getProspect, PIPELINE_STAGES } from "@/lib/prospects";
 import { getBusinessBySlug } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
-import { canManageBusinesses } from "@/lib/users";
+import { canManageBusinesses, findOwnerBySlug } from "@/lib/users";
 import { ProspectActions } from "./prospect-actions";
 
 function formatDate(iso: string) {
@@ -26,7 +26,11 @@ export default async function ProspectDetailPage({
   if (!canManageBusinesses(user)) redirect("/admin");
 
   const { slug } = await params;
-  const [prospect, biz] = await Promise.all([getProspect(slug), getBusinessBySlug(slug)]);
+  const [prospect, biz, existingOwner] = await Promise.all([
+    getProspect(slug),
+    getBusinessBySlug(slug),
+    findOwnerBySlug(slug),
+  ]);
   if (!prospect) notFound();
 
   const currentStageIdx = PIPELINE_STAGES.findIndex((s) => s.status === prospect.status);
@@ -111,6 +115,27 @@ export default async function ProspectDetailPage({
               <code className="prospect-preview-url">{previewUrl}</code>
               <ProspectActions slug={slug} action="copy" previewUrl={previewUrl} />
             </div>
+          </section>
+
+          {/* Client login */}
+          <section className="admin-section">
+            <h2 className="admin-section-title">Client login</h2>
+            {existingOwner ? (
+              <p className="admin-section-lede">
+                Login already created for{" "}
+                <strong>{existingOwner.name}</strong> ({existingOwner.email}).
+                They can sign in at{" "}
+                <code>/{slug}/admin/login</code>.
+              </p>
+            ) : (
+              <>
+                <p className="admin-section-lede">
+                  Create a login so the client can sign in and edit their own site.
+                  Share the credentials with them — they can change the password from their account page.
+                </p>
+                <ProspectActions slug={slug} action="create-login" />
+              </>
+            )}
           </section>
 
           {/* Notes */}

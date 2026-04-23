@@ -38,20 +38,11 @@ export default async function LandingPage() {
   const year = new Date().getFullYear();
 
   return (
-    <main
-      className="relative min-h-screen bg-[#F5EFE3] text-[#1A1815] overflow-x-hidden"
-      style={{
-        fontFamily: "var(--font-instrument-sans), system-ui, sans-serif",
-      }}
-    >
+    <main className="lp-body relative min-h-screen bg-[#F5EFE3] text-[#1A1815] overflow-x-hidden">
       {/* Paper grain overlay --------------------------------------------- */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 z-[60] opacity-[0.08] mix-blend-multiply"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.9'/></svg>\")",
-        }}
+        className="lp-grain pointer-events-none fixed inset-0 z-[60] opacity-[0.08] mix-blend-multiply"
       />
 
       {/* Crop marks in corners ------------------------------------------- */}
@@ -65,18 +56,14 @@ export default async function LandingPage() {
          ============================================================ */}
       <header className="relative z-10 border-b border-[#1A1815] px-6 py-4 md:px-12">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-6">
-          <div
-            className="flex items-baseline gap-3 text-[10px] uppercase tracking-[0.22em] md:text-xs"
-            style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-          >
+          <div className="lp-mono flex items-baseline gap-3 text-[10px] uppercase tracking-[0.22em] md:text-xs">
             <span className="hidden h-2 w-2 rounded-full bg-[#E85D29] md:inline-block" />
             <span className="font-semibold">Get Your Site Live</span>
             <span className="hidden md:inline text-[#6B6660]">— Websites for Local Business</span>
           </div>
           <a
             href="#contact"
-            className="text-right text-[10px] uppercase tracking-[0.22em] text-[#1A1815] underline decoration-[#1A1815]/30 decoration-from-font underline-offset-[5px] transition-colors hover:decoration-[#E85D29] md:text-xs"
-            style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
+            className="lp-mono text-right text-[10px] uppercase tracking-[0.22em] text-[#1A1815] underline decoration-[#1A1815]/30 decoration-from-font underline-offset-[5px] transition-colors hover:decoration-[#E85D29] md:text-xs"
           >
             Contact →
           </a>
@@ -90,20 +77,9 @@ export default async function LandingPage() {
         <div className="mx-auto max-w-[1400px]">
           <SectionLabel number="001" label="The Proposition" />
 
-          <h1
-            className="mt-10 max-w-[14ch] text-[clamp(3rem,8.5vw,9rem)] font-light leading-[0.9] tracking-[-0.02em]"
-            style={{
-              fontFamily: "var(--font-fraunces), Georgia, serif",
-              fontVariationSettings: "'opsz' 144, 'SOFT' 30",
-            }}
-          >
+          <h1 className="lp-display-heading mt-10 max-w-[14ch] text-[clamp(3rem,8.5vw,9rem)] leading-[0.9] tracking-[-0.02em]">
             Websites built the{" "}
-            <em
-              className="italic text-[#E85D29]"
-              style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 100, 'WONK' 1" }}
-            >
-              old-fashioned
-            </em>{" "}
+            <em className="lp-display-em-wonk italic text-[#E85D29]">old-fashioned</em>{" "}
             way.
           </h1>
 
@@ -116,14 +92,7 @@ export default async function LandingPage() {
             </p>
 
             <div className="flex flex-col items-start gap-5 md:items-end">
-              <a
-                href="#demos"
-                className="group relative text-2xl md:text-3xl"
-                style={{
-                  fontFamily: "var(--font-fraunces), Georgia, serif",
-                  fontVariationSettings: "'opsz' 48, 'SOFT' 60",
-                }}
-              >
+              <a href="#demos" className="lp-display-cta group relative text-2xl md:text-3xl">
                 <span className="italic">See the work</span>
                 <span className="ml-2 inline-block transition-transform group-hover:translate-x-1 text-[#E85D29]">
                   →
@@ -132,10 +101,7 @@ export default async function LandingPage() {
               </a>
               <a
                 href="#contact"
-                className="text-xs uppercase tracking-[0.22em] underline decoration-[#1A1815]/30 decoration-from-font underline-offset-[6px] transition-colors hover:decoration-[#E85D29]"
-                style={{
-                  fontFamily: "var(--font-jetbrains-mono), monospace",
-                }}
+                className="lp-mono text-xs uppercase tracking-[0.22em] underline decoration-[#1A1815]/30 decoration-from-font underline-offset-[6px] transition-colors hover:decoration-[#E85D29]"
               >
                 Contact us →
               </a>
@@ -146,10 +112,7 @@ export default async function LandingPage() {
         {/* Running baseline — decorative rule */}
         <div className="relative mx-auto mt-24 max-w-[1400px]">
           <div className="h-px w-full bg-[#1A1815]" />
-          <span
-            className="absolute -top-[9px] left-0 bg-[#F5EFE3] px-3 text-[10px] uppercase tracking-[0.3em] text-[#6B6660]"
-            style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-          >
+          <span className="lp-mono absolute -top-[9px] left-0 bg-[#F5EFE3] px-3 text-[10px] uppercase tracking-[0.3em] text-[#6B6660]">
             ∎ Continue
           </span>
         </div>
@@ -162,18 +125,9 @@ export default async function LandingPage() {
         <div className="mx-auto grid max-w-[1400px] gap-16 md:grid-cols-[auto_1fr] md:gap-24">
           <div>
             <SectionLabel number="002" label="The Spec Sheet" />
-            <h2
-              className="mt-8 text-[clamp(2.5rem,5vw,5rem)] leading-[0.95] tracking-[-0.01em]"
-              style={{
-                fontFamily: "var(--font-fraunces), Georgia, serif",
-                fontVariationSettings: "'opsz' 144, 'SOFT' 30",
-                fontWeight: 300,
-              }}
-            >
+            <h2 className="lp-display-heading mt-8 text-[clamp(2.5rem,5vw,5rem)] leading-[0.95] tracking-[-0.01em]">
               What&rsquo;s in<br />
-              <em className="italic" style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 100" }}>
-                the box.
-              </em>
+              <em className="lp-display-em italic">the box.</em>
             </h2>
           </div>
 
@@ -192,16 +146,10 @@ export default async function LandingPage() {
                 key={label}
                 className="group grid grid-cols-[auto_6rem_1fr] items-baseline gap-6 py-5 transition-colors hover:bg-[#1A1815]/[0.03] md:grid-cols-[3rem_8rem_1fr] md:gap-8"
               >
-                <span
-                  className="text-[11px] text-[#6B6660] tabular-nums"
-                  style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-                >
+                <span className="lp-mono text-[11px] text-[#6B6660] tabular-nums">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <span
-                  className="text-xs uppercase tracking-[0.2em]"
-                  style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-                >
+                <span className="lp-mono text-xs uppercase tracking-[0.2em]">
                   {label}
                 </span>
                 <span className="text-base leading-relaxed text-[#3A3530] md:text-lg">{body}</span>
@@ -219,21 +167,11 @@ export default async function LandingPage() {
           <div className="flex items-end justify-between gap-8">
             <div>
               <SectionLabel number="003" label="Featured Work" />
-              <h2
-                className="mt-8 text-[clamp(2.5rem,5vw,5rem)] leading-[0.95] tracking-[-0.01em]"
-                style={{
-                  fontFamily: "var(--font-fraunces), Georgia, serif",
-                  fontVariationSettings: "'opsz' 144, 'SOFT' 30",
-                  fontWeight: 300,
-                }}
-              >
-                Live <em className="italic" style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 100" }}>demonstrations.</em>
+              <h2 className="lp-display-heading mt-8 text-[clamp(2.5rem,5vw,5rem)] leading-[0.95] tracking-[-0.01em]">
+                Live <em className="lp-display-em italic">demonstrations.</em>
               </h2>
             </div>
-            <p
-              className="hidden max-w-xs text-right text-sm text-[#6B6660] md:block"
-              style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-            >
+            <p className="lp-mono hidden max-w-xs text-right text-sm text-[#6B6660] md:block">
               Click to open. Works on phones.
             </p>
           </div>
@@ -247,10 +185,7 @@ export default async function LandingPage() {
               >
                 <div className="border-t-2 border-[#1A1815] pt-6">
                   <div className="flex items-center justify-between">
-                    <span
-                      className="text-[11px] uppercase tracking-[0.25em] text-[#6B6660]"
-                      style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-                    >
+                    <span className="lp-mono text-[11px] uppercase tracking-[0.25em] text-[#6B6660]">
                       Work N°{String(i + 1).padStart(2, "0")} · {biz.category}
                     </span>
                     <span
@@ -260,23 +195,13 @@ export default async function LandingPage() {
                       →
                     </span>
                   </div>
-                  <h3
-                    className="mt-4 text-4xl leading-[1] md:text-5xl"
-                    style={{
-                      fontFamily: "var(--font-fraunces), Georgia, serif",
-                      fontVariationSettings: "'opsz' 72, 'SOFT' 40",
-                      fontWeight: 400,
-                    }}
-                  >
+                  <h3 className="lp-display-card mt-4 text-4xl leading-[1] md:text-5xl">
                     {biz.name}
                   </h3>
-                  <p className="mt-3 text-[#6B6660]" style={{ fontStyle: "italic" }}>
+                  <p className="mt-3 italic text-[#6B6660]">
                     {biz.address}
                   </p>
-                  <p
-                    className="mt-6 inline-block text-sm uppercase tracking-[0.2em] underline decoration-from-font underline-offset-[5px] transition-colors group-hover:text-[#E85D29]"
-                    style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-                  >
+                  <p className="lp-mono mt-6 inline-block text-sm uppercase tracking-[0.2em] underline decoration-from-font underline-offset-[5px] transition-colors group-hover:text-[#E85D29]">
                     View live →
                   </p>
                 </div>
@@ -292,15 +217,8 @@ export default async function LandingPage() {
       <section className="relative z-10 px-6 py-24 md:px-12 md:py-32">
         <div className="mx-auto max-w-[1400px]">
           <SectionLabel number="004" label="The Process" />
-          <h2
-            className="mt-8 max-w-[12ch] text-[clamp(2.5rem,5vw,5rem)] leading-[0.95] tracking-[-0.01em]"
-            style={{
-              fontFamily: "var(--font-fraunces), Georgia, serif",
-              fontVariationSettings: "'opsz' 144, 'SOFT' 30",
-              fontWeight: 300,
-            }}
-          >
-            Four steps, <em className="italic" style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 100" }}>start to finish.</em>
+          <h2 className="lp-display-heading mt-8 max-w-[12ch] text-[clamp(2.5rem,5vw,5rem)] leading-[0.95] tracking-[-0.01em]">
+            Four steps, <em className="lp-display-em italic">start to finish.</em>
           </h2>
 
           <ol className="mt-16 grid gap-y-12 md:grid-cols-2 md:gap-x-16 md:gap-y-16">
@@ -311,25 +229,11 @@ export default async function LandingPage() {
               ["It's yours", "Pay $500. Site goes live. You own it. Forever."],
             ].map(([title, body], i) => (
               <li key={title} className="grid grid-cols-[6rem_1fr] gap-6 md:grid-cols-[8rem_1fr] md:gap-8">
-                <div
-                  className="text-[6rem] leading-[0.85] text-[#E85D29] md:text-[8rem]"
-                  style={{
-                    fontFamily: "var(--font-fraunces), Georgia, serif",
-                    fontVariationSettings: "'opsz' 144, 'SOFT' 100",
-                    fontWeight: 300,
-                  }}
-                >
+                <div className="lp-display-numeral text-[6rem] leading-[0.85] text-[#E85D29] md:text-[8rem]">
                   {String(i + 1).padStart(2, "0")}
                 </div>
                 <div>
-                  <h3
-                    className="text-2xl md:text-3xl"
-                    style={{
-                      fontFamily: "var(--font-fraunces), Georgia, serif",
-                      fontVariationSettings: "'opsz' 48, 'SOFT' 40",
-                      fontWeight: 400,
-                    }}
-                  >
+                  <h3 className="lp-display-subheading text-2xl md:text-3xl">
                     {title}
                   </h3>
                   <p className="mt-3 text-base leading-[1.6] text-[#3A3530] md:text-lg">{body}</p>
@@ -352,28 +256,9 @@ export default async function LandingPage() {
           <div className="md:pt-8">
             <div className="relative mx-auto flex h-[220px] w-[220px] items-center justify-center rounded-full border-[3px] border-[#E85D29] text-[#E85D29] md:mx-0 md:h-[260px] md:w-[260px]">
               <div className="text-center">
-                <div
-                  className="text-[10px] uppercase tracking-[0.3em]"
-                  style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-                >
-                  One Time
-                </div>
-                <div
-                  className="text-6xl md:text-7xl"
-                  style={{
-                    fontFamily: "var(--font-fraunces), Georgia, serif",
-                    fontVariationSettings: "'opsz' 144, 'SOFT' 100",
-                    fontWeight: 500,
-                  }}
-                >
-                  $500
-                </div>
-                <div
-                  className="text-[10px] uppercase tracking-[0.3em]"
-                  style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-                >
-                  Yours Forever
-                </div>
+                <div className="lp-mono text-[10px] uppercase tracking-[0.3em]">One Time</div>
+                <div className="lp-display-stamp text-6xl md:text-7xl">$500</div>
+                <div className="lp-mono text-[10px] uppercase tracking-[0.3em]">Yours Forever</div>
               </div>
             </div>
           </div>
@@ -381,21 +266,9 @@ export default async function LandingPage() {
           {/* Form side */}
           <div>
             <SectionLabel number="005" label="Get In Touch" dark />
-            <h2
-              className="mt-8 max-w-[14ch] text-[clamp(2.5rem,5vw,5rem)] leading-[0.95] tracking-[-0.01em]"
-              style={{
-                fontFamily: "var(--font-fraunces), Georgia, serif",
-                fontVariationSettings: "'opsz' 144, 'SOFT' 30",
-                fontWeight: 300,
-              }}
-            >
+            <h2 className="lp-display-heading mt-8 max-w-[14ch] text-[clamp(2.5rem,5vw,5rem)] leading-[0.95] tracking-[-0.01em]">
               Tell me about{" "}
-              <em
-                className="italic text-[#E85D29]"
-                style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 100" }}
-              >
-                your business.
-              </em>
+              <em className="lp-display-em italic text-[#E85D29]">your business.</em>
             </h2>
             <p className="mt-6 max-w-lg text-lg leading-[1.6] text-[#C9C2B3]">
               A few quick details and I&rsquo;ll get back to you within one business day.
@@ -412,18 +285,12 @@ export default async function LandingPage() {
          ============================================================ */}
       <footer className="relative z-10 border-t border-[#1A1815] bg-[#F5EFE3] px-6 py-10 md:px-12">
         <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4">
-          <div
-            className="text-[10px] uppercase tracking-[0.22em] text-[#6B6660]"
-            style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-          >
+          <div className="lp-mono text-[10px] uppercase tracking-[0.22em] text-[#6B6660]">
             © {year} Get Your Site Live · All rights reserved
           </div>
-          <div
-            className="flex items-center gap-3 text-[10px] uppercase tracking-[0.22em] text-[#6B6660]"
-            style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-          >
+          <div className="lp-mono flex items-center gap-3 text-[10px] uppercase tracking-[0.22em] text-[#6B6660]">
             <span>Set in</span>
-            <em style={{ fontFamily: "var(--font-fraunces)" }}>Fraunces</em>
+            <em className="lp-display">Fraunces</em>
             <span className="text-[#1A1815]">+</span>
             <span>Instrument Sans</span>
           </div>
@@ -447,10 +314,7 @@ function SectionLabel({
   dark?: boolean;
 }) {
   return (
-    <div
-      className="flex items-center gap-4 text-[11px] uppercase tracking-[0.3em]"
-      style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-    >
+    <div className="lp-mono flex items-center gap-4 text-[11px] uppercase tracking-[0.3em]">
       <span className={dark ? "text-[#E85D29]" : "text-[#E85D29]"}>{number}</span>
       <span className={`h-px w-10 ${dark ? "bg-[#C9C2B3]" : "bg-[#1A1815]"}`} />
       <span className={dark ? "text-[#C9C2B3]" : "text-[#1A1815]"}>{label}</span>

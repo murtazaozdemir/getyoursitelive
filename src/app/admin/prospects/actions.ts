@@ -14,6 +14,7 @@ import {
   type ProspectStatus,
 } from "@/lib/prospects";
 import { saveBusiness, getBusinessBySlug, deleteBusiness } from "@/lib/db";
+import { createUser } from "@/lib/users";
 import type { Business } from "@/lib/business-types";
 import type { ThemeName } from "@/types/site";
 import { logAudit } from "@/lib/audit-log";
@@ -246,8 +247,6 @@ function prospectBusiness(
       extraServiceOptions: ["General Inspection", "Other"],
     },
     footer: {
-      visitHeading: "Visit & Contact",
-      servicesHeading: "Services",
       locationLabel: "Location",
       phoneLabel: "Phone",
       copyrightSuffix: "All rights reserved.",
@@ -320,12 +319,15 @@ export async function createProspectAction(
   const slug = nameToSlug(name);
   if (!slug) return { ok: false, error: "Could not generate a valid slug from that name." };
 
-  // Block duplicate slug (same or very similar name)
-  const existing = await getBusinessBySlug(slug);
-  if (existing) {
+  // Block duplicate slug — check both business store and prospect store
+  const [existing, existingProspect] = await Promise.all([
+    getBusinessBySlug(slug),
+    getProspect(slug),
+  ]);
+  if (existing || existingProspect) {
     return {
       ok: false,
-      error: `A business with that name already exists (slug "${slug}"). Check the prospects list — it may already be there.`,
+      error: `A business with that name already exists (slug "${slug}"). Check the leads list — it may already be there.`,
     };
   }
 
@@ -442,6 +444,39 @@ export async function updateProspectDomainsAction(
   });
 
   revalidatePath(`/admin/prospects/${slug}`);
+  return { ok: true };
+}
+
+export async function createOwnerLoginAction(
+  slug: string,
+  data: { name: string; email: string; password: string },
+): Promise<{ ok: boolean; error?: string }> {
+  const user = await getCurrentUser();
+  if (!user || !canManageBusinesses(user)) return { ok: false, error: "Unauthorized" };
+
+  const { name, email, password } = data;
+  if (!name.trim()) return { ok: false, error: "Name is required." };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: "A valid email is required." };
+  if (password.length < 8) return { ok: false, error: "Password must be at least 8 characters." };
+
+  const biz = await getBusinessBySlug(slug);
+  if (!biz) return { ok: false, error: `No business found with slug "${slug}".` };
+
+  try {
+    await createUser({ name: name.trim(), email: email.trim(), password, role: "owner", ownedSlug: slug });
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Failed to create user." };
+  }
+
+  await logAudit({
+    userEmail: user.email,
+    userName: user.name,
+    action: "create_user",
+    slug,
+    detail: `${email.trim()} (owner → ${slug})`,
+  });
+  revalidatePath(`/admin/prospects/${slug}`);
+  revalidatePath("/admin/users");
   return { ok: true };
 }
 

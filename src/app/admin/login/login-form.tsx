@@ -11,10 +11,15 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isFetching, setIsFetching] = useState(false);
+
+  const isLoading = isPending || isFetching;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isLoading) return;
     setError(null);
+    setIsFetching(true);
 
     const res = await fetch("/api/auth/login", {
       method: "POST",
@@ -25,6 +30,7 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       setError(data.error ?? "Something went wrong. Try again.");
+      setIsFetching(false);
       return;
     }
 
@@ -49,6 +55,7 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
           : "/admin";
     }
 
+    setIsFetching(false);
     startTransition(() => {
       router.push(destination);
       router.refresh();
@@ -100,8 +107,8 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
         </div>
       )}
 
-      <button type="submit" className="admin-btn admin-btn--primary" disabled={isPending}>
-        {isPending ? "Signing in\u2026" : "Sign in"}
+      <button type="submit" className="admin-btn admin-btn--primary" disabled={isLoading}>
+        {isLoading ? "Signing in\u2026" : "Sign in"}
       </button>
 
       <Link href="/admin/forgot-password" className="admin-auth-link">
