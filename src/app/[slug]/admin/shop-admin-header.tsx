@@ -26,7 +26,7 @@ export function ShopAdminHeader({
 
   function displayRole(): string {
     if (user.role === "admin") {
-      return user.email === "murtazaozdemir@gmail.com" ? "Founder" : "Admin";
+      return user.email === "murtaza@getyoursitelive.com" ? "Founder" : "Admin";
     }
     return "Business Owner";
   }

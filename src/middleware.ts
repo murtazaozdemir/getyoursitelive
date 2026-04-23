@@ -33,12 +33,12 @@ async function isValidToken(token: string | undefined): Promise<boolean> {
 }
 
 function isLoginPath(pathname: string): boolean {
-  // /admin/login, /admin/forgot-password, /admin/reset-password
-  // or /{slug}/admin/login
+  // Public auth-adjacent paths — no session required
   return (
     pathname === "/admin/login" ||
     pathname === "/admin/forgot-password" ||
     pathname === "/admin/reset-password" ||
+    pathname.startsWith("/admin/invite/") ||
     /^\/[^/]+\/admin\/login$/.test(pathname)
   );
 }

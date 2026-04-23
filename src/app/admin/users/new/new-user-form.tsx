@@ -2,58 +2,58 @@
 
 import { useActionState, useState } from "react";
 import Link from "next/link";
-import { createUserAction } from "@/app/admin/users/actions";
+import { sendInviteAction } from "@/app/admin/users/actions";
 
-const initialState = { ok: false as boolean, error: undefined as string | undefined };
+const initialState = { ok: false as boolean, error: undefined as string | undefined, inviteUrl: undefined as string | undefined };
 
 export function NewUserForm() {
-  const [state, formAction, isPending] = useActionState(createUserAction, initialState);
-  const [role, setRole] = useState("owner");
+  const [state, formAction, isPending] = useActionState(sendInviteAction, initialState);
+  const [role, setRole] = useState("admin");
+
+  if (state.ok) {
+    return (
+      <div className="admin-section">
+        <div className="admin-success-banner">
+          Invitation sent to <strong>{state.inviteUrl?.split("token=")[0] ? "the address you entered" : "the invitee"}</strong>.
+          They'll receive an email with a link to complete their account setup.
+        </div>
+        {state.inviteUrl && (
+          <div className="admin-field" style={{ marginTop: 16 }}>
+            <span className="admin-field-label">Invite link (share manually if needed)</span>
+            <code className="prospect-preview-url" style={{ display: "block", marginTop: 6, wordBreak: "break-all" }}>
+              {state.inviteUrl}
+            </code>
+          </div>
+        )}
+        <div className="admin-actions" style={{ marginTop: 20 }}>
+          <Link href="/admin/users" className="admin-btn admin-btn--primary">Back to Users</Link>
+          <Link href="/admin/users/new" className="admin-btn admin-btn--ghost">Invite another</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form className="admin-section" action={formAction}>
       {state.error && (
         <div className="admin-error-banner">{state.error}</div>
       )}
+      <p className="admin-lede" style={{ marginBottom: 20 }}>
+        Enter the new admin's email. They'll receive an invitation link where they can set their own name, phone, and password.
+      </p>
 
       <div className="admin-grid">
         <label className="admin-field">
-          <span className="admin-field-label">Name *</span>
-          <input
-            className="admin-input"
-            name="name"
-            type="text"
-            required
-            disabled={isPending}
-            placeholder="Jane Smith"
-            autoFocus
-          />
-        </label>
-
-        <label className="admin-field">
-          <span className="admin-field-label">Email *</span>
+          <span className="admin-field-label">Email address *</span>
           <input
             className="admin-input"
             name="email"
             type="email"
             required
             disabled={isPending}
-            placeholder="jane@example.com"
+            placeholder="colleague@example.com"
+            autoFocus
           />
-        </label>
-
-        <label className="admin-field">
-          <span className="admin-field-label">Password *</span>
-          <input
-            className="admin-input"
-            name="password"
-            type="password"
-            required
-            minLength={8}
-            disabled={isPending}
-            autoComplete="new-password"
-          />
-          <span className="admin-field-help">Minimum 8 characters.</span>
         </label>
 
         <label className="admin-field">
@@ -66,14 +66,14 @@ export function NewUserForm() {
             value={role}
             onChange={(e) => setRole(e.target.value)}
           >
-            <option value="owner">Owner</option>
             <option value="admin">Admin</option>
+            <option value="owner">Business Owner</option>
           </select>
         </label>
 
         {role === "owner" && (
           <label className="admin-field">
-            <span className="admin-field-label">Owned slug *</span>
+            <span className="admin-field-label">Business slug *</span>
             <input
               className="admin-input"
               name="ownedSlug"
@@ -83,7 +83,7 @@ export function NewUserForm() {
               placeholder="star-auto"
             />
             <span className="admin-field-help">
-              The business slug this owner can edit.
+              The business this owner can edit.
             </span>
           </label>
         )}
@@ -95,7 +95,7 @@ export function NewUserForm() {
           className="admin-btn admin-btn--primary"
           disabled={isPending}
         >
-          {isPending ? "Creating\u2026" : "Create user"}
+          {isPending ? "Sending invitation…" : "Send invitation"}
         </button>
         <Link href="/admin/users" className="admin-btn admin-btn--ghost">
           Cancel

@@ -28,7 +28,7 @@ export default async function UsersPage() {
         </div>
         <div className="admin-page-header-actions">
           <Link href="/admin/users/new" className="admin-btn admin-btn--primary">
-            + Create user
+            + Invite user
           </Link>
         </div>
       </div>
@@ -57,7 +57,7 @@ export default async function UsersPage() {
                 <td>
                   <span className="admin-header-user-role" data-role={u.role}>
                     {u.role === "admin"
-                      ? (u.email === "murtazaozdemir@gmail.com" ? "Founder" : "Admin")
+                      ? (u.email === "murtaza@getyoursitelive.com" ? "Founder" : "Admin")
                       : "Business Owner"}
                   </span>
                 </td>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { SessionUser } from "@/lib/users";
 
-const FOUNDER_EMAIL = "murtazaozdemir@gmail.com";
+const FOUNDER_EMAIL = "murtaza@getyoursitelive.com";
 
 function displayRole(user: SessionUser): string {
   if (user.role === "admin") {

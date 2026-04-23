@@ -1,0 +1,94 @@
+import "server-only";
+
+const FROM = process.env.RESEND_FROM_EMAIL ?? "GYSL Admin <noreply@getyoursitelive.com>";
+
+interface SendResult {
+  ok: boolean;
+  error?: string;
+}
+
+async function getResend() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return null;
+  const { Resend } = await import("resend");
+  return new Resend(apiKey);
+}
+
+export async function sendAdminInviteEmail(opts: {
+  to: string;
+  inviteUrl: string;
+  invitedBy: string;
+  role: string;
+}): Promise<SendResult> {
+  const resend = await getResend();
+
+  const html = `
+    <p>Hi,</p>
+    <p><strong>${opts.invitedBy}</strong> has invited you to join the
+    <strong>Get Your Site Live</strong> admin platform as a
+    <strong>${opts.role === "admin" ? "Admin" : "Business Owner"}</strong>.</p>
+    <p>Click the link below to accept your invitation and create your account.
+    The link expires in 7 days.</p>
+    <p><a href="${opts.inviteUrl}" style="display:inline-block;padding:12px 24px;background:#111;color:#fff;text-decoration:none;border-radius:6px;font-weight:600">Accept Invitation →</a></p>
+    <p>Or copy this URL into your browser:<br><code>${opts.inviteUrl}</code></p>
+    <p style="color:#888;font-size:13px">If you weren't expecting this, you can ignore this email.</p>
+  `;
+
+  if (!resend) {
+    // No API key — log to console so dev/staging still works
+    console.log(`[invite-email] to=${opts.to} url=${opts.inviteUrl}`);
+    return { ok: true };
+  }
+
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: opts.to,
+    subject: "You've been invited to Get Your Site Live",
+    html,
+  });
+
+  if (error) {
+    console.error("[invite-email] resend error", error);
+    return { ok: false, error: error.message };
+  }
+
+  return { ok: true };
+}
+
+export async function sendAdminWelcomeEmail(opts: {
+  to: string;
+  name: string;
+  loginUrl: string;
+  role: string;
+}): Promise<SendResult> {
+  const resend = await getResend();
+
+  const html = `
+    <p>Hi ${opts.name},</p>
+    <p>Your <strong>Get Your Site Live</strong> account is ready.
+    You've been added as a <strong>${opts.role === "admin" ? "Admin" : "Business Owner"}</strong>.</p>
+    <p>Sign in here:</p>
+    <p><a href="${opts.loginUrl}" style="display:inline-block;padding:12px 24px;background:#111;color:#fff;text-decoration:none;border-radius:6px;font-weight:600">Sign in →</a></p>
+    <p>URL: <code>${opts.loginUrl}</code></p>
+    <p style="color:#888;font-size:13px">Get Your Site Live — getyoursitelive.com</p>
+  `;
+
+  if (!resend) {
+    console.log(`[welcome-email] to=${opts.to} loginUrl=${opts.loginUrl}`);
+    return { ok: true };
+  }
+
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: opts.to,
+    subject: "Your Get Your Site Live account is ready",
+    html,
+  });
+
+  if (error) {
+    console.error("[welcome-email] resend error", error);
+    return { ok: false, error: error.message };
+  }
+
+  return { ok: true };
+}

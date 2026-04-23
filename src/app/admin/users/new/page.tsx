@@ -5,7 +5,7 @@ import { canManageBusinesses } from "@/lib/users";
 import { NewUserForm } from "./new-user-form";
 
 export const metadata = {
-  title: "Create User · Admin",
+  title: "Invite User · Admin",
   robots: { index: false, follow: false },
 };
 
@@ -22,7 +22,7 @@ export default async function NewUserPage() {
             <Link href="/admin/users" className="admin-crumb">Users</Link>
             {" / New"}
           </p>
-          <h1 className="admin-h1">Create user</h1>
+          <h1 className="admin-h1">Invite user</h1>
         </div>
       </div>
       <NewUserForm />
