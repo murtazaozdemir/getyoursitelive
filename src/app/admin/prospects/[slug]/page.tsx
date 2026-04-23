@@ -112,7 +112,14 @@ export default async function ProspectDetailPage({
               mention of pricing or your brand.
             </p>
             <div className="prospect-preview-row">
-              <code className="prospect-preview-url">{previewUrl}</code>
+              <a
+                href={previewUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="prospect-preview-url"
+              >
+                {previewUrl}
+              </a>
               <ProspectActions slug={slug} action="copy" previewUrl={previewUrl} />
             </div>
           </section>

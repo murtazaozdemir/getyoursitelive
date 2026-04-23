@@ -854,7 +854,10 @@
   font-size: 13px;
   word-break: break-all;
   color: var(--admin-accent);
+  font-family: ui-monospace, "SF Mono", monospace;
+  text-decoration: none;
 }
+a.prospect-preview-url:hover { text-decoration: underline; }
 
 /* Notes */
 .prospect-edit-info-form {
