@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
 import { listUsers, canManageBusinesses } from "@/lib/users";
 import { listInvitations } from "@/lib/invitations";
-import { DeleteUserButton, RevokeInviteButton } from "./user-actions";
+import { DeleteUserButton, RevokeInviteButton, ResendInviteButton } from "./user-actions";
 
 export const metadata = {
   title: "Users · Admin",
@@ -105,7 +105,8 @@ export default async function UsersPage() {
                 </span>
               </td>
               <td>{fmt(inv.createdAt)}</td>
-              <td>
+              <td style={{ display: "flex", gap: 6 }}>
+                <ResendInviteButton email={inv.email} role={inv.role} ownedSlug={inv.ownedSlug} />
                 <RevokeInviteButton token={inv.token} email={inv.email} />
               </td>
             </tr>

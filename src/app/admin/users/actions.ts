@@ -11,6 +11,28 @@ import { sendAdminInviteEmail } from "@/lib/email";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
+export async function resendInviteAction(
+  email: string,
+  role: string,
+  ownedSlug: string | null,
+): Promise<{ ok: boolean; error?: string }> {
+  const currentUser = await requireUser();
+  if (!canManageBusinesses(currentUser)) return { ok: false, error: "Unauthorized" };
+
+  const invite = await createInvitation({
+    email: email.trim().toLowerCase(),
+    role: role as UserRole,
+    ownedSlug,
+    invitedBy: currentUser.email,
+  });
+
+  const inviteUrl = `${SITE_URL}/admin/invite/${invite.token}`;
+  await sendAdminInviteEmail({ to: email, inviteUrl, invitedBy: currentUser.name, role });
+  await logAudit({ userEmail: currentUser.email, userName: currentUser.name, action: "resend_invite", detail: email });
+  revalidatePath("/admin/users");
+  return { ok: true };
+}
+
 export async function revokeInviteAction(token: string): Promise<{ ok: boolean; error?: string }> {
   const user = await requireUser();
   if (!canManageBusinesses(user)) return { ok: false, error: "Unauthorized" };
