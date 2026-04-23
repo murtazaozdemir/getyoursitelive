@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import Link from "next/link";
-import { createProspectAction } from "@/app/admin/prospects/actions";
+import { createProspectAction } from "@/app/admin/leads/actions";
 
 const initialState = { ok: false as boolean, error: undefined as string | undefined };
 
@@ -161,7 +161,7 @@ export function NewProspectForm() {
         >
           {isPending ? "Generating preview…" : "Create preview site"}
         </button>
-        <Link href="/admin/prospects" className="admin-btn admin-btn--ghost">
+        <Link href="/admin/leads" className="admin-btn admin-btn--ghost">
           Cancel
         </Link>
       </div>

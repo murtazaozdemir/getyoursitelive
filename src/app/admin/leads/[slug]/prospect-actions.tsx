@@ -8,7 +8,7 @@ import {
   updateProspectInfoAction,
   updateProspectDomainsAction,
   createOwnerLoginAction,
-} from "@/app/admin/prospects/actions";
+} from "@/app/admin/leads/actions";
 import type { ProspectStatus } from "@/lib/prospects";
 
 const BUSINESS_CATEGORIES = [
@@ -406,7 +406,7 @@ function DeleteButton({ slug }: { slug: string }) {
         className="admin-btn admin-btn--danger"
         onClick={() => setConfirm(true)}
       >
-        Delete prospect
+        Delete lead
       </button>
     );
   }
@@ -414,7 +414,7 @@ function DeleteButton({ slug }: { slug: string }) {
   return (
     <div className="prospect-confirm-delete">
       <p className="prospect-confirm-text">
-        This will delete the prospect record and the preview site. Are you sure?
+        This will delete the lead record and the preview site. Are you sure?
       </p>
       <div className="prospect-confirm-actions">
         <button

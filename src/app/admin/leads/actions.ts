@@ -358,10 +358,10 @@ export async function createProspectAction(
   });
 
   await logAudit({ userEmail: user.email, userName: user.name, action: "create_prospect", slug, detail: name });
-  revalidatePath("/admin/prospects");
+  revalidatePath("/admin/leads");
   revalidatePath(`/${slug}`);
 
-  redirect(`/admin/prospects/${slug}`);
+  redirect(`/admin/leads/${slug}`);
 }
 
 export async function updateProspectStatusAction(slug: string, status: ProspectStatus): Promise<{ ok: boolean }> {
@@ -370,8 +370,8 @@ export async function updateProspectStatusAction(slug: string, status: ProspectS
 
   await updateProspect(slug, { status });
   await logAudit({ userEmail: user.email, userName: user.name, action: "prospect_status", slug, detail: status });
-  revalidatePath("/admin/prospects");
-  revalidatePath(`/admin/prospects/${slug}`);
+  revalidatePath("/admin/leads");
+  revalidatePath(`/admin/leads/${slug}`);
   return { ok: true };
 }
 
@@ -411,8 +411,8 @@ export async function updateProspectInfoAction(
   }
 
   await logAudit({ userEmail: user.email, userName: user.name, action: "update_prospect_info", slug, detail: name.trim() });
-  revalidatePath("/admin/prospects");
-  revalidatePath(`/admin/prospects/${slug}`);
+  revalidatePath("/admin/leads");
+  revalidatePath(`/admin/leads/${slug}`);
   revalidatePath(`/${slug}`);
   return { ok: true };
 }
@@ -426,7 +426,7 @@ export async function addProspectNoteAction(slug: string, text: string): Promise
 
   const note = { id: `n-${Date.now()}`, text, createdAt: new Date().toISOString() };
   await updateProspect(slug, { notes: [note, ...prospect.notes] });
-  revalidatePath(`/admin/prospects/${slug}`);
+  revalidatePath(`/admin/leads/${slug}`);
   return { ok: true };
 }
 
@@ -443,7 +443,7 @@ export async function updateProspectDomainsAction(
     domain3: data.domain3.trim() || undefined,
   });
 
-  revalidatePath(`/admin/prospects/${slug}`);
+  revalidatePath(`/admin/leads/${slug}`);
   return { ok: true };
 }
 
@@ -475,7 +475,7 @@ export async function createOwnerLoginAction(
     slug,
     detail: `${email.trim()} (owner → ${slug})`,
   });
-  revalidatePath(`/admin/prospects/${slug}`);
+  revalidatePath(`/admin/leads/${slug}`);
   revalidatePath("/admin/users");
   return { ok: true };
 }
@@ -488,6 +488,6 @@ export async function deleteProspectAction(slug: string): Promise<{ ok: boolean 
   await deleteProspect(slug);
   await deleteBusiness(slug);
 
-  revalidatePath("/admin/prospects");
-  redirect("/admin/prospects");
+  revalidatePath("/admin/leads");
+  redirect("/admin/leads");
 }

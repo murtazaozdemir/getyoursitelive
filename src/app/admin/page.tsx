@@ -45,7 +45,7 @@ function BizCard({
         <Link href={`/${biz.slug}/admin/edit`} className="admin-btn admin-btn--primary">
           Edit site
         </Link>
-        <Link href={`/admin/prospects/${biz.slug}`} className="admin-btn admin-btn--ghost">
+        <Link href={`/admin/leads/${biz.slug}`} className="admin-btn admin-btn--ghost">
           Lead info
         </Link>
         <Link

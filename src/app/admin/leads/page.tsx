@@ -54,20 +54,20 @@ export default async function ProspectsPage() {
           <p className="admin-eyebrow">Platform admin</p>
           <h1 className="admin-h1">Lead Pipeline</h1>
           <p className="admin-lede">
-            {prospects.length} prospect{prospects.length !== 1 ? "s" : ""} tracked.
+            {prospects.length} lead{prospects.length !== 1 ? "s" : ""} tracked.
             Click a card to view details or send the preview link.
           </p>
         </div>
-        <Link href="/admin/prospects/new" className="admin-btn admin-btn--primary">
-          + Add prospect
+        <Link href="/admin/leads/new" className="admin-btn admin-btn--primary">
+          + Add lead
         </Link>
       </div>
 
       {prospects.length === 0 ? (
         <div className="admin-empty">
-          <p>No prospects yet. Add your first one.</p>
-          <Link href="/admin/prospects/new" className="admin-btn admin-btn--primary">
-            Add prospect
+          <p>No leads yet. Add your first one.</p>
+          <Link href="/admin/leads/new" className="admin-btn admin-btn--primary">
+            Add lead
           </Link>
         </div>
       ) : (
@@ -87,7 +87,7 @@ export default async function ProspectsPage() {
                     return (
                       <Link
                         key={p.slug}
-                        href={`/admin/prospects/${p.slug}`}
+                        href={`/admin/leads/${p.slug}`}
                         className="prospect-card"
                       >
                         <p className="prospect-card-name">{p.name}</p>

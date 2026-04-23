@@ -62,7 +62,7 @@ function SeedSection() {
           )}
           <div style={{ marginTop: 14, display: "flex", gap: 8 }}>
             <Link href="/admin" className="admin-btn admin-btn--ghost">Clients →</Link>
-            <Link href="/admin/prospects" className="admin-btn admin-btn--ghost">Leads →</Link>
+            <Link href="/admin/leads" className="admin-btn admin-btn--ghost">Leads →</Link>
           </div>
         </div>
       )}

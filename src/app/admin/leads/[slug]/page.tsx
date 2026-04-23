@@ -41,7 +41,7 @@ export default async function ProspectDetailPage({
       <div className="admin-page-header">
         <div>
           <p className="admin-eyebrow">
-            <Link href="/admin/prospects" className="admin-back-link">
+            <Link href="/admin/leads" className="admin-back-link">
               ← Leads
             </Link>
           </p>
@@ -142,9 +142,9 @@ export default async function ProspectDetailPage({
 
           {/* Danger zone */}
           <section className="admin-section admin-section--danger">
-            <h2 className="admin-section-title">Delete prospect</h2>
+            <h2 className="admin-section-title">Delete lead</h2>
             <p className="admin-section-lede">
-              Removes the prospect record and the preview site at{" "}
+              Removes the lead record and the preview site at{" "}
               <code>/{slug}</code>. This cannot be undone.
             </p>
             <ProspectActions slug={slug} action="delete" />
