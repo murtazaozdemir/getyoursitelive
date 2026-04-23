@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
 import type { SessionUser } from "@/lib/users";
 
 const FOUNDER_EMAIL = "murtaza@getyoursitelive.com";
@@ -15,6 +16,24 @@ function displayRole(user: SessionUser): string {
 
 export function AdminHeader({ user }: { user: SessionUser }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const isFounder = user.role === "admin" && user.email === FOUNDER_EMAIL;
+
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setAccountOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  // Close dropdown on route change
+  useEffect(() => { setAccountOpen(false); }, [pathname]);
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -47,14 +66,8 @@ export function AdminHeader({ user }: { user: SessionUser }) {
           <nav className="admin-header-nav">
             <Link href="/admin" className="admin-header-nav-link">Clients</Link>
             <Link href="/admin/leads" className="admin-header-nav-link">Leads</Link>
-            {user.role === "admin" && user.email === FOUNDER_EMAIL && (
+            {isFounder && (
               <Link href="/admin/users" className="admin-header-nav-link">Users</Link>
-            )}
-            {user.role === "admin" && (
-              <Link href="/admin/audit" className="admin-header-nav-link">Audit Log</Link>
-            )}
-            {user.role === "admin" && (
-              <Link href="/admin/setup" className="admin-header-nav-link">Setup</Link>
             )}
           </nav>
         </div>
@@ -66,12 +79,51 @@ export function AdminHeader({ user }: { user: SessionUser }) {
               {displayRole(user)}
             </span>
           </span>
-          <Link href="/admin/account" className="admin-btn admin-btn--ghost">
-            My Account
-          </Link>
-          <button type="button" className="admin-btn admin-btn--ghost" onClick={handleLogout}>
-            Sign out
-          </button>
+
+          {/* My Account dropdown */}
+          <div className="admin-account-menu" ref={accountRef}>
+            <button
+              type="button"
+              className="admin-btn admin-btn--ghost"
+              onClick={() => setAccountOpen((o) => !o)}
+              aria-expanded={accountOpen}
+            >
+              My Account
+            </button>
+            {accountOpen && (
+              <div className="admin-account-dropdown">
+                <Link href="/admin/account" className="admin-account-dropdown-item">
+                  Account settings
+                </Link>
+                {isFounder && (
+                  <>
+                    <div className="admin-account-dropdown-divider" />
+                    <Link href="/admin/audit" className="admin-account-dropdown-item">
+                      Audit Log
+                    </Link>
+                    <Link href="/admin/setup" className="admin-account-dropdown-item">
+                      Setup
+                    </Link>
+                  </>
+                )}
+                <div className="admin-account-dropdown-divider" />
+                <button
+                  type="button"
+                  className="admin-account-dropdown-item admin-account-dropdown-item--danger"
+                  onClick={handleLogout}
+                >
+                  Sign out
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Keep standalone sign out for non-dropdown fallback */}
+          {!isFounder && (
+            <button type="button" className="admin-btn admin-btn--ghost" onClick={handleLogout}>
+              Sign out
+            </button>
+          )}
         </div>
       </div>
     </header>
