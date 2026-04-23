@@ -47,10 +47,13 @@ export default async function LeadsPage({
   const { view: viewParam } = await searchParams;
   const view = viewParam === "cards" ? "cards" : "pipeline";
 
-  const prospects = await listProspects();
+  const allProspects = await listProspects();
+
+  // Paid and delivered leads have graduated to Clients — exclude them here
+  const prospects = allProspects.filter((p) => p.status !== "paid" && p.status !== "delivered");
 
   const byStatus = Object.fromEntries(
-    PIPELINE_STAGES.map(({ status }) => [
+    PIPELINE_STAGES.filter(({ status }) => status !== "paid" && status !== "delivered").map(({ status }) => [
       status,
       prospects.filter((p) => p.status === status),
     ]),
@@ -63,8 +66,8 @@ export default async function LeadsPage({
           <p className="admin-eyebrow">Platform admin</p>
           <h1 className="admin-h1">Leads</h1>
           <p className="admin-lede">
-            {prospects.length} lead{prospects.length !== 1 ? "s" : ""} tracked.
-            Click a card to view details or send the preview link.
+            {prospects.length} active lead{prospects.length !== 1 ? "s" : ""}.
+            Paid leads move to Clients automatically.
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -99,7 +102,7 @@ export default async function LeadsPage({
       ) : view === "pipeline" ? (
         /* ── PIPELINE VIEW ────────────────────────────────────── */
         <div className="prospect-pipeline">
-          {PIPELINE_STAGES.map(({ status, label }) => (
+          {PIPELINE_STAGES.filter(({ status }) => status !== "paid" && status !== "delivered").map(({ status, label }) => (
             <div key={status} className="prospect-column">
               <div className="prospect-column-header">
                 <span className={`prospect-badge ${statusBadge(status)}`}>{label}</span>
