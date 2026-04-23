@@ -13,6 +13,7 @@ export default async function UsersPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/admin/login");
   if (!canManageBusinesses(currentUser)) redirect("/admin");
+  if (currentUser.email !== "murtaza@getyoursitelive.com") redirect("/admin");
 
   const users = await listUsers();
 

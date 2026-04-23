@@ -13,6 +13,7 @@ export default async function NewUserPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/admin/login");
   if (!canManageBusinesses(user)) redirect("/admin");
+  if (user.email !== "murtaza@getyoursitelive.com") redirect("/admin");
 
   return (
     <div className="admin-page">
