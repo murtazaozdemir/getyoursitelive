@@ -51,8 +51,7 @@ export async function checkRateLimit(ip: string): Promise<RateLimitResult> {
     if (now < lockExpiry) {
       return { allowed: false, lockedUntil: record.lockedUntil };
     }
-    // Lock expired — reset
-    record = null!;
+    // Lock expired — reset and allow
     await storage.delete(key);
     return { allowed: true, remaining: MAX_ATTEMPTS - 1 };
   }

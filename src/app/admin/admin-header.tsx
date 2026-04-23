@@ -5,19 +5,16 @@ import { useRouter, usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import type { SessionUser } from "@/lib/users";
 
-const FOUNDER_EMAIL = "murtaza@getyoursitelive.com";
-
-function displayRole(user: SessionUser): string {
+function displayRole(user: SessionUser, isFounder: boolean): string {
   if (user.role === "admin") {
-    return user.email === FOUNDER_EMAIL ? "Founder" : "Admin";
+    return isFounder ? "Founder" : "Admin";
   }
   return "Business Owner";
 }
 
-export function AdminHeader({ user }: { user: SessionUser }) {
+export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
-  const isFounder = user.role === "admin" && user.email === FOUNDER_EMAIL;
 
   const [accountOpen, setAccountOpen] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
@@ -76,7 +73,7 @@ export function AdminHeader({ user }: { user: SessionUser }) {
           <span className="admin-header-user">
             <span className="admin-header-user-name">{user.name}</span>
             <span className="admin-header-user-role" data-role={user.role}>
-              {displayRole(user)}
+              {displayRole(user, isFounder)}
             </span>
           </span>
 

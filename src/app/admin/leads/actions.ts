@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/session";
-import { canManageBusinesses } from "@/lib/users";
+import { canManageBusinesses, isFounder } from "@/lib/users";
 import {
   createProspect,
   updateProspect,
@@ -346,16 +346,22 @@ export async function createProspectAction(
   await saveBusiness(business);
 
   const now = new Date().toISOString();
-  await createProspect({
-    slug,
-    name,
-    phone,
-    address,
-    status: "found",
-    notes: [],
-    createdAt: now,
-    updatedAt: now,
-  });
+  try {
+    await createProspect({
+      slug,
+      name,
+      phone,
+      address,
+      status: "found",
+      notes: [],
+      createdAt: now,
+      updatedAt: now,
+    });
+  } catch (err) {
+    // Rollback: remove the business we just created so data stays consistent
+    await deleteBusiness(slug).catch(() => {});
+    throw err;
+  }
 
   await logAudit({ userEmail: user.email, userName: user.name, action: "create_prospect", slug, detail: name });
   revalidatePath("/admin/leads");
@@ -363,8 +369,6 @@ export async function createProspectAction(
 
   redirect(`/admin/leads/${slug}`);
 }
-
-const FOUNDER_EMAIL = "murtaza@getyoursitelive.com";
 
 export async function updateProspectStatusAction(slug: string, status: ProspectStatus): Promise<{ ok: boolean; locked?: boolean }> {
   const user = await getCurrentUser();
@@ -374,7 +378,7 @@ export async function updateProspectStatusAction(slug: string, status: ProspectS
 
   // Once a lead is contacted, it's locked to that reseller.
   // Only the reseller who contacted it (or the Founder) can advance the stage.
-  if (existing?.contactedBy && existing.contactedBy !== user.email && user.email !== FOUNDER_EMAIL) {
+  if (existing?.contactedBy && existing.contactedBy !== user.email && !isFounder(user)) {
     return { ok: false, locked: true };
   }
 

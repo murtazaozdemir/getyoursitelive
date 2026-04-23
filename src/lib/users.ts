@@ -210,6 +210,16 @@ export function canManageBusinesses(user: SessionUser): boolean {
   return user.role === "admin";
 }
 
+/**
+ * The platform founder — has elevated permissions such as overriding
+ * lead ownership locks. Read from env so the email isn't scattered
+ * across source files.
+ */
+export function isFounder(user: { email: string }): boolean {
+  const founderEmail = process.env.FOUNDER_EMAIL ?? "murtaza@getyoursitelive.com";
+  return user.email.toLowerCase() === founderEmail.toLowerCase();
+}
+
 // ---------------------------------------------------------------
 // Internal
 // ---------------------------------------------------------------

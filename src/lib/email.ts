@@ -35,8 +35,12 @@ export async function sendAdminInviteEmail(opts: {
   `;
 
   if (!resend) {
-    // No API key — log to console so dev/staging still works
-    console.log(`[invite-email] to=${opts.to} url=${opts.inviteUrl}`);
+    if (process.env.NODE_ENV === "production") {
+      console.error("[invite-email] RESEND_API_KEY is not set — email not sent");
+      return { ok: false, error: "Email service is not configured. Contact the platform administrator." };
+    }
+    // Dev/staging: log to console so you can grab the invite URL
+    console.log(`[invite-email] DEV (no RESEND_API_KEY) to=${opts.to} url=${opts.inviteUrl}`);
     return { ok: true };
   }
 
@@ -76,7 +80,11 @@ export async function sendAdminWelcomeEmail(opts: {
   `;
 
   if (!resend) {
-    console.log(`[welcome-email] to=${opts.to} loginUrl=${opts.loginUrl}`);
+    if (process.env.NODE_ENV === "production") {
+      console.error("[welcome-email] RESEND_API_KEY is not set — email not sent");
+      return { ok: false, error: "Email service is not configured." };
+    }
+    console.log(`[welcome-email] DEV (no RESEND_API_KEY) to=${opts.to} loginUrl=${opts.loginUrl}`);
     return { ok: true };
   }
 

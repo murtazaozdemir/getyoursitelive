@@ -3,10 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { getProspect, PIPELINE_STAGES } from "@/lib/prospects";
 import { getBusinessBySlug } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
-import { canManageBusinesses } from "@/lib/users";
+import { canManageBusinesses, isFounder } from "@/lib/users";
 import { ProspectActions } from "./prospect-actions";
-
-const FOUNDER_EMAIL = "murtaza@getyoursitelive.com";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -42,7 +40,7 @@ export default async function ProspectDetailPage({
   const isLocked =
     !!prospect.contactedBy &&
     prospect.contactedBy !== user.email &&
-    user.email !== FOUNDER_EMAIL;
+    !isFounder(user);
   const lockedToName = prospect.contactedByName ?? prospect.contactedBy ?? null;
 
   return (

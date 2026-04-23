@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
-import { listUsers, canManageBusinesses } from "@/lib/users";
+import { listUsers, canManageBusinesses, isFounder } from "@/lib/users";
 import { listInvitations } from "@/lib/invitations";
 import { DeleteUserButton, RevokeInviteButton, ResendInviteButton } from "./user-actions";
 
@@ -9,8 +9,6 @@ export const metadata = {
   title: "Users · Admin",
   robots: { index: false, follow: false },
 };
-
-const FOUNDER_EMAIL = "murtaza@getyoursitelive.com";
 
 function fmt(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -22,7 +20,7 @@ export default async function UsersPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/admin/login");
   if (!canManageBusinesses(currentUser)) redirect("/admin");
-  if (currentUser.email !== FOUNDER_EMAIL) redirect("/admin");
+  if (!isFounder(currentUser)) redirect("/admin");
 
   const [users, invites] = await Promise.all([listUsers(), listInvitations()]);
 
@@ -64,7 +62,7 @@ export default async function UsersPage() {
               <td>
                 <span className="admin-header-user-role" data-role={u.role}>
                   {u.role === "admin"
-                    ? (u.email === FOUNDER_EMAIL ? "Founder" : "Admin")
+                    ? (isFounder(u) ? "Founder" : "Admin")
                     : "Business Owner"}
                 </span>
               </td>
