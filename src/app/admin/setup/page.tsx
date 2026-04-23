@@ -13,7 +13,7 @@ function SeedSection() {
   async function handleSeed() {
     setStatus("running");
     try {
-      const res = await fetch("/api/admin/seed-blob", { method: "POST" });
+      const res = await fetch("/api/admin/seed-storage", { method: "POST" });
       const json = await res.json();
       if (!res.ok) { setStatus("error"); setErrorMsg(json.error ?? "Unknown error"); return; }
       setResult(json);
@@ -29,13 +29,12 @@ function SeedSection() {
       <h2 className="admin-section-title">Seed storage</h2>
       <p className="admin-section-lede">
         One-time restore: copies businesses and prospects from the deployment
-        files into the configured storage backend (R2). Use after a fresh
-        deploy or when setting up a new storage bucket.
+        files into R2. Use after a fresh deploy or when setting up a new bucket.
       </p>
 
       {status === "idle" && (
         <button type="button" className="admin-btn admin-btn--primary" onClick={handleSeed}>
-          Seed Blob from deployment files
+          Seed R2 from deployment files
         </button>
       )}
       {status === "running" && (
@@ -113,7 +112,7 @@ function MigrationsSection() {
         Bulk operations that modify existing production data live here — not in
         local scripts. Claude adds a migration function to{" "}
         <code>src/app/api/admin/migrate/route.ts</code>, deploys it, and you
-        run it once here. Runs against live Blob data, so it always sees the
+        run it once here. Runs against live R2 data, so it always sees the
         current state regardless of what local files say.
       </p>
 

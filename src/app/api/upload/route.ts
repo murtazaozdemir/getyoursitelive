@@ -69,15 +69,29 @@ export async function POST(req: NextRequest) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  // In production (Vercel Blob configured), upload to blob storage
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    const { put } = await import("@vercel/blob");
-    const blob = await put(`uploads/${slug}/${filename}`, buffer, {
-      access: "public",
-      contentType: file.type,
-      addRandomSuffix: false,
+  // Production: upload to R2
+  if (process.env.STORAGE_BACKEND === "r2") {
+    const { S3Client, PutObjectCommand } = await import("@aws-sdk/client-s3");
+    const s3 = new S3Client({
+      region: "auto",
+      endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+      },
     });
-    return NextResponse.json({ url: blob.url });
+    const key = `uploads/${slug}/${filename}`;
+    await s3.send(new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET ?? "getyoursitelive",
+      Key: key,
+      Body: buffer,
+      ContentType: file.type,
+    }));
+    const publicUrl = process.env.R2_PUBLIC_URL?.replace(/\/$/, "");
+    if (!publicUrl) {
+      return NextResponse.json({ error: "R2_PUBLIC_URL is not configured" }, { status: 500 });
+    }
+    return NextResponse.json({ url: `${publicUrl}/${key}` });
   }
 
   // Local dev: write to public/uploads/

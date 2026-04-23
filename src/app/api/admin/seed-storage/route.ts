@@ -5,7 +5,7 @@ import { createLocalStorage } from "@/lib/storage-local";
 import { getStorage } from "@/lib/storage";
 
 /**
- * POST /api/admin/seed-blob
+ * POST /api/admin/seed-storage
  *
  * One-time endpoint: reads all data files that shipped with the deployment
  * (data/businesses/*.json and data/prospects.json) and writes them to
