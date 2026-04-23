@@ -3,9 +3,11 @@ import { execSync } from "child_process";
 
 // Wire up Cloudflare D1/R2 bindings for local `next dev`.
 // In production (Cloudflare Pages) this is handled by the runtime automatically.
+// Fire-and-forget — must not use top-level await (breaks Next.js 16 config loader).
 if (process.env.NODE_ENV === "development") {
-  const { setupDevPlatform } = await import("@cloudflare/next-on-pages/next-dev");
-  await setupDevPlatform();
+  import("@cloudflare/next-on-pages/next-dev")
+    .then(({ setupDevPlatform }) => setupDevPlatform())
+    .catch(() => {}); // non-fatal if package isn't available
 }
 
 function getCommitCount() {

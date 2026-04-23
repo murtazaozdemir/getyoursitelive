@@ -29,7 +29,7 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
     });
 
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
+      const data = await res.json().catch(() => ({})) as { error?: string };
       setError(data.error ?? "Something went wrong. Try again.");
       setIsFetching(false);
       return;
@@ -39,10 +39,8 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
     // than the generic fallback ("/admin"), honor it — they wanted a
     // specific page. Otherwise route by role: admins to the platform
     // dashboard, owners to their own shop's admin area.
-    const data = await res.json().catch(() => ({}));
-    const user = data?.user as
-      | { role: "admin" | "owner"; ownedSlug: string | null }
-      | undefined;
+    const data = await res.json().catch(() => ({})) as { user?: { role: "admin" | "owner"; ownedSlug: string | null } };
+    const user = data?.user;
 
     // Restrict to same-origin paths only — reject protocol-relative URLs like //evil.com
     const safeNextPath =

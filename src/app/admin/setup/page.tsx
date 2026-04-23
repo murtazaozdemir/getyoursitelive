@@ -14,9 +14,9 @@ function SeedSection() {
     setStatus("running");
     try {
       const res = await fetch("/api/admin/seed-storage", { method: "POST" });
-      const json = await res.json();
+      const json = await res.json() as { error?: string; uploaded?: number; total?: number; failed?: { key: string; error: string }[] };
       if (!res.ok) { setStatus("error"); setErrorMsg(json.error ?? "Unknown error"); return; }
-      setResult(json);
+      setResult({ uploaded: json.uploaded ?? 0, total: json.total ?? 0, failed: json.failed ?? [] });
       setStatus("done");
     } catch (err) {
       setStatus("error");
@@ -95,9 +95,9 @@ function MigrationsSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ migration: migration.trim() }),
       });
-      const json = await res.json();
+      const json = await res.json() as { error?: string; updated?: number; skipped?: number; log?: string[] };
       if (!res.ok) { setStatus("error"); setErrorMsg(json.error ?? "Unknown error"); return; }
-      setResult(json);
+      setResult({ updated: json.updated ?? 0, skipped: json.skipped ?? 0, log: json.log ?? [] });
       setStatus("done");
     } catch (err) {
       setStatus("error");

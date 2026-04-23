@@ -59,7 +59,7 @@ export function ContactForm() {
         body: data,
       });
       if (!res.ok) {
-        const json = await res.json().catch(() => ({}));
+        const json = await res.json().catch(() => ({})) as { error?: string };
         throw new Error(json.error ?? "Submission failed. Please try again.");
       }
       setStatus("sent");

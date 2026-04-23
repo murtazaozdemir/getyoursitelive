@@ -42,11 +42,11 @@ export function EditableImage({
       form.append("file", file);
       form.append("slug", slug);
       const res = await fetch("/api/upload", { method: "POST", body: form });
-      const data = await res.json();
+      const data = await res.json() as { error?: string; url?: string };
       if (!res.ok) {
         throw new Error(data.error ?? "Upload failed");
       }
-      onCommit(data.url);
+      onCommit(data.url ?? "");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
