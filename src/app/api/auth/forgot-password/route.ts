@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { findUserByEmail } from "@/lib/users";
 import { createResetToken } from "@/lib/reset-tokens";
 import { checkRateLimit, recordFailedAttempt } from "@/lib/rate-limit";
+import { sendPasswordResetEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -44,10 +45,13 @@ export async function POST(req: NextRequest) {
 
   const token = await createResetToken(user.id);
 
-  // TODO: send token via email (e.g. Resend) instead of logging.
-  // Token is intentionally NOT returned in the HTTP response — doing so
-  // would allow account takeover without email access.
-  console.log(`[forgot-password] reset link for ${user.email}: /admin/reset-password?token=${token}`);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const resetUrl = `${siteUrl}/admin/reset-password?token=${token}`;
+
+  const result = await sendPasswordResetEmail({ to: user.email, resetUrl });
+  if (!result.ok) {
+    console.error(`[forgot-password] failed to send reset email to ${user.email}: ${result.error}`);
+  }
 
   return NextResponse.json({ ok: true });
 }

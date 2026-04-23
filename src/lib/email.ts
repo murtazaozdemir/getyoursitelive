@@ -102,3 +102,42 @@ export async function sendAdminWelcomeEmail(opts: {
 
   return { ok: true };
 }
+
+export async function sendPasswordResetEmail(opts: {
+  to: string;
+  resetUrl: string;
+}): Promise<SendResult> {
+  const resend = await getResend();
+
+  const html = `
+    <p>Hi,</p>
+    <p>We received a request to reset your <strong>Get Your Site Live</strong> password.</p>
+    <p>Click the link below to choose a new password. The link expires in 1 hour.</p>
+    <p><a href="${opts.resetUrl}" style="display:inline-block;padding:12px 24px;background:#111;color:#fff;text-decoration:none;border-radius:6px;font-weight:600">Reset password →</a></p>
+    <p>Or copy this URL into your browser:<br><code>${opts.resetUrl}</code></p>
+    <p style="color:#888;font-size:13px">If you didn't request a password reset, you can ignore this email. Your password won't change.</p>
+  `;
+
+  if (!resend) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("[reset-email] RESEND_API_KEY is not set — email not sent");
+      return { ok: false, error: "Email service is not configured." };
+    }
+    console.log(`[reset-email] DEV (no RESEND_API_KEY) to=${opts.to} url=${opts.resetUrl}`);
+    return { ok: true };
+  }
+
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: opts.to,
+    subject: "Reset your Get Your Site Live password",
+    html,
+  });
+
+  if (error) {
+    console.error("[reset-email] resend error", error);
+    return { ok: false, error: error.message };
+  }
+
+  return { ok: true };
+}
