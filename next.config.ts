@@ -1,6 +1,13 @@
 import type { NextConfig } from "next";
 import { execSync } from "child_process";
 
+// Wire up Cloudflare D1/R2 bindings for local `next dev`.
+// In production (Cloudflare Pages) this is handled by the runtime automatically.
+if (process.env.NODE_ENV === "development") {
+  const { setupDevPlatform } = await import("@cloudflare/next-on-pages/next-dev");
+  await setupDevPlatform();
+}
+
 function getCommitCount() {
   try {
     return execSync("git rev-list --count HEAD").toString().trim();
