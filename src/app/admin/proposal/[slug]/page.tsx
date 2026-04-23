@@ -104,11 +104,8 @@ export default async function ProposalPage({
         {/* ── HEADER ─────────────────────────────────────────────── */}
         <header className="proposal-header">
           <div className="proposal-header-from">
-            <strong>{sellerName}</strong>
-            <span>Get Your Site Live · Local web design, NJ</span>
-            <span>{sellerEmail}</span>
-            {sellerPhone && <span>{sellerPhone}</span>}
-            {sellerAddress && <span>{sellerAddress}</span>}
+            <strong>Get Your Site Live</strong>
+            <span>Proposal</span>
           </div>
           <div className="proposal-header-to">
             <span className="proposal-header-label">Prepared for</span>
