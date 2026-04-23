@@ -44,3 +44,9 @@ export async function getAuditLog(limit = 200): Promise<AuditEntry[]> {
   const entries = (await readJson<AuditEntry[]>(storage, AUDIT_KEY)) ?? [];
   return entries.slice(0, limit);
 }
+
+export async function getAuditLogForSlug(slug: string, limit = 100): Promise<AuditEntry[]> {
+  const storage = await getStorage();
+  const entries = (await readJson<AuditEntry[]>(storage, AUDIT_KEY)) ?? [];
+  return entries.filter((e) => e.slug === slug).slice(0, limit);
+}

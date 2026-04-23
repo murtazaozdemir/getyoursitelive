@@ -4,6 +4,7 @@ import { getBusinessBySlug } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses, findUserById } from "@/lib/users";
 import { getProspect, updateProspect } from "@/lib/prospects";
+import { logAudit } from "@/lib/audit-log";
 import { PrintButton } from "./print-button";
 import "./proposal.css";
 
@@ -65,10 +66,19 @@ export default async function ProposalPage({
   // Record that this proposal was generated (fire-and-forget — don't block render)
   const prospect = await getProspect(slug);
   if (prospect) {
-    await updateProspect(slug, {
-      proposalSentAt: new Date().toISOString(),
-      proposalSentBy: sessionUser.email,
-    });
+    await Promise.all([
+      updateProspect(slug, {
+        proposalSentAt: new Date().toISOString(),
+        proposalSentBy: sessionUser.email,
+      }),
+      logAudit({
+        userEmail: sessionUser.email,
+        userName: sessionUser.name,
+        action: "view_proposal",
+        slug,
+        detail: biz.businessInfo.name,
+      }),
+    ]);
   }
 
   // Build reseller contact info from the logged-in admin's profile

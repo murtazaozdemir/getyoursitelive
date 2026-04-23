@@ -5,6 +5,23 @@ import { getBusinessBySlug } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses, isFounder } from "@/lib/users";
 import { ProspectActions } from "./prospect-actions";
+import { getAuditLogForSlug, type AuditEntry } from "@/lib/audit-log";
+
+function formatActivityAction(entry: AuditEntry): string {
+  const d = entry.detail;
+  switch (entry.action) {
+    case "create_prospect":      return "Lead created";
+    case "prospect_status":      return `Status → ${d ?? ""}`;
+    case "update_prospect_info": return "Contact info updated";
+    case "create_user":          return `Owner login created${d ? ` (${d})` : ""}`;
+    case "delete_prospect":      return "Lead deleted";
+    case "save_business":        return "Site saved";
+    case "create_business":      return "Site created";
+    case "view_proposal":        return "Proposal viewed";
+    case "invite_accepted":      return `Invite accepted${d ? ` by ${d}` : ""}`;
+    default:                     return entry.action.replace(/_/g, " ");
+  }
+}
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -26,9 +43,10 @@ export default async function ProspectDetailPage({
   if (!canManageBusinesses(user)) redirect("/admin");
 
   const { slug } = await params;
-  const [prospect, biz] = await Promise.all([
+  const [prospect, biz, activity] = await Promise.all([
     getProspect(slug),
     getBusinessBySlug(slug),
+    getAuditLogForSlug(slug),
   ]);
   if (!prospect) notFound();
 
@@ -152,6 +170,23 @@ export default async function ProspectDetailPage({
               </ul>
             )}
           </section>
+
+          {/* Activity log */}
+          {activity.length > 0 && (
+            <section className="admin-section">
+              <h2 className="admin-section-title">Activity</h2>
+              <ul className="prospect-notes">
+                {activity.map((entry) => (
+                  <li key={entry.id} className="prospect-note">
+                    <p className="prospect-note-text">{formatActivityAction(entry)}</p>
+                    <p className="prospect-note-date">
+                      {formatDate(entry.at)} &middot; {entry.userName || entry.userEmail}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           {/* Danger zone */}
           <section className="admin-section admin-section--danger">
