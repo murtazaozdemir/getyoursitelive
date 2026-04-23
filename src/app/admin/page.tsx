@@ -15,7 +15,14 @@ function BizCard({
   showWarnings = true,
 }: {
   biz: { slug: string; name: string; category: string; address: string };
-  prospect?: { domain1?: string; domain2?: string; domain3?: string; proposalSentAt?: string } | undefined;
+  prospect?: {
+    domain1?: string;
+    domain2?: string;
+    domain3?: string;
+    proposalSentAt?: string;
+    contactedByName?: string;
+    contactedBy?: string;
+  } | undefined;
   showWarnings?: boolean;
 }) {
   const hasAddress = !!biz.address?.trim();
@@ -44,6 +51,11 @@ function BizCard({
             <span className="prospect-chip prospect-chip--warn">No domain</span>
           )}
         </div>
+        {prospect?.contactedBy && (
+          <p className="admin-biz-card-meta" style={{ marginTop: 8 }}>
+            💳 {prospect.contactedByName ?? prospect.contactedBy}
+          </p>
+        )}
       </div>
       <div className="admin-biz-card-actions">
         <Link href={`/admin/leads/${biz.slug}`} className="admin-btn admin-btn--primary">

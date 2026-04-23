@@ -153,6 +153,31 @@ export default async function ProspectDetailPage({
 
         {/* ── RIGHT: sidebar ── */}
         <aside className="prospect-detail-sidebar">
+
+          {/* Commission attribution */}
+          <div className="prospect-sidebar-card">
+            <h2 className="admin-section-title">Commission</h2>
+            {prospect.contactedBy ? (
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 600, margin: "0 0 2px" }}>
+                  {prospect.contactedByName ?? prospect.contactedBy}
+                </p>
+                <p style={{ fontSize: 12, color: "var(--admin-text-soft)", margin: 0 }}>
+                  {prospect.contactedBy}
+                </p>
+                {prospect.contactedAt && (
+                  <p style={{ fontSize: 12, color: "var(--admin-text-soft)", marginTop: 4 }}>
+                    Contacted {formatDate(prospect.contactedAt)}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p style={{ fontSize: 13, color: "var(--admin-text-soft)", margin: 0 }}>
+                Not yet contacted. The first admin to mark this lead as <strong>Contacted</strong> will be credited.
+              </p>
+            )}
+          </div>
+
           <div className="prospect-sidebar-card">
             <h2 className="admin-section-title">Domain options</h2>
             <ProspectActions

@@ -33,6 +33,12 @@ export interface Prospect {
   proposalSentAt?: string;
   /** Email of the admin who last generated the proposal */
   proposalSentBy?: string;
+  /** Email of the admin who first contacted this lead — used for commission tracking */
+  contactedBy?: string;
+  /** Display name of the admin who first contacted this lead */
+  contactedByName?: string;
+  /** ISO timestamp when this lead was first contacted */
+  contactedAt?: string;
   createdAt: string;
   updatedAt: string;
 }

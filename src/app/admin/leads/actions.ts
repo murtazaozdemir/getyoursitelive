@@ -368,7 +368,20 @@ export async function updateProspectStatusAction(slug: string, status: ProspectS
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) return { ok: false };
 
-  await updateProspect(slug, { status });
+  const patch: Partial<Parameters<typeof updateProspect>[1]> & { status: ProspectStatus } = { status };
+
+  // Record who first moved this lead to "contacted" — used for commission tracking.
+  // Only set once; never overwrite an existing attribution.
+  if (status === "contacted") {
+    const existing = await getProspect(slug);
+    if (existing && !existing.contactedBy) {
+      patch.contactedBy = user.email;
+      patch.contactedByName = user.name;
+      patch.contactedAt = new Date().toISOString();
+    }
+  }
+
+  await updateProspect(slug, patch);
   await logAudit({ userEmail: user.email, userName: user.name, action: "prospect_status", slug, detail: status });
   revalidatePath("/admin/leads");
   revalidatePath(`/admin/leads/${slug}`);
