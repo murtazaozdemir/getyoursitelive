@@ -932,8 +932,9 @@
 }
 
 .prospect-stage-btn--past {
-  background: color-mix(in srgb, var(--admin-accent) 18%, var(--admin-bg));
-  color: var(--admin-accent);
+  background: color-mix(in srgb, var(--admin-accent) 45%, white);
+  color: white;
+  cursor: pointer;
 }
 
 .prospect-stage-btn--active {
