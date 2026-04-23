@@ -876,36 +876,75 @@
 .prospect-badge--paid      { background: #dcfce7; color: #14532d; }
 .prospect-badge--delivered { background: #f3f4f6; color: #374151; }
 
-/* Stage selector (detail page) */
+/* Stage selector — chevron arrow chain */
 .prospect-stages {
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  align-items: stretch;
+  overflow: visible;
 }
+
 .prospect-stage-btn {
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  border: 2px solid var(--admin-border);
-  border-radius: var(--admin-radius);
-  background: var(--admin-surface);
-  color: var(--admin-text-soft);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px 10px 32px;
+  margin-left: -16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: none;
   cursor: pointer;
-  transition: border-color 120ms, color 120ms, background-color 120ms;
+  white-space: nowrap;
+  background: var(--admin-border);
+  color: var(--admin-text-soft);
+  clip-path: polygon(16px 0%, calc(100% - 16px) 0%, 100% 50%, calc(100% - 16px) 100%, 16px 100%, 0% 50%);
+  transition: background-color 150ms, color 150ms;
+  /* Earlier steps render on top of later steps so arrow tips are visible */
+  z-index: 3;
 }
+
+/* First chevron: flat left edge, arrow right */
+.prospect-stage-btn:first-child {
+  margin-left: 0;
+  padding-left: 18px;
+  clip-path: polygon(0% 0%, calc(100% - 16px) 0%, 100% 50%, calc(100% - 16px) 100%, 0% 100%);
+  border-radius: 4px 0 0 4px;
+}
+
+/* Last chevron: notched left, flat right */
+.prospect-stage-btn:last-child {
+  clip-path: polygon(16px 0%, 100% 0%, 100% 100%, 16px 100%, 0% 50%);
+  border-radius: 0 4px 4px 0;
+}
+
+/* Stacking: first items on top so their arrow tips aren't covered */
+.prospect-stage-btn:nth-child(1) { z-index: 5; }
+.prospect-stage-btn:nth-child(2) { z-index: 4; }
+.prospect-stage-btn:nth-child(3) { z-index: 3; }
+.prospect-stage-btn:nth-child(4) { z-index: 2; }
+.prospect-stage-btn:nth-child(5) { z-index: 1; }
+
 .prospect-stage-btn:hover:not(:disabled) {
-  border-color: var(--admin-accent);
+  background: color-mix(in srgb, var(--admin-accent) 25%, var(--admin-border));
   color: var(--admin-text);
 }
+
 .prospect-stage-btn--past {
-  color: var(--admin-text-muted);
-  text-decoration: line-through;
+  background: color-mix(in srgb, var(--admin-accent) 18%, var(--admin-bg));
+  color: var(--admin-accent);
 }
+
 .prospect-stage-btn--active {
-  border-color: var(--admin-accent);
   background: var(--admin-accent);
   color: var(--admin-accent-text);
   cursor: default;
+}
+
+.prospect-stage-btn--active:hover {
+  background: var(--admin-accent);
+  color: var(--admin-accent-text);
 }
 
 /* Preview link row */
