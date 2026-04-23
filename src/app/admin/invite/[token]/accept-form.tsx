@@ -90,6 +90,52 @@ export function AcceptInviteForm({ token, email, role }: Props) {
       </label>
 
       <label className="admin-field">
+        <span className="admin-field-label">Street address</span>
+        <input
+          className="admin-input"
+          name="street"
+          type="text"
+          disabled={isPending}
+          placeholder="123 Main St"
+        />
+      </label>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 80px", gap: 12 }}>
+        <label className="admin-field">
+          <span className="admin-field-label">City</span>
+          <input
+            className="admin-input"
+            name="city"
+            type="text"
+            disabled={isPending}
+            placeholder="Newark"
+          />
+        </label>
+        <label className="admin-field">
+          <span className="admin-field-label">State</span>
+          <input
+            className="admin-input"
+            name="state"
+            type="text"
+            disabled={isPending}
+            placeholder="NJ"
+            maxLength={2}
+          />
+        </label>
+        <label className="admin-field">
+          <span className="admin-field-label">ZIP</span>
+          <input
+            className="admin-input"
+            name="zip"
+            type="text"
+            disabled={isPending}
+            placeholder="07101"
+            maxLength={10}
+          />
+        </label>
+      </div>
+
+      <label className="admin-field">
         <span className="admin-field-label">Password *</span>
         <input
           className="admin-input"

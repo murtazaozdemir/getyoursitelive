@@ -15,6 +15,10 @@ export async function acceptInviteAction(
   const firstName = (formData.get("firstName") as string)?.trim();
   const lastName = (formData.get("lastName") as string)?.trim();
   const phone = (formData.get("phone") as string)?.trim();
+  const street = (formData.get("street") as string)?.trim() || null;
+  const city = (formData.get("city") as string)?.trim() || null;
+  const zip = (formData.get("zip") as string)?.trim() || null;
+  const state = (formData.get("state") as string)?.trim() || null;
   const password = (formData.get("password") as string) ?? "";
   const confirmPassword = (formData.get("confirmPassword") as string) ?? "";
 
@@ -45,6 +49,11 @@ export async function acceptInviteAction(
       role: invite.role,
       name,
       ownedSlug: invite.ownedSlug ?? null,
+      phone,
+      street,
+      city,
+      zip,
+      state,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Failed to create account.";

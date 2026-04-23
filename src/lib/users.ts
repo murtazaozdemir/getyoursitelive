@@ -23,6 +23,11 @@ export interface User {
   name: string;
   /** Required when role is "owner"; null for admins */
   ownedSlug: string | null;
+  phone?: string | null;
+  street?: string | null;
+  city?: string | null;
+  zip?: string | null;
+  state?: string | null;
   createdAt: string;
 }
 
@@ -33,6 +38,11 @@ export interface SessionUser {
   role: UserRole;
   name: string;
   ownedSlug: string | null;
+  phone?: string | null;
+  street?: string | null;
+  city?: string | null;
+  zip?: string | null;
+  state?: string | null;
   createdAt?: string;
 }
 
@@ -107,6 +117,11 @@ export async function createUser(input: {
   role: UserRole;
   name: string;
   ownedSlug?: string | null;
+  phone?: string | null;
+  street?: string | null;
+  city?: string | null;
+  zip?: string | null;
+  state?: string | null;
 }): Promise<User> {
   const users = await loadUsers();
   const normalized = input.email.trim().toLowerCase();
@@ -125,6 +140,11 @@ export async function createUser(input: {
     role: input.role,
     name: input.name,
     ownedSlug: input.role === "owner" ? input.ownedSlug ?? null : null,
+    phone: input.phone ?? null,
+    street: input.street ?? null,
+    city: input.city ?? null,
+    zip: input.zip ?? null,
+    state: input.state ?? null,
     createdAt: new Date().toISOString(),
   };
 
