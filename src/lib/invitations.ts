@@ -27,6 +27,18 @@ async function saveInvitations(items: Invitation[]): Promise<void> {
   await writeJson(storage, INVITATIONS_KEY, items);
 }
 
+export async function listInvitations(): Promise<Invitation[]> {
+  const items = await loadInvitations();
+  const now = new Date();
+  // Return only non-expired invitations
+  return items.filter((i) => new Date(i.expiresAt) > now);
+}
+
+export async function revokeInvitation(token: string): Promise<void> {
+  const items = await loadInvitations();
+  await saveInvitations(items.filter((i) => i.token !== token));
+}
+
 export async function createInvitation(input: {
   email: string;
   role: UserRole;

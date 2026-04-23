@@ -6,10 +6,19 @@ import { requireUser, getCurrentUser } from "@/lib/session";
 import { createUser, deleteUser, canManageBusinesses, findUserByEmail, type UserRole } from "@/lib/users";
 import { getBusinessBySlug } from "@/lib/db";
 import { logAudit } from "@/lib/audit-log";
-import { createInvitation } from "@/lib/invitations";
+import { createInvitation, revokeInvitation } from "@/lib/invitations";
 import { sendAdminInviteEmail } from "@/lib/email";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+export async function revokeInviteAction(token: string): Promise<{ ok: boolean; error?: string }> {
+  const user = await requireUser();
+  if (!canManageBusinesses(user)) return { ok: false, error: "Unauthorized" };
+  await revokeInvitation(token);
+  await logAudit({ userEmail: user.email, userName: user.name, action: "revoke_invite", detail: token.slice(0, 8) });
+  revalidatePath("/admin/users");
+  return { ok: true };
+}
 
 export async function deleteUserAction(id: string): Promise<{ ok: boolean; error?: string }> {
   const user = await requireUser();
