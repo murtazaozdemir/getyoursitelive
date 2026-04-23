@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { listBusinesses } from "@/lib/db";
 import { ContactForm } from "@/components/contact-form";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
@@ -27,313 +25,228 @@ export const metadata: Metadata = {
   },
 };
 
-// ======================================================================
-// Editorial / print-magazine landing page
-// Palette:  paper #F5EFE3 · ink #1A1815 · accent #E85D29 · muted #6B6660
-// Type:     Fraunces (display serif) · Instrument Sans (body) · JetBrains Mono (accents)
-// ======================================================================
+const FEATURES = [
+  { icon: "🌐", label: "Your Own Domain", body: "Registered in your name. First year included. You keep it forever." },
+  { icon: "📱", label: "Mobile-First", body: "Built for phones first. Looks sharp on every device." },
+  { icon: "📅", label: "Appointment Booking", body: "Customers request appointments any time — day or night." },
+  { icon: "💰", label: "Services & Pricing", body: "Your services and prices, laid out clearly and on your terms." },
+  { icon: "⭐", label: "Real Reviews", body: "Customer testimonials prominently featured to build trust." },
+  { icon: "📞", label: "One-Tap Call", body: "One tap on any phone. Customers reach you instantly." },
+  { icon: "🗺️", label: "Google Map", body: "Embedded map at the bottom of every page. Easy to find you." },
+  { icon: "♾️", label: "Yours Forever", body: "No monthly fees. No subscriptions. Pay once, own it forever." },
+];
+
+const STEPS = [
+  { n: "01", title: "We talk", body: "A 20-minute conversation. You describe what you want; I ask the questions you didn't know to answer." },
+  { n: "02", title: "I build", body: "Professional site live in 5–7 business days. Modern tools, no shortcuts, no templates." },
+  { n: "03", title: "You review", body: "Try it on your phone. We tweak anything until it looks and feels exactly right." },
+  { n: "04", title: "It's yours", body: "Pay $500. Site goes live on your domain. You own it completely — forever." },
+];
 
 export default async function LandingPage() {
-  const demos = await listBusinesses();
   const year = new Date().getFullYear();
 
   return (
-    <main className="lp-body relative min-h-screen bg-[#F5EFE3] text-[#1A1815] overflow-x-hidden">
-      {/* Paper grain overlay --------------------------------------------- */}
-      <div
-        aria-hidden
-        className="lp-grain pointer-events-none fixed inset-0 z-[60] opacity-[0.08] mix-blend-multiply"
-      />
+    <main className="lp-body min-h-screen bg-white text-[#111827] overflow-x-hidden">
 
-      {/* Crop marks in corners ------------------------------------------- */}
-      <CropMark className="top-4 left-4" />
-      <CropMark className="top-4 right-4" rotate={90} />
-      <CropMark className="bottom-4 left-4" rotate={270} />
-      <CropMark className="bottom-4 right-4" rotate={180} />
-
-      {/* ============================================================
-          MASTHEAD — editorial top strip
-         ============================================================ */}
-      <header className="relative z-10 border-b border-[#1A1815] px-6 py-4 md:px-12">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-6">
-          <div className="lp-mono flex items-baseline gap-3 text-[10px] uppercase tracking-[0.22em] md:text-xs">
-            <span className="hidden h-2 w-2 rounded-full bg-[#E85D29] md:inline-block" />
-            <span className="font-semibold">Get Your Site Live</span>
-            <span className="hidden md:inline text-[#6B6660]">— Websites for Local Business</span>
+      {/* ── NAV ─────────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 h-16 md:px-10">
+          <div className="flex items-center gap-2.5">
+            <span className="h-2 w-2 rounded-full bg-[#E85D29]" aria-hidden />
+            <span className="font-semibold text-sm tracking-tight">Get Your Site Live</span>
           </div>
+
+          <nav className="hidden md:flex items-center gap-8 text-sm text-gray-500">
+            <a href="#features" className="hover:text-[#111827] transition-colors">Features</a>
+            <a href="#process" className="hover:text-[#111827] transition-colors">How it works</a>
+            <a href="#contact" className="hover:text-[#111827] transition-colors">Pricing</a>
+          </nav>
+
           <a
             href="#contact"
-            className="lp-mono text-right text-[10px] uppercase tracking-[0.22em] text-[#1A1815] underline decoration-[#1A1815]/30 decoration-from-font underline-offset-[5px] transition-colors hover:decoration-[#E85D29] md:text-xs"
+            className="rounded-full bg-[#E85D29] px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-[#cf4e20]"
           >
-            Contact →
+            Get started →
           </a>
         </div>
       </header>
 
-      {/* ============================================================
-          HERO — left-aligned, editorial, bold serif
-         ============================================================ */}
-      <section className="relative z-10 px-6 pt-16 pb-28 md:px-12 md:pt-28 md:pb-40">
-        <div className="mx-auto max-w-[1400px]">
-          <SectionLabel number="001" label="The Proposition" />
+      {/* ── HERO ────────────────────────────────────────────────────── */}
+      <section className="px-6 pt-24 pb-28 md:px-10 md:pt-32 md:pb-36">
+        <div className="mx-auto max-w-4xl text-center">
 
-          <h1 className="lp-display-heading mt-10 max-w-[14ch] text-[clamp(3rem,8.5vw,9rem)] leading-[0.9] tracking-[-0.02em]">
-            Websites built the{" "}
-            <em className="lp-display-em-wonk italic text-[#E85D29]">old-fashioned</em>{" "}
-            way.
+          <div className="lp-mono inline-flex items-center gap-2 rounded-full bg-[#fff4f0] px-4 py-1.5 text-[11px] uppercase tracking-[0.25em] text-[#E85D29]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#E85D29]" aria-hidden />
+            Flat $500 · No monthly fees · Yours forever
+          </div>
+
+          <h1 className="lp-display-heading mt-8 text-[clamp(3rem,7.5vw,7rem)] leading-[0.88] tracking-[-0.025em]">
+            A real website<br />for your shop.
           </h1>
 
-          <div className="mt-14 grid gap-12 md:grid-cols-[1fr_auto] md:items-end">
-            <p className="max-w-xl text-lg leading-[1.6] text-[#3A3530] md:text-xl">
-              No subscriptions. No marketing agencies. No monthly fees. Just one
-              professionally built website for your shop, salon, or restaurant —
-              <strong className="font-semibold"> built once, owned forever</strong>, for
-              a flat <span className="text-[#E85D29] font-semibold">$500</span>.
-            </p>
+          <p className="mt-8 mx-auto max-w-2xl text-lg leading-relaxed text-gray-500 md:text-xl">
+            Professional websites for auto repair shops and local businesses.
+            Built in 5–7 days. No subscriptions. No agencies. No surprises.
+          </p>
 
-            <div className="flex flex-col items-start gap-5 md:items-end">
-              <a href="#demos" className="lp-display-cta group relative text-2xl md:text-3xl">
-                <span className="italic">See the work</span>
-                <span className="ml-2 inline-block transition-transform group-hover:translate-x-1 text-[#E85D29]">
-                  →
-                </span>
-                <span className="absolute -bottom-1 left-0 h-[1.5px] w-full origin-left scale-x-100 bg-[#1A1815] transition-transform group-hover:scale-x-[1.02]" />
-              </a>
-              <a
-                href="#contact"
-                className="lp-mono text-xs uppercase tracking-[0.22em] underline decoration-[#1A1815]/30 decoration-from-font underline-offset-[6px] transition-colors hover:decoration-[#E85D29]"
-              >
-                Contact us →
-              </a>
-            </div>
+          <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <a
+              href="#contact"
+              className="rounded-full bg-[#E85D29] px-8 py-3.5 text-base font-medium text-white transition-colors hover:bg-[#cf4e20]"
+            >
+              Start your project →
+            </a>
+            <a
+              href="#process"
+              className="rounded-full border border-gray-200 px-8 py-3.5 text-base font-medium text-gray-600 transition-colors hover:border-gray-300 hover:bg-gray-50"
+            >
+              See how it works
+            </a>
           </div>
-        </div>
 
-        {/* Running baseline — decorative rule */}
-        <div className="relative mx-auto mt-24 max-w-[1400px]">
-          <div className="h-px w-full bg-[#1A1815]" />
-          <span className="lp-mono absolute -top-[9px] left-0 bg-[#F5EFE3] px-3 text-[10px] uppercase tracking-[0.3em] text-[#6B6660]">
-            ∎ Continue
-          </span>
+          {/* Social proof strip */}
+          <div className="lp-mono mt-14 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-[11px] uppercase tracking-[0.2em] text-gray-400">
+            <span>✓ Live in 5–7 days</span>
+            <span className="hidden sm:inline text-gray-200">|</span>
+            <span>✓ Mobile-ready</span>
+            <span className="hidden sm:inline text-gray-200">|</span>
+            <span>✓ No tech skills needed</span>
+          </div>
         </div>
       </section>
 
-      {/* ============================================================
-          002 — WHAT YOU GET (editorial list, not a card grid)
-         ============================================================ */}
-      <section className="relative z-10 px-6 py-24 md:px-12 md:py-32">
-        <div className="mx-auto grid max-w-[1400px] gap-16 md:grid-cols-[auto_1fr] md:gap-24">
-          <div>
-            <SectionLabel number="002" label="The Spec Sheet" />
-            <h2 className="lp-display-heading mt-8 text-[clamp(2.5rem,5vw,5rem)] leading-[0.95] tracking-[-0.01em]">
-              What&rsquo;s in<br />
-              <em className="lp-display-em italic">the box.</em>
+      {/* ── FEATURES ────────────────────────────────────────────────── */}
+      <section id="features" className="border-t border-gray-100 bg-gray-50 px-6 py-24 md:px-10 md:py-32">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-14 text-center">
+            <p className="lp-mono text-[11px] uppercase tracking-[0.25em] text-[#E85D29]">
+              What&rsquo;s included
+            </p>
+            <h2 className="lp-display-heading mt-4 text-[clamp(2rem,4.5vw,3.75rem)] leading-[0.95] tracking-[-0.02em]">
+              Everything you need.<br />
+              <span className="text-gray-400">Nothing you don&rsquo;t.</span>
             </h2>
           </div>
 
-          <ul className="divide-y divide-[#1A1815]/20">
-            {[
-              ["Domain", "Your own domain name. Registered in your name. First year included."],
-              ["Mobile", "Built mobile-first. Phones, tablets, desktop — all sharp."],
-              ["Booking", "Customers request appointments around the clock."],
-              ["Services", "Your services and prices laid out clearly, on your terms."],
-              ["Reviews", "Real testimonials, prominently featured."],
-              ["Call", "One tap. Dials you directly."],
-              ["Map", "Embedded Google Map at the bottom of every page."],
-              ["Yours", "No monthly fees. No subscriptions. Yours forever."],
-            ].map(([label, body], i) => (
-              <li
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {FEATURES.map(({ icon, label, body }) => (
+              <div
                 key={label}
-                className="group grid grid-cols-[auto_6rem_1fr] items-baseline gap-6 py-5 transition-colors hover:bg-[#1A1815]/[0.03] md:grid-cols-[3rem_8rem_1fr] md:gap-8"
+                className="rounded-2xl border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md"
               >
-                <span className="lp-mono text-[11px] text-[#6B6660] tabular-nums">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="lp-mono text-xs uppercase tracking-[0.2em]">
-                  {label}
-                </span>
-                <span className="text-base leading-relaxed text-[#3A3530] md:text-lg">{body}</span>
-              </li>
+                <div className="mb-4 text-2xl">{icon}</div>
+                <h3 className="font-semibold text-[#111827]">{label}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-gray-500">{body}</p>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       </section>
 
-      {/* ============================================================
-          003 — FEATURED WORK (demos) — asymmetric editorial showcase
-         ============================================================ */}
-      <section id="demos" className="relative z-10 border-t border-[#1A1815] bg-[#EEE7D7] px-6 py-24 md:px-12 md:py-32">
-        <div className="mx-auto max-w-[1400px]">
-          <div className="flex items-end justify-between gap-8">
-            <div>
-              <SectionLabel number="003" label="Featured Work" />
-              <h2 className="lp-display-heading mt-8 text-[clamp(2.5rem,5vw,5rem)] leading-[0.95] tracking-[-0.01em]">
-                Live <em className="lp-display-em italic">demonstrations.</em>
-              </h2>
-            </div>
-            <p className="lp-mono hidden max-w-xs text-right text-sm text-[#6B6660] md:block">
-              Click to open. Works on phones.
+      {/* ── HOW IT WORKS ────────────────────────────────────────────── */}
+      <section id="process" className="px-6 py-24 md:px-10 md:py-32">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-14 text-center">
+            <p className="lp-mono text-[11px] uppercase tracking-[0.25em] text-[#E85D29]">
+              The process
             </p>
+            <h2 className="lp-display-heading mt-4 text-[clamp(2rem,4.5vw,3.75rem)] leading-[0.95] tracking-[-0.02em]">
+              Four steps,<br />
+              <span className="text-gray-400">start to finish.</span>
+            </h2>
           </div>
 
-          <div className="mt-16 grid gap-10 md:grid-cols-2 md:gap-14">
-            {demos.map((biz, i) => (
-              <Link
-                key={biz.slug}
-                href={`/${biz.slug}`}
-                className="group block"
-              >
-                <div className="border-t-2 border-[#1A1815] pt-6">
-                  <div className="flex items-center justify-between">
-                    <span className="lp-mono text-[11px] uppercase tracking-[0.25em] text-[#6B6660]">
-                      Work N°{String(i + 1).padStart(2, "0")} · {biz.category}
-                    </span>
-                    <span
-                      className="text-[#E85D29] opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100"
-                      aria-hidden
-                    >
-                      →
-                    </span>
-                  </div>
-                  <h3 className="lp-display-card mt-4 text-4xl leading-[1] md:text-5xl">
-                    {biz.name}
-                  </h3>
-                  <p className="mt-3 italic text-[#6B6660]">
-                    {biz.address}
-                  </p>
-                  <p className="lp-mono mt-6 inline-block text-sm uppercase tracking-[0.2em] underline decoration-from-font underline-offset-[5px] transition-colors group-hover:text-[#E85D29]">
-                    View live →
-                  </p>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {STEPS.map(({ n, title, body }) => (
+              <div key={n} className="relative">
+                <div className="lp-display-numeral text-[4.5rem] leading-none text-[#E85D29] opacity-20 md:text-[5rem]">
+                  {n}
                 </div>
-              </Link>
+                <div className="-mt-4">
+                  <h3 className="lp-display-subheading text-2xl text-[#111827]">{title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-gray-500 md:text-base">{body}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ============================================================
-          004 — HOW IT WORKS (big numerals, mono labels)
-         ============================================================ */}
-      <section className="relative z-10 px-6 py-24 md:px-12 md:py-32">
-        <div className="mx-auto max-w-[1400px]">
-          <SectionLabel number="004" label="The Process" />
-          <h2 className="lp-display-heading mt-8 max-w-[12ch] text-[clamp(2.5rem,5vw,5rem)] leading-[0.95] tracking-[-0.01em]">
-            Four steps, <em className="lp-display-em italic">start to finish.</em>
-          </h2>
-
-          <ol className="mt-16 grid gap-y-12 md:grid-cols-2 md:gap-x-16 md:gap-y-16">
-            {[
-              ["We talk", "A 20-minute conversation. You describe what you want; I ask the questions you didn't know to answer."],
-              ["I build", "Professional site live in 5–7 business days. Modern tools, no shortcuts."],
-              ["You review", "Try it on your phone. We tweak anything until it's right."],
-              ["It's yours", "Pay $500. Site goes live. You own it. Forever."],
-            ].map(([title, body], i) => (
-              <li key={title} className="grid grid-cols-[6rem_1fr] gap-6 md:grid-cols-[8rem_1fr] md:gap-8">
-                <div className="lp-display-numeral text-[6rem] leading-[0.85] text-[#E85D29] md:text-[8rem]">
-                  {String(i + 1).padStart(2, "0")}
-                </div>
-                <div>
-                  <h3 className="lp-display-subheading text-2xl md:text-3xl">
-                    {title}
-                  </h3>
-                  <p className="mt-3 text-base leading-[1.6] text-[#3A3530] md:text-lg">{body}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      {/* ============================================================
-          005 — CONTACT FORM (black section with price stamp + form)
-         ============================================================ */}
+      {/* ── PRICING + CONTACT ───────────────────────────────────────── */}
       <section
         id="contact"
-        className="relative z-10 border-t border-[#1A1815] bg-[#1A1815] px-6 py-24 text-[#F5EFE3] md:px-12 md:py-32"
+        className="border-t border-gray-900 bg-[#111827] px-6 py-24 text-white md:px-10 md:py-32"
       >
-        <div className="mx-auto grid max-w-[1400px] gap-16 md:grid-cols-[auto_1fr] md:gap-20">
-          {/* Price stamp + intro */}
-          <div className="md:pt-8">
-            <div className="relative mx-auto flex h-[220px] w-[220px] items-center justify-center rounded-full border-[3px] border-[#E85D29] text-[#E85D29] md:mx-0 md:h-[260px] md:w-[260px]">
-              <div className="text-center">
-                <div className="lp-mono text-[10px] uppercase tracking-[0.3em]">One Time</div>
-                <div className="lp-display-stamp text-6xl md:text-7xl">$500</div>
-                <div className="lp-mono text-[10px] uppercase tracking-[0.3em]">Yours Forever</div>
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-16 lg:grid-cols-[1fr_2fr] lg:gap-24">
+
+            {/* Pricing block */}
+            <div>
+              <p className="lp-mono text-[11px] uppercase tracking-[0.25em] text-[#E85D29]">
+                Pricing
+              </p>
+              <h2 className="lp-display-heading mt-6 text-[clamp(2.5rem,5vw,4.5rem)] leading-[0.9] tracking-[-0.02em]">
+                One price.<br />That&rsquo;s it.
+              </h2>
+
+              <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-8">
+                <div className="lp-display-stamp text-7xl text-[#E85D29]">$500</div>
+                <div className="lp-mono mt-2 text-[11px] uppercase tracking-[0.25em] text-white/50">
+                  one-time · yours forever
+                </div>
+                <ul className="mt-8 space-y-3">
+                  {[
+                    "Domain (first year included)",
+                    "Mobile-ready design",
+                    "Appointment booking form",
+                    "Services & pricing page",
+                    "Customer testimonials",
+                    "Google Map embedded",
+                    "No monthly fees, ever",
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-3 text-sm text-white/70">
+                      <span className="mt-0.5 text-[#E85D29]">✓</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
-          </div>
 
-          {/* Form side */}
-          <div>
-            <SectionLabel number="005" label="Get In Touch" dark />
-            <h2 className="lp-display-heading mt-8 max-w-[14ch] text-[clamp(2.5rem,5vw,5rem)] leading-[0.95] tracking-[-0.01em]">
-              Tell me about{" "}
-              <em className="lp-display-em italic text-[#E85D29]">your business.</em>
-            </h2>
-            <p className="mt-6 max-w-lg text-lg leading-[1.6] text-[#C9C2B3]">
-              A few quick details and I&rsquo;ll get back to you within one business day.
-              No sales calls, no newsletters, no follow-up pressure.
-            </p>
-
-            <ContactForm />
+            {/* Contact form */}
+            <div>
+              <p className="lp-mono text-[11px] uppercase tracking-[0.25em] text-[#E85D29]">
+                Get in touch
+              </p>
+              <h2 className="lp-display-heading mt-6 text-[clamp(2rem,4vw,3.5rem)] leading-[0.95] tracking-[-0.02em]">
+                Tell me about your business.
+              </h2>
+              <p className="mt-5 max-w-lg text-base leading-relaxed text-white/60">
+                A few quick details and I&rsquo;ll get back to you within one business day.
+                No sales calls, no newsletters, no follow-up pressure.
+              </p>
+              <ContactForm />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ============================================================
-          COLOPHON / FOOTER — editorial endmark
-         ============================================================ */}
-      <footer className="relative z-10 border-t border-[#1A1815] bg-[#F5EFE3] px-6 py-10 md:px-12">
-        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4">
-          <div className="lp-mono text-[10px] uppercase tracking-[0.22em] text-[#6B6660]">
-            © {year} Get Your Site Live · All rights reserved
+      {/* ── FOOTER ──────────────────────────────────────────────────── */}
+      <footer className="border-t border-gray-100 bg-white px-6 py-8 md:px-10">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#E85D29]" aria-hidden />
+            <span className="lp-mono text-[11px] uppercase tracking-[0.2em] text-gray-400">
+              Get Your Site Live
+            </span>
           </div>
-          <div className="lp-mono flex items-center gap-3 text-[10px] uppercase tracking-[0.22em] text-[#6B6660]">
-            <span>Set in</span>
-            <em className="lp-display">Fraunces</em>
-            <span className="text-[#1A1815]">+</span>
-            <span>Instrument Sans</span>
-          </div>
+          <p className="lp-mono text-[11px] uppercase tracking-[0.2em] text-gray-400">
+            © {year} · All rights reserved
+          </p>
         </div>
       </footer>
+
     </main>
-  );
-}
-
-// ======================================================================
-// Helper components
-// ======================================================================
-
-function SectionLabel({
-  number,
-  label,
-  dark = false,
-}: {
-  number: string;
-  label: string;
-  dark?: boolean;
-}) {
-  return (
-    <div className="lp-mono flex items-center gap-4 text-[11px] uppercase tracking-[0.3em]">
-      <span className={dark ? "text-[#E85D29]" : "text-[#E85D29]"}>{number}</span>
-      <span className={`h-px w-10 ${dark ? "bg-[#C9C2B3]" : "bg-[#1A1815]"}`} />
-      <span className={dark ? "text-[#C9C2B3]" : "text-[#1A1815]"}>{label}</span>
-    </div>
-  );
-}
-
-function CropMark({ className = "", rotate = 0 }: { className?: string; rotate?: number }) {
-  return (
-    <svg
-      aria-hidden
-      width="32"
-      height="32"
-      viewBox="0 0 32 32"
-      className={`pointer-events-none absolute z-[70] text-[#1A1815] ${className}`}
-      style={{ transform: `rotate(${rotate}deg)` }}
-    >
-      <line x1="0" y1="16" x2="10" y2="16" stroke="currentColor" strokeWidth="1" />
-      <line x1="16" y1="0" x2="16" y2="10" stroke="currentColor" strokeWidth="1" />
-    </svg>
   );
 }
