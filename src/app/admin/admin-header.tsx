@@ -4,6 +4,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { SessionUser } from "@/lib/users";
 
+const FOUNDER_EMAIL = "murtazaozdemir@gmail.com";
+
+function displayRole(user: SessionUser): string {
+  if (user.role === "admin") {
+    return user.email === FOUNDER_EMAIL ? "Founder" : "Admin";
+  }
+  return "Business Owner";
+}
+
 export function AdminHeader({ user }: { user: SessionUser }) {
   const router = useRouter();
 
@@ -54,7 +63,7 @@ export function AdminHeader({ user }: { user: SessionUser }) {
           <span className="admin-header-user">
             <span className="admin-header-user-name">{user.name}</span>
             <span className="admin-header-user-role" data-role={user.role}>
-              {user.role === "admin" ? "Admin" : "Owner"}
+              {displayRole(user)}
             </span>
           </span>
           <Link href="/admin/account" className="admin-btn admin-btn--ghost">

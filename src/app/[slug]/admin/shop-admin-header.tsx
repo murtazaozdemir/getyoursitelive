@@ -24,6 +24,13 @@ export function ShopAdminHeader({
   const isEditMode = pathname === `/${slug}/admin/edit`;
   const isFormMode = pathname === `/${slug}/admin/form`;
 
+  function displayRole(): string {
+    if (user.role === "admin") {
+      return user.email === "murtazaozdemir@gmail.com" ? "Founder" : "Admin";
+    }
+    return "Business Owner";
+  }
+
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push(`/${slug}/admin/login`);
@@ -71,7 +78,7 @@ export function ShopAdminHeader({
           <span className="admin-header-user">
             <span className="admin-header-user-name">{user.name}</span>
             <span className="admin-header-user-role" data-role={user.role}>
-              {user.role === "admin" ? "Platform admin" : "Shop owner"}
+              {displayRole()}
             </span>
           </span>
           <button type="button" className="admin-btn admin-btn--ghost" onClick={handleLogout}>

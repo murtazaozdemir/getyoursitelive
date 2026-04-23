@@ -56,7 +56,9 @@ export default async function UsersPage() {
                 <td>{u.email}</td>
                 <td>
                   <span className="admin-header-user-role" data-role={u.role}>
-                    {u.role === "admin" ? "Admin" : "Owner"}
+                    {u.role === "admin"
+                      ? (u.email === "murtazaozdemir@gmail.com" ? "Founder" : "Admin")
+                      : "Business Owner"}
                   </span>
                 </td>
                 <td>
