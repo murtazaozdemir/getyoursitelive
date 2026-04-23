@@ -93,18 +93,26 @@ export default async function AdminDashboard() {
   const [all, prospects] = await Promise.all([listBusinesses(), listProspects()]);
   const prospectBySlug = Object.fromEntries(prospects.map((p) => [p.slug, p]));
 
-  const autoRepair = all.filter((b) => !b.category || b.category === "Auto Repair");
-  const other = all.filter((b) => b.category && b.category !== "Auto Repair");
+  // Only show businesses that are paying clients (paid or delivered),
+  // or have no prospect record at all (e.g. the demo/template site).
+  const clients = all.filter((b) => {
+    const p = prospectBySlug[b.slug];
+    return !p || p.status === "paid" || p.status === "delivered";
+  });
+
+  const autoRepair = clients.filter((b) => !b.category || b.category === "Auto Repair");
+  const other = clients.filter((b) => b.category && b.category !== "Auto Repair");
 
   return (
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
           <p className="admin-eyebrow">Platform admin</p>
-          <h1 className="admin-h1">All businesses</h1>
+          <h1 className="admin-h1">Clients</h1>
           <p className="admin-lede">
-            {autoRepair.length} auto repair {autoRepair.length === 1 ? "site" : "sites"} in pipeline.
+            {autoRepair.length} paying {autoRepair.length === 1 ? "client" : "clients"}.
             {other.length > 0 && <> {other.length} other {other.length === 1 ? "business" : "businesses"} below.</>}
+            {" "}Leads become clients once marked Paid in the pipeline.
           </p>
         </div>
         <Link href="/admin/business/new" className="admin-btn admin-btn--primary">
@@ -114,9 +122,9 @@ export default async function AdminDashboard() {
 
       {autoRepair.length === 0 ? (
         <div className="admin-empty">
-          <p>No auto repair businesses yet.</p>
-          <Link href="/admin/business/new" className="admin-btn admin-btn--primary">
-            Create the first one
+          <p>No paying clients yet. Mark a lead as Paid in the pipeline to see them here.</p>
+          <Link href="/admin/leads" className="admin-btn admin-btn--primary">
+            Go to Lead Pipeline
           </Link>
         </div>
       ) : (
