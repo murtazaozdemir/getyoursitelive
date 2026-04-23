@@ -11,9 +11,7 @@ function cardChips(p: Prospect) {
 
   const chips: { label: string; cls: string }[] = [];
 
-  if (allDomains && hasAddress) {
-    chips.push({ label: "Completed", cls: "prospect-chip--complete" });
-  } else {
+  if (!allDomains || !hasAddress) {
     if (!hasAddress) chips.push({ label: "Address missing", cls: "prospect-chip--warn" });
     if (!anyDomain) chips.push({ label: "Domains missing", cls: "prospect-chip--warn" });
     else if (!allDomains) chips.push({ label: "Domains incomplete", cls: "prospect-chip--warn" });

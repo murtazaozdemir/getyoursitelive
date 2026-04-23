@@ -27,7 +27,13 @@ export function NewUserForm() {
         )}
         <div className="admin-actions" style={{ marginTop: 20 }}>
           <Link href="/admin/users" className="admin-btn admin-btn--primary">Back to Users</Link>
-          <Link href="/admin/users/new" className="admin-btn admin-btn--ghost">Invite another</Link>
+          <button
+            type="button"
+            className="admin-btn admin-btn--ghost"
+            onClick={() => { window.location.href = "/admin/users/new"; }}
+          >
+            Invite another
+          </button>
         </div>
       </div>
     );
