@@ -95,7 +95,7 @@ export default async function ProposalPage({
     <>
       {/* Print toolbar — hidden when printing */}
       <div className="proposal-toolbar no-print">
-        <span className="proposal-toolbar-label">Proposal for {name}</span>
+        <span className="proposal-toolbar-label">Get Your Site Live — Proposal</span>
         <PrintButton />
       </div>
 
