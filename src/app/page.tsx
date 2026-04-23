@@ -166,9 +166,8 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col items-start gap-8 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="lp-mono text-[11px] uppercase tracking-[0.2em] text-[#E85D29]">One-time · No subscriptions</p>
-              <h2 className="lp-display-heading mt-3 text-[clamp(2rem,4vw,3.25rem)] leading-tight tracking-[-0.02em]">
-                $500. Yours forever.
+              <h2 className="lp-display-heading text-[clamp(2rem,4vw,3.25rem)] leading-tight tracking-[-0.02em]">
+                Ready to get started?
               </h2>
               <p className="mt-3 max-w-md text-sm leading-relaxed text-white/50">
                 Domain included for the first year. Live in under two weeks.
