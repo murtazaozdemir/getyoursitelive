@@ -1576,3 +1576,53 @@ body {
   font-variation-settings: 'opsz' 144, 'SOFT' 100;
   font-weight: 300;
 }
+
+/* ── Landing page theme system ──────────────────────────────────────────── */
+/* Default = dark. Swap to light via [data-lp-theme="light"] on .lp-page.  */
+
+.lp-page {
+  --lp-hero-bg:     #0F172A;
+  --lp-hero-fg:     #ffffff;
+  --lp-hero-muted:  rgba(255, 255, 255, 0.4);
+  --lp-hero-soft:   rgba(255, 255, 255, 0.15);
+  --lp-hero-inset:  rgba(255, 255, 255, 0.05);
+  --lp-hero-border: rgba(255, 255, 255, 0.08);
+  --lp-hero-dot:    rgba(255, 255, 255, 0.12);
+  --lp-hero-ghost:  rgba(255, 255, 255, 0.18);
+}
+
+.lp-page[data-lp-theme="light"] {
+  --lp-hero-bg:     #ffffff;
+  --lp-hero-fg:     #0F172A;
+  --lp-hero-muted:  #64748B;
+  --lp-hero-soft:   #94A3B8;
+  --lp-hero-inset:  #F8FAFC;
+  --lp-hero-border: #E2E8F0;
+  --lp-hero-dot:    #CBD5E1;
+  --lp-hero-ghost:  #E2E8F0;
+}
+
+/* Semantic classes used inside the hero + any dark surface */
+.lp-surface       { background-color: var(--lp-hero-bg); color: var(--lp-hero-fg); }
+.lp-surface-muted { color: var(--lp-hero-muted); }
+
+.lp-surface-pill {
+  background-color: var(--lp-hero-inset);
+  border-color: var(--lp-hero-border);
+}
+.lp-surface-bar {
+  background-color: var(--lp-hero-inset);
+  border-color: var(--lp-hero-border);
+}
+.lp-surface-dot  { background-color: var(--lp-hero-dot); }
+
+.lp-surface-btn-ghost {
+  border-color: var(--lp-hero-border);
+  color: var(--lp-hero-muted);
+}
+.lp-surface-btn-ghost:hover {
+  border-color: var(--lp-hero-soft);
+  color: var(--lp-hero-fg);
+}
+
+.lp-surface-divider { color: var(--lp-hero-ghost); }
