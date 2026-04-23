@@ -345,9 +345,17 @@ export function LandingPageClient({
               ({formatBuildTime(buildTime)})
             </span>
           </div>
-          <p className="lp-mono text-[11px] uppercase tracking-[0.18em] text-slate-400">
-            © {year}
-          </p>
+          <div className="flex items-center gap-4">
+            <p className="lp-mono text-[11px] uppercase tracking-[0.18em] text-slate-400">
+              © {year}
+            </p>
+            <a
+              href="/admin/login"
+              className="lp-mono text-[11px] text-slate-200 transition-colors hover:text-slate-400"
+            >
+              Admin
+            </a>
+          </div>
         </div>
       </footer>
 
