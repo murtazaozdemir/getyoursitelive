@@ -60,7 +60,7 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
   // Fix dark secondary image in About section (pexels 3807517 renders nearly black)
   "fix-about-secondary-image": async () => {
     const DARK_URL = "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=1400";
-    const GOOD_URL = "https://images.pexels.com/photos/3807387/pexels-photo-3807387.jpeg?auto=compress&cs=tinysrgb&w=1400";
+    const GOOD_URL = "https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&w=1400";
     const storage = await getStorage();
     const keys = (await storage.list("businesses")).filter((k) => k.endsWith(".json"));
     let updated = 0, skipped = 0;

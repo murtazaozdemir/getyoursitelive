@@ -58,7 +58,7 @@ function blankBusiness(slug: string, name: string, theme: ThemeName): Business {
         "No surprise pricing before work begins",
       ],
       primaryImage: "https://images.pexels.com/photos/4489713/pexels-photo-4489713.jpeg?auto=compress&cs=tinysrgb&w=1400",
-      secondaryImage: "https://images.pexels.com/photos/3807387/pexels-photo-3807387.jpeg?auto=compress&cs=tinysrgb&w=1400",
+      secondaryImage: "https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&w=1400",
       whyUsCards: [
         { title: "Honest Diagnostics", description: "We show photos of every issue before recommending repairs." },
         { title: "Same-Day Service", description: "Most repairs are completed in 24 hours." },

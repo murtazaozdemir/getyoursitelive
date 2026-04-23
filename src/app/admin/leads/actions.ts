@@ -88,7 +88,7 @@ function prospectBusiness(
       primaryImage:
         "https://images.pexels.com/photos/4489713/pexels-photo-4489713.jpeg?auto=compress&cs=tinysrgb&w=1400",
       secondaryImage:
-        "https://images.pexels.com/photos/3807387/pexels-photo-3807387.jpeg?auto=compress&cs=tinysrgb&w=1400",
+        "https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&w=1400",
       whyUsCards: [
         {
           title: "Honest Diagnostics",
