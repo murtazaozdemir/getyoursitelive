@@ -131,6 +131,11 @@ export default async function LeadsPage({
                             ))}
                           </div>
                         )}
+                        {p.contactedByName && (
+                          <p className="prospect-card-meta" style={{ marginTop: 6, fontSize: 12, fontStyle: "italic" }}>
+                            Contacted by {p.contactedByName}
+                          </p>
+                        )}
                         {p.notes.length > 0 && (
                           <p className="prospect-card-notes">
                             {p.notes.length} note{p.notes.length !== 1 ? "s" : ""}
@@ -166,6 +171,11 @@ export default async function LeadsPage({
                       </span>
                     ))}
                   </div>
+                  {p.contactedByName && (
+                    <p className="admin-biz-card-meta" style={{ marginTop: 6, fontSize: 12, fontStyle: "italic" }}>
+                      Contacted by {p.contactedByName}
+                    </p>
+                  )}
                 </div>
                 <div className="admin-biz-card-actions">
                   <Link href={`/admin/leads/${p.slug}`} className="admin-btn admin-btn--primary">
