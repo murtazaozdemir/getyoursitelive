@@ -5,7 +5,6 @@ import { listBusinesses } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 import { FilterSortBar } from "@/app/admin/filter-bar";
-import zipcodes from "zipcodes";
 
 function parseAddress(address?: string) {
   if (!address?.trim()) return { city: "", state: "", zip: "" };
@@ -126,19 +125,11 @@ export default async function LeadsPage({
   // Only active leads (not graduated to clients)
   const active = allProspects.filter((p) => p.status !== "paid" && p.status !== "delivered");
 
-  // Look up origin coordinates if distance zip provided
-  const originInfo = distanceZip ? zipcodes.lookup(distanceZip) : undefined;
-
-  // Enrich with parsed address + category + distance
+  // Enrich with parsed address + category
   const enriched: EnrichedProspect[] = active.map((p) => {
     const { city, state, zip } = parseAddress(p.address);
     const category = bizBySlug[p.slug]?.category ?? "Car repair and maintenance service";
-    let dist: number | undefined;
-    if (originInfo && zip) {
-      const miles = zipcodes.distance(distanceZip, zip);
-      if (miles != null) dist = miles;
-    }
-    return { ...p, _city: city, _state: state, _zip: zip, _category: category, _distance: dist };
+    return { ...p, _city: city, _state: state, _zip: zip, _category: category };
   });
 
   // Collect unique values for dropdowns
