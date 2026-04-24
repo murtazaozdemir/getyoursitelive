@@ -198,18 +198,6 @@ export function ProposalContent({
         </ol>
       </section>
 
-      {/* ── PRICE ──────────────────────────────────────────────── */}
-      <section className="proposal-section proposal-section--math">
-        <p className="proposal-math-line">
-          <strong>$500. One time. No monthly fees.</strong>
-        </p>
-        <p className="proposal-math-sub">
-          That covers the website, your domain name, hosting setup, and
-          getting everything live. One brake job covers the cost of a
-          site that works for you year after year.
-        </p>
-      </section>
-
       {/* ── Q&A ──────────────────────────────────────────────────── */}
       <section className="proposal-section">
         <h2 className="proposal-section-title">Common questions</h2>
@@ -254,6 +242,10 @@ export function ProposalContent({
               over the details. I&rsquo;ll confirm your domain is available
               while we talk. If now isn&rsquo;t the right time, keep this
               page — the offer stands whenever you&rsquo;re ready.
+            </p>
+            <p style={{ marginTop: "0.5rem", fontSize: "9.5pt", color: "#666" }}>
+              It&rsquo;s a one-time flat fee, no monthly costs — and the
+              site is yours to keep.
             </p>
           </div>
         </div>
