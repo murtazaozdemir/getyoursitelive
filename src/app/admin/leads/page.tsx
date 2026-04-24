@@ -5,6 +5,7 @@ import { listBusinesses } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 import { FilterSortBar } from "@/app/admin/filter-bar";
+import { LeadCards, type LeadCardData } from "./lead-cards";
 import { getD1 } from "@/lib/db-d1";
 
 /** Haversine distance in miles between two lat/lng points */
@@ -326,50 +327,21 @@ export default async function LeadsPage({
         </div>
       ) : (
         /* ── CARDS VIEW ───────────────────────────────────────── */
-        <ul className="admin-biz-grid">
-          {prospects.map((p) => {
-            const chips = dataChips(p);
-            return (
-              <li key={p.slug} className="admin-biz-card">
-                <div className="admin-biz-card-body">
-                  <p className="admin-biz-card-slug">/{p.slug}</p>
-                  <h2 className="admin-biz-card-name">{p.name}</h2>
-                  {p.phone && <p className="admin-biz-card-meta">{p.phone}</p>}
-                  {p.address && <p className="admin-biz-card-meta">{p.address}</p>}
-                  {p._distance != null && (
-                    <p className="admin-biz-card-meta" style={{ fontWeight: 600, color: "var(--accent, #b45309)" }}>
-                      {Math.round(p._distance)} mi away
-                    </p>
-                  )}
-                  <div className="admin-biz-card-chips" style={{ marginTop: 8 }}>
-                    <span className={`prospect-badge ${statusBadge(p.status)}`} style={{ fontSize: 11 }}>
-                      {statusLabel(p.status)}
-                    </span>
-                    {chips.map((c) => (
-                      <span key={c.label} className={`prospect-chip ${c.cls}`}>{c.label}</span>
-                    ))}
-                  </div>
-                  {p.contactedByName && (
-                    <p className="admin-biz-card-meta" style={{ marginTop: 6, fontSize: 12, fontStyle: "italic" }}>
-                      Contacted by {p.contactedByName}
-                    </p>
-                  )}
-                </div>
-                <div className="admin-biz-card-actions">
-                  <Link href={`/admin/leads/${p.slug}`} className="admin-btn admin-btn--primary">
-                    Lead info
-                  </Link>
-                  <Link href={`/${p.slug}`} className="admin-btn admin-btn--ghost" target="_blank" rel="noreferrer">
-                    Preview Site
-                  </Link>
-                  <Link href={`/admin/proposal/${p.slug}`} className="admin-btn admin-btn--ghost" target="_blank" rel="noreferrer">
-                    Proposal
-                  </Link>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+        <LeadCards
+          prospects={prospects.map((p): LeadCardData => ({
+            slug: p.slug,
+            name: p.name,
+            phone: p.phone,
+            address: p.address,
+            status: p.status,
+            statusLabel: statusLabel(p.status),
+            statusBadgeClass: statusBadge(p.status),
+            distance: p._distance,
+            chips: dataChips(p),
+            contactedByName: p.contactedByName,
+            notesCount: p.notes.length,
+          }))}
+        />
       )}
     </div>
   );
