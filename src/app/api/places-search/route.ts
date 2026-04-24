@@ -97,8 +97,16 @@ async function handleSearch(req: NextRequest) {
     }
   }
 
-  // Call Google Places API
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  // Call Google Places API — read from Cloudflare env bindings (Pages secrets
+  // aren't available via process.env at runtime in OpenNext Workers)
+  let apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  if (!apiKey) {
+    try {
+      const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+      const { env } = await getCloudflareContext({ async: true });
+      apiKey = (env as unknown as Record<string, string>).GOOGLE_PLACES_API_KEY;
+    } catch { /* fallthrough */ }
+  }
   if (!apiKey) {
     return NextResponse.json({ error: "Google Places API key not configured." }, { status: 500 });
   }
