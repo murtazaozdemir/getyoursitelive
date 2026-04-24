@@ -1,7 +1,5 @@
 import "server-only";
-import { getStorage, readJson, writeJson } from "@/lib/storage";
-
-const PROSPECTS_KEY = "prospects.json";
+import { getD1 } from "@/lib/db-d1";
 
 export type ProspectStatus = "found" | "contacted" | "interested" | "paid" | "delivered";
 
@@ -21,7 +19,7 @@ export interface ProspectNote {
 
 export interface Prospect {
   slug: string;
-  shortId?: number;        // Short numeric ID for easy-to-type URLs: getyoursitelive.com/p/42
+  shortId?: number;
   name: string;
   phone: string;
   address: string;
@@ -30,38 +28,60 @@ export interface Prospect {
   domain1?: string;
   domain2?: string;
   domain3?: string;
-  /** ISO timestamp of when a proposal was last generated for this lead */
   proposalSentAt?: string;
-  /** Email of the admin who last generated the proposal */
   proposalSentBy?: string;
-  /** Email of the admin who first contacted this lead — used for commission tracking */
   contactedBy?: string;
-  /** Display name of the admin who first contacted this lead */
   contactedByName?: string;
-  /** ISO timestamp when this lead was first contacted */
   contactedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-async function readAll(): Promise<Prospect[]> {
-  const storage = await getStorage();
-  return (await readJson<Prospect[]>(storage, PROSPECTS_KEY)) ?? [];
+// ---------------------------------------------------------------
+// D1 row → Prospect
+// ---------------------------------------------------------------
+
+interface ProspectRow {
+  slug: string;
+  short_id: number | null;
+  name: string;
+  phone: string;
+  phone_normalized: string;
+  address: string;
+  status: string;
+  notes: string;
+  domain1: string | null;
+  domain2: string | null;
+  domain3: string | null;
+  proposal_sent_at: string | null;
+  proposal_sent_by: string | null;
+  contacted_by: string | null;
+  contacted_by_name: string | null;
+  contacted_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
-async function writeAll(prospects: Prospect[]): Promise<void> {
-  const storage = await getStorage();
-  await writeJson(storage, PROSPECTS_KEY, prospects);
-}
-
-export async function listProspects(): Promise<Prospect[]> {
-  const all = await readAll();
-  return all.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-}
-
-export async function getProspect(slug: string): Promise<Prospect | null> {
-  const all = await readAll();
-  return all.find((p) => p.slug === slug) ?? null;
+function rowToProspect(row: ProspectRow): Prospect {
+  return {
+    slug: row.slug,
+    shortId: row.short_id ?? undefined,
+    name: row.name,
+    phone: row.phone,
+    address: row.address,
+    status: row.status as ProspectStatus,
+    notes: JSON.parse(row.notes) as ProspectNote[],
+    domain1: row.domain1 ?? undefined,
+    domain2: row.domain2 ?? undefined,
+    domain3: row.domain3 ?? undefined,
+    proposalSentAt: row.proposal_sent_at ?? undefined,
+    proposalSentBy: row.proposal_sent_by ?? undefined,
+    contactedBy: row.contacted_by ?? undefined,
+    contactedByName: row.contacted_by_name ?? undefined,
+    contactedAt: row.contacted_at ?? undefined,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
 }
 
 /** Strip all non-digit characters for phone comparison */
@@ -69,36 +89,141 @@ export function normalizePhone(phone: string): string {
   return phone.replace(/\D/g, "");
 }
 
-/** Find a prospect with the same phone number (ignoring formatting) */
-export async function findProspectByPhone(phone: string): Promise<Prospect | null> {
-  const normalized = normalizePhone(phone);
-  if (normalized.length < 7) return null; // too short to be meaningful
-  const all = await readAll();
-  return all.find((p) => normalizePhone(p.phone) === normalized) ?? null;
+// ---------------------------------------------------------------
+// Queries
+// ---------------------------------------------------------------
+
+export async function listProspects(): Promise<Prospect[]> {
+  const db = getD1();
+  const { results } = await db
+    .prepare("SELECT * FROM prospects ORDER BY created_at DESC")
+    .all<ProspectRow>();
+  return results.map(rowToProspect);
+}
+
+export async function getProspect(slug: string): Promise<Prospect | null> {
+  const db = getD1();
+  const row = await db
+    .prepare("SELECT * FROM prospects WHERE slug = ?")
+    .bind(slug)
+    .first<ProspectRow>();
+  return row ? rowToProspect(row) : null;
 }
 
 export async function getProspectByShortId(shortId: number): Promise<Prospect | null> {
-  const all = await readAll();
-  return all.find((p) => p.shortId === shortId) ?? null;
+  const db = getD1();
+  const row = await db
+    .prepare("SELECT * FROM prospects WHERE short_id = ?")
+    .bind(shortId)
+    .first<ProspectRow>();
+  return row ? rowToProspect(row) : null;
 }
 
-export async function createProspect(prospect: Prospect): Promise<void> {
-  const all = await readAll();
-  // Assign the next sequential short ID
-  const maxId = all.reduce((max, p) => Math.max(max, p.shortId ?? 0), 0);
-  all.push({ ...prospect, shortId: maxId + 1 });
-  await writeAll(all);
+export async function findProspectByPhone(phone: string): Promise<Prospect | null> {
+  const normalized = normalizePhone(phone);
+  if (normalized.length < 7) return null;
+  const db = getD1();
+  const row = await db
+    .prepare("SELECT * FROM prospects WHERE phone_normalized = ?")
+    .bind(normalized)
+    .first<ProspectRow>();
+  return row ? rowToProspect(row) : null;
+}
+
+// ---------------------------------------------------------------
+// Mutations
+// ---------------------------------------------------------------
+
+export async function createProspect(prospect: Omit<Prospect, "shortId">): Promise<void> {
+  const db = getD1();
+  const now = new Date().toISOString();
+
+  // Assign next sequential short_id atomically using MAX()
+  const maxRow = await db
+    .prepare("SELECT COALESCE(MAX(short_id), 0) AS max_id FROM prospects")
+    .first<{ max_id: number }>();
+  const shortId = (maxRow?.max_id ?? 0) + 1;
+
+  await db
+    .prepare(
+      `INSERT INTO prospects (
+        slug, short_id, name, phone, phone_normalized, address, status, notes,
+        domain1, domain2, domain3,
+        proposal_sent_at, proposal_sent_by,
+        contacted_by, contacted_by_name, contacted_at,
+        created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .bind(
+      prospect.slug,
+      shortId,
+      prospect.name,
+      prospect.phone,
+      normalizePhone(prospect.phone),
+      prospect.address,
+      prospect.status,
+      JSON.stringify(prospect.notes),
+      prospect.domain1 ?? null,
+      prospect.domain2 ?? null,
+      prospect.domain3 ?? null,
+      prospect.proposalSentAt ?? null,
+      prospect.proposalSentBy ?? null,
+      prospect.contactedBy ?? null,
+      prospect.contactedByName ?? null,
+      prospect.contactedAt ?? null,
+      prospect.createdAt ?? now,
+      prospect.updatedAt ?? now,
+    )
+    .run();
 }
 
 export async function updateProspect(slug: string, patch: Partial<Prospect>): Promise<void> {
-  const all = await readAll();
-  const idx = all.findIndex((p) => p.slug === slug);
-  if (idx === -1) throw new Error(`Prospect not found: ${slug}`);
-  all[idx] = { ...all[idx], ...patch, updatedAt: new Date().toISOString() };
-  await writeAll(all);
+  const db = getD1();
+  const now = new Date().toISOString();
+
+  // Build SET clause dynamically from the patch fields
+  const sets: string[] = ["updated_at = ?"];
+  const values: unknown[] = [now];
+
+  const fieldMap: Record<string, string> = {
+    name: "name",
+    phone: "phone",
+    address: "address",
+    status: "status",
+    notes: "notes",
+    domain1: "domain1",
+    domain2: "domain2",
+    domain3: "domain3",
+    proposalSentAt: "proposal_sent_at",
+    proposalSentBy: "proposal_sent_by",
+    contactedBy: "contacted_by",
+    contactedByName: "contacted_by_name",
+    contactedAt: "contacted_at",
+  };
+
+  for (const [key, col] of Object.entries(fieldMap)) {
+    if (key in patch) {
+      sets.push(`${col} = ?`);
+      const val = patch[key as keyof Prospect];
+      // notes is a JSON array
+      values.push(key === "notes" ? JSON.stringify(val) : (val ?? null));
+    }
+  }
+
+  // Keep phone_normalized in sync when phone changes
+  if ("phone" in patch && patch.phone !== undefined) {
+    sets.push("phone_normalized = ?");
+    values.push(normalizePhone(patch.phone));
+  }
+
+  values.push(slug);
+  await db
+    .prepare(`UPDATE prospects SET ${sets.join(", ")} WHERE slug = ?`)
+    .bind(...values)
+    .run();
 }
 
 export async function deleteProspect(slug: string): Promise<void> {
-  const all = await readAll();
-  await writeAll(all.filter((p) => p.slug !== slug));
+  const db = getD1();
+  await db.prepare("DELETE FROM prospects WHERE slug = ?").bind(slug).run();
 }
