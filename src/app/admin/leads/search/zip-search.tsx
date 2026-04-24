@@ -17,14 +17,29 @@ interface PlaceResult {
 
 type AddStatus = "idle" | "adding" | "added" | "exists" | "error";
 
-const SUGGESTED_QUERIES = [
-  "auto repair",
-  "car detailing",
-  "towing service",
-  "tire shop",
-  "auto body shop",
-  "oil change",
-  "muffler shop",
+const CATEGORIES = [
+  { label: "Auto Repair", query: "auto repair" },
+  { label: "Auto Body Shop", query: "auto body shop" },
+  { label: "Car Detailing", query: "car detailing" },
+  { label: "Tire Shop", query: "tire shop" },
+  { label: "Towing Service", query: "towing service" },
+  { label: "Oil Change", query: "oil change" },
+  { label: "Muffler Shop", query: "muffler shop" },
+  { label: "Barber Shop", query: "barber shop" },
+  { label: "Hair Salon", query: "hair salon" },
+  { label: "Nail Salon", query: "nail salon" },
+  { label: "Restaurant", query: "restaurant" },
+  { label: "Pizzeria", query: "pizzeria" },
+  { label: "Bakery", query: "bakery" },
+  { label: "Deli", query: "deli" },
+  { label: "Dentist", query: "dentist" },
+  { label: "Plumber", query: "plumber" },
+  { label: "Electrician", query: "electrician" },
+  { label: "HVAC", query: "hvac" },
+  { label: "Landscaping", query: "landscaping" },
+  { label: "Dry Cleaner", query: "dry cleaner" },
+  { label: "Laundromat", query: "laundromat" },
+  { label: "Pet Grooming", query: "pet grooming" },
 ];
 
 export function ZipSearch() {
@@ -38,6 +53,7 @@ export function ZipSearch() {
   const [addedSlugs, setAddedSlugs] = useState<Record<string, string>>({});
   const [cached, setCached] = useState(false);
   const [cachedAt, setCachedAt] = useState("");
+  const [hideWithWebsite, setHideWithWebsite] = useState(false);
 
   async function handleSearch(pageToken?: string, forceRefresh?: boolean) {
     if (!zip || !/^\d{5}$/.test(zip)) {
@@ -159,18 +175,20 @@ export function ZipSearch() {
               value={zip}
               onChange={(e) => setZip(e.target.value.replace(/\D/g, ""))}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              autoFocus
             />
           </label>
           <label className="admin-field" style={{ flex: 1, minWidth: 200 }}>
-            <span className="admin-field-label">Search query</span>
-            <input
+            <span className="admin-field-label">Category</span>
+            <select
               className="admin-input"
-              type="text"
-              placeholder="auto repair"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            />
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c.query} value={c.query}>{c.label}</option>
+              ))}
+            </select>
           </label>
           <button
             className="admin-btn admin-btn--primary"
@@ -182,27 +200,33 @@ export function ZipSearch() {
           </button>
         </div>
 
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
-          {SUGGESTED_QUERIES.map((q) => (
-            <button
-              key={q}
-              className={`admin-btn admin-btn--ghost${query === q ? " admin-btn--active" : ""}`}
-              style={{ fontSize: 12, padding: "4px 10px" }}
-              onClick={() => setQuery(q)}
-            >
-              {q}
-            </button>
-          ))}
-        </div>
+        <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10, fontSize: 13, color: "var(--admin-text-soft)", cursor: "pointer" }}>
+          <input
+            type="checkbox"
+            checked={hideWithWebsite}
+            onChange={(e) => setHideWithWebsite(e.target.checked)}
+          />
+          No website only — hide businesses that already have a site
+        </label>
 
         {error && <div className="admin-error-banner" style={{ marginTop: 12 }}>{error}</div>}
       </div>
 
-      {results.length > 0 && (
+      {results.length > 0 && (() => {
+        const filtered = hideWithWebsite
+          ? results.filter((p) => !hasWebsite(p.website))
+          : results;
+
+        return (
         <div className="admin-section" style={{ marginTop: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
             <h2 className="admin-section-title" style={{ margin: 0 }}>
-              {results.length} results
+              {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+              {hideWithWebsite && filtered.length !== results.length && (
+                <span style={{ fontWeight: 400, fontSize: 13, color: "var(--admin-text-muted)" }}>
+                  {" "}({results.length - filtered.length} with websites hidden)
+                </span>
+              )}
             </h2>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               {cached && (
@@ -224,7 +248,7 @@ export function ZipSearch() {
           </div>
 
           <div className="search-results-list" style={{ marginTop: 12 }}>
-            {results.map((place) => {
+            {filtered.map((place) => {
               const status = addStatuses[place.id] ?? "idle";
               const slug = addedSlugs[place.id];
               const hasRealSite = hasWebsite(place.website);
@@ -328,7 +352,8 @@ export function ZipSearch() {
             </div>
           )}
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
