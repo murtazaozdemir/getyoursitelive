@@ -55,7 +55,6 @@ function printLabels(prospects: LeadCardData[]) {
     <div class="page${pi < pages.length - 1 ? "" : " last"}">
       ${page
         .map((p, li) => {
-          const lines = formatAddressLines(p.address);
           const previewUrl = `${siteUrl}/${p.slug}`;
           const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(previewUrl)}`;
           return `
@@ -63,7 +62,7 @@ function printLabels(prospects: LeadCardData[]) {
         <div class="label">
           <div class="label-content">
             <div class="label-name">${escapeHtml(p.name)}</div>
-            ${lines.map((l) => `<div class="label-addr">${escapeHtml(l)}</div>`).join("")}
+            <div class="label-addr">${escapeHtml(p.address)}</div>
             <div class="label-qr-section">
               <img class="label-qr" src="${qrUrl}" alt="QR code" />
               <div class="label-qr-text">We prepared a website for you!<br/>Scan this QR code to see it.</div>
@@ -135,7 +134,7 @@ function printLabels(prospects: LeadCardData[]) {
   }
 
   .label-qr-section {
-    margin-top: 14px;
+    margin-top: 28px;
     display: flex;
     align-items: center;
     gap: 12px;
