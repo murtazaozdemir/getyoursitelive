@@ -180,6 +180,14 @@ export async function POST(req: NextRequest) {
   const website = (formData.get("website") as string)?.trim() ?? "";
   const lat = formData.get("lat") ? parseFloat(formData.get("lat") as string) : null;
   const lng = formData.get("lng") ? parseFloat(formData.get("lng") as string) : null;
+  const googleBusinessStatus = (formData.get("googleBusinessStatus") as string)?.trim() ?? "";
+  const googlePriceLevel = (formData.get("googlePriceLevel") as string)?.trim() ?? "";
+  const googleEditorialSummary = (formData.get("googleEditorialSummary") as string)?.trim() ?? "";
+  const googleOpeningHours = (formData.get("googleOpeningHours") as string)?.trim() ?? "";
+  const googleReviews = (formData.get("googleReviews") as string)?.trim() ?? "";
+  const googlePhotos = (formData.get("googlePhotos") as string)?.trim() ?? "";
+  const googleShortAddress = (formData.get("googleShortAddress") as string)?.trim() ?? "";
+  const googleAddressComponents = (formData.get("googleAddressComponents") as string)?.trim() ?? "";
 
   if (!name) {
     return NextResponse.json({ ok: false, error: "Name is required." });
@@ -198,6 +206,14 @@ export async function POST(req: NextRequest) {
     googleReviewCount,
     googleCategory: googleCategory || undefined,
     googleMapsUrl: googleMapsUrl || undefined,
+    googleBusinessStatus: googleBusinessStatus || undefined,
+    googlePriceLevel: googlePriceLevel || undefined,
+    googleEditorialSummary: googleEditorialSummary || undefined,
+    googleOpeningHours: googleOpeningHours || undefined,
+    googleReviews: googleReviews || undefined,
+    googlePhotos: googlePhotos || undefined,
+    googleShortAddress: googleShortAddress || undefined,
+    googleAddressComponents: googleAddressComponents || undefined,
     lat,
     lng,
   };
@@ -251,6 +267,14 @@ export async function POST(req: NextRequest) {
       googleReviewCount: googleData.googleReviewCount || undefined,
       googleCategory: googleData.googleCategory,
       googleMapsUrl: googleData.googleMapsUrl,
+      googleBusinessStatus: googleData.googleBusinessStatus,
+      googlePriceLevel: googleData.googlePriceLevel,
+      googleEditorialSummary: googleData.googleEditorialSummary,
+      googleOpeningHours: googleData.googleOpeningHours,
+      googleReviews: googleData.googleReviews,
+      googlePhotos: googleData.googlePhotos,
+      googleShortAddress: googleData.googleShortAddress,
+      googleAddressComponents: googleData.googleAddressComponents,
       lat: googleData.lat ?? undefined,
       lng: googleData.lng ?? undefined,
       createdAt: now,

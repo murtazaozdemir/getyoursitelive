@@ -513,6 +513,53 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped, log };
   },
 
+  "add-google-extended-fields": async () => {
+    const db = await getD1();
+    const log: string[] = [];
+    let updated = 0;
+
+    // Columns to add to BOTH places_cache and prospects
+    const sharedCols = [
+      "business_status TEXT",
+      "price_level TEXT",
+      "editorial_summary TEXT",
+      "opening_hours TEXT",
+      "reviews TEXT",
+      "photos TEXT",
+      "address_components TEXT",
+    ];
+
+    // places_cache gets short_address; prospects get google_-prefixed versions + google_short_address
+    for (const col of sharedCols) {
+      const name = col.split(" ")[0];
+      for (const table of ["places_cache", "prospects"]) {
+        const colName = table === "prospects" ? `google_${name}` : name;
+        try {
+          await db.prepare(`ALTER TABLE ${table} ADD COLUMN ${colName} ${col.split(" ").slice(1).join(" ")}`).run();
+          log.push(`${table}: added ${colName}`);
+          updated++;
+        } catch {
+          log.push(`${table}: ${colName} already exists`);
+        }
+      }
+    }
+
+    // short_address for places_cache, google_short_address for prospects
+    try {
+      await db.prepare("ALTER TABLE places_cache ADD COLUMN short_address TEXT").run();
+      log.push("places_cache: added short_address");
+      updated++;
+    } catch { log.push("places_cache: short_address already exists"); }
+
+    try {
+      await db.prepare("ALTER TABLE prospects ADD COLUMN google_short_address TEXT").run();
+      log.push("prospects: added google_short_address");
+      updated++;
+    } catch { log.push("prospects: google_short_address already exists"); }
+
+    return { updated, skipped: 0, log };
+  },
+
   // ── Add new migrations below this line ──────────────────────────────────────
 };
 

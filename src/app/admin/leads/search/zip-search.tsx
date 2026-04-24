@@ -8,6 +8,7 @@ interface PlaceResult {
   name: string;
   phone: string;
   address: string;
+  shortAddress: string;
   category: string;
   rating: number | null;
   reviewCount: number;
@@ -15,6 +16,13 @@ interface PlaceResult {
   googleMapsUrl: string;
   lat: number | null;
   lng: number | null;
+  businessStatus: string;
+  priceLevel: string;
+  editorialSummary: string;
+  openingHours: string;
+  reviews: string;
+  photos: string;
+  addressComponents: string;
   _fromZip?: string;
 }
 
@@ -296,6 +304,14 @@ export function ZipSearch() {
       if (place.website) formData.set("website", place.website);
       if (place.lat != null) formData.set("lat", String(place.lat));
       if (place.lng != null) formData.set("lng", String(place.lng));
+      if (place.businessStatus) formData.set("googleBusinessStatus", place.businessStatus);
+      if (place.priceLevel) formData.set("googlePriceLevel", place.priceLevel);
+      if (place.editorialSummary) formData.set("googleEditorialSummary", place.editorialSummary);
+      if (place.openingHours) formData.set("googleOpeningHours", place.openingHours);
+      if (place.reviews) formData.set("googleReviews", place.reviews);
+      if (place.photos) formData.set("googlePhotos", place.photos);
+      if (place.shortAddress) formData.set("googleShortAddress", place.shortAddress);
+      if (place.addressComponents) formData.set("googleAddressComponents", place.addressComponents);
 
       const res = await fetch("/api/places-search/add", {
         method: "POST",

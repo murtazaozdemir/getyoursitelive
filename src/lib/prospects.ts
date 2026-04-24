@@ -39,6 +39,14 @@ export interface Prospect {
   googleReviewCount?: number;
   googleCategory?: string;
   googleMapsUrl?: string;
+  googleBusinessStatus?: string;
+  googlePriceLevel?: string;
+  googleEditorialSummary?: string;
+  googleOpeningHours?: string;
+  googleReviews?: string;
+  googlePhotos?: string;
+  googleShortAddress?: string;
+  googleAddressComponents?: string;
   lat?: number;
   lng?: number;
   createdAt: string;
@@ -73,6 +81,14 @@ interface ProspectRow {
   google_review_count: number | null;
   google_category: string | null;
   google_maps_url: string | null;
+  google_business_status: string | null;
+  google_price_level: string | null;
+  google_editorial_summary: string | null;
+  google_opening_hours: string | null;
+  google_reviews: string | null;
+  google_photos: string | null;
+  google_short_address: string | null;
+  google_address_components: string | null;
   lat: number | null;
   lng: number | null;
   created_at: string;
@@ -103,6 +119,14 @@ function rowToProspect(row: ProspectRow): Prospect {
     googleReviewCount: row.google_review_count ?? undefined,
     googleCategory: row.google_category ?? undefined,
     googleMapsUrl: row.google_maps_url ?? undefined,
+    googleBusinessStatus: row.google_business_status ?? undefined,
+    googlePriceLevel: row.google_price_level ?? undefined,
+    googleEditorialSummary: row.google_editorial_summary ?? undefined,
+    googleOpeningHours: row.google_opening_hours ?? undefined,
+    googleReviews: row.google_reviews ?? undefined,
+    googlePhotos: row.google_photos ?? undefined,
+    googleShortAddress: row.google_short_address ?? undefined,
+    googleAddressComponents: row.google_address_components ?? undefined,
     lat: row.lat ?? undefined,
     lng: row.lng ?? undefined,
     createdAt: row.created_at,
@@ -201,9 +225,12 @@ export async function createProspect(prospect: Omit<Prospect, "shortId">): Promi
         contacted_by, contacted_by_name, contacted_at,
         website,
         google_place_id, google_rating, google_review_count, google_category, google_maps_url,
+        google_business_status, google_price_level, google_editorial_summary,
+        google_opening_hours, google_reviews, google_photos,
+        google_short_address, google_address_components,
         lat, lng,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       prospect.slug,
@@ -229,6 +256,14 @@ export async function createProspect(prospect: Omit<Prospect, "shortId">): Promi
       prospect.googleReviewCount ?? null,
       prospect.googleCategory ?? null,
       prospect.googleMapsUrl ?? null,
+      prospect.googleBusinessStatus ?? null,
+      prospect.googlePriceLevel ?? null,
+      prospect.googleEditorialSummary ?? null,
+      prospect.googleOpeningHours ?? null,
+      prospect.googleReviews ?? null,
+      prospect.googlePhotos ?? null,
+      prospect.googleShortAddress ?? null,
+      prospect.googleAddressComponents ?? null,
       prospect.lat ?? null,
       prospect.lng ?? null,
       prospect.createdAt ?? now,
@@ -294,6 +329,14 @@ export async function updateProspectGoogleData(
     googleReviewCount?: number;
     googleCategory?: string;
     googleMapsUrl?: string;
+    googleBusinessStatus?: string;
+    googlePriceLevel?: string;
+    googleEditorialSummary?: string;
+    googleOpeningHours?: string;
+    googleReviews?: string;
+    googlePhotos?: string;
+    googleShortAddress?: string;
+    googleAddressComponents?: string;
     lat?: number | null;
     lng?: number | null;
   },
@@ -304,41 +347,31 @@ export async function updateProspectGoogleData(
   const sets: string[] = ["updated_at = ?"];
   const values: unknown[] = [now];
 
-  if (data.state !== undefined) {
-    sets.push("state = ?");
-    values.push(data.state || null);
-  }
-  if (data.website !== undefined) {
-    sets.push("website = ?");
-    values.push(data.website || null);
-  }
-  if (data.googlePlaceId !== undefined) {
-    sets.push("google_place_id = ?");
-    values.push(data.googlePlaceId);
-  }
-  if (data.googleRating !== undefined) {
-    sets.push("google_rating = ?");
-    values.push(data.googleRating);
-  }
-  if (data.googleReviewCount !== undefined) {
-    sets.push("google_review_count = ?");
-    values.push(data.googleReviewCount);
-  }
-  if (data.googleCategory !== undefined) {
-    sets.push("google_category = ?");
-    values.push(data.googleCategory);
-  }
-  if (data.googleMapsUrl !== undefined) {
-    sets.push("google_maps_url = ?");
-    values.push(data.googleMapsUrl);
-  }
-  if (data.lat !== undefined) {
-    sets.push("lat = ?");
-    values.push(data.lat);
-  }
-  if (data.lng !== undefined) {
-    sets.push("lng = ?");
-    values.push(data.lng);
+  const fieldMap: [string, string][] = [
+    ["state", "state"],
+    ["website", "website"],
+    ["googlePlaceId", "google_place_id"],
+    ["googleRating", "google_rating"],
+    ["googleReviewCount", "google_review_count"],
+    ["googleCategory", "google_category"],
+    ["googleMapsUrl", "google_maps_url"],
+    ["googleBusinessStatus", "google_business_status"],
+    ["googlePriceLevel", "google_price_level"],
+    ["googleEditorialSummary", "google_editorial_summary"],
+    ["googleOpeningHours", "google_opening_hours"],
+    ["googleReviews", "google_reviews"],
+    ["googlePhotos", "google_photos"],
+    ["googleShortAddress", "google_short_address"],
+    ["googleAddressComponents", "google_address_components"],
+    ["lat", "lat"],
+    ["lng", "lng"],
+  ];
+
+  for (const [key, col] of fieldMap) {
+    if ((data as Record<string, unknown>)[key] !== undefined) {
+      sets.push(`${col} = ?`);
+      values.push((data as Record<string, unknown>)[key] ?? null);
+    }
   }
 
   values.push(slug);

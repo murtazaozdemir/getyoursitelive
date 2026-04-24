@@ -9,6 +9,7 @@ interface PlaceResult {
   name: string;
   phone: string;
   address: string;
+  shortAddress: string;
   category: string;
   rating: number | null;
   reviewCount: number;
@@ -16,6 +17,13 @@ interface PlaceResult {
   googleMapsUrl: string;
   lat: number | null;
   lng: number | null;
+  businessStatus: string;
+  priceLevel: string;
+  editorialSummary: string;
+  openingHours: string; // JSON
+  reviews: string; // JSON array
+  photos: string; // JSON array of photo names
+  addressComponents: string; // JSON array
 }
 
 interface CachedRow {
@@ -23,6 +31,7 @@ interface CachedRow {
   name: string;
   phone: string;
   address: string;
+  short_address: string | null;
   category: string;
   rating: number | null;
   review_count: number;
@@ -30,6 +39,13 @@ interface CachedRow {
   google_maps_url: string;
   lat: number | null;
   lng: number | null;
+  business_status: string | null;
+  price_level: string | null;
+  editorial_summary: string | null;
+  opening_hours: string | null;
+  reviews: string | null;
+  photos: string | null;
+  address_components: string | null;
 }
 
 export async function POST(req: NextRequest) {
@@ -85,6 +101,7 @@ async function handleSearch(req: NextRequest) {
         name: r.name,
         phone: r.phone ?? "",
         address: r.address ?? "",
+        shortAddress: r.short_address ?? "",
         category: r.category ?? "Car repair and maintenance service",
         rating: r.rating,
         reviewCount: r.review_count ?? 0,
@@ -92,6 +109,13 @@ async function handleSearch(req: NextRequest) {
         googleMapsUrl: r.google_maps_url ?? "",
         lat: r.lat,
         lng: r.lng,
+        businessStatus: r.business_status ?? "",
+        priceLevel: r.price_level ?? "",
+        editorialSummary: r.editorial_summary ?? "",
+        openingHours: r.opening_hours ?? "[]",
+        reviews: r.reviews ?? "[]",
+        photos: r.photos ?? "[]",
+        addressComponents: r.address_components ?? "[]",
       }));
 
       return NextResponse.json({
@@ -133,6 +157,7 @@ async function handleSearch(req: NextRequest) {
     "places.id",
     "places.displayName",
     "places.formattedAddress",
+    "places.shortFormattedAddress",
     "places.nationalPhoneNumber",
     "places.internationalPhoneNumber",
     "places.websiteUri",
@@ -142,6 +167,13 @@ async function handleSearch(req: NextRequest) {
     "places.primaryTypeDisplayName",
     "places.types",
     "places.location",
+    "places.businessStatus",
+    "places.priceLevel",
+    "places.editorialSummary",
+    "places.regularOpeningHours",
+    "places.reviews",
+    "places.photos",
+    "places.addressComponents",
   ].join(",");
 
   const res = await fetch(
@@ -173,12 +205,18 @@ async function handleSearch(req: NextRequest) {
     const displayName = p.displayName as { text?: string } | undefined;
     const primaryType = p.primaryTypeDisplayName as { text?: string } | undefined;
     const location = p.location as { latitude?: number; longitude?: number } | undefined;
+    const editSummary = p.editorialSummary as { text?: string } | undefined;
+    const openingHours = p.regularOpeningHours as Record<string, unknown> | undefined;
+    const reviews = p.reviews as Record<string, unknown>[] | undefined;
+    const photos = p.photos as Record<string, unknown>[] | undefined;
+    const addrComponents = p.addressComponents as Record<string, unknown>[] | undefined;
 
     return {
       id: (p.id as string) ?? "",
       name: displayName?.text ?? "",
       phone: (p.nationalPhoneNumber as string) ?? (p.internationalPhoneNumber as string) ?? "",
       address: (p.formattedAddress as string) ?? "",
+      shortAddress: (p.shortFormattedAddress as string) ?? "",
       category: primaryType?.text ?? "Car repair and maintenance service",
       rating: (p.rating as number) ?? null,
       reviewCount: (p.userRatingCount as number) ?? 0,
@@ -186,6 +224,13 @@ async function handleSearch(req: NextRequest) {
       googleMapsUrl: (p.googleMapsUri as string) ?? "",
       lat: location?.latitude ?? null,
       lng: location?.longitude ?? null,
+      businessStatus: (p.businessStatus as string) ?? "",
+      priceLevel: (p.priceLevel as string) ?? "",
+      editorialSummary: editSummary?.text ?? "",
+      openingHours: openingHours ? JSON.stringify(openingHours) : "[]",
+      reviews: reviews ? JSON.stringify(reviews) : "[]",
+      photos: photos ? JSON.stringify(photos.map((ph) => ({ name: ph.name, widthPx: ph.widthPx, heightPx: ph.heightPx, authorAttributions: ph.authorAttributions }))) : "[]",
+      addressComponents: addrComponents ? JSON.stringify(addrComponents) : "[]",
     };
   });
 
@@ -196,13 +241,15 @@ async function handleSearch(req: NextRequest) {
     await db
       .prepare(
         `INSERT OR REPLACE INTO places_cache
-         (google_place_id, name, phone, phone_normalized, address, category, rating, review_count, website, google_maps_url, lat, lng, zip, query, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (google_place_id, name, phone, phone_normalized, address, short_address, category, rating, review_count, website, google_maps_url, lat, lng, business_status, price_level, editorial_summary, opening_hours, reviews, photos, address_components, zip, query, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
-        r.id, r.name, r.phone, phoneNorm, r.address, r.category,
+        r.id, r.name, r.phone, phoneNorm, r.address, r.shortAddress, r.category,
         r.rating, r.reviewCount, r.website, r.googleMapsUrl,
         r.lat, r.lng,
+        r.businessStatus, r.priceLevel, r.editorialSummary,
+        r.openingHours, r.reviews, r.photos, r.addressComponents,
         zip, query, now,
       )
       .run();
