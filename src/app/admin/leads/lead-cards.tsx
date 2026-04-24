@@ -65,7 +65,7 @@ function printLabels(prospects: LeadCardData[]) {
             <div class="label-addr">${escapeHtml(p.address)}</div>
             <div class="label-qr-section">
               <img class="label-qr" src="${qrUrl}" alt="QR code" />
-              <div class="label-qr-text">We prepared a website for you!<br/>Scan this QR code to see it.</div>
+              <div class="label-qr-text">We prepared a website for you! Scan this QR code to see it.</div>
             </div>
           </div>
         </div>`;
