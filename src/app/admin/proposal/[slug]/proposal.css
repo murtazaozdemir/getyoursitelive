@@ -492,6 +492,13 @@
   line-height: 1.5;
 }
 
+/* ── Bulk print page break ────────────────────────────────────────────── */
+
+.proposal-page-break {
+  break-after: page;
+  page-break-after: always;
+}
+
 /* ── Print styles ────────────────────────────────────────────────────── */
 
 @media print {

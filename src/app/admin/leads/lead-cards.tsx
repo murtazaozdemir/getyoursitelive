@@ -159,6 +159,14 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
     printLabels(picked);
   }
 
+  function handlePrintProposals() {
+    const slugs = prospects
+      .filter((p) => selected.has(p.slug))
+      .map((p) => p.slug)
+      .join(",");
+    window.open(`/admin/proposal/bulk?slugs=${encodeURIComponent(slugs)}`, "_blank");
+  }
+
   return (
     <>
       {/* Selection toolbar */}
@@ -175,13 +183,22 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
           <span>{allSelected ? "Deselect all" : "Select all"}</span>
         </label>
         {someSelected && (
-          <button
-            type="button"
-            className="admin-btn admin-btn--primary"
-            onClick={handlePrint}
-          >
-            Print {selected.size} label{selected.size !== 1 ? "s" : ""}
-          </button>
+          <>
+            <button
+              type="button"
+              className="admin-btn admin-btn--primary"
+              onClick={handlePrint}
+            >
+              Print {selected.size} label{selected.size !== 1 ? "s" : ""}
+            </button>
+            <button
+              type="button"
+              className="admin-btn admin-btn--ghost"
+              onClick={handlePrintProposals}
+            >
+              Print {selected.size} proposal{selected.size !== 1 ? "s" : ""}
+            </button>
+          </>
         )}
       </div>
 

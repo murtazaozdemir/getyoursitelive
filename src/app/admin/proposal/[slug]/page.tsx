@@ -6,6 +6,8 @@ import { canManageBusinesses, findUserById } from "@/lib/users";
 import { getProspect, updateProspect } from "@/lib/prospects";
 import { logAudit } from "@/lib/audit-log";
 import { PrintButton } from "./print-button";
+import { ProposalContent } from "../proposal-content";
+import { domainSuggestions, buildSellerInfo } from "../proposal-utils";
 import "./proposal.css";
 
 export async function generateMetadata({
@@ -24,27 +26,6 @@ export async function generateMetadata({
   return { title: `${biz.businessInfo.name} - Proposal - ${date}` };
 }
 
-const NOISE_WORDS = [
-  "auto","repair","center","shop","garage","service","services",
-  "automotive","motors","car","cars","mechanic","llc","inc","&","and",
-];
-
-function slugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, "").replace(/^-+|-+$/g, "");
-}
-
-function domainSuggestions(name: string): string[] {
-  const baseClean = slugify(name);
-  const base = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  const words = name.toLowerCase().split(/\s+/);
-  const core = words.filter(w => !NOISE_WORDS.includes(slugify(w))).map(slugify).join("") || baseClean;
-  return [...new Set([
-    `${baseClean}.com`,
-    `${core}auto.com`,
-    `${base.replace(/-/g, "")}nj.com`,
-  ])].slice(0, 3);
-}
-
 export default async function ProposalPage({
   params,
 }: {
@@ -57,7 +38,6 @@ export default async function ProposalPage({
     return <div style={{ padding: "2rem" }}>Not authorized.</div>;
   }
 
-  // Fetch full user record to get phone + address fields
   const user = await findUserById(sessionUser.id) ?? sessionUser;
 
   const biz = await getBusinessBySlug(slug);
@@ -65,7 +45,6 @@ export default async function ProposalPage({
 
   const prospect = await getProspect(slug);
   if (prospect) {
-    // Only mark as "sent" on first view — don't overwrite if already set
     const updates: Partial<{ proposalSentAt: string; proposalSentBy: string }> = {};
     if (!prospect.proposalSentAt) {
       updates.proposalSentAt = new Date().toISOString();
@@ -83,19 +62,8 @@ export default async function ProposalPage({
     ]);
   }
 
-  // Build reseller contact info from the logged-in admin's profile
-  const sellerName = user.name;
-  const sellerEmail = ("email" in user) ? user.email : sessionUser.email;
-  const sellerPhone = ("phone" in user && user.phone) ? user.phone : null;
-  const sellerAddressParts = [
-    ("street" in user && user.street) ? user.street : null,
-    ("city" in user && user.city) ? user.city : null,
-    ("state" in user && user.state) ? user.state : null,
-    ("zip" in user && user.zip) ? user.zip : null,
-  ].filter(Boolean);
-  const sellerAddress = sellerAddressParts.length > 0 ? sellerAddressParts.join(", ") : null;
+  const seller = buildSellerInfo(user as unknown as Record<string, unknown>, sessionUser.email);
 
-  // Use stored domains from DB, fall back to generated ones
   const storedDomains = [prospect?.domain1, prospect?.domain2, prospect?.domain3].filter(Boolean) as string[];
   const domains = storedDomains.length > 0 ? storedDomains : domainSuggestions(biz.businessInfo.name);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
@@ -106,260 +74,26 @@ export default async function ProposalPage({
   const today = new Date().toLocaleDateString("en-US", {
     month: "long", day: "numeric", year: "numeric",
   });
-  const name = biz.businessInfo.name;
 
   return (
     <>
-      {/* Print toolbar — hidden when printing */}
       <div className="proposal-toolbar no-print">
         <span className="proposal-toolbar-label">Get Your Site Live — Proposal</span>
         <PrintButton />
       </div>
 
-      <div className="proposal">
-
-        {/* ── HEADER ─────────────────────────────────────────────── */}
-        <header className="proposal-header">
-          <div className="proposal-header-from">
-            <strong>Get Your Site Live</strong>
-            <span>getyoursitelive.com</span>
-            <span>Proposal</span>
-          </div>
-          <div className="proposal-header-to">
-            <span className="proposal-header-label">Prepared for</span>
-            <strong className="proposal-header-shopname">{name}</strong>
-            <span>{biz.businessInfo.address}</span>
-            <span>{today}</span>
-          </div>
-        </header>
-
-        {/* ── OPENING LETTER ─────────────────────────────────────── */}
-        <section className="proposal-letter">
-          <p className="proposal-salutation">Dear {name} owner,</p>
-          <p>
-            Right now, when someone nearby needs a mechanic and doesn&rsquo;t
-            already know your shop, they Google it. If {name} doesn&rsquo;t
-            show up, that customer goes to whoever does. A website fixes that.
-          </p>
-          <p>
-            I build websites for auto shops — <strong>$500, one time, you
-            own it</strong>. I&rsquo;ve already put together a working
-            preview for {name}. You can see it right now.
-          </p>
-        </section>
-
-        {/* ── COMPARISON TABLE ───────────────────────────────────── */}
-        <section className="proposal-section">
-          <h2 className="proposal-section-title">Why not just use Facebook or Yelp?</h2>
-          <table className="proposal-table">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Found on Google</th>
-                <th>Yours to keep</th>
-                <th>No monthly cost</th>
-                <th>Takes bookings</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Facebook page</td>
-                <td className="no">✗</td><td className="no">✗</td>
-                <td className="yes">✓</td><td className="no">✗</td>
-              </tr>
-              <tr>
-                <td>Yelp / Yellow Pages</td>
-                <td className="yes">✓</td><td className="no">✗</td>
-                <td className="no">✗</td><td className="no">✗</td>
-              </tr>
-              <tr>
-                <td>Wix / Squarespace</td>
-                <td className="yes">✓</td><td className="no">✗</td>
-                <td className="no">✗</td><td className="yes">✓</td>
-              </tr>
-              <tr className="proposal-table-highlight">
-                <td><strong>Your own site</strong></td>
-                <td className="yes">✓</td><td className="yes">✓</td>
-                <td className="yes">✓</td><td className="yes">✓</td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
-
-        {/* ── DEMO (moved up — strongest proof element first) ────── */}
-        <section className="proposal-section proposal-section--demo">
-          <h2 className="proposal-section-title">Your site is already built</h2>
-          <p className="proposal-body">
-            Scan the code or type the link to see exactly what your customers
-            would see — try it on your phone. Everything you see can be
-            changed.
-          </p>
-          <div className="proposal-demo-row">
-            <div className="proposal-qr">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={qrImageUrl} alt="QR code to preview site" className="proposal-qr-code" />
-              <p className="proposal-qr-label">Scan to open your site</p>
-            </div>
-            <div className="proposal-demo-links">
-              {shortUrl && (
-                <a href={shortUrl} className="proposal-demo-url proposal-demo-url--short" target="_blank" rel="noreferrer">
-                  {shortUrl.replace("https://", "")}
-                </a>
-              )}
-              <p className="proposal-body proposal-body--small" style={{ marginTop: 4 }}>
-                This is a live preview. Once you go ahead, your site
-                moves to your own domain.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ── WHAT THIS DOES FOR YOUR SHOP ──────────────────────── */}
-        <section className="proposal-section">
-          <h2 className="proposal-section-title">What this does for your shop</h2>
-          <ul className="proposal-checklist proposal-checklist--single">
-            {[
-              "Customers find you on Google when they search for a mechanic nearby",
-              "They see your services, hours, and location — and can call with one tap",
-              "They can request appointments online, even at midnight or on weekends",
-              "Your site looks professional on phones — where most people search",
-              "You can update anything yourself: prices, hours, photos, services",
-            ].map(item => (
-              <li key={item}><span className="proposal-check">✓</span>{item}</li>
-            ))}
-          </ul>
-        </section>
-
-        {/* ── WHAT'S INCLUDED ───────────────────────────────────── */}
-        <section className="proposal-section">
-          <h2 className="proposal-section-title">What&rsquo;s included</h2>
-          <ul className="proposal-checklist">
-            {[
-              "Your own domain name (e.g. starautorepair.com) — registered in your name",
-              "Full website with your services, pricing, hours, and location",
-              "Appointment request form that works 24/7",
-              "Click-to-call button on every page",
-              "Google Maps showing your address",
-              "Customer reviews section",
-              "Works on phones, tablets, and computers",
-              "Admin panel — change any text, photo, or price yourself",
-            ].map(item => (
-              <li key={item}><span className="proposal-check">✓</span>{item}</li>
-            ))}
-          </ul>
-        </section>
-
-        {/* ── DOMAIN SUGGESTIONS ─────────────────────────────────── */}
-        <section className="proposal-section">
-          <h2 className="proposal-section-title">Domain options for {name}</h2>
-          <div className="proposal-domains">
-            {domains.map(d => (
-              <div key={d} className="proposal-domain-chip">{d}</div>
-            ))}
-          </div>
-          <p className="proposal-body proposal-body--small">
-            These are suggestions — availability can change. When you&rsquo;re
-            ready, I&rsquo;ll confirm which ones are still open. If none work,
-            we&rsquo;ll find one you like. First year of registration is
-            included; after that it renews for about $15/year directly with
-            the registrar.
-          </p>
-        </section>
-
-        {/* ── HOW IT WORKS ───────────────────────────────────────── */}
-        <section className="proposal-section">
-          <h2 className="proposal-section-title">How it works</h2>
-          <ol className="proposal-steps proposal-steps--how">
-            <li>
-              <strong>20-minute conversation.</strong> You tell me what
-              services to list and what photos you have. No photos? I
-              handle it.
-            </li>
-            <li>
-              <strong>I build it in 1–2 days.</strong> You review it and
-              tell me what to change.
-            </li>
-            <li>
-              <strong>It goes live.</strong> Your domain, your site, done.
-            </li>
-          </ol>
-        </section>
-
-        {/* ── PRICE ──────────────────────────────────────────────── */}
-        <section className="proposal-section proposal-section--math">
-          <p className="proposal-math-line">
-            <strong>$500. One time. No monthly fees.</strong>
-          </p>
-          <p className="proposal-math-sub">
-            That covers the website, your domain name, hosting setup, and
-            getting everything live. One brake job covers the cost of a
-            site that works for you year after year.
-          </p>
-        </section>
-
-        {/* ── Q&A (trimmed to 3) ─────────────────────────────────── */}
-        <section className="proposal-section">
-          <h2 className="proposal-section-title">Common questions</h2>
-
-          <div className="proposal-qa">
-            <div className="proposal-qa-item">
-              <p className="proposal-qa-q">I already have a Facebook page.</p>
-              <p className="proposal-qa-a">
-                Facebook reaches people who already follow you. A website
-                reaches the ones who don&rsquo;t know you exist yet — they&rsquo;re
-                searching Google, and that&rsquo;s where a website shows up.
-                They work together, not instead of each other.
-              </p>
-            </div>
-
-            <div className="proposal-qa-item">
-              <p className="proposal-qa-q">I have plenty of customers already.</p>
-              <p className="proposal-qa-a">
-                That&rsquo;s great — and that&rsquo;s the best time to set this
-                up, not when business slows down or a competitor opens nearby.
-                It costs nothing extra later, but takes weeks to build if you
-                wait until you need it.
-              </p>
-            </div>
-
-            <div className="proposal-qa-item">
-              <p className="proposal-qa-q">I had a website before and it didn&rsquo;t help.</p>
-              <p className="proposal-qa-a">
-                Most generic builders don&rsquo;t set things up for local search
-                — your address, phone, and hours need to be structured so Google
-                can read them, and the site needs to load fast on phones. I
-                handle both.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ── NEXT STEPS ─────────────────────────────────────────── */}
-        <section className="proposal-section">
-          <h2 className="proposal-section-title">Next step</h2>
-          <div className="proposal-next-steps">
-            <div className="proposal-next-step">
-              <p>
-                Call or text me and we&rsquo;ll set up 20 minutes to go
-                over the details. I&rsquo;ll confirm your domain is available
-                while we talk. If now isn&rsquo;t the right time, keep this
-                page — the offer stands whenever you&rsquo;re ready.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ── CONTACT ────────────────────────────────────────────── */}
-        <footer className="proposal-footer">
-          <div className="proposal-contact">
-            <strong className="proposal-contact-name">{sellerName}</strong>
-            {sellerAddress && <span>{sellerAddress}</span>}
-            <span>{sellerEmail}</span>
-            {sellerPhone && <span>{sellerPhone}</span>}
-          </div>
-        </footer>
-
-      </div>
+      <ProposalContent
+        name={biz.businessInfo.name}
+        address={biz.businessInfo.address}
+        domains={domains}
+        shortUrl={shortUrl}
+        qrImageUrl={qrImageUrl}
+        today={today}
+        sellerName={seller.sellerName}
+        sellerEmail={seller.sellerEmail}
+        sellerPhone={seller.sellerPhone}
+        sellerAddress={seller.sellerAddress}
+      />
     </>
   );
 }
