@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 import { getBusinessBySlug, saveBusiness } from "@/lib/db";
-import { createProspect, getProspect, findProspectByPhone, normalizePhone } from "@/lib/prospects";
+import { createProspect, getProspect, findProspectByPhone, normalizePhone, updateProspectGoogleData } from "@/lib/prospects";
 import { logAudit } from "@/lib/audit-log";
 import type { Business } from "@/lib/business-types";
 import type { ThemeName } from "@/types/site";
@@ -26,7 +26,7 @@ function prospectBusiness(
 
   return {
     slug,
-    category: "Auto Repair",
+    category: "Car repair and maintenance service",
     theme,
     businessInfo: {
       name,
@@ -171,6 +171,13 @@ export async function POST(req: NextRequest) {
   const state = (formData.get("state") as string)?.trim() ?? "";
   const zipCode = (formData.get("zip") as string)?.trim() ?? "";
 
+  // Google Places data
+  const googlePlaceId = (formData.get("googlePlaceId") as string)?.trim() ?? "";
+  const googleRating = formData.get("googleRating") ? parseFloat(formData.get("googleRating") as string) : null;
+  const googleReviewCount = formData.get("googleReviewCount") ? parseInt(formData.get("googleReviewCount") as string, 10) : 0;
+  const googleCategory = (formData.get("googleCategory") as string)?.trim() ?? "";
+  const googleMapsUrl = (formData.get("googleMapsUrl") as string)?.trim() ?? "";
+
   if (!name) {
     return NextResponse.json({ ok: false, error: "Name is required." });
   }
@@ -180,21 +187,38 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Could not generate slug." });
   }
 
-  // Check for existing
+  const googleData = {
+    googlePlaceId: googlePlaceId || undefined,
+    googleRating,
+    googleReviewCount,
+    googleCategory: googleCategory || undefined,
+    googleMapsUrl: googleMapsUrl || undefined,
+  };
+
+  // Check for existing by slug
   const [existingBiz, existingProspect] = await Promise.all([
     getBusinessBySlug(slug),
     getProspect(slug),
   ]);
 
   if (existingBiz || existingProspect) {
-    return NextResponse.json({ ok: false, exists: true, slug });
+    // Update existing prospect with Google data
+    const targetSlug = existingProspect?.slug ?? slug;
+    try {
+      await updateProspectGoogleData(targetSlug, googleData);
+    } catch { /* ignore if columns don't exist yet */ }
+    return NextResponse.json({ ok: true, updated: true, slug: targetSlug });
   }
 
   // Check duplicate phone
   if (phone && normalizePhone(phone).length >= 7) {
     const phoneMatch = await findProspectByPhone(phone);
     if (phoneMatch) {
-      return NextResponse.json({ ok: false, exists: true, slug: phoneMatch.slug });
+      // Update existing prospect with Google data
+      try {
+        await updateProspectGoogleData(phoneMatch.slug, googleData);
+      } catch { /* ignore if columns don't exist yet */ }
+      return NextResponse.json({ ok: true, updated: true, slug: phoneMatch.slug });
     }
   }
 
@@ -213,6 +237,11 @@ export async function POST(req: NextRequest) {
       address,
       status: "found",
       notes: [],
+      googlePlaceId: googleData.googlePlaceId,
+      googleRating: googleData.googleRating ?? undefined,
+      googleReviewCount: googleData.googleReviewCount || undefined,
+      googleCategory: googleData.googleCategory,
+      googleMapsUrl: googleData.googleMapsUrl,
       createdAt: now,
       updatedAt: now,
     });

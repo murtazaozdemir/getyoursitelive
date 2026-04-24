@@ -84,6 +84,30 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped, log };
   },
 
+  "add-google-fields-to-prospects": async () => {
+    const db = await getD1();
+    const cols = [
+      "google_place_id TEXT",
+      "google_rating REAL",
+      "google_review_count INTEGER",
+      "google_category TEXT",
+      "google_maps_url TEXT",
+    ];
+    let updated = 0;
+    const log: string[] = [];
+    for (const col of cols) {
+      const name = col.split(" ")[0];
+      try {
+        await db.prepare(`ALTER TABLE prospects ADD COLUMN ${col}`).run();
+        log.push(`Added column ${name}`);
+        updated++;
+      } catch {
+        log.push(`Column ${name} already exists, skipped`);
+      }
+    }
+    return { updated, skipped: cols.length - updated, log };
+  },
+
   // ── Add new migrations below this line ──────────────────────────────────────
 };
 

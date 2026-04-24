@@ -32,6 +32,11 @@ export interface Prospect {
   contactedBy?: string;
   contactedByName?: string;
   contactedAt?: string;
+  googlePlaceId?: string;
+  googleRating?: number;
+  googleReviewCount?: number;
+  googleCategory?: string;
+  googleMapsUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -57,6 +62,11 @@ interface ProspectRow {
   contacted_by: string | null;
   contacted_by_name: string | null;
   contacted_at: string | null;
+  google_place_id: string | null;
+  google_rating: number | null;
+  google_review_count: number | null;
+  google_category: string | null;
+  google_maps_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -78,6 +88,11 @@ function rowToProspect(row: ProspectRow): Prospect {
     contactedBy: row.contacted_by ?? undefined,
     contactedByName: row.contacted_by_name ?? undefined,
     contactedAt: row.contacted_at ?? undefined,
+    googlePlaceId: row.google_place_id ?? undefined,
+    googleRating: row.google_rating ?? undefined,
+    googleReviewCount: row.google_review_count ?? undefined,
+    googleCategory: row.google_category ?? undefined,
+    googleMapsUrl: row.google_maps_url ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -129,6 +144,28 @@ export async function findProspectByPhone(phone: string): Promise<Prospect | nul
   return row ? rowToProspect(row) : null;
 }
 
+/** Check which phones already exist in the DB. Returns set of normalized phones found. */
+export async function findExistingPhones(phones: string[]): Promise<Set<string>> {
+  const normalized = phones
+    .map(normalizePhone)
+    .filter((p) => p.length >= 7);
+  if (normalized.length === 0) return new Set();
+
+  const db = await getD1();
+  // D1 doesn't support large IN clauses well, batch in chunks of 50
+  const found = new Set<string>();
+  for (let i = 0; i < normalized.length; i += 50) {
+    const chunk = normalized.slice(i, i + 50);
+    const placeholders = chunk.map(() => "?").join(",");
+    const { results } = await db
+      .prepare(`SELECT phone_normalized FROM prospects WHERE phone_normalized IN (${placeholders})`)
+      .bind(...chunk)
+      .all<{ phone_normalized: string }>();
+    for (const r of results) found.add(r.phone_normalized);
+  }
+  return found;
+}
+
 // ---------------------------------------------------------------
 // Mutations
 // ---------------------------------------------------------------
@@ -150,8 +187,9 @@ export async function createProspect(prospect: Omit<Prospect, "shortId">): Promi
         domain1, domain2, domain3,
         proposal_sent_at, proposal_sent_by,
         contacted_by, contacted_by_name, contacted_at,
+        google_place_id, google_rating, google_review_count, google_category, google_maps_url,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       prospect.slug,
@@ -170,6 +208,11 @@ export async function createProspect(prospect: Omit<Prospect, "shortId">): Promi
       prospect.contactedBy ?? null,
       prospect.contactedByName ?? null,
       prospect.contactedAt ?? null,
+      prospect.googlePlaceId ?? null,
+      prospect.googleRating ?? null,
+      prospect.googleReviewCount ?? null,
+      prospect.googleCategory ?? null,
+      prospect.googleMapsUrl ?? null,
       prospect.createdAt ?? now,
       prospect.updatedAt ?? now,
     )
@@ -213,6 +256,50 @@ export async function updateProspect(slug: string, patch: Partial<Prospect>): Pr
   if ("phone" in patch && patch.phone !== undefined) {
     sets.push("phone_normalized = ?");
     values.push(normalizePhone(patch.phone));
+  }
+
+  values.push(slug);
+  await db
+    .prepare(`UPDATE prospects SET ${sets.join(", ")} WHERE slug = ?`)
+    .bind(...values)
+    .run();
+}
+
+export async function updateProspectGoogleData(
+  slug: string,
+  data: {
+    googlePlaceId?: string;
+    googleRating?: number | null;
+    googleReviewCount?: number;
+    googleCategory?: string;
+    googleMapsUrl?: string;
+  },
+): Promise<void> {
+  const db = await getD1();
+  const now = new Date().toISOString();
+
+  const sets: string[] = ["updated_at = ?"];
+  const values: unknown[] = [now];
+
+  if (data.googlePlaceId !== undefined) {
+    sets.push("google_place_id = ?");
+    values.push(data.googlePlaceId);
+  }
+  if (data.googleRating !== undefined) {
+    sets.push("google_rating = ?");
+    values.push(data.googleRating);
+  }
+  if (data.googleReviewCount !== undefined) {
+    sets.push("google_review_count = ?");
+    values.push(data.googleReviewCount);
+  }
+  if (data.googleCategory !== undefined) {
+    sets.push("google_category = ?");
+    values.push(data.googleCategory);
+  }
+  if (data.googleMapsUrl !== undefined) {
+    sets.push("google_maps_url = ?");
+    values.push(data.googleMapsUrl);
   }
 
   values.push(slug);

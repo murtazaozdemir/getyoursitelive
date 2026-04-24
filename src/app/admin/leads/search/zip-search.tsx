@@ -16,10 +16,10 @@ interface PlaceResult {
   _fromZip?: string;
 }
 
-type AddStatus = "idle" | "adding" | "added" | "exists" | "error";
+type AddStatus = "idle" | "adding" | "added" | "updated" | "exists" | "error";
 
 const CATEGORIES = [
-  { label: "Auto Repair", query: "auto repair" },
+  { label: "Car Repair & Maintenance", query: "auto repair" },
   { label: "Auto Body Shop", query: "auto body shop" },
   { label: "Car Detailing", query: "car detailing" },
   { label: "Tire Shop", query: "tire shop" },
@@ -285,6 +285,13 @@ export function ZipSearch() {
         formData.set("street", place.address);
       }
 
+      // Google Places data
+      formData.set("googlePlaceId", place.id);
+      if (place.rating != null) formData.set("googleRating", String(place.rating));
+      formData.set("googleReviewCount", String(place.reviewCount));
+      formData.set("googleCategory", place.category);
+      if (place.googleMapsUrl) formData.set("googleMapsUrl", place.googleMapsUrl);
+
       const res = await fetch("/api/places-search/add", {
         method: "POST",
         body: formData,
@@ -292,13 +299,13 @@ export function ZipSearch() {
 
       const data = (await res.json()) as {
         ok?: boolean;
-        exists?: boolean;
+        updated?: boolean;
         slug?: string;
         error?: string;
       };
 
-      if (data.exists) {
-        setAddStatuses((prev) => ({ ...prev, [place.id]: "exists" }));
+      if (data.ok && data.updated) {
+        setAddStatuses((prev) => ({ ...prev, [place.id]: "updated" }));
         if (data.slug) {
           setAddedSlugs((prev) => ({ ...prev, [place.id]: data.slug as string }));
         }
@@ -316,12 +323,61 @@ export function ZipSearch() {
     }
   }
 
+  // Check which results already exist in DB after search completes
+  const [existingPhones, setExistingPhones] = useState<Set<string>>(new Set());
+  const [checkedExisting, setCheckedExisting] = useState(false);
+
+  useEffect(() => {
+    if (results.length === 0 || searching) {
+      setExistingPhones(new Set());
+      setCheckedExisting(false);
+      return;
+    }
+
+    const phones = results.map((r) => r.phone).filter(Boolean);
+    if (phones.length === 0) { setCheckedExisting(true); return; }
+
+    fetch("/api/places-search/check-existing", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phones }),
+    })
+      .then((res) => res.json() as Promise<{ existing?: string[] }>)
+      .then((data) => {
+        setExistingPhones(new Set(data.existing ?? []));
+        setCheckedExisting(true);
+      })
+      .catch(() => setCheckedExisting(true));
+  }, [results, searching]);
+
+  const isExistingInDb = (place: PlaceResult) => {
+    const norm = place.phone.replace(/\D/g, "");
+    return norm.length >= 7 && existingPhones.has(norm);
+  };
+
+  async function handleAddAll() {
+    // Add new leads AND update existing ones with Google data
+    const toProcess = filtered.filter((p) => {
+      const status = addStatuses[p.id];
+      return status !== "added" && status !== "updated" && status !== "adding";
+    });
+
+    for (const place of toProcess) {
+      await handleAdd(place);
+    }
+  }
+
   const hasWebsite = (url: string) =>
     url && !url.includes("business.site") && !url.includes("google.com");
 
   const filtered = hideWithWebsite
     ? results.filter((p) => !hasWebsite(p.website))
     : results;
+
+  const processableCount = filtered.filter((p) => {
+    const status = addStatuses[p.id];
+    return status !== "added" && status !== "updated" && status !== "adding";
+  }).length;
 
   return (
     <div>
@@ -507,6 +563,15 @@ export function ZipSearch() {
                 </span>
               )}
             </h2>
+            {checkedExisting && processableCount > 0 && (
+              <button
+                className="admin-btn admin-btn--primary"
+                onClick={handleAddAll}
+                style={{ whiteSpace: "nowrap" }}
+              >
+                + Add / Update All ({processableCount})
+              </button>
+            )}
           </div>
 
           <div className="search-results-list" style={{ marginTop: 12 }}>
@@ -547,7 +612,7 @@ export function ZipSearch() {
                   </div>
 
                   <div className="search-result-actions">
-                    {status === "idle" && (
+                    {status === "idle" && !isExistingInDb(place) && (
                       <button
                         className="admin-btn admin-btn--primary"
                         onClick={() => handleAdd(place)}
@@ -556,9 +621,18 @@ export function ZipSearch() {
                         + Add as Lead
                       </button>
                     )}
+                    {status === "idle" && isExistingInDb(place) && (
+                      <button
+                        className="admin-btn admin-btn--ghost"
+                        onClick={() => handleAdd(place)}
+                        style={{ whiteSpace: "nowrap", color: "var(--color-warn, #d97706)" }}
+                      >
+                        Update in DB
+                      </button>
+                    )}
                     {status === "adding" && (
                       <button className="admin-btn admin-btn--ghost" disabled>
-                        Adding…
+                        {isExistingInDb(place) ? "Updating…" : "Adding…"}
                       </button>
                     )}
                     {status === "added" && (
@@ -570,13 +644,22 @@ export function ZipSearch() {
                         Added — View
                       </Link>
                     )}
-                    {status === "exists" && (
+                    {status === "updated" && (
+                      <Link
+                        href={`/admin/leads/${slug}`}
+                        className="admin-btn admin-btn--ghost"
+                        style={{ color: "var(--color-success, #16a34a)" }}
+                      >
+                        Updated — View
+                      </Link>
+                    )}
+                    {status === "exists" && slug && (
                       <Link
                         href={`/admin/leads/${slug}`}
                         className="admin-btn admin-btn--ghost"
                         style={{ color: "var(--color-warn, #d97706)" }}
                       >
-                        Already exists — View
+                        In Database — View
                       </Link>
                     )}
                     {status === "error" && (
