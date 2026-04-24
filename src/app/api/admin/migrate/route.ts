@@ -442,12 +442,32 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
   // ── Add new migrations below this line ──────────────────────────────────────
 };
 
-export async function GET() {
+export async function GET(req: Request) {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return NextResponse.json({ available: Object.keys(MIGRATIONS) });
+
+  const url = new URL(req.url);
+  const migration = url.searchParams.get("run");
+  if (!migration) {
+    return NextResponse.json({ available: Object.keys(MIGRATIONS) });
+  }
+
+  const fn = MIGRATIONS[migration];
+  if (!fn) {
+    return NextResponse.json(
+      { error: `Unknown migration: "${migration}". Available: ${Object.keys(MIGRATIONS).join(", ")}` },
+      { status: 404 },
+    );
+  }
+
+  try {
+    const result = await fn();
+    return NextResponse.json({ migration, ...result });
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
 }
 
 export async function POST(req: Request) {
