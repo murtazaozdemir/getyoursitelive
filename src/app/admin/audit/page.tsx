@@ -1,3 +1,4 @@
+export const runtime = "edge";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";

@@ -1,3 +1,4 @@
+export const runtime = "edge";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getProspect, PIPELINE_STAGES } from "@/lib/prospects";

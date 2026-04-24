@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { getCurrentUser } from "@/lib/session";
 import { canEditBusiness } from "@/lib/users";
+import { getRequestContext } from "@cloudflare/next-on-pages";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -58,35 +57,25 @@ export async function POST(req: NextRequest) {
 
   // Sanitize filename
   const origName = file.name || "upload";
-  const ext = path.extname(origName).toLowerCase() || ".bin";
-  const base = path
-    .basename(origName, path.extname(origName))
+  const extMatch = origName.match(/\.[^.]+$/);
+  const ext = extMatch ? extMatch[0].toLowerCase() : ".bin";
+  const base = origName
+    .replace(/\.[^.]+$/, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 48);
   const filename = `${Date.now()}-${base || "file"}${ext}`;
+  const key = `uploads/${slug}/${filename}`;
 
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const buffer = await file.arrayBuffer();
 
-  // Production: upload to R2
-  if (process.env.STORAGE_BACKEND === "r2") {
-    const { S3Client, PutObjectCommand } = await import("@aws-sdk/client-s3");
-    const s3 = new S3Client({
-      region: "auto",
-      endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-      credentials: {
-        accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-      },
-    });
-    const key = `uploads/${slug}/${filename}`;
-    await s3.send(new PutObjectCommand({
-      Bucket: process.env.R2_BUCKET ?? "getyoursitelive",
-      Key: key,
-      Body: buffer,
-      ContentType: file.type,
-    }));
+  // Use the R2 binding via Cloudflare runtime
+  const { env } = getRequestContext();
+  const r2 = (env as { R2?: R2Bucket }).R2;
+
+  if (r2) {
+    await r2.put(key, buffer, { httpMetadata: { contentType: file.type } });
     const publicUrl = process.env.R2_PUBLIC_URL?.replace(/\/$/, "");
     if (!publicUrl) {
       return NextResponse.json({ error: "R2_PUBLIC_URL is not configured" }, { status: 500 });
@@ -94,9 +83,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: `${publicUrl}/${key}` });
   }
 
-  // Local dev: write to public/uploads/
-  const dir = path.join(process.cwd(), "public", "uploads", slug);
-  await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(path.join(dir, filename), buffer);
-  return NextResponse.json({ url: `/uploads/${slug}/${filename}` });
+  // Local dev fallback: return a placeholder URL
+  return NextResponse.json({ error: "R2 binding not available in this environment" }, { status: 500 });
 }

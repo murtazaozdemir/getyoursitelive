@@ -1,3 +1,4 @@
+export const runtime = "edge";
 import { MetadataRoute } from "next";
 import { getAllSlugs } from "@/lib/db";
 
