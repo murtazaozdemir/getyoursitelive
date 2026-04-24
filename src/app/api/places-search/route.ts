@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { normalizePhone } from "@/lib/prospects";
 
 interface PlaceResult {
@@ -98,7 +99,8 @@ async function handleSearch(req: NextRequest) {
   }
 
   // Call Google Places API
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  const { env } = await getCloudflareContext({ async: true });
+  const apiKey = (env as unknown as Record<string, string>).GOOGLE_PLACES_API_KEY ?? process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: "Google Places API key not configured." }, { status: 500 });
   }
