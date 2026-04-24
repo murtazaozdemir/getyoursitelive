@@ -503,6 +503,7 @@ Every hardcoded string in the components has been moved into per-business JSON. 
 - [ ] Multi-language support (Spanish for NJ market)
 - [ ] Customer dashboard — shop owner can edit their own content
 - [ ] Stripe checkout to accept the $500 online (currently Venmo/cash)
+- [ ] Zip-code search feature (`/admin/leads/search`) — enter a zip code, query Google Places API for auto repair shops without websites, one-click add as leads. Requires Google Places API key. Expanding to NJ, CO, VA initially.
 
 ## Content / copy improvements ✅ ALL DONE (Phase 4)
 - [x] Hero headline now per-business via `hero.headline`

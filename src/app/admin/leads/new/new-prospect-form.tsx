@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import Link from "next/link";
 import { createProspectAction } from "@/app/admin/leads/actions";
+import { US_STATES } from "@/lib/us-states";
 
 const initialState = { ok: false as boolean, error: undefined as string | undefined };
 
@@ -15,7 +16,7 @@ function slugify(name: string) {
 
 const NOISE_WORDS = ["auto", "repair", "center", "shop", "garage", "service", "services", "automotive", "motors", "car", "cars"];
 
-function domainSuggestions(name: string): string[] {
+function domainSuggestions(name: string, stateAbbr: string): string[] {
   if (!name.trim()) return [];
 
   const base = slugify(name);
@@ -26,10 +27,11 @@ function domainSuggestions(name: string): string[] {
   const coreWords = words.filter((w) => !NOISE_WORDS.includes(slugify(w)));
   const core = coreWords.map(slugify).join("") || base;
 
+  const suffix = stateAbbr ? stateAbbr.toLowerCase() : "nj";
   const suggestions = [
     `${base}.com`,
     `${core}auto.com`,
-    `${base}nj.com`,
+    `${base}${suffix}.com`,
   ];
 
   // Deduplicate
@@ -39,8 +41,9 @@ function domainSuggestions(name: string): string[] {
 export function NewProspectForm() {
   const [state, formAction, isPending] = useActionState(createProspectAction, initialState);
   const [shopName, setShopName] = useState("");
+  const [selectedState, setSelectedState] = useState("NJ");
 
-  const domains = domainSuggestions(shopName);
+  const domains = domainSuggestions(shopName, selectedState);
 
   return (
     <form className="admin-section" action={formAction}>
@@ -131,14 +134,20 @@ export function NewProspectForm() {
 
         <label className="admin-field">
           <span className="admin-field-label">State</span>
-          <input
+          <select
             className="admin-input"
             name="state"
-            type="text"
-            placeholder="NJ"
-            defaultValue="NJ"
+            value={selectedState}
+            onChange={(e) => setSelectedState(e.target.value)}
             disabled={isPending}
-          />
+          >
+            <option value="">Select state</option>
+            {US_STATES.map((s) => (
+              <option key={s.abbr} value={s.abbr}>
+                {s.abbr} — {s.name}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label className="admin-field">

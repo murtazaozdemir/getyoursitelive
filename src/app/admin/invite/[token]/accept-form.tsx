@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { acceptInviteAction } from "./actions";
 import { PasswordInput } from "@/components/ui/password-input";
+import { US_STATES } from "@/lib/us-states";
 
 interface Props {
   token: string;
@@ -114,14 +115,19 @@ export function AcceptInviteForm({ token, email, role }: Props) {
         </label>
         <label className="admin-field">
           <span className="admin-field-label">State</span>
-          <input
+          <select
             className="admin-input"
             name="state"
-            type="text"
+            defaultValue=""
             disabled={isPending}
-            placeholder="NJ"
-            maxLength={2}
-          />
+          >
+            <option value="">Select state</option>
+            {US_STATES.map((s) => (
+              <option key={s.abbr} value={s.abbr}>
+                {s.abbr} — {s.name}
+              </option>
+            ))}
+          </select>
         </label>
         <label className="admin-field">
           <span className="admin-field-label">ZIP</span>
