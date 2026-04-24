@@ -37,29 +37,50 @@ async function zipCoords(zip: string): Promise<{ lat: number; lng: number } | nu
   return cached ?? null;
 }
 
+const US_STATES = new Set([
+  "AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL",
+  "IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE",
+  "NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD",
+  "TN","TX","UT","VT","VA","WA","WV","WI","WY",
+]);
+
+function looksLikeStreet(s: string): boolean {
+  return /^\d/.test(s) || /\b(st|ave|blvd|rd|dr|ln|ct|way|hwy|pkwy|suite|ste|tower)\b/i.test(s);
+}
+
 function parseAddress(address?: string) {
   if (!address?.trim()) return { city: "", state: "", zip: "" };
   const parts = address.split(",").map((s) => s.trim());
-  // Last part is always "STATE ZIP" (e.g. "DC 20012" or "NJ 07011")
-  const lastPart = parts[parts.length - 1] ?? "";
-  const stateZip = lastPart.split(/\s+/);
-  if (parts.length >= 3) {
-    // "123 Main St, City, ST 07011"
-    return {
-      city: parts[parts.length - 2] ?? "",
-      state: stateZip[0] ?? "",
-      zip: stateZip[1] ?? "",
-    };
+
+  // Walk backwards to find "STATE ZIP" part
+  let state = "";
+  let zip = "";
+  let statePartIndex = -1;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const tokens = parts[i].split(/\s+/);
+    // Look for a 2-letter state code
+    const stateToken = tokens.find((t) => US_STATES.has(t.toUpperCase()));
+    if (stateToken) {
+      state = stateToken.toUpperCase();
+      const zipToken = tokens.find((t) => /^\d{5}/.test(t));
+      zip = zipToken ?? "";
+      statePartIndex = i;
+      break;
+    }
   }
-  if (parts.length === 2) {
-    // "City, ST 07011" (no street)
-    return {
-      city: parts[0] ?? "",
-      state: stateZip[0] ?? "",
-      zip: stateZip[1] ?? "",
-    };
+
+  // City is the part just before the state part, but only if it doesn't look like a street
+  let city = "";
+  if (statePartIndex > 0) {
+    for (let i = statePartIndex - 1; i >= 0; i--) {
+      if (!looksLikeStreet(parts[i])) {
+        city = parts[i];
+        break;
+      }
+    }
   }
-  return { city: "", state: "", zip: "" };
+
+  return { city, state, zip };
 }
 
 function dataChips(p: Prospect) {
