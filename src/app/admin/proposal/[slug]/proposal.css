@@ -1,5 +1,10 @@
 /* ── Proposal print page ─────────────────────────────────────────────── */
 
+/* Hide admin shell chrome on proposal pages */
+.admin-header,
+.admin-footer { display: none !important; }
+.admin-main { padding: 0 !important; }
+
 /* Toolbar (screen only) */
 .proposal-toolbar {
   position: sticky;
