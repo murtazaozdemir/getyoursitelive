@@ -308,6 +308,21 @@
   text-align: center;
 }
 
+.proposal-demo-row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  margin-top: 0.75rem;
+}
+
+.proposal-demo-links {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 180px;
+}
+
 .proposal-demo-url {
   display: block;
   margin-top: 0.5rem;
@@ -317,6 +332,11 @@
   color: #1a6b50;
   word-break: break-all;
   text-decoration: none;
+}
+
+.proposal-demo-url--short {
+  font-size: 15pt;
+  margin-top: 0;
 }
 
 .proposal-demo-url:hover {
@@ -573,6 +593,18 @@
   .proposal-domains {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  /* QR code + link row */
+  .proposal-demo-row {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .proposal-qr {
+    background: #f9f9f9 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   /* Footer always starts fresh if near page bottom */

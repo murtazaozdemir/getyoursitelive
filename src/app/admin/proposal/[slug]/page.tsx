@@ -93,10 +93,14 @@ export default async function ProposalPage({
   ].filter(Boolean);
   const sellerAddress = sellerAddressParts.length > 0 ? sellerAddressParts.join(", ") : null;
 
-  const domains = domainSuggestions(biz.businessInfo.name);
+  // Use stored domains from DB, fall back to generated ones
+  const storedDomains = [prospect?.domain1, prospect?.domain2, prospect?.domain3].filter(Boolean) as string[];
+  const domains = storedDomains.length > 0 ? storedDomains : domainSuggestions(biz.businessInfo.name);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
   const previewUrl = `${siteUrl}/${slug}`;
   const shortUrl = prospect?.shortId ? `${siteUrl}/p/${prospect.shortId}` : null;
+  const qrUrl = shortUrl ?? previewUrl;
+  const qrImageUrl = `https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=${encodeURIComponent(qrUrl)}&choe=UTF-8`;
   const today = new Date().toLocaleDateString("en-US", {
     month: "long", day: "numeric", year: "numeric",
   });
@@ -253,20 +257,28 @@ export default async function ProposalPage({
         <section className="proposal-section proposal-section--demo">
           <h2 className="proposal-section-title">See your preview site</h2>
           <p className="proposal-body">
-            In the meantime, I&rsquo;ve already built and parked a complete
-            site for {name} at the address below. You can open it right now
-            and see exactly what it looks like — try it on your phone too.
-            Once your domain is registered, your site will move there and
-            this temporary address won&rsquo;t be used anymore.
+            I&rsquo;ve already built a complete site for {name}. You can
+            open it right now and see exactly what it looks like — try it
+            on your phone too. Scan the code below or type the short link.
           </p>
-          <a href={previewUrl} className="proposal-demo-url" target="_blank" rel="noreferrer">
-            {previewUrl}
-          </a>
-          {shortUrl && (
-            <p style={{ marginTop: 8, fontSize: 14, color: "var(--proposal-soft)" }}>
-              Short link (easier to type): <strong>{shortUrl}</strong>
-            </p>
-          )}
+          <div className="proposal-demo-row">
+            <div className="proposal-qr">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={qrImageUrl} alt="QR code to preview site" className="proposal-qr-code" />
+              <p className="proposal-qr-label">Scan to open your site</p>
+            </div>
+            <div className="proposal-demo-links">
+              {shortUrl && (
+                <a href={shortUrl} className="proposal-demo-url proposal-demo-url--short" target="_blank" rel="noreferrer">
+                  {shortUrl.replace("https://", "")}
+                </a>
+              )}
+              <p className="proposal-body proposal-body--small" style={{ marginTop: 4 }}>
+                Once your domain is registered, your site moves there
+                and this temporary address won&rsquo;t be needed anymore.
+              </p>
+            </div>
+          </div>
 
           <div className="proposal-screenshots">
             <img
