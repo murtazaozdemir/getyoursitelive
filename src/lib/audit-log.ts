@@ -1,15 +1,10 @@
 import "server-only";
-import { getStorage, readJson, writeJson } from "@/lib/storage";
+import { getD1 } from "@/lib/db-d1";
 
 /**
  * Audit log — tracks every content change made through the admin.
- *
- * Stored as audit-log.json (array of entries, newest first).
- * Capped at MAX_ENTRIES to prevent unbounded growth.
+ * Stored in D1 `audit_log` table.
  */
-
-const AUDIT_KEY = "audit-log.json";
-const MAX_ENTRIES = 1000;
 
 export interface AuditEntry {
   id: string;
@@ -21,32 +16,68 @@ export interface AuditEntry {
   detail?: string;      // free-text detail
 }
 
+interface AuditRow {
+  id: string;
+  at: string;
+  user_email: string;
+  user_name: string;
+  action: string;
+  slug: string | null;
+  detail: string | null;
+}
+
+function rowToEntry(row: AuditRow): AuditEntry {
+  return {
+    id: row.id,
+    at: row.at,
+    userEmail: row.user_email,
+    userName: row.user_name,
+    action: row.action,
+    slug: row.slug ?? undefined,
+    detail: row.detail ?? undefined,
+  };
+}
+
 export async function logAudit(entry: Omit<AuditEntry, "id" | "at">): Promise<void> {
   try {
-    const storage = await getStorage();
-    const existing = (await readJson<AuditEntry[]>(storage, AUDIT_KEY)) ?? [];
+    const db = getD1();
+    const id = `a-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const at = new Date().toISOString();
 
-    const newEntry: AuditEntry = {
-      id: `a-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-      at: new Date().toISOString(),
-      ...entry,
-    };
-
-    const updated = [newEntry, ...existing].slice(0, MAX_ENTRIES);
-    await writeJson(storage, AUDIT_KEY, updated);
+    await db
+      .prepare(
+        `INSERT INTO audit_log (id, at, user_email, user_name, action, slug, detail)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .bind(
+        id,
+        at,
+        entry.userEmail,
+        entry.userName,
+        entry.action,
+        entry.slug ?? null,
+        entry.detail ?? null,
+      )
+      .run();
   } catch {
     // Audit logging must never crash the main action
   }
 }
 
 export async function getAuditLog(limit = 200): Promise<AuditEntry[]> {
-  const storage = await getStorage();
-  const entries = (await readJson<AuditEntry[]>(storage, AUDIT_KEY)) ?? [];
-  return entries.slice(0, limit);
+  const db = getD1();
+  const { results } = await db
+    .prepare("SELECT * FROM audit_log ORDER BY at DESC LIMIT ?")
+    .bind(limit)
+    .all<AuditRow>();
+  return results.map(rowToEntry);
 }
 
 export async function getAuditLogForSlug(slug: string, limit = 100): Promise<AuditEntry[]> {
-  const storage = await getStorage();
-  const entries = (await readJson<AuditEntry[]>(storage, AUDIT_KEY)) ?? [];
-  return entries.filter((e) => e.slug === slug).slice(0, limit);
+  const db = getD1();
+  const { results } = await db
+    .prepare("SELECT * FROM audit_log WHERE slug = ? ORDER BY at DESC LIMIT ?")
+    .bind(slug, limit)
+    .all<AuditRow>();
+  return results.map(rowToEntry);
 }

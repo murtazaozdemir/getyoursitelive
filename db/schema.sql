@@ -120,8 +120,26 @@ CREATE INDEX IF NOT EXISTS idx_password_resets_user_id ON password_resets(user_i
 -- rate_limits
 -- ============================================================
 CREATE TABLE IF NOT EXISTS rate_limits (
-  key          TEXT PRIMARY KEY,
+  ip           TEXT PRIMARY KEY,
   attempts     INTEGER NOT NULL DEFAULT 0,
   window_start TEXT NOT NULL,
   locked_until TEXT
 );
+
+-- ============================================================
+-- bookings
+-- ============================================================
+CREATE TABLE IF NOT EXISTS bookings (
+  id           TEXT PRIMARY KEY,
+  slug         TEXT NOT NULL,
+  name         TEXT NOT NULL,
+  email        TEXT NOT NULL,
+  phone        TEXT NOT NULL,
+  service      TEXT NOT NULL,
+  date         TEXT NOT NULL,
+  message      TEXT NOT NULL DEFAULT '',
+  submitted_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_bookings_slug         ON bookings(slug);
+CREATE INDEX IF NOT EXISTS idx_bookings_submitted_at ON bookings(submitted_at DESC);

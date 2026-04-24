@@ -1,56 +1,43 @@
 import "server-only";
-import { getStorage, readJson, writeJson } from "@/lib/storage";
+import { getD1 } from "@/lib/db-d1";
 
-const TOKENS_KEY = "reset-tokens.json";
 const EXPIRY_MS = 60 * 60 * 1000; // 1 hour
 
-interface ResetToken {
+interface ResetTokenRow {
   token: string;
-  userId: string;
-  expiresAt: string; // ISO
-}
-
-async function loadTokens(): Promise<ResetToken[]> {
-  const storage = await getStorage();
-  const tokens = await readJson<ResetToken[]>(storage, TOKENS_KEY);
-  return tokens ?? [];
-}
-
-async function saveTokens(tokens: ResetToken[]): Promise<void> {
-  const storage = await getStorage();
-  await writeJson(storage, TOKENS_KEY, tokens);
+  user_id: string;
+  expires_at: string;
 }
 
 export async function createResetToken(userId: string): Promise<string> {
-  const tokens = await loadTokens();
+  const db = getD1();
   // Remove any existing tokens for this user
-  const filtered = tokens.filter((t) => t.userId !== userId);
+  await db.prepare("DELETE FROM password_resets WHERE user_id = ?").bind(userId).run();
 
   const token = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + EXPIRY_MS).toISOString();
 
-  filtered.push({ token, userId, expiresAt });
-  await saveTokens(filtered);
+  await db
+    .prepare("INSERT INTO password_resets (token, user_id, expires_at) VALUES (?, ?, ?)")
+    .bind(token, userId, expiresAt)
+    .run();
 
   return token;
 }
 
 export async function consumeResetToken(token: string): Promise<string | null> {
-  const tokens = await loadTokens();
-  const idx = tokens.findIndex((t) => t.token === token);
-  if (idx === -1) return null;
+  const db = getD1();
+  const row = await db
+    .prepare("SELECT * FROM password_resets WHERE token = ? LIMIT 1")
+    .bind(token)
+    .first<ResetTokenRow>();
 
-  const entry = tokens[idx];
-  if (new Date(entry.expiresAt) < new Date()) {
-    // Expired — clean it up
-    tokens.splice(idx, 1);
-    await saveTokens(tokens);
-    return null;
-  }
+  if (!row) return null;
 
-  // Consume (single-use)
-  tokens.splice(idx, 1);
-  await saveTokens(tokens);
+  // Always delete — whether expired or not
+  await db.prepare("DELETE FROM password_resets WHERE token = ?").bind(token).run();
 
-  return entry.userId;
+  if (new Date(row.expires_at) < new Date()) return null;
+
+  return row.user_id;
 }

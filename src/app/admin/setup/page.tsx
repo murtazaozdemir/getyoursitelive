@@ -3,76 +3,23 @@
 import { useState } from "react";
 import Link from "next/link";
 
-// ── Seed section ──────────────────────────────────────────────────────────────
+// ── DB info section ──────────────────────────────────────────────────────────
 
-function SeedSection() {
-  const [status, setStatus] = useState<"idle" | "running" | "done" | "error">("idle");
-  const [result, setResult] = useState<{ uploaded: number; total: number; failed: { key: string; error: string }[] } | null>(null);
-  const [errorMsg, setErrorMsg] = useState("");
-
-  async function handleSeed() {
-    setStatus("running");
-    try {
-      const res = await fetch("/api/admin/seed-storage", { method: "POST" });
-      const json = await res.json() as { error?: string; uploaded?: number; total?: number; failed?: { key: string; error: string }[] };
-      if (!res.ok) { setStatus("error"); setErrorMsg(json.error ?? "Unknown error"); return; }
-      setResult({ uploaded: json.uploaded ?? 0, total: json.total ?? 0, failed: json.failed ?? [] });
-      setStatus("done");
-    } catch (err) {
-      setStatus("error");
-      setErrorMsg(String(err));
-    }
-  }
-
+function DbInfoSection() {
   return (
     <section className="admin-section">
-      <h2 className="admin-section-title">Seed storage</h2>
+      <h2 className="admin-section-title">Database</h2>
       <p className="admin-section-lede">
-        One-time restore: copies businesses and prospects from the deployment
-        files into R2. Use after a fresh deploy or when setting up a new bucket.
+        Data is stored in Cloudflare D1 (SQLite). To seed or inspect the database,
+        use <code>wrangler d1</code> from the project root:
       </p>
+      <pre style={{ fontSize: 12, background: "var(--admin-bg-alt, #f5f5f5)", padding: "10px 14px", borderRadius: 6, overflowX: "auto", marginTop: 8 }}>
+{`# Apply schema
+npx wrangler d1 execute getyoursitelive-db --file=db/schema.sql
 
-      {status === "idle" && (
-        <button type="button" className="admin-btn admin-btn--primary" onClick={handleSeed}>
-          Seed R2 from deployment files
-        </button>
-      )}
-      {status === "running" && (
-        <p className="admin-lede" style={{ color: "var(--admin-text-soft)" }}>
-          Uploading… 10–20 seconds for 90+ files.
-        </p>
-      )}
-      {status === "done" && result && (
-        <div>
-          <p className="admin-lede" style={{ fontWeight: 600 }}>
-            ✓ {result.uploaded} of {result.total} files uploaded.
-          </p>
-          {result.failed.length > 0 && (
-            <details style={{ marginTop: 8 }}>
-              <summary style={{ cursor: "pointer", fontSize: 13, color: "var(--admin-text-soft)" }}>
-                {result.failed.length} failed
-              </summary>
-              <ul style={{ marginTop: 6, fontSize: 13 }}>
-                {result.failed.map((f) => (
-                  <li key={f.key}><code>{f.key}</code> — {f.error}</li>
-                ))}
-              </ul>
-            </details>
-          )}
-          <div style={{ marginTop: 14, display: "flex", gap: 8 }}>
-            <Link href="/admin" className="admin-btn admin-btn--ghost">Clients →</Link>
-            <Link href="/admin/leads" className="admin-btn admin-btn--ghost">Leads →</Link>
-          </div>
-        </div>
-      )}
-      {status === "error" && (
-        <div>
-          <p className="admin-lede" style={{ color: "var(--color-error, red)" }}>✗ {errorMsg}</p>
-          <button type="button" className="admin-btn admin-btn--ghost" onClick={() => setStatus("idle")}>
-            Try again
-          </button>
-        </div>
-      )}
+# Seed users / businesses
+npx wrangler d1 execute getyoursitelive-db --file=db/seed.sql`}
+      </pre>
     </section>
   );
 }
@@ -112,8 +59,7 @@ function MigrationsSection() {
         Bulk operations that modify existing production data live here — not in
         local scripts. Claude adds a migration function to{" "}
         <code>src/app/api/admin/migrate/route.ts</code>, deploys it, and you
-        run it once here. Runs against live R2 data, so it always sees the
-        current state regardless of what local files say.
+        run it once here. Runs against live D1 data.
       </p>
 
       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
@@ -185,12 +131,12 @@ export default function SetupPage() {
             <Link href="/admin" className="admin-back-link">← Admin</Link>
           </p>
           <h1 className="admin-h1">Setup</h1>
-          <p className="admin-lede">Storage tools and data migrations.</p>
+          <p className="admin-lede">Data migrations and database tools.</p>
         </div>
       </div>
 
       <MigrationsSection />
-      <SeedSection />
+      <DbInfoSection />
     </div>
   );
 }

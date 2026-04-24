@@ -4,7 +4,7 @@ import { createResetToken } from "@/lib/reset-tokens";
 import { checkRateLimit, recordFailedAttempt } from "@/lib/rate-limit";
 import { sendPasswordResetEmail } from "@/lib/email";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 function getClientIp(req: NextRequest): string {
   return (

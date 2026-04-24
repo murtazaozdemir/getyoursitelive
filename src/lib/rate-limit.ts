@@ -1,10 +1,10 @@
 import "server-only";
-import { getStorage, readJson, writeJson } from "@/lib/storage";
+import { getD1 } from "@/lib/db-d1";
 
 /**
  * IP-based rate limiting for the login endpoint.
  *
- * Stores attempt counts in storage under rate-limits/{ip}.json.
+ * Stores attempt counts in D1 `rate_limits` table.
  * After MAX_ATTEMPTS failures within the window, the IP is locked
  * for LOCKOUT_MINUTES minutes.
  */
@@ -13,16 +13,11 @@ const MAX_ATTEMPTS = 5;
 const WINDOW_MINUTES = 15;
 const LOCKOUT_MINUTES = 15;
 
-interface RateLimitRecord {
+interface RateLimitRow {
+  ip: string;
   attempts: number;
-  windowStart: string; // ISO
-  lockedUntil: string | null; // ISO or null
-}
-
-function keyFor(ip: string): string {
-  // Sanitize IP so it's a safe filename
-  const safe = ip.replace(/[^a-zA-Z0-9:._-]/g, "_");
-  return `rate-limits/${safe}.json`;
+  window_start: string;
+  locked_until: string | null;
 }
 
 export interface RateLimitResult {
@@ -34,74 +29,97 @@ export interface RateLimitResult {
 }
 
 export async function checkRateLimit(ip: string): Promise<RateLimitResult> {
-  const storage = await getStorage();
-  const key = keyFor(ip);
+  const db = getD1();
   const now = new Date();
 
-  let record = await readJson<RateLimitRecord>(storage, key);
+  const row = await db
+    .prepare("SELECT * FROM rate_limits WHERE ip = ? LIMIT 1")
+    .bind(ip)
+    .first<RateLimitRow>();
 
-  // No record — first attempt, allow
-  if (!record) {
+  if (!row) {
     return { allowed: true, remaining: MAX_ATTEMPTS - 1 };
   }
 
   // Currently locked?
-  if (record.lockedUntil) {
-    const lockExpiry = new Date(record.lockedUntil);
+  if (row.locked_until) {
+    const lockExpiry = new Date(row.locked_until);
     if (now < lockExpiry) {
-      return { allowed: false, lockedUntil: record.lockedUntil };
+      return { allowed: false, lockedUntil: row.locked_until };
     }
-    // Lock expired — reset and allow
-    await storage.delete(key);
+    // Lock expired — clean up and allow
+    await db.prepare("DELETE FROM rate_limits WHERE ip = ?").bind(ip).run();
     return { allowed: true, remaining: MAX_ATTEMPTS - 1 };
   }
 
   // Window expired? Reset silently
-  const windowStart = new Date(record.windowStart);
   const windowMs = WINDOW_MINUTES * 60 * 1000;
-  if (now.getTime() - windowStart.getTime() > windowMs) {
-    await storage.delete(key);
+  if (now.getTime() - new Date(row.window_start).getTime() > windowMs) {
+    await db.prepare("DELETE FROM rate_limits WHERE ip = ?").bind(ip).run();
     return { allowed: true, remaining: MAX_ATTEMPTS - 1 };
   }
 
-  const remaining = MAX_ATTEMPTS - record.attempts;
+  const remaining = MAX_ATTEMPTS - row.attempts;
   return { allowed: remaining > 0, remaining: Math.max(0, remaining) };
 }
 
 /** Call after a failed login attempt. Returns updated rate limit state. */
 export async function recordFailedAttempt(ip: string): Promise<RateLimitResult> {
-  const storage = await getStorage();
-  const key = keyFor(ip);
+  const db = getD1();
   const now = new Date();
-
-  let record = await readJson<RateLimitRecord>(storage, key);
-
-  if (!record) {
-    record = { attempts: 0, windowStart: now.toISOString(), lockedUntil: null };
-  }
-
-  // If window expired, reset
+  const nowIso = now.toISOString();
   const windowMs = WINDOW_MINUTES * 60 * 1000;
-  if (now.getTime() - new Date(record.windowStart).getTime() > windowMs) {
-    record = { attempts: 0, windowStart: now.toISOString(), lockedUntil: null };
+
+  const row = await db
+    .prepare("SELECT * FROM rate_limits WHERE ip = ? LIMIT 1")
+    .bind(ip)
+    .first<RateLimitRow>();
+
+  let attempts: number;
+  let windowStart: string;
+
+  if (!row || now.getTime() - new Date(row.window_start).getTime() > windowMs) {
+    // No record or window expired — start fresh
+    attempts = 1;
+    windowStart = nowIso;
+  } else {
+    attempts = row.attempts + 1;
+    windowStart = row.window_start;
   }
 
-  record.attempts += 1;
-
-  if (record.attempts >= MAX_ATTEMPTS) {
+  if (attempts >= MAX_ATTEMPTS) {
     const lockedUntil = new Date(now.getTime() + LOCKOUT_MINUTES * 60 * 1000).toISOString();
-    record.lockedUntil = lockedUntil;
-    await writeJson(storage, key, record);
+    await db
+      .prepare(
+        `INSERT INTO rate_limits (ip, attempts, window_start, locked_until)
+         VALUES (?, ?, ?, ?)
+         ON CONFLICT(ip) DO UPDATE SET
+           attempts = excluded.attempts,
+           window_start = excluded.window_start,
+           locked_until = excluded.locked_until`,
+      )
+      .bind(ip, attempts, windowStart, lockedUntil)
+      .run();
     return { allowed: false, lockedUntil };
   }
 
-  await writeJson(storage, key, record);
-  const remaining = MAX_ATTEMPTS - record.attempts;
-  return { allowed: true, remaining };
+  await db
+    .prepare(
+      `INSERT INTO rate_limits (ip, attempts, window_start, locked_until)
+       VALUES (?, ?, ?, NULL)
+       ON CONFLICT(ip) DO UPDATE SET
+         attempts = excluded.attempts,
+         window_start = excluded.window_start,
+         locked_until = NULL`,
+    )
+    .bind(ip, attempts, windowStart)
+    .run();
+
+  return { allowed: true, remaining: MAX_ATTEMPTS - attempts };
 }
 
 /** Call after a successful login to clear the record. */
 export async function clearRateLimit(ip: string): Promise<void> {
-  const storage = await getStorage();
-  await storage.delete(keyFor(ip));
+  const db = getD1();
+  await db.prepare("DELETE FROM rate_limits WHERE ip = ?").bind(ip).run();
 }

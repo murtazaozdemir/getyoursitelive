@@ -1,8 +1,7 @@
 import "server-only";
-import { getStorage, readJson, writeJson } from "@/lib/storage";
+import { getD1 } from "@/lib/db-d1";
 import type { UserRole } from "@/lib/users";
 
-const INVITATIONS_KEY = "invitations.json";
 const EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export interface Invitation {
@@ -16,27 +15,41 @@ export interface Invitation {
   createdAt: string; // ISO
 }
 
-async function loadInvitations(): Promise<Invitation[]> {
-  const storage = await getStorage();
-  const items = await readJson<Invitation[]>(storage, INVITATIONS_KEY);
-  return items ?? [];
+interface InvitationRow {
+  token: string;
+  email: string;
+  role: string;
+  owned_slug: string | null;
+  invited_by: string;
+  expires_at: string;
+  created_at: string;
 }
 
-async function saveInvitations(items: Invitation[]): Promise<void> {
-  const storage = await getStorage();
-  await writeJson(storage, INVITATIONS_KEY, items);
+function rowToInvitation(row: InvitationRow): Invitation {
+  return {
+    token: row.token,
+    email: row.email,
+    role: row.role as UserRole,
+    ownedSlug: row.owned_slug,
+    invitedBy: row.invited_by,
+    expiresAt: row.expires_at,
+    createdAt: row.created_at,
+  };
 }
 
 export async function listInvitations(): Promise<Invitation[]> {
-  const items = await loadInvitations();
-  const now = new Date();
-  // Return only non-expired invitations
-  return items.filter((i) => new Date(i.expiresAt) > now);
+  const db = getD1();
+  const now = new Date().toISOString();
+  const { results } = await db
+    .prepare("SELECT * FROM invitations WHERE expires_at > ? ORDER BY created_at DESC")
+    .bind(now)
+    .all<InvitationRow>();
+  return results.map(rowToInvitation);
 }
 
 export async function revokeInvitation(token: string): Promise<void> {
-  const items = await loadInvitations();
-  await saveInvitations(items.filter((i) => i.token !== token));
+  const db = getD1();
+  await db.prepare("DELETE FROM invitations WHERE token = ?").bind(token).run();
 }
 
 export async function createInvitation(input: {
@@ -45,54 +58,73 @@ export async function createInvitation(input: {
   ownedSlug?: string | null;
   invitedBy: string;
 }): Promise<Invitation> {
-  const items = await loadInvitations();
-
-  // Remove any existing invite for this email
-  const filtered = items.filter(
-    (i) => i.email.toLowerCase() !== input.email.toLowerCase()
-  );
-
+  const db = getD1();
+  const email = input.email.trim().toLowerCase();
   const now = new Date();
-  const invite: Invitation = {
-    token: crypto.randomUUID(),
-    email: input.email.trim().toLowerCase(),
+  const expiresAt = new Date(now.getTime() + EXPIRY_MS).toISOString();
+  const createdAt = now.toISOString();
+  const token = crypto.randomUUID();
+
+  // Remove any existing invite for this email first
+  await db.prepare("DELETE FROM invitations WHERE LOWER(email) = ?").bind(email).run();
+
+  await db
+    .prepare(
+      `INSERT INTO invitations (token, email, role, owned_slug, invited_by, expires_at, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .bind(
+      token,
+      email,
+      input.role,
+      input.ownedSlug ?? null,
+      input.invitedBy,
+      expiresAt,
+      createdAt,
+    )
+    .run();
+
+  return {
+    token,
+    email,
     role: input.role,
     ownedSlug: input.ownedSlug ?? null,
     invitedBy: input.invitedBy,
-    expiresAt: new Date(now.getTime() + EXPIRY_MS).toISOString(),
-    createdAt: now.toISOString(),
+    expiresAt,
+    createdAt,
   };
-
-  filtered.push(invite);
-  await saveInvitations(filtered);
-  return invite;
 }
 
 export async function getInvitation(token: string): Promise<Invitation | null> {
-  const items = await loadInvitations();
-  const invite = items.find((i) => i.token === token);
-  if (!invite) return null;
-  if (new Date(invite.expiresAt) < new Date()) {
-    // Expired — remove it
-    await saveInvitations(items.filter((i) => i.token !== token));
+  const db = getD1();
+  const row = await db
+    .prepare("SELECT * FROM invitations WHERE token = ? LIMIT 1")
+    .bind(token)
+    .first<InvitationRow>();
+
+  if (!row) return null;
+
+  if (new Date(row.expires_at) < new Date()) {
+    await db.prepare("DELETE FROM invitations WHERE token = ?").bind(token).run();
     return null;
   }
-  return invite;
+
+  return rowToInvitation(row);
 }
 
 export async function consumeInvitation(token: string): Promise<Invitation | null> {
-  const items = await loadInvitations();
-  const idx = items.findIndex((i) => i.token === token);
-  if (idx === -1) return null;
+  const db = getD1();
+  const row = await db
+    .prepare("SELECT * FROM invitations WHERE token = ? LIMIT 1")
+    .bind(token)
+    .first<InvitationRow>();
 
-  const invite = items[idx];
-  if (new Date(invite.expiresAt) < new Date()) {
-    items.splice(idx, 1);
-    await saveInvitations(items);
-    return null;
-  }
+  if (!row) return null;
 
-  items.splice(idx, 1);
-  await saveInvitations(items);
-  return invite;
+  // Always delete — whether expired or not
+  await db.prepare("DELETE FROM invitations WHERE token = ?").bind(token).run();
+
+  if (new Date(row.expires_at) < new Date()) return null;
+
+  return rowToInvitation(row);
 }

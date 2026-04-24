@@ -1,43 +1,81 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
-import { getStorage } from "@/lib/storage";
-import { readJson, writeJson } from "@/lib/storage";
+import { getD1 } from "@/lib/db-d1";
 import type { Business } from "@/lib/business-types";
+
+export const runtime = "edge";
 
 /**
  * POST /api/admin/migrate
  * Body: { migration: string }
  *
- * Runs a named migration against live production data (Blob).
+ * Runs a named migration against live D1 data.
  * Each migration reads the current state, applies a transform, writes back.
  * Safe to run multiple times — migrations are idempotent.
  *
  * Admin-only.
  */
 
-// ─── Register migrations here ────────────────────────────────────────────────
-// When Claude needs to bulk-modify existing data, add a migration function here,
-// deploy, then trigger it once from /admin/setup. Never touch local data files
-// for existing-record modifications — always go through here.
+interface BusinessRow {
+  slug: string;
+  content: string;
+}
 
 const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: number; log: string[] }>> = {
 
-  // Example (safe to run, adds nothing if field already exists):
   "ensure-category": async () => {
-    const storage = await getStorage();
-    const keys = (await storage.list("businesses")).filter((k) => k.endsWith(".json"));
-    let updated = 0, skipped = 0;
+    const db = getD1();
+    const { results } = await db
+      .prepare("SELECT slug, content FROM businesses")
+      .all<BusinessRow>();
+
+    let updated = 0;
+    let skipped = 0;
     const log: string[] = [];
 
-    for (const key of keys) {
-      const biz = await readJson<Business>(storage, key);
-      if (!biz) { log.push(`${key}: not found`); skipped++; continue; }
-
+    for (const row of results) {
+      const biz = JSON.parse(row.content) as Business;
       if (!biz.category) {
         const patched = { ...biz, category: "Auto Repair" };
-        await writeJson(storage, key, patched);
-        log.push(`${key}: set category = "Auto Repair"`);
+        await db
+          .prepare("UPDATE businesses SET category = ?, content = ? WHERE slug = ?")
+          .bind("Auto Repair", JSON.stringify(patched), row.slug)
+          .run();
+        log.push(`${row.slug}: set category = "Auto Repair"`);
+        updated++;
+      } else {
+        skipped++;
+      }
+    }
+
+    return { updated, skipped, log };
+  },
+
+  "fix-about-secondary-image": async () => {
+    const DARK_URL =
+      "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=1400";
+    const GOOD_URL =
+      "https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&w=1400";
+
+    const db = getD1();
+    const { results } = await db
+      .prepare("SELECT slug, content FROM businesses")
+      .all<BusinessRow>();
+
+    let updated = 0;
+    let skipped = 0;
+    const log: string[] = [];
+
+    for (const row of results) {
+      const biz = JSON.parse(row.content) as Business;
+      if (biz.about?.secondaryImage === DARK_URL) {
+        const patched = { ...biz, about: { ...biz.about, secondaryImage: GOOD_URL } };
+        await db
+          .prepare("UPDATE businesses SET content = ? WHERE slug = ?")
+          .bind(JSON.stringify(patched), row.slug)
+          .run();
+        log.push(`${row.slug}: replaced dark secondary image`);
         updated++;
       } else {
         skipped++;
@@ -48,41 +86,6 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
   },
 
   // ── Add new migrations below this line ──────────────────────────────────────
-  // Pattern:
-  //   "migration-name": async () => {
-  //     const storage = await getStorage();
-  //     // read businesses/prospects from storage
-  //     // apply your transform
-  //     // write back with writeJson(storage, key, patched)
-  //     return { updated, skipped, log };
-  //   },
-
-  // Fix dark secondary image in About section (pexels 3807517 renders nearly black)
-  "fix-about-secondary-image": async () => {
-    const DARK_URL = "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=1400";
-    const GOOD_URL = "https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&w=1400";
-    const storage = await getStorage();
-    const keys = (await storage.list("businesses")).filter((k) => k.endsWith(".json"));
-    let updated = 0, skipped = 0;
-    const log: string[] = [];
-
-    for (const key of keys) {
-      const biz = await readJson<Business>(storage, key);
-      if (!biz) { log.push(`${key}: not found`); skipped++; continue; }
-
-      if (biz.about?.secondaryImage === DARK_URL) {
-        const patched = { ...biz, about: { ...biz.about, secondaryImage: GOOD_URL } };
-        await writeJson(storage, key, patched);
-        log.push(`${key}: replaced dark secondary image`);
-        updated++;
-      } else {
-        skipped++;
-      }
-    }
-
-    return { updated, skipped, log };
-  },
-
 };
 
 export async function GET() {
@@ -109,7 +112,9 @@ export async function POST(req: Request) {
   const fn = MIGRATIONS[migration];
   if (!fn) {
     return NextResponse.json(
-      { error: `Unknown migration: "${migration}". Available: ${Object.keys(MIGRATIONS).join(", ")}` },
+      {
+        error: `Unknown migration: "${migration}". Available: ${Object.keys(MIGRATIONS).join(", ")}`,
+      },
       { status: 404 },
     );
   }

@@ -4,7 +4,7 @@ import { createSessionToken, setSessionCookie, REMEMBER_TTL_SECONDS, SESSION_TTL
 import { checkRateLimit, recordFailedAttempt, clearRateLimit } from "@/lib/rate-limit";
 import { logAudit } from "@/lib/audit-log";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 function getClientIp(req: NextRequest): string {
   return (

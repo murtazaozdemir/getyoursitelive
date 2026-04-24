@@ -1,6 +1,6 @@
 import "server-only";
 import bcrypt from "bcryptjs";
-import { getStorage, readJson, writeJson } from "@/lib/storage";
+import { getD1 } from "@/lib/db-d1";
 
 /**
  * User accounts for the admin module.
@@ -9,8 +9,7 @@ import { getStorage, readJson, writeJson } from "@/lib/storage";
  *   - "admin" — Murtaza. Sees and edits every business.
  *   - "owner" — A shop owner. Sees + edits only `ownedSlug`.
  *
- * Stored as a single JSON array at `users.json`. Passwords are bcrypt
- * hashes (cost 10) — never store plaintext.
+ * Stored in D1 `users` table. Passwords are bcrypt hashes (cost 10).
  */
 
 export type UserRole = "admin" | "owner";
@@ -20,7 +19,7 @@ export interface User {
   email: string;
   passwordHash: string;
   role: UserRole;
-  /** Legacy combined name — kept for backward compat. Prefer firstName + lastName. */
+  /** Combined display name (firstName + lastName). */
   name: string;
   firstName?: string | null;
   lastName?: string | null;
@@ -51,38 +50,84 @@ export interface SessionUser {
   createdAt?: string;
 }
 
-const USERS_KEY = "users.json";
+// ---------------------------------------------------------------
+// D1 row → User
+// ---------------------------------------------------------------
+
+interface UserRow {
+  id: string;
+  email: string;
+  password_hash: string;
+  role: string;
+  name: string;
+  first_name: string | null;
+  last_name: string | null;
+  owned_slug: string | null;
+  phone: string | null;
+  street: string | null;
+  city: string | null;
+  zip: string | null;
+  state: string | null;
+  created_at: string;
+}
+
+function rowToUser(row: UserRow): User {
+  return {
+    id: row.id,
+    email: row.email,
+    passwordHash: row.password_hash,
+    role: row.role as UserRole,
+    name: row.name,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    ownedSlug: row.owned_slug,
+    phone: row.phone,
+    street: row.street,
+    city: row.city,
+    zip: row.zip,
+    state: row.state,
+    createdAt: row.created_at,
+  };
+}
 
 // ---------------------------------------------------------------
 // Queries
 // ---------------------------------------------------------------
 
-async function loadUsers(): Promise<User[]> {
-  const storage = await getStorage();
-  const users = await readJson<User[]>(storage, USERS_KEY);
-  return users ?? [];
-}
-
 export async function findUserByEmail(email: string): Promise<User | null> {
-  const users = await loadUsers();
+  const db = getD1();
   const normalized = email.trim().toLowerCase();
-  return users.find((u) => u.email.toLowerCase() === normalized) ?? null;
+  const row = await db
+    .prepare("SELECT * FROM users WHERE LOWER(email) = ? LIMIT 1")
+    .bind(normalized)
+    .first<UserRow>();
+  return row ? rowToUser(row) : null;
 }
 
 export async function findUserById(id: string): Promise<User | null> {
-  const users = await loadUsers();
-  return users.find((u) => u.id === id) ?? null;
+  const db = getD1();
+  const row = await db
+    .prepare("SELECT * FROM users WHERE id = ? LIMIT 1")
+    .bind(id)
+    .first<UserRow>();
+  return row ? rowToUser(row) : null;
 }
 
 export async function findOwnerBySlug(slug: string): Promise<SessionUser | null> {
-  const users = await loadUsers();
-  const found = users.find((u) => u.role === "owner" && u.ownedSlug === slug);
-  return found ? toSessionUser(found) : null;
+  const db = getD1();
+  const row = await db
+    .prepare("SELECT * FROM users WHERE owned_slug = ? AND role = 'owner' LIMIT 1")
+    .bind(slug)
+    .first<UserRow>();
+  return row ? toSessionUser(rowToUser(row)) : null;
 }
 
 export async function listUsers(): Promise<SessionUser[]> {
-  const users = await loadUsers();
-  return users.map(toSessionUser);
+  const db = getD1();
+  const { results } = await db
+    .prepare("SELECT * FROM users ORDER BY created_at DESC")
+    .all<UserRow>();
+  return results.map((r) => toSessionUser(rowToUser(r)));
 }
 
 // ---------------------------------------------------------------
@@ -113,7 +158,7 @@ export async function verifyCredentials(
 }
 
 // ---------------------------------------------------------------
-// Mutations (used by admin user-management screen, future)
+// Mutations
 // ---------------------------------------------------------------
 
 export async function createUser(input: {
@@ -128,91 +173,142 @@ export async function createUser(input: {
   zip?: string | null;
   state?: string | null;
 }): Promise<User> {
-  const users = await loadUsers();
+  const db = getD1();
   const normalized = input.email.trim().toLowerCase();
 
-  if (users.some((u) => u.email.toLowerCase() === normalized)) {
-    throw new Error(`User with email ${input.email} already exists`);
-  }
+  const existing = await db
+    .prepare("SELECT id FROM users WHERE LOWER(email) = ? LIMIT 1")
+    .bind(normalized)
+    .first<{ id: string }>();
+  if (existing) throw new Error(`User with email ${input.email} already exists`);
+
   if (input.role === "owner" && !input.ownedSlug) {
     throw new Error("Owners must have an ownedSlug");
   }
 
-  const newUser: User = {
-    id: `u-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  const id = `u-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const passwordHash = await bcrypt.hash(input.password, 10);
+  const now = new Date().toISOString();
+  const name = input.name;
+  const ownedSlug = input.role === "owner" ? (input.ownedSlug ?? null) : null;
+
+  await db
+    .prepare(
+      `INSERT INTO users (
+        id, email, password_hash, role, name,
+        first_name, last_name, owned_slug,
+        phone, street, city, zip, state, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .bind(
+      id,
+      normalized,
+      passwordHash,
+      input.role,
+      name,
+      null,
+      null,
+      ownedSlug,
+      input.phone ?? null,
+      input.street ?? null,
+      input.city ?? null,
+      input.zip ?? null,
+      input.state ?? null,
+      now,
+    )
+    .run();
+
+  return {
+    id,
     email: normalized,
-    passwordHash: await bcrypt.hash(input.password, 10),
+    passwordHash,
     role: input.role,
-    name: input.name,
-    ownedSlug: input.role === "owner" ? input.ownedSlug ?? null : null,
+    name,
+    firstName: null,
+    lastName: null,
+    ownedSlug,
     phone: input.phone ?? null,
     street: input.street ?? null,
     city: input.city ?? null,
     zip: input.zip ?? null,
     state: input.state ?? null,
-    createdAt: new Date().toISOString(),
+    createdAt: now,
   };
-
-  users.push(newUser);
-  const storage = await getStorage();
-  await writeJson(storage, USERS_KEY, users);
-
-  return newUser;
 }
 
 export async function updateUserPassword(id: string, newPassword: string): Promise<void> {
-  const users = await loadUsers();
-  const idx = users.findIndex((u) => u.id === id);
-  if (idx === -1) throw new Error(`No user with id ${id}`);
-
-  users[idx].passwordHash = await bcrypt.hash(newPassword, 10);
-  const storage = await getStorage();
-  await writeJson(storage, USERS_KEY, users);
+  const db = getD1();
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+  const { meta } = await db
+    .prepare("UPDATE users SET password_hash = ? WHERE id = ?")
+    .bind(passwordHash, id)
+    .run();
+  if (meta.changes === 0) throw new Error(`No user with id ${id}`);
 }
 
 export async function updateUserEmail(id: string, newEmail: string): Promise<void> {
-  const users = await loadUsers();
-  const idx = users.findIndex((u) => u.id === id);
-  if (idx === -1) throw new Error(`No user with id ${id}`);
-
+  const db = getD1();
   const normalized = newEmail.trim().toLowerCase();
-  if (users.some((u) => u.id !== id && u.email.toLowerCase() === normalized)) {
-    throw new Error(`Email ${newEmail} is already in use`);
-  }
 
-  users[idx].email = normalized;
-  const storage = await getStorage();
-  await writeJson(storage, USERS_KEY, users);
+  const conflict = await db
+    .prepare("SELECT id FROM users WHERE LOWER(email) = ? AND id != ? LIMIT 1")
+    .bind(normalized, id)
+    .first<{ id: string }>();
+  if (conflict) throw new Error(`Email ${newEmail} is already in use`);
+
+  const { meta } = await db
+    .prepare("UPDATE users SET email = ? WHERE id = ?")
+    .bind(normalized, id)
+    .run();
+  if (meta.changes === 0) throw new Error(`No user with id ${id}`);
 }
 
 export async function updateUserProfile(
   id: string,
-  fields: { firstName: string; lastName: string; phone?: string; street?: string; city?: string; zip?: string; state?: string },
+  fields: {
+    firstName: string;
+    lastName: string;
+    phone?: string;
+    street?: string;
+    city?: string;
+    zip?: string;
+    state?: string;
+  },
 ): Promise<void> {
-  const users = await loadUsers();
-  const idx = users.findIndex((u) => u.id === id);
-  if (idx === -1) throw new Error(`No user with id ${id}`);
+  const db = getD1();
+  const firstName = fields.firstName.trim();
+  const lastName = fields.lastName.trim();
+  const name = [firstName, lastName].filter(Boolean).join(" ");
 
-  users[idx].firstName = fields.firstName.trim();
-  users[idx].lastName = fields.lastName.trim();
-  users[idx].name = [fields.firstName.trim(), fields.lastName.trim()].filter(Boolean).join(" ");
-  users[idx].phone = fields.phone?.trim() || null;
-  users[idx].street = fields.street?.trim() || null;
-  users[idx].city = fields.city?.trim() || null;
-  users[idx].zip = fields.zip?.trim() || null;
-  users[idx].state = fields.state?.trim() || null;
-
-  const storage = await getStorage();
-  await writeJson(storage, USERS_KEY, users);
+  const { meta } = await db
+    .prepare(
+      `UPDATE users SET
+        first_name = ?, last_name = ?, name = ?,
+        phone = ?, street = ?, city = ?, zip = ?, state = ?
+       WHERE id = ?`,
+    )
+    .bind(
+      firstName,
+      lastName,
+      name,
+      fields.phone?.trim() || null,
+      fields.street?.trim() || null,
+      fields.city?.trim() || null,
+      fields.zip?.trim() || null,
+      fields.state?.trim() || null,
+      id,
+    )
+    .run();
+  if (meta.changes === 0) throw new Error(`No user with id ${id}`);
 }
 
 export async function deleteUser(id: string): Promise<void> {
-  const users = await loadUsers();
-  const filtered = users.filter((u) => u.id !== id);
-  if (filtered.length === users.length) throw new Error(`No user with id ${id}`);
-
-  const storage = await getStorage();
-  await writeJson(storage, USERS_KEY, filtered);
+  const db = getD1();
+  const { meta } = await db
+    .prepare("DELETE FROM users WHERE id = ?")
+    .bind(id)
+    .run();
+  if (meta.changes === 0) throw new Error(`No user with id ${id}`);
 }
 
 // ---------------------------------------------------------------
