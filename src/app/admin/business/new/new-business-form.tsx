@@ -11,7 +11,7 @@ const THEMES: ThemeName[] = ["industrial", "modern", "luxury", "friendly"];
 function blankBusiness(slug: string, name: string, theme: ThemeName): Business {
   return {
     slug,
-    category: "Auto Repair",
+    category: "Car repair and maintenance service",
     theme,
     businessInfo: {
       name,

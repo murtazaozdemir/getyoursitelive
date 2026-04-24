@@ -64,9 +64,9 @@ export interface HoursSchedule {
 export interface Business {
   slug: string;
   /**
-   * Business category. "Auto Repair" for standard mechanic shops.
-   * Other values ("Auto Body", "Tire Shop", "Auto Sales & Repair",
-   * "Used Car Dealer") are shown in the admin but excluded from the
+   * Business category. Uses exact Google Maps naming, e.g.
+   * "Car repair and maintenance service". Other categories are shown
+   * in the admin but excluded from the
    * auto repair pipeline.
    */
   category: string;

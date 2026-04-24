@@ -34,7 +34,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         {/* Content */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ fontSize: 16, color: "#e2a84b", letterSpacing: "0.15em", textTransform: "uppercase", display: "flex" }}>
-            {biz?.category ?? "Auto Repair"}
+            {biz?.category ?? "Car repair and maintenance service"}
           </div>
           <div style={{ fontSize: 72, fontWeight: 700, color: "#ffffff", lineHeight: 1.05, display: "flex" }}>
             {name}

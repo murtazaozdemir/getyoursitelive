@@ -38,7 +38,7 @@ function prospectBusiness(
 
   return {
     slug,
-    category: "Auto Repair",
+    category: "Car repair and maintenance service",
     theme,
     businessInfo: {
       name,

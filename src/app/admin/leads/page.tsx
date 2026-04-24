@@ -113,7 +113,7 @@ export default async function LeadsPage({
   // Enrich with parsed address + category
   const enriched = active.map((p) => {
     const { city, state, zip } = parseAddress(p.address);
-    const category = bizBySlug[p.slug]?.category ?? "Auto Repair";
+    const category = bizBySlug[p.slug]?.category ?? "Car repair and maintenance service";
     return { ...p, _city: city, _state: state, _zip: zip, _category: category };
   });
 

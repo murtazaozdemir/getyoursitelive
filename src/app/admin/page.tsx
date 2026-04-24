@@ -48,7 +48,7 @@ function BizCard({
 }) {
   const hasAddress = !!biz.address?.trim();
   const anyDomain = prospect?.domain1?.trim() || prospect?.domain2?.trim() || prospect?.domain3?.trim();
-  const isAutoRepair = !biz.category || biz.category === "Auto Repair";
+  const isAutoRepair = !biz.category || biz.category === "Car repair and maintenance service";
 
   return (
     <li className="admin-biz-card">
@@ -174,10 +174,10 @@ export default async function AdminDashboard({
     return sortDir === "asc" ? cmp : -cmp;
   });
 
-  const autoRepair = sorted.filter((b) => !b.category || b.category === "Auto Repair");
-  const other = sorted.filter((b) => b.category && b.category !== "Auto Repair");
+  const autoRepair = sorted.filter((b) => !b.category || b.category === "Car repair and maintenance service");
+  const other = sorted.filter((b) => b.category && b.category !== "Car repair and maintenance service");
 
-  const totalClients = clients.filter((b) => !b.category || b.category === "Auto Repair").length;
+  const totalClients = clients.filter((b) => !b.category || b.category === "Car repair and maintenance service").length;
 
   return (
     <div className="admin-page">
@@ -187,8 +187,8 @@ export default async function AdminDashboard({
           <h1 className="admin-h1">Clients</h1>
           <p className="admin-lede">
             {totalClients} paying {totalClients === 1 ? "client" : "clients"}.
-            {clients.filter((b) => b.category && b.category !== "Auto Repair").length > 0 && (
-              <> {clients.filter((b) => b.category && b.category !== "Auto Repair").length} other businesses below.</>
+            {clients.filter((b) => b.category && b.category !== "Car repair and maintenance service").length > 0 && (
+              <> {clients.filter((b) => b.category && b.category !== "Car repair and maintenance service").length} other businesses below.</>
             )}
             {" "}Leads become clients once marked Paid in the pipeline.
           </p>

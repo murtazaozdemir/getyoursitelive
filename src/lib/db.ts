@@ -94,7 +94,7 @@ export async function saveBusiness(business: Business): Promise<void> {
     .bind(
       business.slug,
       business.businessInfo.name,
-      business.category ?? "Auto Repair",
+      business.category ?? "Car repair and maintenance service",
       business.theme ?? "modern",
       JSON.stringify(business),
       now,

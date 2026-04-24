@@ -98,7 +98,7 @@ export async function generateMetadata({
 
   const { name, phone, address, tagline } = biz.businessInfo;
   const city = cityFromAddress(address);
-  const category = biz.category ?? "Auto Repair";
+  const category = biz.category ?? "Car repair and maintenance service";
   const pageUrl = `${BASE_URL}/${slug}`;
 
   const title = `${category} in ${city} | ${name}`;
