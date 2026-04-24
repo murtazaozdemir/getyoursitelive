@@ -22,6 +22,7 @@ export interface Prospect {
   name: string;
   phone: string;
   address: string;
+  state?: string;
   status: ProspectStatus;
   notes: ProspectNote[];
   domain1?: string;
@@ -53,6 +54,7 @@ interface ProspectRow {
   phone: string;
   phone_normalized: string;
   address: string;
+  state: string | null;
   status: string;
   notes: string;
   domain1: string | null;
@@ -80,6 +82,7 @@ function rowToProspect(row: ProspectRow): Prospect {
     name: row.name,
     phone: row.phone,
     address: row.address,
+    state: row.state ?? undefined,
     status: row.status as ProspectStatus,
     notes: JSON.parse(row.notes) as ProspectNote[],
     domain1: row.domain1 ?? undefined,
@@ -186,14 +189,14 @@ export async function createProspect(prospect: Omit<Prospect, "shortId">): Promi
   await db
     .prepare(
       `INSERT INTO prospects (
-        slug, short_id, name, phone, phone_normalized, address, status, notes,
+        slug, short_id, name, phone, phone_normalized, address, state, status, notes,
         domain1, domain2, domain3,
         proposal_sent_at, proposal_sent_by,
         contacted_by, contacted_by_name, contacted_at,
         website,
         google_place_id, google_rating, google_review_count, google_category, google_maps_url,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       prospect.slug,
@@ -202,6 +205,7 @@ export async function createProspect(prospect: Omit<Prospect, "shortId">): Promi
       prospect.phone,
       normalizePhone(prospect.phone),
       prospect.address,
+      prospect.state ?? null,
       prospect.status,
       JSON.stringify(prospect.notes),
       prospect.domain1 ?? null,
@@ -236,6 +240,7 @@ export async function updateProspect(slug: string, patch: Partial<Prospect>): Pr
     name: "name",
     phone: "phone",
     address: "address",
+    state: "state",
     status: "status",
     notes: "notes",
     domain1: "domain1",
@@ -273,6 +278,7 @@ export async function updateProspect(slug: string, patch: Partial<Prospect>): Pr
 export async function updateProspectGoogleData(
   slug: string,
   data: {
+    state?: string;
     website?: string;
     googlePlaceId?: string;
     googleRating?: number | null;
@@ -287,6 +293,10 @@ export async function updateProspectGoogleData(
   const sets: string[] = ["updated_at = ?"];
   const values: unknown[] = [now];
 
+  if (data.state !== undefined) {
+    sets.push("state = ?");
+    values.push(data.state || null);
+  }
   if (data.website !== undefined) {
     sets.push("website = ?");
     values.push(data.website || null);

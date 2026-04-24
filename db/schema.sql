@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS prospects (
   phone             TEXT NOT NULL DEFAULT '',
   phone_normalized  TEXT NOT NULL DEFAULT '',  -- digits only for fast phone lookups
   address           TEXT NOT NULL DEFAULT '',
+  state             TEXT,
   status            TEXT NOT NULL DEFAULT 'found'
                       CHECK(status IN ('found','contacted','interested','paid','delivered')),
   notes             TEXT NOT NULL DEFAULT '[]',  -- JSON array

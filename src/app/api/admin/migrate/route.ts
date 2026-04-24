@@ -125,15 +125,15 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     const db = await getD1();
     const { results } = await db
       .prepare(
-        `SELECT slug, name, address, domain1, domain2, domain3
+        `SELECT slug, name, address, state, domain1, domain2, domain3
          FROM prospects
          WHERE (domain1 IS NULL OR domain1 = '')
-         ORDER BY created_at DESC
+         ORDER BY state ASC, created_at DESC
          LIMIT 100`,
       )
-      .all<{ slug: string; name: string; address: string; domain1: string | null; domain2: string | null; domain3: string | null }>();
+      .all<{ slug: string; name: string; address: string; state: string | null; domain1: string | null; domain2: string | null; domain3: string | null }>();
 
-    const log = results.map((r) => `${r.slug} | ${r.name} | ${r.address}`);
+    const log = results.map((r) => `${r.slug} | ${r.name} | ${r.state ?? "?"} | ${r.address}`);
     return { updated: 0, skipped: results.length, log };
   },
 
@@ -201,6 +201,52 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
       updated++;
     }
     return { updated, skipped: 0, log };
+  },
+
+  "add-state-column": async () => {
+    const db = await getD1();
+    const log: string[] = [];
+
+    // 1. Add the column
+    try {
+      await db.prepare("ALTER TABLE prospects ADD COLUMN state TEXT").run();
+      log.push("Added column state");
+    } catch {
+      log.push("Column state already exists, skipped");
+    }
+
+    // 2. Backfill from address — parse "City, ST ZIP" or "City, ST"
+    const US_STATES = new Set([
+      "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
+      "KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
+      "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT",
+      "VA","WA","WV","WI","WY","DC",
+    ]);
+
+    const { results } = await db
+      .prepare("SELECT slug, address FROM prospects WHERE state IS NULL AND address != ''")
+      .all<{ slug: string; address: string }>();
+
+    let updated = 0;
+    let skipped = 0;
+
+    for (const row of results) {
+      // Try to match ", ST ZIP" or ", ST" at end of address
+      const match = row.address.match(/,\s*([A-Z]{2})\s*\d{0,5}\s*$/);
+      if (match && US_STATES.has(match[1])) {
+        await db
+          .prepare("UPDATE prospects SET state = ?, updated_at = ? WHERE slug = ?")
+          .bind(match[1], new Date().toISOString(), row.slug)
+          .run();
+        log.push(`${row.slug}: state = ${match[1]}`);
+        updated++;
+      } else {
+        log.push(`${row.slug}: could not parse state from "${row.address}"`);
+        skipped++;
+      }
+    }
+
+    return { updated, skipped, log };
   },
 
   // ── Add new migrations below this line ──────────────────────────────────────
