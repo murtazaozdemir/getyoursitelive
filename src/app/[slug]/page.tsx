@@ -1,19 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getBusinessBySlug, getAllSlugs } from "@/lib/db";
+import { getBusinessBySlug } from "@/lib/db";
 import { BusinessProvider } from "@/lib/business-context";
 import { HomePage } from "@/components/site/home-page";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
 
-// ---------------------------------------------------------------
-// Static generation: pre-render all known business slugs at build time
-// ---------------------------------------------------------------
-
-export async function generateStaticParams() {
-  const slugs = await getAllSlugs();
-  return slugs.map((slug) => ({ slug }));
-}
+// All business pages are server-rendered on demand (no static generation).
+// Cloudflare Pages does not support ISR, and D1 bindings are only available
+// at request time — not during the build step.
+export const dynamic = "force-dynamic";
 
 // ---------------------------------------------------------------
 // Helpers
