@@ -101,6 +101,7 @@ export default async function LeadsPage({
   const filterState = params.filterState ?? "";
   const filterZip = params.filterZip ?? "";
   const filterCategory = params.filterCategory ?? "";
+  const filterData = params.filterData ?? "";
   const sortBy = (params.sortBy ?? "createdAt") as SortKey;
   const sortDir = (params.sortDir === "asc" ? "asc" : "desc") as "asc" | "desc";
 
@@ -130,6 +131,15 @@ export default async function LeadsPage({
     if (filterState && p._state.toUpperCase() !== filterState.toUpperCase()) return false;
     if (filterZip && p._zip !== filterZip) return false;
     if (filterCategory && p._category !== filterCategory) return false;
+    if (filterData) {
+      const anyDomain = p.domain1?.trim() || p.domain2?.trim() || p.domain3?.trim();
+      const allDomains = p.domain1?.trim() && p.domain2?.trim() && p.domain3?.trim();
+      if (filterData === "domains-missing" && anyDomain) return false;
+      if (filterData === "domains-incomplete" && (!anyDomain || allDomains)) return false;
+      if (filterData === "has-domains" && !allDomains) return false;
+      if (filterData === "no-website" && p.website?.trim()) return false;
+      if (filterData === "has-website" && !p.website?.trim()) return false;
+    }
     return true;
   });
 
@@ -185,6 +195,7 @@ export default async function LeadsPage({
 
       <FilterSortBar
         showStatus
+        showDataFilter
         statuses={activeStatuses.map((s) => ({ value: s.status, label: s.label }))}
         cities={allCities}
         states={allStates}
@@ -195,6 +206,7 @@ export default async function LeadsPage({
         filterState={filterState}
         filterZip={filterZip}
         filterCategory={filterCategory}
+        filterData={filterData}
         sortBy={sortBy}
         sortDir={sortDir}
       />

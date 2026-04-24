@@ -5,6 +5,7 @@ import { useCallback } from "react";
 
 export interface FilterBarConfig {
   showStatus?: boolean;
+  showDataFilter?: boolean;
   statuses?: { value: string; label: string }[];
   cities?: string[];
   states?: string[];
@@ -16,6 +17,7 @@ export interface FilterBarConfig {
   filterState?: string;
   filterZip?: string;
   filterCategory?: string;
+  filterData?: string;
   sortBy?: string;
   sortDir?: string;
 }
@@ -61,7 +63,8 @@ export function FilterSortBar(config: FilterBarConfig) {
     config.filterCity ||
     config.filterState ||
     config.filterZip ||
-    config.filterCategory;
+    config.filterCategory ||
+    config.filterData;
 
   function clearAll() {
     const params = new URLSearchParams(searchParams.toString());
@@ -70,6 +73,7 @@ export function FilterSortBar(config: FilterBarConfig) {
     params.delete("filterState");
     params.delete("filterZip");
     params.delete("filterCategory");
+    params.delete("filterData");
     router.push(`${pathname}?${params.toString()}`);
   }
 
@@ -99,6 +103,21 @@ export function FilterSortBar(config: FilterBarConfig) {
             {config.categories.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
+          </select>
+        )}
+
+        {config.showDataFilter && (
+          <select
+            className="admin-filter-select"
+            value={config.filterData ?? ""}
+            onChange={(e) => update("filterData", e.target.value)}
+          >
+            <option value="">All data</option>
+            <option value="domains-missing">Domains missing</option>
+            <option value="domains-incomplete">Domains incomplete</option>
+            <option value="has-domains">Has domains</option>
+            <option value="no-website">No website</option>
+            <option value="has-website">Has website</option>
           </select>
         )}
 
