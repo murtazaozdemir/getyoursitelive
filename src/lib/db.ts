@@ -1,4 +1,3 @@
-import "server-only";
 import type { Business, BusinessVisibility } from "@/lib/business-types";
 import { getD1 } from "@/lib/db-d1";
 

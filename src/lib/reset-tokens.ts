@@ -1,4 +1,3 @@
-import "server-only";
 import { getD1 } from "@/lib/db-d1";
 
 const EXPIRY_MS = 60 * 60 * 1000; // 1 hour

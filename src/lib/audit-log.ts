@@ -1,4 +1,3 @@
-import "server-only";
 import { getD1 } from "@/lib/db-d1";
 
 /**

@@ -1,4 +1,3 @@
-import "server-only";
 
 const FROM = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
 
