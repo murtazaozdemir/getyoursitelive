@@ -569,8 +569,20 @@
     page-break-inside: avoid;
   }
 
+  /* Each proposal-section: keep whole when possible */
+  .proposal-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
   /* Next-steps: never split a card */
   .proposal-next-step {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Next step + footer: keep together on same page */
+  .proposal-closing {
     break-inside: avoid;
     page-break-inside: avoid;
   }

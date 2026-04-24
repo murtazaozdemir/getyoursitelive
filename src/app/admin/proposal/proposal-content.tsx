@@ -231,35 +231,36 @@ export function ProposalContent({
         </div>
       </section>
 
-      {/* ── NEXT STEPS ─────────────────────────────────────────── */}
-      <section className="proposal-section">
-        <h2 className="proposal-section-title">Next step</h2>
-        <div className="proposal-next-steps">
-          <div className="proposal-next-step">
-            <p>
-              Call or text me and we&rsquo;ll set up 20 minutes to go
-              over the details. I&rsquo;ll confirm your domain is available
-              while we talk. If now isn&rsquo;t the right time, keep this
-              page — the offer stands whenever you&rsquo;re ready.
-            </p>
-            <p style={{ marginTop: "0.5rem", fontSize: "9.5pt", color: "#666" }}>
-              It&rsquo;s a one-time flat fee, no monthly costs — and the
-              site is yours to keep.
-            </p>
+      {/* ── NEXT STEPS + CONTACT — kept together on same page ── */}
+      <div className="proposal-closing">
+        <section className="proposal-section">
+          <h2 className="proposal-section-title">Next step</h2>
+          <div className="proposal-next-steps">
+            <div className="proposal-next-step">
+              <p>
+                Call or text me and we&rsquo;ll set up 20 minutes to go
+                over the details. I&rsquo;ll confirm your domain is available
+                while we talk. If now isn&rsquo;t the right time, keep this
+                page — the offer stands whenever you&rsquo;re ready.
+              </p>
+              <p style={{ marginTop: "0.5rem", fontSize: "9.5pt", color: "#666" }}>
+                It&rsquo;s a one-time flat fee, no monthly costs — and the
+                site is yours to keep.
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── CONTACT ────────────────────────────────────────────── */}
-      <footer className="proposal-footer">
-        <div className="proposal-contact">
-          <strong className="proposal-contact-name">{sellerName}</strong>
-          {sellerAddress && <span>{sellerAddress}</span>}
-          <span>{sellerEmail}</span>
-          {sellerPhone && <span>{sellerPhone}</span>}
-          <span className="proposal-contact-demo">getyoursitelive.com</span>
-        </div>
-      </footer>
+        <footer className="proposal-footer">
+          <div className="proposal-contact">
+            <strong className="proposal-contact-name">{sellerName}</strong>
+            {sellerAddress && <span>{sellerAddress}</span>}
+            <span>{sellerEmail}</span>
+            {sellerPhone && <span>{sellerPhone}</span>}
+            <span className="proposal-contact-demo">getyoursitelive.com</span>
+          </div>
+        </footer>
+      </div>
 
     </div>
   );
