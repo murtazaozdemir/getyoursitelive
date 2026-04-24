@@ -5,6 +5,7 @@ import { listBusinesses } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 import { FilterSortBar } from "@/app/admin/filter-bar";
+import zipcodes from "zipcodes";
 
 function parseAddress(address?: string) {
   if (!address?.trim()) return { city: "", state: "", zip: "" };
@@ -63,14 +64,27 @@ function unique<T>(arr: T[]): T[] {
   return [...new Set(arr)].filter(Boolean).sort() as T[];
 }
 
-type SortKey = "createdAt" | "name" | "status" | "category" | "city" | "state" | "zip";
+type SortKey = "createdAt" | "name" | "status" | "category" | "city" | "state" | "zip" | "distance";
+
+type EnrichedProspect = Prospect & {
+  _city: string;
+  _state: string;
+  _zip: string;
+  _category: string;
+  _distance?: number;
+};
 
 function applySort(
-  list: (Prospect & { _city: string; _state: string; _zip: string; _category: string })[],
+  list: EnrichedProspect[],
   sortBy: SortKey,
   sortDir: "asc" | "desc",
 ) {
   return [...list].sort((a, b) => {
+    if (sortBy === "distance") {
+      const da = a._distance ?? 999999;
+      const db = b._distance ?? 999999;
+      return sortDir === "asc" ? da - db : db - da;
+    }
     let va = "";
     let vb = "";
     if (sortBy === "name") { va = a.name; vb = b.name; }
@@ -102,6 +116,7 @@ export default async function LeadsPage({
   const filterZip = params.filterZip ?? "";
   const filterCategory = params.filterCategory ?? "";
   const filterData = params.filterData ?? "";
+  const distanceZip = params.distanceZip ?? "";
   const sortBy = (params.sortBy ?? "createdAt") as SortKey;
   const sortDir = (params.sortDir === "asc" ? "asc" : "desc") as "asc" | "desc";
 
@@ -111,11 +126,19 @@ export default async function LeadsPage({
   // Only active leads (not graduated to clients)
   const active = allProspects.filter((p) => p.status !== "paid" && p.status !== "delivered");
 
-  // Enrich with parsed address + category
-  const enriched = active.map((p) => {
+  // Look up origin coordinates if distance zip provided
+  const originInfo = distanceZip ? zipcodes.lookup(distanceZip) : undefined;
+
+  // Enrich with parsed address + category + distance
+  const enriched: EnrichedProspect[] = active.map((p) => {
     const { city, state, zip } = parseAddress(p.address);
     const category = bizBySlug[p.slug]?.category ?? "Car repair and maintenance service";
-    return { ...p, _city: city, _state: state, _zip: zip, _category: category };
+    let dist: number | undefined;
+    if (originInfo && zip) {
+      const miles = zipcodes.distance(distanceZip, zip);
+      if (miles != null) dist = miles;
+    }
+    return { ...p, _city: city, _state: state, _zip: zip, _category: category, _distance: dist };
   });
 
   // Collect unique values for dropdowns
@@ -207,6 +230,7 @@ export default async function LeadsPage({
         filterZip={filterZip}
         filterCategory={filterCategory}
         filterData={filterData}
+        distanceZip={distanceZip}
         sortBy={sortBy}
         sortDir={sortDir}
       />
@@ -242,6 +266,11 @@ export default async function LeadsPage({
                         <p className="prospect-card-name">{p.name}</p>
                         {p.phone && <p className="prospect-card-meta">{p.phone}</p>}
                         {p.address && <p className="prospect-card-meta">{p.address}</p>}
+                        {p._distance != null && (
+                          <p className="prospect-card-meta" style={{ fontWeight: 600, color: "var(--accent, #b45309)" }}>
+                            {Math.round(p._distance)} mi away
+                          </p>
+                        )}
                         {chips.length > 0 && (
                           <div className="prospect-card-chips">
                             {chips.map((c) => (
@@ -279,6 +308,11 @@ export default async function LeadsPage({
                   <h2 className="admin-biz-card-name">{p.name}</h2>
                   {p.phone && <p className="admin-biz-card-meta">{p.phone}</p>}
                   {p.address && <p className="admin-biz-card-meta">{p.address}</p>}
+                  {p._distance != null && (
+                    <p className="admin-biz-card-meta" style={{ fontWeight: 600, color: "var(--accent, #b45309)" }}>
+                      {Math.round(p._distance)} mi away
+                    </p>
+                  )}
                   <div className="admin-biz-card-chips" style={{ marginTop: 8 }}>
                     <span className={`prospect-badge ${statusBadge(p.status)}`} style={{ fontSize: 11 }}>
                       {statusLabel(p.status)}

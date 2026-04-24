@@ -18,6 +18,7 @@ export interface FilterBarConfig {
   filterZip?: string;
   filterCategory?: string;
   filterData?: string;
+  distanceZip?: string;
   sortBy?: string;
   sortDir?: string;
 }
@@ -32,6 +33,8 @@ const SORT_OPTIONS = [
   { value: "city:asc", label: "City (A–Z)" },
   { value: "state:asc", label: "State (A–Z)" },
   { value: "zip:asc", label: "Zip code" },
+  { value: "distance:asc", label: "Nearest first" },
+  { value: "distance:desc", label: "Farthest first" },
 ];
 
 export function FilterSortBar(config: FilterBarConfig) {
@@ -64,7 +67,8 @@ export function FilterSortBar(config: FilterBarConfig) {
     config.filterState ||
     config.filterZip ||
     config.filterCategory ||
-    config.filterData;
+    config.filterData ||
+    config.distanceZip;
 
   function clearAll() {
     const params = new URLSearchParams(searchParams.toString());
@@ -74,6 +78,7 @@ export function FilterSortBar(config: FilterBarConfig) {
     params.delete("filterZip");
     params.delete("filterCategory");
     params.delete("filterData");
+    params.delete("distanceZip");
     router.push(`${pathname}?${params.toString()}`);
   }
 
@@ -159,6 +164,43 @@ export function FilterSortBar(config: FilterBarConfig) {
             ))}
           </select>
         )}
+
+        <input
+          type="text"
+          className="admin-filter-select"
+          placeholder="Distance from zip..."
+          defaultValue={config.distanceZip ?? ""}
+          maxLength={5}
+          style={{ width: 150 }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              const val = (e.target as HTMLInputElement).value.trim();
+              const params = new URLSearchParams(searchParams.toString());
+              if (val && /^\d{5}$/.test(val)) {
+                params.set("distanceZip", val);
+                params.set("sortBy", "distance");
+                params.set("sortDir", "asc");
+              } else {
+                params.delete("distanceZip");
+              }
+              router.push(`${pathname}?${params.toString()}`);
+            }
+          }}
+          onBlur={(e) => {
+            const val = e.target.value.trim();
+            const current = config.distanceZip ?? "";
+            if (val === current) return;
+            const params = new URLSearchParams(searchParams.toString());
+            if (val && /^\d{5}$/.test(val)) {
+              params.set("distanceZip", val);
+              params.set("sortBy", "distance");
+              params.set("sortDir", "asc");
+            } else if (!val) {
+              params.delete("distanceZip");
+            }
+            router.push(`${pathname}?${params.toString()}`);
+          }}
+        />
 
         <select
           className="admin-filter-select admin-filter-select--sort"
