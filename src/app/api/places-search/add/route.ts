@@ -8,8 +8,6 @@ import type { Business } from "@/lib/business-types";
 import type { ThemeName } from "@/types/site";
 import { revalidatePath } from "next/cache";
 
-export const runtime = "edge";
-
 function nameToSlug(name: string): string {
   return name
     .toLowerCase()

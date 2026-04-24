@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 
-export const runtime = "edge";
-
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) {
