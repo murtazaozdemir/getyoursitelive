@@ -94,7 +94,7 @@ function rowToUser(row: UserRow): User {
 // ---------------------------------------------------------------
 
 export async function findUserByEmail(email: string): Promise<User | null> {
-  const db = getD1();
+  const db = await getD1();
   const normalized = email.trim().toLowerCase();
   const row = await db
     .prepare("SELECT * FROM users WHERE LOWER(email) = ? LIMIT 1")
@@ -104,7 +104,7 @@ export async function findUserByEmail(email: string): Promise<User | null> {
 }
 
 export async function findUserById(id: string): Promise<User | null> {
-  const db = getD1();
+  const db = await getD1();
   const row = await db
     .prepare("SELECT * FROM users WHERE id = ? LIMIT 1")
     .bind(id)
@@ -113,7 +113,7 @@ export async function findUserById(id: string): Promise<User | null> {
 }
 
 export async function findOwnerBySlug(slug: string): Promise<SessionUser | null> {
-  const db = getD1();
+  const db = await getD1();
   const row = await db
     .prepare("SELECT * FROM users WHERE owned_slug = ? AND role = 'owner' LIMIT 1")
     .bind(slug)
@@ -122,7 +122,7 @@ export async function findOwnerBySlug(slug: string): Promise<SessionUser | null>
 }
 
 export async function listUsers(): Promise<SessionUser[]> {
-  const db = getD1();
+  const db = await getD1();
   const { results } = await db
     .prepare("SELECT * FROM users ORDER BY created_at DESC")
     .all<UserRow>();
@@ -172,7 +172,7 @@ export async function createUser(input: {
   zip?: string | null;
   state?: string | null;
 }): Promise<User> {
-  const db = getD1();
+  const db = await getD1();
   const normalized = input.email.trim().toLowerCase();
 
   const existing = await db
@@ -236,7 +236,7 @@ export async function createUser(input: {
 }
 
 export async function updateUserPassword(id: string, newPassword: string): Promise<void> {
-  const db = getD1();
+  const db = await getD1();
   const passwordHash = await bcrypt.hash(newPassword, 10);
   const { meta } = await db
     .prepare("UPDATE users SET password_hash = ? WHERE id = ?")
@@ -246,7 +246,7 @@ export async function updateUserPassword(id: string, newPassword: string): Promi
 }
 
 export async function updateUserEmail(id: string, newEmail: string): Promise<void> {
-  const db = getD1();
+  const db = await getD1();
   const normalized = newEmail.trim().toLowerCase();
 
   const conflict = await db
@@ -274,7 +274,7 @@ export async function updateUserProfile(
     state?: string;
   },
 ): Promise<void> {
-  const db = getD1();
+  const db = await getD1();
   const firstName = fields.firstName.trim();
   const lastName = fields.lastName.trim();
   const name = [firstName, lastName].filter(Boolean).join(" ");
@@ -302,7 +302,7 @@ export async function updateUserProfile(
 }
 
 export async function deleteUser(id: string): Promise<void> {
-  const db = getD1();
+  const db = await getD1();
   const { meta } = await db
     .prepare("DELETE FROM users WHERE id = ?")
     .bind(id)

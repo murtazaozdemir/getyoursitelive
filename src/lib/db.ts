@@ -31,7 +31,7 @@ function rowToBusiness(row: BusinessRow): Business {
  * Returns null if no business with that slug exists.
  */
 export async function getBusinessBySlug(slug: string): Promise<Business | null> {
-  const db = getD1();
+  const db = await getD1();
   const row = await db
     .prepare("SELECT * FROM businesses WHERE slug = ?")
     .bind(slug)
@@ -46,7 +46,7 @@ export async function getBusinessBySlug(slug: string): Promise<Business | null> 
 export async function listBusinesses(): Promise<
   Array<{ slug: string; name: string; category: string; address: string }>
 > {
-  const db = getD1();
+  const db = await getD1();
   const { results } = await db
     .prepare("SELECT slug, name, category, content FROM businesses ORDER BY name")
     .all<{ slug: string; name: string; category: string; content: string }>();
@@ -66,7 +66,7 @@ export async function listBusinesses(): Promise<
  * List all slugs (for static generation / sitemap).
  */
 export async function getAllSlugs(): Promise<string[]> {
-  const db = getD1();
+  const db = await getD1();
   const { results } = await db
     .prepare("SELECT slug FROM businesses ORDER BY slug")
     .all<{ slug: string }>();
@@ -78,7 +78,7 @@ export async function getAllSlugs(): Promise<string[]> {
 // ---------------------------------------------------------------
 
 export async function saveBusiness(business: Business): Promise<void> {
-  const db = getD1();
+  const db = await getD1();
   const now = new Date().toISOString();
   await db
     .prepare(
@@ -104,6 +104,6 @@ export async function saveBusiness(business: Business): Promise<void> {
 }
 
 export async function deleteBusiness(slug: string): Promise<void> {
-  const db = getD1();
+  const db = await getD1();
   await db.prepare("DELETE FROM businesses WHERE slug = ?").bind(slug).run();
 }

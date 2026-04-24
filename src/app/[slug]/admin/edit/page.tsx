@@ -1,4 +1,3 @@
-export const runtime = "edge";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getBusinessBySlug } from "@/lib/db";

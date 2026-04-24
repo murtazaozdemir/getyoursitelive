@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { updateUserPassword } from "@/lib/users";
 import { consumeResetToken } from "@/lib/reset-tokens";
 
-export const runtime = "edge";
 
 export async function POST(req: NextRequest) {
   let body: unknown;

@@ -1,4 +1,3 @@
-export const runtime = "edge";
 import { ResetPasswordForm } from "./reset-password-form";
 
 export const metadata = {

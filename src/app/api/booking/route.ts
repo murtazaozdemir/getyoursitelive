@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getD1 } from "@/lib/db-d1";
 
-export const runtime = "edge";
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -20,7 +19,7 @@ export async function POST(req: NextRequest) {
   const id = `b-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
   const submittedAt = new Date().toISOString();
 
-  const db = getD1();
+  const db = await getD1();
   await db
     .prepare(
       `INSERT INTO bookings (id, slug, name, email, phone, service, date, message, submitted_at)

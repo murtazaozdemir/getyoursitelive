@@ -2,7 +2,13 @@ name = "getyoursitelive"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
-pages_build_output_dir = ".vercel/output/static"
+# Workers deployment (not Pages) — OpenNext outputs a single worker
+# which avoids the 25 MiB Pages Functions bundle limit.
+main = ".open-next/worker.js"
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
 
 [[d1_databases]]
 binding = "DB"
@@ -12,7 +18,3 @@ database_id = "966b62c5-1e11-4d97-a8c2-d99a9824983e"
 [[r2_buckets]]
 binding = "R2"
 bucket_name = "getyoursitelive"
-
-[dev]
-port = 3000
-local_protocol = "http"

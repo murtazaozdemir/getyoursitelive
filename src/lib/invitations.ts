@@ -37,7 +37,7 @@ function rowToInvitation(row: InvitationRow): Invitation {
 }
 
 export async function listInvitations(): Promise<Invitation[]> {
-  const db = getD1();
+  const db = await getD1();
   const now = new Date().toISOString();
   const { results } = await db
     .prepare("SELECT * FROM invitations WHERE expires_at > ? ORDER BY created_at DESC")
@@ -47,7 +47,7 @@ export async function listInvitations(): Promise<Invitation[]> {
 }
 
 export async function revokeInvitation(token: string): Promise<void> {
-  const db = getD1();
+  const db = await getD1();
   await db.prepare("DELETE FROM invitations WHERE token = ?").bind(token).run();
 }
 
@@ -57,7 +57,7 @@ export async function createInvitation(input: {
   ownedSlug?: string | null;
   invitedBy: string;
 }): Promise<Invitation> {
-  const db = getD1();
+  const db = await getD1();
   const email = input.email.trim().toLowerCase();
   const now = new Date();
   const expiresAt = new Date(now.getTime() + EXPIRY_MS).toISOString();
@@ -95,7 +95,7 @@ export async function createInvitation(input: {
 }
 
 export async function getInvitation(token: string): Promise<Invitation | null> {
-  const db = getD1();
+  const db = await getD1();
   const row = await db
     .prepare("SELECT * FROM invitations WHERE token = ? LIMIT 1")
     .bind(token)
@@ -112,7 +112,7 @@ export async function getInvitation(token: string): Promise<Invitation | null> {
 }
 
 export async function consumeInvitation(token: string): Promise<Invitation | null> {
-  const db = getD1();
+  const db = await getD1();
   const row = await db
     .prepare("SELECT * FROM invitations WHERE token = ? LIMIT 1")
     .bind(token)

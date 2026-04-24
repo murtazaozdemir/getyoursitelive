@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canEditBusiness } from "@/lib/users";
-import { getRequestContext } from "@cloudflare/next-on-pages";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-export const runtime = "edge";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -71,7 +70,7 @@ export async function POST(req: NextRequest) {
   const buffer = await file.arrayBuffer();
 
   // Use the R2 binding via Cloudflare runtime
-  const { env } = getRequestContext();
+  const { env } = await getCloudflareContext({ async: true });
   const r2 = (env as { R2?: R2Bucket }).R2;
 
   if (r2) {

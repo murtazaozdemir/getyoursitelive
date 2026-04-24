@@ -93,7 +93,7 @@ export function normalizePhone(phone: string): string {
 // ---------------------------------------------------------------
 
 export async function listProspects(): Promise<Prospect[]> {
-  const db = getD1();
+  const db = await getD1();
   const { results } = await db
     .prepare("SELECT * FROM prospects ORDER BY created_at DESC")
     .all<ProspectRow>();
@@ -101,7 +101,7 @@ export async function listProspects(): Promise<Prospect[]> {
 }
 
 export async function getProspect(slug: string): Promise<Prospect | null> {
-  const db = getD1();
+  const db = await getD1();
   const row = await db
     .prepare("SELECT * FROM prospects WHERE slug = ?")
     .bind(slug)
@@ -110,7 +110,7 @@ export async function getProspect(slug: string): Promise<Prospect | null> {
 }
 
 export async function getProspectByShortId(shortId: number): Promise<Prospect | null> {
-  const db = getD1();
+  const db = await getD1();
   const row = await db
     .prepare("SELECT * FROM prospects WHERE short_id = ?")
     .bind(shortId)
@@ -121,7 +121,7 @@ export async function getProspectByShortId(shortId: number): Promise<Prospect | 
 export async function findProspectByPhone(phone: string): Promise<Prospect | null> {
   const normalized = normalizePhone(phone);
   if (normalized.length < 7) return null;
-  const db = getD1();
+  const db = await getD1();
   const row = await db
     .prepare("SELECT * FROM prospects WHERE phone_normalized = ?")
     .bind(normalized)
@@ -134,7 +134,7 @@ export async function findProspectByPhone(phone: string): Promise<Prospect | nul
 // ---------------------------------------------------------------
 
 export async function createProspect(prospect: Omit<Prospect, "shortId">): Promise<void> {
-  const db = getD1();
+  const db = await getD1();
   const now = new Date().toISOString();
 
   // Assign next sequential short_id atomically using MAX()
@@ -177,7 +177,7 @@ export async function createProspect(prospect: Omit<Prospect, "shortId">): Promi
 }
 
 export async function updateProspect(slug: string, patch: Partial<Prospect>): Promise<void> {
-  const db = getD1();
+  const db = await getD1();
   const now = new Date().toISOString();
 
   // Build SET clause dynamically from the patch fields
@@ -223,6 +223,6 @@ export async function updateProspect(slug: string, patch: Partial<Prospect>): Pr
 }
 
 export async function deleteProspect(slug: string): Promise<void> {
-  const db = getD1();
+  const db = await getD1();
   await db.prepare("DELETE FROM prospects WHERE slug = ?").bind(slug).run();
 }

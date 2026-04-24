@@ -1,4 +1,3 @@
-export const runtime = "edge";
 import { redirect, notFound } from "next/navigation";
 import { getProspectByShortId } from "@/lib/prospects";
 

@@ -4,7 +4,6 @@ import { canManageBusinesses } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
 import type { Business } from "@/lib/business-types";
 
-export const runtime = "edge";
 
 /**
  * POST /api/admin/migrate
@@ -25,7 +24,7 @@ interface BusinessRow {
 const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: number; log: string[] }>> = {
 
   "ensure-category": async () => {
-    const db = getD1();
+    const db = await getD1();
     const { results } = await db
       .prepare("SELECT slug, content FROM businesses")
       .all<BusinessRow>();
@@ -58,7 +57,7 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     const GOOD_URL =
       "https://images.pexels.com/photos/2244746/pexels-photo-2244746.jpeg?auto=compress&cs=tinysrgb&w=1400";
 
-    const db = getD1();
+    const db = await getD1();
     const { results } = await db
       .prepare("SELECT slug, content FROM businesses")
       .all<BusinessRow>();

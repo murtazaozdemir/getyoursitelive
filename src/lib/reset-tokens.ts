@@ -9,7 +9,7 @@ interface ResetTokenRow {
 }
 
 export async function createResetToken(userId: string): Promise<string> {
-  const db = getD1();
+  const db = await getD1();
   // Remove any existing tokens for this user
   await db.prepare("DELETE FROM password_resets WHERE user_id = ?").bind(userId).run();
 
@@ -25,7 +25,7 @@ export async function createResetToken(userId: string): Promise<string> {
 }
 
 export async function consumeResetToken(token: string): Promise<string | null> {
-  const db = getD1();
+  const db = await getD1();
   const row = await db
     .prepare("SELECT * FROM password_resets WHERE token = ? LIMIT 1")
     .bind(token)

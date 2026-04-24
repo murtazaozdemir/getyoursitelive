@@ -39,7 +39,7 @@ function rowToEntry(row: AuditRow): AuditEntry {
 
 export async function logAudit(entry: Omit<AuditEntry, "id" | "at">): Promise<void> {
   try {
-    const db = getD1();
+    const db = await getD1();
     const id = `a-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
     const at = new Date().toISOString();
 
@@ -64,7 +64,7 @@ export async function logAudit(entry: Omit<AuditEntry, "id" | "at">): Promise<vo
 }
 
 export async function getAuditLog(limit = 200): Promise<AuditEntry[]> {
-  const db = getD1();
+  const db = await getD1();
   const { results } = await db
     .prepare("SELECT * FROM audit_log ORDER BY at DESC LIMIT ?")
     .bind(limit)
@@ -73,7 +73,7 @@ export async function getAuditLog(limit = 200): Promise<AuditEntry[]> {
 }
 
 export async function getAuditLogForSlug(slug: string, limit = 100): Promise<AuditEntry[]> {
-  const db = getD1();
+  const db = await getD1();
   const { results } = await db
     .prepare("SELECT * FROM audit_log WHERE slug = ? ORDER BY at DESC LIMIT ?")
     .bind(slug, limit)

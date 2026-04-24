@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 
-export const runtime = "edge";
 
 /**
  * This endpoint was used to seed R2 from local data files.

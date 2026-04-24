@@ -28,7 +28,7 @@ export interface RateLimitResult {
 }
 
 export async function checkRateLimit(ip: string): Promise<RateLimitResult> {
-  const db = getD1();
+  const db = await getD1();
   const now = new Date();
 
   const row = await db
@@ -64,7 +64,7 @@ export async function checkRateLimit(ip: string): Promise<RateLimitResult> {
 
 /** Call after a failed login attempt. Returns updated rate limit state. */
 export async function recordFailedAttempt(ip: string): Promise<RateLimitResult> {
-  const db = getD1();
+  const db = await getD1();
   const now = new Date();
   const nowIso = now.toISOString();
   const windowMs = WINDOW_MINUTES * 60 * 1000;
@@ -119,6 +119,6 @@ export async function recordFailedAttempt(ip: string): Promise<RateLimitResult> 
 
 /** Call after a successful login to clear the record. */
 export async function clearRateLimit(ip: string): Promise<void> {
-  const db = getD1();
+  const db = await getD1();
   await db.prepare("DELETE FROM rate_limits WHERE ip = ?").bind(ip).run();
 }
