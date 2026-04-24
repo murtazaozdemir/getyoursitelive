@@ -11,11 +11,6 @@ import { jwtVerify } from "jose";
  * Login pages inside either space are allowed through unauthenticated:
  *   - /admin/login
  *   - /{slug}/admin/login
- *
- * We inline minimal JWT verification here instead of importing from
- * lib/session because middleware runs on the Edge runtime and can't pull
- * in "server-only" modules. Page components and server actions do the
- * full role/ownership checks.
  */
 
 const COOKIE_NAME = "admin-session";
@@ -33,7 +28,6 @@ async function isValidToken(token: string | undefined): Promise<boolean> {
 }
 
 function isLoginPath(pathname: string): boolean {
-  // Public auth-adjacent paths — no session required
   return (
     pathname === "/admin/login" ||
     pathname === "/admin/forgot-password" ||
@@ -44,26 +38,22 @@ function isLoginPath(pathname: string): boolean {
 }
 
 function loginPathFor(pathname: string): string {
-  // For a /{slug}/admin/... request, bounce to /{slug}/admin/login.
-  // For a /admin/... request, bounce to /admin/login.
   const slugMatch = pathname.match(/^\/([^/]+)\/admin(?:\/|$)/);
   if (slugMatch) return `/${slugMatch[1]}/admin/login`;
   return "/admin/login";
 }
 
 function defaultDestinationForAuthedUser(pathname: string): string {
-  // If they hit a login page while authed, send them somewhere sensible.
   const slugMatch = pathname.match(/^\/([^/]+)\/admin\/login$/);
   if (slugMatch) return `/${slugMatch[1]}/admin`;
   return "/admin";
 }
 
-export async function proxy(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const token = req.cookies.get(COOKIE_NAME)?.value;
   const authed = await isValidToken(token);
 
-  // Login pages: allow anonymous. Bounce already-authed users forward.
   if (isLoginPath(pathname)) {
     if (authed) {
       return NextResponse.redirect(new URL(defaultDestinationForAuthedUser(pathname), req.url));
@@ -71,7 +61,6 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Everything else that matches /admin/* or /{slug}/admin/*: require session
   if (!authed) {
     const loginUrl = new URL(loginPathFor(pathname), req.url);
     loginUrl.searchParams.set("next", pathname);
@@ -84,7 +73,6 @@ export async function proxy(req: NextRequest) {
 export const config = {
   matcher: [
     "/admin/:path*",
-    // /{anything}/admin and below (excludes /_next, /api already by matcher semantics)
     "/:slug/admin/:path*",
   ],
 };
