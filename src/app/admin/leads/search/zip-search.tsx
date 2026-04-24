@@ -95,7 +95,10 @@ export function ZipSearch() {
     setCityZips([]);
 
     fetch(`/api/places-search/state-cities?state=${encodeURIComponent(state)}`)
-      .then((res) => res.json() as Promise<{ cities?: string[] }>)
+      .then((res) => {
+        if (!res.ok) return { cities: [] };
+        return res.json() as Promise<{ cities?: string[] }>;
+      })
       .then((data) => {
         if (!cancelled) {
           setCities(data.cities ?? []);
