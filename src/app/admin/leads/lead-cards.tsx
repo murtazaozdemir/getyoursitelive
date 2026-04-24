@@ -166,6 +166,110 @@ function printLabels(prospects: LeadCardData[]) {
   setTimeout(() => win.print(), 300);
 }
 
+function printDeliveryList(prospects: LeadCardData[]) {
+  if (prospects.length === 0) return;
+
+  const today = new Date().toLocaleDateString("en-US", {
+    month: "long", day: "numeric", year: "numeric",
+  });
+
+  const rowsHtml = prospects
+    .map(
+      (p, i) => `
+    <tr>
+      <td class="col-num">${i + 1}</td>
+      <td class="col-name">${escapeHtml(p.name)}</td>
+      <td class="col-addr">${escapeHtml(p.address)}</td>
+      <td class="col-check"><span class="check-box"></span></td>
+      <td class="col-notes"></td>
+    </tr>`,
+    )
+    .join("");
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<title>Delivery List — ${today}</title>
+<style>
+  @page { size: letter portrait; margin: 0.5in 0.6in; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #111; }
+
+  .dl-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #111;
+  }
+  .dl-title { font-size: 14pt; font-weight: 700; }
+  .dl-date { font-size: 9pt; color: #666; }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  th {
+    text-align: left;
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #555;
+    padding: 6px 8px;
+    border-bottom: 1px solid #999;
+  }
+
+  td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #ddd;
+    vertical-align: top;
+  }
+
+  .col-num { width: 30px; color: #999; font-size: 9pt; }
+  .col-name { width: 22%; font-weight: 600; }
+  .col-addr { width: 30%; font-size: 9.5pt; color: #333; }
+  .col-check { width: 60px; text-align: center; }
+  .col-notes { width: auto; }
+
+  .check-box {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #999;
+    border-radius: 2px;
+    vertical-align: middle;
+  }
+
+  th.col-check { text-align: center; }
+</style>
+</head>
+<body>
+  <div class="dl-header">
+    <span class="dl-title">Delivery List</span>
+    <span class="dl-date">${today} &middot; ${prospects.length} lead${prospects.length !== 1 ? "s" : ""}</span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Business</th>
+        <th>Address</th>
+        <th class="col-check">Delivered</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>
+</body>
+</html>`;
+
+  const win = window.open("", "_blank");
+  if (!win) return;
+  win.document.write(html);
+  win.document.close();
+  setTimeout(() => win.print(), 300);
+}
+
 export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
@@ -203,6 +307,11 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
     window.open(`/admin/proposal/bulk?slugs=${encodeURIComponent(slugs)}`, "_blank");
   }
 
+  function handlePrintDeliveryList() {
+    const picked = prospects.filter((p) => selected.has(p.slug));
+    printDeliveryList(picked);
+  }
+
   return (
     <>
       {/* Selection toolbar */}
@@ -233,6 +342,13 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
               onClick={handlePrintProposals}
             >
               Print {selected.size} proposal{selected.size !== 1 ? "s" : ""}
+            </button>
+            <button
+              type="button"
+              className="admin-btn admin-btn--ghost"
+              onClick={handlePrintDeliveryList}
+            >
+              Delivery list
             </button>
           </>
         )}
