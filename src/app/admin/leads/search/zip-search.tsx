@@ -367,8 +367,11 @@ export function ZipSearch() {
     }
   }
 
+  const isSecondary = (url: string) =>
+    url && (url.includes("business.site") || url.includes("sites.google.com") || url.includes("square.site") || url.includes("wixsite.com") || url.includes("weebly.com"));
+
   const hasWebsite = (url: string) =>
-    url && !url.includes("business.site") && !url.includes("google.com");
+    url && !url.includes("business.site") && !url.includes("google.com") && !url.includes("square.site") && !url.includes("wixsite.com") && !url.includes("weebly.com");
 
   const filtered = hideWithWebsite
     ? results.filter((p) => !hasWebsite(p.website))
@@ -595,6 +598,8 @@ export function ZipSearch() {
                       )}
                       {hasRealSite ? (
                         <span className="search-result-tag search-result-tag--warn">Has website</span>
+                      ) : isSecondary(place.website) ? (
+                        <span className="search-result-tag search-result-tag--good">Secondary site</span>
                       ) : (
                         <span className="search-result-tag search-result-tag--good">No website</span>
                       )}
