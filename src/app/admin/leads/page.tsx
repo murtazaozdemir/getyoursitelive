@@ -174,6 +174,9 @@ export default async function LeadsPage({
               Cards
             </Link>
           </div>
+          <Link href="/admin/leads/search" className="admin-btn admin-btn--ghost">
+            Zip search
+          </Link>
           <Link href="/admin/leads/new" className="admin-btn admin-btn--primary">
             + Add lead
           </Link>
