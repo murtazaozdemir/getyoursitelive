@@ -39,6 +39,8 @@ export interface Prospect {
   googleReviewCount?: number;
   googleCategory?: string;
   googleMapsUrl?: string;
+  lat?: number;
+  lng?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -71,6 +73,8 @@ interface ProspectRow {
   google_review_count: number | null;
   google_category: string | null;
   google_maps_url: string | null;
+  lat: number | null;
+  lng: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -99,6 +103,8 @@ function rowToProspect(row: ProspectRow): Prospect {
     googleReviewCount: row.google_review_count ?? undefined,
     googleCategory: row.google_category ?? undefined,
     googleMapsUrl: row.google_maps_url ?? undefined,
+    lat: row.lat ?? undefined,
+    lng: row.lng ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -195,8 +201,9 @@ export async function createProspect(prospect: Omit<Prospect, "shortId">): Promi
         contacted_by, contacted_by_name, contacted_at,
         website,
         google_place_id, google_rating, google_review_count, google_category, google_maps_url,
+        lat, lng,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       prospect.slug,
@@ -222,6 +229,8 @@ export async function createProspect(prospect: Omit<Prospect, "shortId">): Promi
       prospect.googleReviewCount ?? null,
       prospect.googleCategory ?? null,
       prospect.googleMapsUrl ?? null,
+      prospect.lat ?? null,
+      prospect.lng ?? null,
       prospect.createdAt ?? now,
       prospect.updatedAt ?? now,
     )
@@ -285,6 +294,8 @@ export async function updateProspectGoogleData(
     googleReviewCount?: number;
     googleCategory?: string;
     googleMapsUrl?: string;
+    lat?: number | null;
+    lng?: number | null;
   },
 ): Promise<void> {
   const db = await getD1();
@@ -320,6 +331,14 @@ export async function updateProspectGoogleData(
   if (data.googleMapsUrl !== undefined) {
     sets.push("google_maps_url = ?");
     values.push(data.googleMapsUrl);
+  }
+  if (data.lat !== undefined) {
+    sets.push("lat = ?");
+    values.push(data.lat);
+  }
+  if (data.lng !== undefined) {
+    sets.push("lng = ?");
+    values.push(data.lng);
   }
 
   values.push(slug);

@@ -5,6 +5,36 @@ import { listBusinesses } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 import { FilterSortBar } from "@/app/admin/filter-bar";
+import { getD1 } from "@/lib/db-d1";
+
+/** Haversine distance in miles between two lat/lng points */
+function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 3958.8; // Earth radius in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/** Look up approximate coordinates for a zip code from places_cache or prospects */
+async function zipCoords(zip: string): Promise<{ lat: number; lng: number } | null> {
+  const db = await getD1();
+  // Try prospects first (they have stored lat/lng)
+  const prospect = await db
+    .prepare("SELECT lat, lng FROM prospects WHERE lat IS NOT NULL AND lng IS NOT NULL AND address LIKE ? LIMIT 1")
+    .bind(`%${zip}%`)
+    .first<{ lat: number; lng: number }>();
+  if (prospect) return prospect;
+  // Fall back to places_cache
+  const cached = await db
+    .prepare("SELECT lat, lng FROM places_cache WHERE lat IS NOT NULL AND lng IS NOT NULL AND zip = ? LIMIT 1")
+    .bind(zip)
+    .first<{ lat: number; lng: number }>();
+  return cached ?? null;
+}
 
 function parseAddress(address?: string) {
   if (!address?.trim()) return { city: "", state: "", zip: "" };
@@ -125,11 +155,18 @@ export default async function LeadsPage({
   // Only active leads (not graduated to clients)
   const active = allProspects.filter((p) => p.status !== "paid" && p.status !== "delivered");
 
-  // Enrich with parsed address + category
+  // Look up origin coordinates if distance zip provided
+  const origin = distanceZip ? await zipCoords(distanceZip) : null;
+
+  // Enrich with parsed address + category + distance
   const enriched: EnrichedProspect[] = active.map((p) => {
     const { city, state, zip } = parseAddress(p.address);
     const category = bizBySlug[p.slug]?.category ?? "Car repair and maintenance service";
-    return { ...p, _city: city, _state: state, _zip: zip, _category: category };
+    let dist: number | undefined;
+    if (origin && p.lat != null && p.lng != null) {
+      dist = haversine(origin.lat, origin.lng, p.lat, p.lng);
+    }
+    return { ...p, _city: city, _state: state, _zip: zip, _category: category, _distance: dist };
   });
 
   // Collect unique values for dropdowns

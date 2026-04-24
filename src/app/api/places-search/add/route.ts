@@ -178,6 +178,8 @@ export async function POST(req: NextRequest) {
   const googleCategory = (formData.get("googleCategory") as string)?.trim() ?? "";
   const googleMapsUrl = (formData.get("googleMapsUrl") as string)?.trim() ?? "";
   const website = (formData.get("website") as string)?.trim() ?? "";
+  const lat = formData.get("lat") ? parseFloat(formData.get("lat") as string) : null;
+  const lng = formData.get("lng") ? parseFloat(formData.get("lng") as string) : null;
 
   if (!name) {
     return NextResponse.json({ ok: false, error: "Name is required." });
@@ -196,6 +198,8 @@ export async function POST(req: NextRequest) {
     googleReviewCount,
     googleCategory: googleCategory || undefined,
     googleMapsUrl: googleMapsUrl || undefined,
+    lat,
+    lng,
   };
 
   // Check for existing by slug
@@ -247,6 +251,8 @@ export async function POST(req: NextRequest) {
       googleReviewCount: googleData.googleReviewCount || undefined,
       googleCategory: googleData.googleCategory,
       googleMapsUrl: googleData.googleMapsUrl,
+      lat: googleData.lat ?? undefined,
+      lng: googleData.lng ?? undefined,
       createdAt: now,
       updatedAt: now,
     });

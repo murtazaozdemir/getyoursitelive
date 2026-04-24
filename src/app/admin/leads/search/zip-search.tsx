@@ -13,6 +13,8 @@ interface PlaceResult {
   reviewCount: number;
   website: string;
   googleMapsUrl: string;
+  lat: number | null;
+  lng: number | null;
   _fromZip?: string;
 }
 
@@ -292,6 +294,8 @@ export function ZipSearch() {
       formData.set("googleCategory", place.category);
       if (place.googleMapsUrl) formData.set("googleMapsUrl", place.googleMapsUrl);
       if (place.website) formData.set("website", place.website);
+      if (place.lat != null) formData.set("lat", String(place.lat));
+      if (place.lng != null) formData.set("lng", String(place.lng));
 
       const res = await fetch("/api/places-search/add", {
         method: "POST",

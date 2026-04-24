@@ -63,6 +63,8 @@ CREATE TABLE IF NOT EXISTS prospects (
   contacted_by      TEXT,
   contacted_by_name TEXT,
   contacted_at      TEXT,
+  lat               REAL,
+  lng               REAL,
   created_at        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
   updated_at        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );

@@ -379,6 +379,66 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated: 0, skipped: 0, log };
   },
 
+  "add-lat-lng": async () => {
+    const db = await getD1();
+    const log: string[] = [];
+
+    // Add lat/lng columns to prospects (if not already present)
+    try {
+      await db.prepare("ALTER TABLE prospects ADD COLUMN lat REAL").run();
+      log.push("Added lat column to prospects");
+    } catch { log.push("lat column already exists"); }
+    try {
+      await db.prepare("ALTER TABLE prospects ADD COLUMN lng REAL").run();
+      log.push("Added lng column to prospects");
+    } catch { log.push("lng column already exists"); }
+
+    // Add lat/lng columns to places_cache (if not already present)
+    try {
+      await db.prepare("ALTER TABLE places_cache ADD COLUMN lat REAL").run();
+      log.push("Added lat column to places_cache");
+    } catch { log.push("lat column already exists in places_cache"); }
+    try {
+      await db.prepare("ALTER TABLE places_cache ADD COLUMN lng REAL").run();
+      log.push("Added lng column to places_cache");
+    } catch { log.push("lng column already exists in places_cache"); }
+
+    return { updated: 0, skipped: 0, log };
+  },
+
+  "backfill-lat-lng": async () => {
+    const db = await getD1();
+    const log: string[] = [];
+    let updated = 0;
+    let skipped = 0;
+
+    // For each prospect without lat/lng, try to find coordinates from places_cache
+    const { results: prospects } = await db
+      .prepare("SELECT slug, phone, address FROM prospects WHERE lat IS NULL")
+      .all<{ slug: string; phone: string; address: string }>();
+
+    for (const p of prospects) {
+      // Try to match by address in places_cache
+      const cached = await db
+        .prepare("SELECT lat, lng FROM places_cache WHERE lat IS NOT NULL AND lng IS NOT NULL AND address = ? LIMIT 1")
+        .bind(p.address)
+        .first<{ lat: number; lng: number }>();
+
+      if (cached) {
+        await db
+          .prepare("UPDATE prospects SET lat = ?, lng = ? WHERE slug = ?")
+          .bind(cached.lat, cached.lng, p.slug)
+          .run();
+        updated++;
+      } else {
+        skipped++;
+      }
+    }
+
+    log.push(`Backfilled ${updated} prospects with lat/lng from places_cache, ${skipped} had no match`);
+    return { updated, skipped, log };
+  },
+
   // ── Add new migrations below this line ──────────────────────────────────────
 };
 

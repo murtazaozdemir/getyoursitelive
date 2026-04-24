@@ -14,6 +14,8 @@ interface PlaceResult {
   reviewCount: number;
   website: string;
   googleMapsUrl: string;
+  lat: number | null;
+  lng: number | null;
 }
 
 interface CachedRow {
@@ -26,6 +28,8 @@ interface CachedRow {
   review_count: number;
   website: string;
   google_maps_url: string;
+  lat: number | null;
+  lng: number | null;
 }
 
 export async function POST(req: NextRequest) {
@@ -86,6 +90,8 @@ async function handleSearch(req: NextRequest) {
         reviewCount: r.review_count ?? 0,
         website: r.website ?? "",
         googleMapsUrl: r.google_maps_url ?? "",
+        lat: r.lat,
+        lng: r.lng,
       }));
 
       return NextResponse.json({
@@ -135,6 +141,7 @@ async function handleSearch(req: NextRequest) {
     "places.userRatingCount",
     "places.primaryTypeDisplayName",
     "places.types",
+    "places.location",
   ].join(",");
 
   const res = await fetch(
@@ -165,6 +172,7 @@ async function handleSearch(req: NextRequest) {
   const results: PlaceResult[] = places.map((p) => {
     const displayName = p.displayName as { text?: string } | undefined;
     const primaryType = p.primaryTypeDisplayName as { text?: string } | undefined;
+    const location = p.location as { latitude?: number; longitude?: number } | undefined;
 
     return {
       id: (p.id as string) ?? "",
@@ -176,6 +184,8 @@ async function handleSearch(req: NextRequest) {
       reviewCount: (p.userRatingCount as number) ?? 0,
       website: (p.websiteUri as string) ?? "",
       googleMapsUrl: (p.googleMapsUri as string) ?? "",
+      lat: location?.latitude ?? null,
+      lng: location?.longitude ?? null,
     };
   });
 
@@ -186,12 +196,13 @@ async function handleSearch(req: NextRequest) {
     await db
       .prepare(
         `INSERT OR REPLACE INTO places_cache
-         (google_place_id, name, phone, phone_normalized, address, category, rating, review_count, website, google_maps_url, zip, query, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (google_place_id, name, phone, phone_normalized, address, category, rating, review_count, website, google_maps_url, lat, lng, zip, query, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         r.id, r.name, r.phone, phoneNorm, r.address, r.category,
         r.rating, r.reviewCount, r.website, r.googleMapsUrl,
+        r.lat, r.lng,
         zip, query, now,
       )
       .run();
