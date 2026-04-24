@@ -63,14 +63,16 @@ export default async function ProposalPage({
   const biz = await getBusinessBySlug(slug);
   if (!biz) notFound();
 
-  // Record that this proposal was generated (fire-and-forget — don't block render)
   const prospect = await getProspect(slug);
   if (prospect) {
+    // Only mark as "sent" on first view — don't overwrite if already set
+    const updates: Partial<{ proposalSentAt: string; proposalSentBy: string }> = {};
+    if (!prospect.proposalSentAt) {
+      updates.proposalSentAt = new Date().toISOString();
+      updates.proposalSentBy = sessionUser.email;
+    }
     await Promise.all([
-      updateProspect(slug, {
-        proposalSentAt: new Date().toISOString(),
-        proposalSentBy: sessionUser.email,
-      }),
+      Object.keys(updates).length > 0 ? updateProspect(slug, updates) : Promise.resolve(),
       logAudit({
         userEmail: sessionUser.email,
         userName: sessionUser.name,
@@ -100,7 +102,7 @@ export default async function ProposalPage({
   const previewUrl = `${siteUrl}/${slug}`;
   const shortUrl = prospect?.shortId ? `${siteUrl}/p/${prospect.shortId}` : null;
   const qrUrl = shortUrl ?? previewUrl;
-  const qrImageUrl = `https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=${encodeURIComponent(qrUrl)}&choe=UTF-8`;
+  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrUrl)}`;
   const today = new Date().toLocaleDateString("en-US", {
     month: "long", day: "numeric", year: "numeric",
   });
@@ -283,26 +285,6 @@ export default async function ProposalPage({
             </div>
           </div>
 
-          <div className="proposal-screenshots">
-            <img
-              src={`/api/screenshot?slug=${slug}&section=hero`}
-              alt="Website — hero section"
-              className="proposal-screenshot"
-              loading="lazy"
-            />
-            <img
-              src={`/api/screenshot?slug=${slug}&section=services`}
-              alt="Website — services section"
-              className="proposal-screenshot"
-              loading="lazy"
-            />
-            <img
-              src={`/api/screenshot?slug=${slug}&section=contact`}
-              alt="Website — contact &amp; address"
-              className="proposal-screenshot"
-              loading="lazy"
-            />
-          </div>
         </section>
 
         {/* ── HOW IT WORKS ───────────────────────────────────────── */}
