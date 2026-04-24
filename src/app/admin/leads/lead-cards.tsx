@@ -162,8 +162,27 @@ function printLabels(prospects: LeadCardData[]) {
   if (!win) return;
   win.document.write(html);
   win.document.close();
-  // Slight delay so styles render before print dialog
-  setTimeout(() => win.print(), 300);
+  // Wait for all QR images to load before triggering print
+  const images = win.document.querySelectorAll("img");
+  if (images.length === 0) {
+    setTimeout(() => win.print(), 300);
+  } else {
+    let loaded = 0;
+    const onReady = () => {
+      loaded++;
+      if (loaded >= images.length) win.print();
+    };
+    images.forEach((img) => {
+      if (img.complete) {
+        onReady();
+      } else {
+        img.addEventListener("load", onReady);
+        img.addEventListener("error", onReady);
+      }
+    });
+    // Fallback in case events don't fire
+    setTimeout(() => win.print(), 5000);
+  }
 }
 
 function printDeliveryList(prospects: LeadCardData[]) {
