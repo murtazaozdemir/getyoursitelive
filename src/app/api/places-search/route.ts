@@ -31,6 +31,16 @@ interface CachedRow {
 }
 
 export async function POST(req: NextRequest) {
+  try {
+    return await handleSearch(req);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[places-search] Unhandled error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+async function handleSearch(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
