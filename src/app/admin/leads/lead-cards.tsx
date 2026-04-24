@@ -65,7 +65,7 @@ function printLabels(prospects: LeadCardData[]) {
             <div class="label-addr">${escapeHtml(p.address)}</div>
             <div class="label-qr-section">
               <img class="label-qr" src="${qrUrl}" alt="QR code" />
-              <div class="label-qr-text">We prepared a website for you!<br/>Scan this QR code to see it.</div>
+              <div class="label-qr-text">We prepared a website for you! Scan this QR code to see it.</div>
             </div>
           </div>
         </div>`;
@@ -101,7 +101,7 @@ function printLabels(prospects: LeadCardData[]) {
   .page.last { page-break-after: avoid; }
 
   .label {
-    width: 4in;
+    width: 6in;
     height: 5in;
     display: flex;
     align-items: center;
@@ -111,6 +111,7 @@ function printLabels(prospects: LeadCardData[]) {
   .label-content {
     text-align: center;
     padding: 0.5in;
+    width: 100%;
   }
 
   .label-name {
