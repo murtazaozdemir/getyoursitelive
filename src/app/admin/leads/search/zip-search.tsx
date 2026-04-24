@@ -291,6 +291,7 @@ export function ZipSearch() {
       formData.set("googleReviewCount", String(place.reviewCount));
       formData.set("googleCategory", place.category);
       if (place.googleMapsUrl) formData.set("googleMapsUrl", place.googleMapsUrl);
+      if (place.website) formData.set("website", place.website);
 
       const res = await fetch("/api/places-search/add", {
         method: "POST",

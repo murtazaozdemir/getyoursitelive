@@ -250,6 +250,19 @@ export default async function ProspectDetailPage({
                   {prospect.googleReviewCount ? ` (${prospect.googleReviewCount} reviews)` : ""}
                 </p>
               )}
+              {prospect.website && (
+                <p style={{ fontSize: 13, margin: "6px 0" }}>
+                  <span style={{ color: "var(--admin-text-soft)" }}>Website: </span>
+                  <a
+                    href={prospect.website}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="admin-link"
+                  >
+                    {prospect.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                  </a>
+                </p>
+              )}
               {prospect.googleMapsUrl && (
                 <a
                   href={prospect.googleMapsUrl}

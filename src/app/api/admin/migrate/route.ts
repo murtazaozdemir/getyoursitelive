@@ -108,6 +108,19 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped: cols.length - updated, log };
   },
 
+  "add-website-to-prospects": async () => {
+    const db = await getD1();
+    const log: string[] = [];
+    try {
+      await db.prepare("ALTER TABLE prospects ADD COLUMN website TEXT").run();
+      log.push("Added column website");
+      return { updated: 1, skipped: 0, log };
+    } catch {
+      log.push("Column website already exists, skipped");
+      return { updated: 0, skipped: 1, log };
+    }
+  },
+
   // ── Add new migrations below this line ──────────────────────────────────────
 };
 

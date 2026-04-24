@@ -32,6 +32,7 @@ export interface Prospect {
   contactedBy?: string;
   contactedByName?: string;
   contactedAt?: string;
+  website?: string;
   googlePlaceId?: string;
   googleRating?: number;
   googleReviewCount?: number;
@@ -62,6 +63,7 @@ interface ProspectRow {
   contacted_by: string | null;
   contacted_by_name: string | null;
   contacted_at: string | null;
+  website: string | null;
   google_place_id: string | null;
   google_rating: number | null;
   google_review_count: number | null;
@@ -88,6 +90,7 @@ function rowToProspect(row: ProspectRow): Prospect {
     contactedBy: row.contacted_by ?? undefined,
     contactedByName: row.contacted_by_name ?? undefined,
     contactedAt: row.contacted_at ?? undefined,
+    website: row.website ?? undefined,
     googlePlaceId: row.google_place_id ?? undefined,
     googleRating: row.google_rating ?? undefined,
     googleReviewCount: row.google_review_count ?? undefined,
@@ -187,9 +190,10 @@ export async function createProspect(prospect: Omit<Prospect, "shortId">): Promi
         domain1, domain2, domain3,
         proposal_sent_at, proposal_sent_by,
         contacted_by, contacted_by_name, contacted_at,
+        website,
         google_place_id, google_rating, google_review_count, google_category, google_maps_url,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       prospect.slug,
@@ -208,6 +212,7 @@ export async function createProspect(prospect: Omit<Prospect, "shortId">): Promi
       prospect.contactedBy ?? null,
       prospect.contactedByName ?? null,
       prospect.contactedAt ?? null,
+      prospect.website ?? null,
       prospect.googlePlaceId ?? null,
       prospect.googleRating ?? null,
       prospect.googleReviewCount ?? null,
@@ -268,6 +273,7 @@ export async function updateProspect(slug: string, patch: Partial<Prospect>): Pr
 export async function updateProspectGoogleData(
   slug: string,
   data: {
+    website?: string;
     googlePlaceId?: string;
     googleRating?: number | null;
     googleReviewCount?: number;
@@ -281,6 +287,10 @@ export async function updateProspectGoogleData(
   const sets: string[] = ["updated_at = ?"];
   const values: unknown[] = [now];
 
+  if (data.website !== undefined) {
+    sets.push("website = ?");
+    values.push(data.website || null);
+  }
   if (data.googlePlaceId !== undefined) {
     sets.push("google_place_id = ?");
     values.push(data.googlePlaceId);

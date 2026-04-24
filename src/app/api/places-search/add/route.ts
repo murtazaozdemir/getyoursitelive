@@ -177,6 +177,7 @@ export async function POST(req: NextRequest) {
   const googleReviewCount = formData.get("googleReviewCount") ? parseInt(formData.get("googleReviewCount") as string, 10) : 0;
   const googleCategory = (formData.get("googleCategory") as string)?.trim() ?? "";
   const googleMapsUrl = (formData.get("googleMapsUrl") as string)?.trim() ?? "";
+  const website = (formData.get("website") as string)?.trim() ?? "";
 
   if (!name) {
     return NextResponse.json({ ok: false, error: "Name is required." });
@@ -188,6 +189,7 @@ export async function POST(req: NextRequest) {
   }
 
   const googleData = {
+    website: website || undefined,
     googlePlaceId: googlePlaceId || undefined,
     googleRating,
     googleReviewCount,
@@ -237,6 +239,7 @@ export async function POST(req: NextRequest) {
       address,
       status: "found",
       notes: [],
+      website: googleData.website,
       googlePlaceId: googleData.googlePlaceId,
       googleRating: googleData.googleRating ?? undefined,
       googleReviewCount: googleData.googleReviewCount || undefined,
