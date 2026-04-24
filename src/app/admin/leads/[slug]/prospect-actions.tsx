@@ -12,11 +12,26 @@ import {
 import type { ProspectStatus } from "@/lib/prospects";
 
 const BUSINESS_CATEGORIES = [
-  "Auto Repair",
-  "Auto Body",
-  "Tire Shop",
-  "Auto Sales & Repair",
-  "Used Car Dealer",
+  "Car repair and maintenance service",
+  "Auto body shop",
+  "Tire shop",
+  "Auto repair shop",
+  "Mechanic",
+  "Transmission shop",
+  "Brake shop",
+  "Oil change service",
+  "Muffler shop",
+  "Car detailing service",
+  "Towing service",
+  "Used car dealer",
+  "Car dealer",
+  "Auto electrical service",
+  "Auto glass shop",
+  "Auto air conditioning service",
+  "Car wash",
+  "Truck repair shop",
+  "Diesel engine repair service",
+  "Auto radiator repair service",
   "Other",
 ] as const;
 
@@ -175,11 +190,10 @@ function EditInfoForm({
   const [name, setName] = useState(initialName);
   const [phone, setPhone] = useState(initialPhone);
   const [address, setAddress] = useState(initialAddress);
-  const [category, setCategory] = useState(
-    BUSINESS_CATEGORIES.includes(initialCategory as typeof BUSINESS_CATEGORIES[number])
-      ? initialCategory
-      : "Auto Repair"
-  );
+  const [category, setCategory] = useState(initialCategory || "Car repair and maintenance service");
+  const categoryOptions = BUSINESS_CATEGORIES.includes(initialCategory as typeof BUSINESS_CATEGORIES[number])
+    ? BUSINESS_CATEGORIES
+    : [initialCategory, ...BUSINESS_CATEGORIES];
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -219,7 +233,7 @@ function EditInfoForm({
           onChange={(e) => setCategory(e.target.value)}
           disabled={isPending}
         >
-          {BUSINESS_CATEGORIES.map((c) => (
+          {categoryOptions.map((c) => (
             <option key={c} value={c}>{c}</option>
           ))}
         </select>

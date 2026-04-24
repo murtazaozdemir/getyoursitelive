@@ -19,16 +19,16 @@ interface PlaceResult {
 type AddStatus = "idle" | "adding" | "added" | "updated" | "exists" | "error";
 
 const CATEGORIES = [
-  { label: "Car Repair & Maintenance", query: "auto repair" },
-  { label: "Auto Body Shop", query: "auto body shop" },
-  { label: "Car Detailing", query: "car detailing" },
-  { label: "Tire Shop", query: "tire shop" },
-  { label: "Towing Service", query: "towing service" },
-  { label: "Oil Change", query: "oil change" },
-  { label: "Muffler Shop", query: "muffler shop" },
-  { label: "Barber Shop", query: "barber shop" },
-  { label: "Hair Salon", query: "hair salon" },
-  { label: "Nail Salon", query: "nail salon" },
+  { label: "Car repair and maintenance service", query: "auto repair" },
+  { label: "Auto body shop", query: "auto body shop" },
+  { label: "Car detailing service", query: "car detailing" },
+  { label: "Tire shop", query: "tire shop" },
+  { label: "Towing service", query: "towing service" },
+  { label: "Oil change service", query: "oil change" },
+  { label: "Muffler shop", query: "muffler shop" },
+  { label: "Barber shop", query: "barber shop" },
+  { label: "Hair salon", query: "hair salon" },
+  { label: "Nail salon", query: "nail salon" },
   { label: "Restaurant", query: "restaurant" },
   { label: "Pizzeria", query: "pizzeria" },
   { label: "Bakery", query: "bakery" },
@@ -36,11 +36,11 @@ const CATEGORIES = [
   { label: "Dentist", query: "dentist" },
   { label: "Plumber", query: "plumber" },
   { label: "Electrician", query: "electrician" },
-  { label: "HVAC", query: "hvac" },
-  { label: "Landscaping", query: "landscaping" },
-  { label: "Dry Cleaner", query: "dry cleaner" },
+  { label: "HVAC contractor", query: "hvac" },
+  { label: "Landscaper", query: "landscaping" },
+  { label: "Dry cleaner", query: "dry cleaner" },
   { label: "Laundromat", query: "laundromat" },
-  { label: "Pet Grooming", query: "pet grooming" },
+  { label: "Pet groomer", query: "pet grooming" },
 ];
 
 const US_STATES = [

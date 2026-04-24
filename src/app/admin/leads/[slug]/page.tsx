@@ -77,13 +77,14 @@ export default async function ProspectDetailPage({
             {prospect.phone && prospect.address && <span> &middot; </span>}
             {prospect.address && <span>{prospect.address}</span>}
           </p>
-          {biz?.category && biz.category !== "Auto Repair" && (
+          {prospect.googleCategory && (
+            <p className="admin-lede" style={{ marginTop: 6 }}>
+              <span className="prospect-chip prospect-chip--muted">{prospect.googleCategory}</span>
+            </p>
+          )}
+          {!prospect.googleCategory && biz?.category && biz.category !== "Car repair and maintenance service" && (
             <p className="admin-lede" style={{ marginTop: 6 }}>
               <span className="prospect-chip prospect-chip--muted">{biz.category}</span>
-              {" "}
-              <span style={{ fontSize: 13, color: "var(--admin-text-soft)" }}>
-                Not in the auto repair pipeline
-              </span>
             </p>
           )}
           {biz?.description && (
@@ -131,7 +132,7 @@ export default async function ProspectDetailPage({
               name={prospect.name}
               phone={prospect.phone ?? ""}
               address={prospect.address ?? ""}
-              category={biz?.category ?? "Auto Repair"}
+              category={prospect.googleCategory ?? biz?.category ?? "Car repair and maintenance service"}
             />
           </section>
 
@@ -234,6 +235,34 @@ export default async function ProspectDetailPage({
               </p>
             )}
           </div>
+
+          {(prospect.googleRating || prospect.googleReviewCount || prospect.googleCategory || prospect.googleMapsUrl) && (
+            <div className="prospect-sidebar-card">
+              <h2 className="admin-section-title">Google Maps</h2>
+              {prospect.googleCategory && (
+                <p style={{ fontSize: 13, margin: "0 0 6px", color: "var(--admin-text-soft)" }}>
+                  {prospect.googleCategory}
+                </p>
+              )}
+              {prospect.googleRating != null && (
+                <p style={{ fontSize: 14, fontWeight: 600, margin: "0 0 4px" }}>
+                  {"★".repeat(Math.round(prospect.googleRating))} {prospect.googleRating}
+                  {prospect.googleReviewCount ? ` (${prospect.googleReviewCount} reviews)` : ""}
+                </p>
+              )}
+              {prospect.googleMapsUrl && (
+                <a
+                  href={prospect.googleMapsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="admin-link"
+                  style={{ fontSize: 13 }}
+                >
+                  View on Google Maps →
+                </a>
+              )}
+            </div>
+          )}
 
           <div className="prospect-sidebar-card">
             <h2 className="admin-section-title">Domain options</h2>
