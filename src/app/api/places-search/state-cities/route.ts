@@ -1,49 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/session";
-import { canManageBusinesses } from "@/lib/users";
 
 export const runtime = "edge";
 
+const CITIES: Record<string, string[]> = {
+  NJ: ["Absecon","Allendale","Alpine","Asbury Park","Atlantic City","Audubon","Avalon","Barnegat","Barrington","Bayonne","Beach Haven","Belleville","Bellmawr","Belmar","Bergenfield","Berkeley Heights","Berlin","Bernardsville","Bloomfield","Bloomingdale","Bogota","Boonton","Bordentown","Bound Brook","Bradley Beach","Brick","Bridgeton","Bridgewater","Brielle","Brigantine","Burlington","Butler","Caldwell","Camden","Cape May","Carlstadt","Carteret","Cedar Grove","Chatham","Cherry Hill","Chester","Cinnaminson","Clark","Clementon","Cliffside Park","Clifton","Clinton","Closter","Collingswood","Colonia","Cranbury","Cranford","Cresskill","Deal","Demarest","Denville","Dover","Dumont","Dunellen","East Brunswick","East Hanover","East Orange","East Rutherford","Eatontown","Edgewater","Edison","Egg Harbor City","Egg Harbor Township","Elizabeth","Elmwood Park","Emerson","Englewood","Englewood Cliffs","Essex Fells","Ewing","Fair Haven","Fair Lawn","Fairfield","Fairview","Fanwood","Flemington","Florence","Florham Park","Fort Lee","Franklin","Franklin Lakes","Freehold","Garfield","Garwood","Gibbsboro","Glassboro","Glen Ridge","Glen Rock","Gloucester City","Hackensack","Hackettstown","Haddon Heights","Haddon Township","Haddonfield","Haledon","Hamburg","Hamilton","Hammonton","Harrington Park","Harrison","Hasbrouck Heights","Hawthorne","Hazlet","Highland Park","Highlands","Hillsborough","Hillsdale","Hillside","Ho Ho Kus","Hoboken","Holmdel","Hopatcong","Howell","Irvington","Island Heights","Jackson","Jersey City","Keansburg","Kearny","Kenilworth","Keyport","Kinnelon","Lakewood","Lambertville","Lavallette","Lawnside","Lebanon","Leonia","Lincoln Park","Linden","Lindenwold","Little Falls","Little Ferry","Little Silver","Livingston","Lodi","Long Branch","Lyndhurst","Madison","Mahwah","Manalapan","Manasquan","Manville","Maplewood","Margate City","Marlboro","Matawan","Maywood","Medford","Mendham","Metuchen","Middlesex","Middletown","Midland Park","Milford","Millburn","Millville","Monroe","Montclair","Montvale","Moonachie","Moorestown","Morris Plains","Morristown","Mount Holly","Mount Laurel","Mountain Lakes","Mountainside","Mullica Hill","National Park","Neptune","Netcong","New Brunswick","New Milford","New Providence","Newark","Newton","North Arlington","North Bergen","North Caldwell","North Haledon","North Plainfield","Northvale","Norwood","Nutley","Oakland","Ocean City","Ocean Grove","Ocean Township","Oceanport","Old Bridge","Old Tappan","Oradell","Orange","Palisades Park","Palmyra","Paramus","Park Ridge","Parsippany","Passaic","Paterson","Paulsboro","Peapack","Pemberton","Pennington","Penns Grove","Pennsauken","Perth Amboy","Phillipsburg","Pine Beach","Piscataway","Pitman","Plainfield","Plainsboro","Pleasantville","Point Pleasant","Pompton Lakes","Princeton","Rahway","Ramsey","Randolph","Raritan","Red Bank","Ridgefield","Ridgefield Park","Ridgewood","Ringwood","River Edge","River Vale","Riverdale","Riverside","Riverton","Rochelle Park","Rockaway","Roseland","Roselle","Roselle Park","Rumson","Runnemede","Rutherford","Saddle Brook","Saddle River","Salem","Sayreville","Scotch Plains","Sea Bright","Sea Girt","Sea Isle City","Secaucus","Somers Point","Somerville","South Amboy","South Brunswick","South Orange","South Plainfield","South River","Sparta","Spotswood","Spring Lake","Springfield","Stanhope","Stone Harbor","Stratford","Succasunna","Summit","Surf City","Sussex","Swedesboro","Teaneck","Tenafly","Teterboro","Tinton Falls","Toms River","Totowa","Trenton","Tuckerton","Union","Union City","Upper Montclair","Upper Saddle River","Ventnor City","Verona","Vineland","Voorhees","Waldwick","Wallington","Wanaque","Warren","Washington","Watchung","Wayne","Weehawken","West Caldwell","West Long Branch","West Milford","West New York","West Orange","West Paterson","Westfield","Westwood","Wharton","Wildwood","Williamstown","Willingboro","Wood Ridge","Woodbridge","Woodbury","Woodcliff Lake","Woodland Park","Wyckoff"],
+  CO: ["Arvada","Aspen","Aurora","Boulder","Broomfield","Canon City","Castle Rock","Centennial","Colorado Springs","Commerce City","Craig","Delta","Denver","Durango","Englewood","Erie","Evans","Federal Heights","Fort Collins","Fort Morgan","Fountain","Fruita","Glendale","Glenwood Springs","Golden","Grand Junction","Greeley","Greenwood Village","Gunnison","Highlands Ranch","Johnstown","Lafayette","Lakewood","Lamar","Littleton","Lone Tree","Longmont","Louisville","Loveland","Montrose","Northglenn","Parker","Pueblo","Rifle","Salida","Sheridan","Silverthorne","Steamboat Springs","Sterling","Superior","Telluride","Thornton","Trinidad","Vail","Westminster","Wheat Ridge","Windsor","Woodland Park"],
+  VA: ["Abingdon","Alexandria","Annandale","Arlington","Ashburn","Ashland","Bedford","Blacksburg","Bristol","Burke","Centreville","Chantilly","Charlottesville","Chesapeake","Christiansburg","Colonial Heights","Culpeper","Dale City","Danville","Dumfries","Fairfax","Falls Church","Farmville","Fredericksburg","Front Royal","Gainesville","Glen Allen","Hampton","Harrisonburg","Herndon","Hopewell","Leesburg","Lynchburg","Manassas","Martinsville","McLean","Mechanicsville","Midlothian","Newport News","Norfolk","Petersburg","Portsmouth","Pulaski","Radford","Reston","Richmond","Roanoke","Salem","Springfield","Stafford","Staunton","Sterling","Suffolk","Vienna","Virginia Beach","Warrenton","Waynesboro","Williamsburg","Winchester","Woodbridge","Wytheville"],
+  DC: ["Washington"],
+  NY: ["Albany","Amherst","Auburn","Babylon","Batavia","Binghamton","Bronx","Brooklyn","Buffalo","Cheektowaga","Clarkstown","Clay","Clifton Park","Colonie","Cortland","East Meadow","Elmira","Freeport","Garden City","Glen Cove","Greece","Greenburgh","Hamburg","Hempstead","Henrietta","Huntington","Irondequoit","Islip","Ithaca","Jamaica","Kingston","Levittown","Long Beach","Mamaroneck","Manhattan","Middletown","Mount Vernon","New City","New Rochelle","New York City","Newburgh","Niagara Falls","North Hempstead","Oceanside","Ogdensburg","Orangetown","Ossining","Oyster Bay","Peekskill","Plattsburgh","Port Chester","Poughkeepsie","Queens","Ramapo","Rochester","Rome","Rye","Saratoga Springs","Scarsdale","Schenectady","Smithtown","Spring Valley","Staten Island","Suffern","Syracuse","Tarrytown","Tonawanda","Troy","Utica","Valley Stream","Watertown","West Hempstead","West Seneca","White Plains","Yonkers","Yorktown"],
+  PA: ["Allentown","Bethlehem","Bristol","Broomall","Carlisle","Chambersburg","Chester","Coatesville","Collegeville","Conshohocken","Doylestown","Drexel Hill","Easton","Erie","Gettysburg","Greensburg","Harrisburg","Haverford","Hazleton","Horsham","Jenkintown","King of Prussia","Lancaster","Lansdale","Lebanon","Levittown","Lower Merion","Malvern","Manheim","Media","Monroeville","Morrisville","Newtown","Norristown","North Wales","Philadelphia","Phoenixville","Pittsburgh","Plymouth Meeting","Pottstown","Pottsville","Quakertown","Reading","Scranton","Sharon","Springfield","State College","Stroudsburg","Swarthmore","Upper Darby","Wayne","West Chester","Wilkes Barre","Williamsport","York"],
+};
+
 export async function GET(req: NextRequest) {
   const state = req.nextUrl.searchParams.get("state")?.trim().toUpperCase() ?? "";
-
-  // Auth check
-  let authorized = false;
-  try {
-    const user = await getCurrentUser();
-    authorized = !!user && canManageBusinesses(user);
-  } catch {
-    return NextResponse.json({ cities: [], error: "auth_failed" });
-  }
-
-  if (!authorized) {
-    return NextResponse.json({ cities: [], error: "unauthorized" });
-  }
-
-  if (!state || state.length !== 2) {
-    return NextResponse.json({ cities: [], error: "invalid_state" });
-  }
-
-  // Try D1 lookup
-  try {
-    const { getD1 } = await import("@/lib/db-d1");
-    const db = await getD1();
-
-    const cached = await db
-      .prepare("SELECT cities FROM state_cities_cache WHERE state = ?")
-      .bind(state)
-      .first<{ cities: string }>();
-
-    if (cached) {
-      return NextResponse.json({ cities: JSON.parse(cached.cities) });
-    }
-
-    return NextResponse.json({ cities: [], error: "not_found" });
-  } catch (err) {
-    return NextResponse.json({
-      cities: [],
-      error: "db_error",
-      detail: err instanceof Error ? err.message : String(err),
-    });
-  }
+  const cities = CITIES[state] ?? [];
+  return NextResponse.json({ cities });
 }

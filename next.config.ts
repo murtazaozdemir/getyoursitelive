@@ -10,9 +10,11 @@ if (process.env.NODE_ENV === "development") {
     .catch(() => {}); // non-fatal if package isn't available
 }
 
-function getCommitCount() {
+function getBuildId() {
   try {
-    return execSync("git rev-list --count HEAD").toString().trim();
+    const hash = execSync("git rev-parse --short HEAD").toString().trim();
+    const count = execSync("git rev-list --count HEAD").toString().trim();
+    return `${count}.${hash}`;
   } catch {
     return "0";
   }
@@ -41,7 +43,7 @@ const nextConfig: NextConfig = {
 
   env: {
     NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
-    NEXT_PUBLIC_APP_VERSION: `v${getCommitCount()}`,
+    NEXT_PUBLIC_APP_VERSION: `v${getBuildId()}`,
   },
   // Server-rendered. Each request is served fresh from the storage layer
   // (local filesystem in dev, Cloudflare R2 in production). This replaces
