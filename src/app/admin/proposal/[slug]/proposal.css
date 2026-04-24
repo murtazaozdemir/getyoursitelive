@@ -506,9 +506,13 @@
 
   body { margin: 0; background: #fff; }
 
+  @page {
+    margin: 2.2cm 1.8cm 1.8cm 1.8cm;
+  }
+
   .proposal {
     max-width: 100%;
-    padding: 1.5cm 1.8cm;
+    padding: 0;
   }
 
   .proposal-hero-headline { font-size: 26pt; }
