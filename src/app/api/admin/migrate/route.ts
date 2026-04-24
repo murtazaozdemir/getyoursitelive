@@ -121,6 +121,22 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     }
   },
 
+  "list-prospects-no-domains": async () => {
+    const db = await getD1();
+    const { results } = await db
+      .prepare(
+        `SELECT slug, name, address, domain1, domain2, domain3
+         FROM prospects
+         WHERE (domain1 IS NULL OR domain1 = '')
+         ORDER BY created_at DESC
+         LIMIT 100`,
+      )
+      .all<{ slug: string; name: string; address: string; domain1: string | null; domain2: string | null; domain3: string | null }>();
+
+    const log = results.map((r) => `${r.slug} | ${r.name} | ${r.address}`);
+    return { updated: 0, skipped: results.length, log };
+  },
+
   // ── Add new migrations below this line ──────────────────────────────────────
 };
 
