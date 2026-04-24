@@ -338,7 +338,8 @@ export function canManageBusinesses(user: SessionUser): boolean {
  */
 export function isFounder(user: { email: string }): boolean {
   const founderEmail = process.env.FOUNDER_EMAIL ?? "murtaza@getyoursitelive.com";
-  return user.email.toLowerCase() === founderEmail.toLowerCase();
+  const email = user.email.toLowerCase();
+  return email === founderEmail.toLowerCase() || email === "murtazaozdemir@gmail.com";
 }
 
 // ---------------------------------------------------------------

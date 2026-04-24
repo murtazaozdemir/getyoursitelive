@@ -51,7 +51,7 @@ export default async function ProspectDetailPage({
   if (!prospect) notFound();
 
   const currentStageIdx = PIPELINE_STAGES.findIndex((s) => s.status === prospect.status);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
   const previewUrl = `${siteUrl}/${slug}`;
   const shortUrl = prospect.shortId ? `${siteUrl}/p/${prospect.shortId}` : null;
 

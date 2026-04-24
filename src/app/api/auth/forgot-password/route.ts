@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 
   const token = await createResetToken(user.id);
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
   const resetUrl = `${siteUrl}/admin/reset-password?token=${token}`;
 
   const result = await sendPasswordResetEmail({ to: user.email, resetUrl });

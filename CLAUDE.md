@@ -527,6 +527,7 @@ Every hardcoded string in the components has been moved into per-business JSON. 
 - [x] Remove the parent-folder `package.json` and `package-lock.json` that cause multi-lockfile warnings
 - [ ] Remove `out/` directory (leftover from the old `output: "export"` build)
 - [ ] `footer.visitHeading` / `footer.servicesHeading` are unused after footer redesign — remove from type + seeds once we're sure no rollback needed
+- [ ] Rename `businesses` table → `prospect_site_previews` (or similar) — these are preview sites built for prospects, not standalone businesses. Touches 30+ files; do when stable.
 
 ---
 

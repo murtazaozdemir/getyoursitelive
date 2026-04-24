@@ -5,7 +5,7 @@ import { createUser, findUserByEmail } from "@/lib/users";
 import { sendAdminWelcomeEmail } from "@/lib/email";
 import { logAudit } from "@/lib/audit-log";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
 
 export async function acceptInviteAction(
   _prevState: unknown,

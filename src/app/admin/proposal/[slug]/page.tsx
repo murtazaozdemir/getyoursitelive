@@ -94,7 +94,7 @@ export default async function ProposalPage({
   const sellerAddress = sellerAddressParts.length > 0 ? sellerAddressParts.join(", ") : null;
 
   const domains = domainSuggestions(biz.businessInfo.name);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
   const previewUrl = `${siteUrl}/${slug}`;
   const shortUrl = prospect?.shortId ? `${siteUrl}/p/${prospect.shortId}` : null;
   const today = new Date().toLocaleDateString("en-US", {

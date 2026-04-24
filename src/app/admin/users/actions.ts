@@ -9,7 +9,7 @@ import { logAudit } from "@/lib/audit-log";
 import { createInvitation, revokeInvitation } from "@/lib/invitations";
 import { sendAdminInviteEmail } from "@/lib/email";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
 
 export async function resendInviteAction(
   email: string,
