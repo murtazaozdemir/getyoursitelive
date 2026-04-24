@@ -439,6 +439,80 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped, log };
   },
 
+  "fetch-lat-lng": async () => {
+    const db = await getD1();
+    const log: string[] = [];
+    let updated = 0;
+    let skipped = 0;
+    let noKey = false;
+
+    // Get Google Places API key
+    let apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    if (!apiKey) {
+      try {
+        const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+        const { env } = await getCloudflareContext({ async: true });
+        apiKey = (env as unknown as Record<string, string>).GOOGLE_PLACES_API_KEY;
+      } catch { /* fallthrough */ }
+    }
+    if (!apiKey) {
+      return { updated: 0, skipped: 0, log: ["ERROR: No Google Places API key configured"] };
+    }
+
+    // Get all prospects without lat/lng that have a google_place_id
+    const { results: prospects } = await db
+      .prepare("SELECT slug, google_place_id FROM prospects WHERE lat IS NULL AND google_place_id IS NOT NULL AND google_place_id != ''")
+      .all<{ slug: string; google_place_id: string }>();
+
+    log.push(`Found ${prospects.length} prospects without lat/lng that have a Place ID`);
+
+    // Batch in groups of 10 to avoid rate limits
+    for (let i = 0; i < prospects.length; i += 10) {
+      const batch = prospects.slice(i, i + 10);
+
+      for (const p of batch) {
+        try {
+          const res = await fetch(
+            `https://places.googleapis.com/v1/places/${p.google_place_id}`,
+            {
+              headers: {
+                "X-Goog-Api-Key": apiKey,
+                "X-Goog-FieldMask": "location",
+              },
+            },
+          );
+
+          if (!res.ok) {
+            log.push(`${p.slug}: API error ${res.status}`);
+            skipped++;
+            continue;
+          }
+
+          const data = (await res.json()) as { location?: { latitude?: number; longitude?: number } };
+          const lat = data.location?.latitude;
+          const lng = data.location?.longitude;
+
+          if (lat != null && lng != null) {
+            await db
+              .prepare("UPDATE prospects SET lat = ?, lng = ? WHERE slug = ?")
+              .bind(lat, lng, p.slug)
+              .run();
+            updated++;
+          } else {
+            log.push(`${p.slug}: no location in response`);
+            skipped++;
+          }
+        } catch (err) {
+          log.push(`${p.slug}: ${String(err)}`);
+          skipped++;
+        }
+      }
+    }
+
+    log.push(`Done: ${updated} updated, ${skipped} skipped`);
+    return { updated, skipped, log };
+  },
+
   // ── Add new migrations below this line ──────────────────────────────────────
 };
 
