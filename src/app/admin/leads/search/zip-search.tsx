@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 
 interface PlaceResult {
@@ -56,6 +56,8 @@ export function ZipSearch() {
   // City mode
   const [state, setState] = useState("NJ");
   const [city, setCity] = useState("");
+  const [cities, setCities] = useState<string[]>([]);
+  const [loadingCities, setLoadingCities] = useState(false);
   const [cityZips, setCityZips] = useState<string[]>([]);
 
   // Single zip mode
@@ -82,6 +84,30 @@ export function ZipSearch() {
   // Ref to read current query in async flow
   const queryRef = useRef(query);
   queryRef.current = query;
+
+  // Load cities when state changes
+  useEffect(() => {
+    if (mode !== "city") return;
+    let cancelled = false;
+    setLoadingCities(true);
+    setCities([]);
+    setCity("");
+    setCityZips([]);
+
+    fetch(`/api/places-search/state-cities?state=${encodeURIComponent(state)}`)
+      .then((res) => res.json() as Promise<{ cities?: string[] }>)
+      .then((data) => {
+        if (!cancelled) {
+          setCities(data.cities ?? []);
+          setLoadingCities(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setLoadingCities(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [state, mode]);
 
   const dedupeResults = useCallback((allResults: PlaceResult[]): PlaceResult[] => {
     const seen = new Map<string, PlaceResult>();
@@ -171,8 +197,8 @@ export function ZipSearch() {
   }
 
   async function handleCitySearch() {
-    if (!city.trim()) {
-      setError("Enter a city name.");
+    if (!city) {
+      setError("Select a city.");
       return;
     }
 
@@ -187,7 +213,7 @@ export function ZipSearch() {
     let zips: string[] = [];
     try {
       const res = await fetch(
-        `/api/places-search/city-zips?state=${encodeURIComponent(state)}&city=${encodeURIComponent(city.trim())}`,
+        `/api/places-search/city-zips?state=${encodeURIComponent(state)}&city=${encodeURIComponent(city)}`,
       );
       const data = (await res.json()) as { zips?: string[] };
       zips = data.zips ?? [];
@@ -198,7 +224,7 @@ export function ZipSearch() {
     }
 
     if (zips.length === 0) {
-      setError(`No zip codes found for ${city.trim()}, ${state}. Try a different spelling.`);
+      setError(`No zip codes found for ${city}, ${state}. Try a different city.`);
       setSearching(false);
       return;
     }
@@ -328,15 +354,19 @@ export function ZipSearch() {
             </label>
             <label className="admin-field" style={{ flex: 1, minWidth: 180 }}>
               <span className="admin-field-label">City</span>
-              <input
+              <select
                 className="admin-input"
-                type="text"
-                placeholder="Clifton"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleCitySearch()}
-                autoFocus
-              />
+                disabled={loadingCities}
+              >
+                <option value="">
+                  {loadingCities ? "Loading cities…" : "Select a city"}
+                </option>
+                {cities.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
             </label>
             <label className="admin-field" style={{ flex: 1, minWidth: 200 }}>
               <span className="admin-field-label">Category</span>
@@ -414,7 +444,7 @@ export function ZipSearch() {
         <div className="admin-section" style={{ marginTop: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
             <span className="admin-field-label" style={{ margin: 0 }}>
-              {city.trim()}, {state} — {cityZips.length} zip code{cityZips.length !== 1 ? "s" : ""}
+              {city}, {state} — {cityZips.length} zip code{cityZips.length !== 1 ? "s" : ""}
             </span>
           </div>
           <div className="zip-chips">
