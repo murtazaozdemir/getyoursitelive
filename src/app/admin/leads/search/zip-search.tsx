@@ -17,6 +17,16 @@ interface PlaceResult {
 
 type AddStatus = "idle" | "adding" | "added" | "exists" | "error";
 
+const SUGGESTED_QUERIES = [
+  "auto repair",
+  "car detailing",
+  "towing service",
+  "tire shop",
+  "auto body shop",
+  "oil change",
+  "muffler shop",
+];
+
 export function ZipSearch() {
   const [zip, setZip] = useState("");
   const [query, setQuery] = useState("auto repair");
@@ -26,8 +36,10 @@ export function ZipSearch() {
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
   const [addStatuses, setAddStatuses] = useState<Record<string, AddStatus>>({});
   const [addedSlugs, setAddedSlugs] = useState<Record<string, string>>({});
+  const [cached, setCached] = useState(false);
+  const [cachedAt, setCachedAt] = useState("");
 
-  async function handleSearch(pageToken?: string) {
+  async function handleSearch(pageToken?: string, forceRefresh?: boolean) {
     if (!zip || !/^\d{5}$/.test(zip)) {
       setError("Enter a valid 5-digit zip code.");
       return;
@@ -40,19 +52,23 @@ export function ZipSearch() {
       setResults([]);
       setAddStatuses({});
       setAddedSlugs({});
+      setCached(false);
+      setCachedAt("");
     }
 
     try {
       const res = await fetch("/api/places-search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ zip, query, pageToken }),
+        body: JSON.stringify({ zip, query, pageToken, forceRefresh }),
       });
 
       const data = (await res.json()) as {
         error?: string;
         results?: PlaceResult[];
         nextPageToken?: string;
+        cached?: boolean;
+        cachedAt?: string;
       };
 
       if (!res.ok) {
@@ -66,6 +82,8 @@ export function ZipSearch() {
         setResults(data.results ?? []);
       }
       setNextPageToken(data.nextPageToken ?? null);
+      setCached(data.cached ?? false);
+      setCachedAt(data.cachedAt ?? "");
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -81,17 +99,15 @@ export function ZipSearch() {
       formData.set("name", place.name);
       formData.set("phone", place.phone);
 
-      // Parse address into parts — Google returns "Street, City, State Zip, Country"
+      // Parse address — Google returns "Street, City, State Zip, Country"
       const parts = place.address.split(",").map((s) => s.trim());
       if (parts.length >= 3) {
         formData.set("street", parts[0]);
         formData.set("city", parts[1]);
-        // "NJ 07011" or "DC 20012"
         const stateZip = parts[2].split(/\s+/);
         formData.set("state", stateZip[0] ?? "");
         formData.set("zip", stateZip[1] ?? "");
       } else {
-        // Fallback: use full address as street
         formData.set("street", place.address);
       }
 
@@ -166,14 +182,48 @@ export function ZipSearch() {
           </button>
         </div>
 
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+          {SUGGESTED_QUERIES.map((q) => (
+            <button
+              key={q}
+              className={`admin-btn admin-btn--ghost${query === q ? " admin-btn--active" : ""}`}
+              style={{ fontSize: 12, padding: "4px 10px" }}
+              onClick={() => setQuery(q)}
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+
         {error && <div className="admin-error-banner" style={{ marginTop: 12 }}>{error}</div>}
       </div>
 
       {results.length > 0 && (
         <div className="admin-section" style={{ marginTop: 16 }}>
-          <h2 className="admin-section-title">{results.length} results</h2>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+            <h2 className="admin-section-title" style={{ margin: 0 }}>
+              {results.length} results
+            </h2>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {cached && (
+                <span style={{ fontSize: 12, color: "var(--admin-text-muted)" }}>
+                  Cached {cachedAt ? `on ${new Date(cachedAt).toLocaleDateString()}` : ""} — no API call used
+                </span>
+              )}
+              {cached && (
+                <button
+                  className="admin-btn admin-btn--ghost"
+                  style={{ fontSize: 12, padding: "4px 10px" }}
+                  onClick={() => handleSearch(undefined, true)}
+                  disabled={searching}
+                >
+                  Refresh from Google
+                </button>
+              )}
+            </div>
+          </div>
 
-          <div className="search-results-list">
+          <div className="search-results-list" style={{ marginTop: 12 }}>
             {results.map((place) => {
               const status = addStatuses[place.id] ?? "idle";
               const slug = addedSlugs[place.id];
@@ -228,7 +278,7 @@ export function ZipSearch() {
                         className="admin-btn admin-btn--ghost"
                         style={{ color: "var(--color-success, #16a34a)" }}
                       >
-                        ✓ Added — View
+                        Added — View
                       </Link>
                     )}
                     {status === "exists" && (
@@ -257,7 +307,7 @@ export function ZipSearch() {
                         className="admin-btn admin-btn--ghost"
                         style={{ fontSize: 12 }}
                       >
-                        Maps ↗
+                        Maps
                       </a>
                     )}
                   </div>
