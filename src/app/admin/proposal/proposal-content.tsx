@@ -257,6 +257,7 @@ export function ProposalContent({
           {sellerAddress && <span>{sellerAddress}</span>}
           <span>{sellerEmail}</span>
           {sellerPhone && <span>{sellerPhone}</span>}
+          <span className="proposal-contact-demo">getyoursitelive.com</span>
         </div>
       </footer>
 
