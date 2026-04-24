@@ -70,7 +70,7 @@ export function ZipSearch() {
   const [error, setError] = useState("");
   const [addStatuses, setAddStatuses] = useState<Record<string, AddStatus>>({});
   const [addedSlugs, setAddedSlugs] = useState<Record<string, string>>({});
-  const [hideWithWebsite, setHideWithWebsite] = useState(false);
+  const [hideWithWebsite, setHideWithWebsite] = useState(true);
 
   // Batch progress
   const [zipStatuses, setZipStatuses] = useState<Record<string, ZipStatus>>({});
