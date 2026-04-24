@@ -3,7 +3,7 @@ import { getD1 } from "@/lib/db-d1";
 export type ProspectStatus = "found" | "contacted" | "interested" | "paid" | "delivered";
 
 export const PIPELINE_STAGES: { status: ProspectStatus; label: string }[] = [
-  { status: "found", label: "Information Complete" },
+  { status: "found", label: "Found" },
   { status: "contacted", label: "Contacted" },
   { status: "interested", label: "Interested" },
   { status: "paid", label: "Paid" },
