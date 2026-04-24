@@ -148,6 +148,44 @@ export default async function ProposalPage({
           </p>
         </section>
 
+        {/* ── COMPARISON TABLE ───────────────────────────────────── */}
+        <section className="proposal-section">
+          <h2 className="proposal-section-title">Why not just use Facebook or Yelp?</h2>
+          <table className="proposal-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Found on Google</th>
+                <th>Yours to keep</th>
+                <th>No monthly cost</th>
+                <th>Takes bookings</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Facebook page</td>
+                <td className="no">✗</td><td className="no">✗</td>
+                <td className="yes">✓</td><td className="no">✗</td>
+              </tr>
+              <tr>
+                <td>Yelp / Yellow Pages</td>
+                <td className="yes">✓</td><td className="no">✗</td>
+                <td className="no">✗</td><td className="no">✗</td>
+              </tr>
+              <tr>
+                <td>Wix / Squarespace</td>
+                <td className="yes">✓</td><td className="no">✗</td>
+                <td className="no">✗</td><td className="yes">✓</td>
+              </tr>
+              <tr className="proposal-table-highlight">
+                <td><strong>Your own site</strong></td>
+                <td className="yes">✓</td><td className="yes">✓</td>
+                <td className="yes">✓</td><td className="yes">✓</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
         {/* ── DEMO (moved up — strongest proof element first) ────── */}
         <section className="proposal-section proposal-section--demo">
           <h2 className="proposal-section-title">Your site is already built</h2>
