@@ -9,10 +9,21 @@ import { FilterSortBar } from "@/app/admin/filter-bar";
 function parseAddress(address?: string) {
   if (!address?.trim()) return { city: "", state: "", zip: "" };
   const parts = address.split(",").map((s) => s.trim());
+  // Last part is always "STATE ZIP" (e.g. "DC 20012" or "NJ 07011")
+  const lastPart = parts[parts.length - 1] ?? "";
+  const stateZip = lastPart.split(/\s+/);
   if (parts.length >= 3) {
-    const stateZip = parts[parts.length - 1].trim().split(/\s+/);
+    // "123 Main St, City, ST 07011"
     return {
       city: parts[parts.length - 2] ?? "",
+      state: stateZip[0] ?? "",
+      zip: stateZip[1] ?? "",
+    };
+  }
+  if (parts.length === 2) {
+    // "City, ST 07011" (no street)
+    return {
+      city: parts[0] ?? "",
       state: stateZip[0] ?? "",
       zip: stateZip[1] ?? "",
     };
