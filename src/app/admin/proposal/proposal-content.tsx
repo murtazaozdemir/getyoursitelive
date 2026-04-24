@@ -159,6 +159,9 @@ export function ProposalContent({
             <li key={item}><span className="proposal-check">&#x2713;</span>{item}</li>
           ))}
         </ul>
+        <div className="proposal-no-fees">
+          All of the above for a one-time $500 — no monthly fees, no subscriptions, no surprises.
+        </div>
       </section>
 
       {/* ── DOMAIN SUGGESTIONS ─────────────────────────────────── */}
