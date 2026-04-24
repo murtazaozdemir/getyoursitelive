@@ -15,9 +15,9 @@ owns the domain and site forever.
 
 ## Architecture summary
 
-- **Stack:** Next.js 16 (Turbopack) · React 19 · TypeScript · Tailwind 4 · JSON-file storage via pluggable `Storage` interface (local fs now, Cloudflare R2 at deploy time) · Server-rendered (no more static export)
+- **Stack:** Next.js 16 (Turbopack) · React 19 · TypeScript · Tailwind 4 · Cloudflare Pages (hosting) · Cloudflare D1 (SQLite edge DB) · Cloudflare R2 (file uploads) · Server-rendered
 - **Auth:** signed-JWT session cookies via `jose` (HS256, 7-day TTL). Roles: `admin` (platform-wide) and `owner` (one slug).
-- **Data queries:** `src/lib/db.ts` reads/writes per-business JSON blobs through the `Storage` abstraction. All queries async.
+- **Data queries:** `src/lib/db.ts` reads/writes via D1 (SQLite). `src/lib/db-d1.ts` returns the D1 binding via `getRequestContext().env.DB`. All queries async.
 - **Routing:**
   - `/` → editorial landing page selling the service (Fraunces serif design)
   - `/[slug]` → per-business public site
@@ -48,10 +48,8 @@ public/
                           Gitignored; produced by /api/upload.
 
 src/lib/
-  db.ts                   Server-only query layer (async, via Storage)
-  storage.ts              Pluggable Storage interface (read/write/list/delete)
-  storage-local.ts        Local-filesystem impl (dev)
-  storage-r2.ts           Cloudflare R2 impl (stub, for prod)
+  db.ts                   Server-only query layer (async, via D1)
+  db-d1.ts                Returns D1Database binding via getRequestContext()
   business-types.ts       Business interface, visibility flags, HoursSchedule
   business-validation.ts  Slug/hours/IDs validator
   business-context.tsx    BusinessProvider + useBusiness() hook
@@ -122,6 +120,45 @@ on visit; user can switch via the header dropdown (session-only, not persisted).
 - **`friendly`** — cream/coral, Geist (not yet polished)
 
 Star Auto Repair Center seeds with `modern` (the primary/only demo business).
+
+## Deployment & infrastructure
+
+**Live site:** `https://getyoursitelive.com` (and `www.`)
+
+**Platform:** Cloudflare Pages — connected to GitHub, auto-deploys on push to `main`.
+
+**Build command:** `npx @cloudflare/next-on-pages@1` (runs `vercel build` then processes output into `_worker.js`).
+
+**Bindings (wrangler.toml):**
+- `DB` → Cloudflare D1 database `getyoursitelive-d1`
+- `R2` → Cloudflare R2 bucket for file uploads
+
+**Why Cloudflare over Vercel:**
+- D1 and R2 are effectively free at this scale; Vercel Postgres/Blob get expensive quickly
+- Better long-term cost as client count grows
+- Trade-off: harder to set up (see lessons below)
+
+**Why NOT to switch back to Vercel:**
+The migration from Vercel → Cloudflare was painful. Don't redo it. Vercel Postgres would have been simpler to set up initially, but it's done now and stable. Every new business is just a D1 row — no config changes needed.
+
+## Cloudflare edge runtime — hard-learned rules
+
+These are non-obvious constraints discovered during the Vercel → Cloudflare migration. Breaking any of these causes silent 500s in production.
+
+**1. Never use `import "server-only"` in lib files**
+`server-only` v0.0.1 has two export conditions: `"react-server"` (safe) and `"default"` (throws with "This module cannot be imported from a Client Component"). The Cloudflare edge worker bundler resolves `"default"`, not `"react-server"` → every route that imports an affected lib crashes at runtime. Remove `import "server-only"` from all files in `src/lib/`. Already done as of `eabd495`.
+
+**2. Every dynamic route/page must export `export const runtime = "edge"`**
+`@cloudflare/next-on-pages` only bundles routes marked as edge. Node.js routes are silently skipped. Add to every file in `src/app/**/{page,route,layout}.ts(x)`.
+
+**3. `src/middleware.ts` — not `src/proxy.ts`**
+Next.js 16 renamed the middleware convention from `middleware.ts` → `proxy.ts`. But `@cloudflare/next-on-pages@1.x` was written for the old name and only recognises `middleware.ts`. Keep the file as `middleware.ts` despite the deprecation warning. Do NOT add `export const runtime = "edge"` to it — middleware is always edge, and adding the export causes a build error.
+
+**4. D1 binding is only available inside a request context**
+`getRequestContext()` (from `@cloudflare/next-on-pages`) throws if called at module load time. Always call `getD1()` inside a route handler, server action, or server component — never at the top level of a module.
+
+**5. Local dev uses `--experimental-edge` flag**
+Run dev with `npx wrangler pages dev` or ensure the dev server wires up miniflare via `@cloudflare/next-on-pages/next-dev`. Plain `next dev` won't have D1 bindings.
 
 ## Convention notes
 
@@ -410,30 +447,23 @@ Every hardcoded string in the components has been moved into per-business JSON. 
 - Hero `align-items: center` → `align-items: start` so columns top-anchor (no centered-gap when one is short)
 - Footer redesigned to a single compact row (was 4-column grid with Services column)
 
-## Phase 5 — R2 storage + Cloudflare deploy
+## Phase 5 — Cloudflare Pages + D1 deploy ✅ DONE
 
-### 5a — Implement R2 storage (needed for both this platform AND client-site)
-- [ ] `npm install @aws-sdk/client-s3` in both `/Users/Shared/CarMechanic` and `client-site/`
-- [ ] Implement `src/lib/storage-r2.ts` using `@aws-sdk/client-s3` (S3-compatible API):
-  - `read(key)` → `GetObjectCommand`
-  - `write(key, data)` → `PutObjectCommand`
-  - `list(prefix)` → `ListObjectsV2Command`
-  - `delete(key)` → `DeleteObjectCommand`
-  - Reads env vars: `R2_ENDPOINT`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`
-- [ ] Update `src/app/api/upload/route.ts` to write to R2 when `STORAGE_BACKEND=r2`
-  - Add `R2_PUBLIC_URL` env var (the `https://pub-XXXXX.r2.dev` URL for the bucket)
-  - Return that URL instead of `/uploads/...` local path
-- [ ] Copy both updated files into `client-site/src/` as well (same implementation)
+> Originally planned as R2+JSON storage. Changed to D1 (SQLite edge DB) for
+> proper relational storage. Migration from Vercel was complex — see
+> "Cloudflare edge runtime — hard-learned rules" section above.
 
-### 5b — Deploy getyoursitelive.com (your platform)
-- [ ] Create R2 bucket `getyoursitelive-data`
-- [ ] Upload `data/businesses/star-auto.json` as `businesses/star-auto.json` in bucket
-- [ ] Upload `data/users.json` as `users.json` in bucket
-- [ ] Create Cloudflare Pages project, connect to GitHub
-- [ ] Set env vars: `STORAGE_BACKEND=r2`, `AUTH_SECRET`, `NEXT_PUBLIC_SITE_URL=https://getyoursitelive.com`, R2 credentials
-- [ ] Point `getyoursitelive.com` DNS at Pages project
-- [ ] Smoke-test: `/`, `/star-auto`, `/admin/login`, `/star-auto/admin`
-- [ ] Test on phone
+- [x] Migrated storage from JSON files → Cloudflare D1 (SQLite)
+- [x] `src/lib/db-d1.ts` — returns D1 binding via `getRequestContext().env.DB`
+- [x] `src/lib/db.ts` — rewrote all queries to use D1 prepared statements
+- [x] `export const runtime = "edge"` added to all 26 dynamic routes/pages
+- [x] `src/middleware.ts` created (replaces `src/proxy.ts` — Next.js 16 renamed convention but `@cloudflare/next-on-pages` requires old name)
+- [x] Removed `import "server-only"` from all lib files (incompatible with edge bundler)
+- [x] `src/app/api/upload/route.ts` rewrote to use R2 binding (not S3 SDK)
+- [x] Cloudflare Pages project created, connected to GitHub, auto-deploys on push
+- [x] Custom domains `getyoursitelive.com` + `www.getyoursitelive.com` added to Pages project
+- [x] `getyoursitelive.com` DNS cut over from Vercel to Cloudflare Pages
+- [x] D1 seeded with all business data (92 businesses migrated)
 
 ## Phase 6 — Wire up forms *(~30 min)*
 - [ ] Sign up for Formspree (or use a bookings store)
