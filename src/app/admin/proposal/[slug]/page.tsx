@@ -245,10 +245,13 @@ export default async function ProposalPage({
             ))}
           </div>
           <p className="proposal-body proposal-body--small">
-            These are suggestions — if you have a preference for something
-            different, we can check availability when we talk. I generally
-            recommend <strong>.com</strong> since most people default to
-            typing it. The first year of registration is included; after
+            These are suggestions only — they were available at the time
+            this proposal was prepared, but domain names can be registered
+            by anyone at any time, so availability is not guaranteed. If
+            you decide to move forward, we&rsquo;ll confirm availability
+            and if none of these work, we&rsquo;ll search for other
+            options together until we find one you like.
+            The first year of registration is included; after
             that it renews directly with the registrar for around $15/year.
           </p>
         </section>
