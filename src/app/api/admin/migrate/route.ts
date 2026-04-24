@@ -349,6 +349,36 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped, log };
   },
 
+  "debug-nj-domains": async () => {
+    const db = await getD1();
+    const { results } = await db
+      .prepare(
+        `SELECT slug, name, state, domain1, address FROM prospects
+         WHERE state = 'NJ'
+         ORDER BY domain1 IS NULL DESC, domain1 = '' DESC, created_at DESC
+         LIMIT 30`,
+      )
+      .all<{ slug: string; name: string; state: string | null; domain1: string | null; address: string }>();
+
+    const log = results.map((r) =>
+      `${r.slug} | state=${r.state} | d1=${r.domain1 ?? "NULL"} | ${r.address}`
+    );
+
+    // Also count
+    const countRow = await db
+      .prepare("SELECT COUNT(*) as cnt FROM prospects WHERE state = 'NJ'")
+      .first<{ cnt: number }>();
+    const missingRow = await db
+      .prepare("SELECT COUNT(*) as cnt FROM prospects WHERE state = 'NJ' AND (domain1 IS NULL OR domain1 = '')")
+      .first<{ cnt: number }>();
+    const noStateRow = await db
+      .prepare("SELECT COUNT(*) as cnt FROM prospects WHERE state IS NULL")
+      .first<{ cnt: number }>();
+
+    log.unshift(`NJ total: ${countRow?.cnt}, NJ missing domains: ${missingRow?.cnt}, No state set: ${noStateRow?.cnt}`);
+    return { updated: 0, skipped: 0, log };
+  },
+
   // ── Add new migrations below this line ──────────────────────────────────────
 };
 
