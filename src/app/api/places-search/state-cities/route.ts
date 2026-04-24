@@ -1,22 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
-import { getD1 } from "@/lib/db-d1";
 
 export const runtime = "edge";
 
 export async function GET(req: NextRequest) {
+  const state = req.nextUrl.searchParams.get("state")?.trim().toUpperCase() ?? "";
+
+  // Auth check
+  let authorized = false;
   try {
     const user = await getCurrentUser();
-    if (!user || !canManageBusinesses(user)) {
-      return NextResponse.json({ error: "Unauthorized", cities: [] }, { status: 401 });
-    }
+    authorized = !!user && canManageBusinesses(user);
+  } catch {
+    return NextResponse.json({ cities: [], error: "auth_failed" });
+  }
 
-    const state = req.nextUrl.searchParams.get("state")?.trim().toUpperCase();
-    if (!state || state.length !== 2) {
-      return NextResponse.json({ error: "State is required.", cities: [] }, { status: 400 });
-    }
+  if (!authorized) {
+    return NextResponse.json({ cities: [], error: "unauthorized" });
+  }
 
+  if (!state || state.length !== 2) {
+    return NextResponse.json({ cities: [], error: "invalid_state" });
+  }
+
+  // Try D1 lookup
+  try {
+    const { getD1 } = await import("@/lib/db-d1");
     const db = await getD1();
 
     const cached = await db
@@ -28,12 +38,12 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ cities: JSON.parse(cached.cities) });
     }
 
-    return NextResponse.json({ cities: [] });
+    return NextResponse.json({ cities: [], error: "not_found" });
   } catch (err) {
-    console.error("[state-cities] Error:", err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Unknown error", cities: [] },
-      { status: 500 },
-    );
+    return NextResponse.json({
+      cities: [],
+      error: "db_error",
+      detail: err instanceof Error ? err.message : String(err),
+    });
   }
 }
