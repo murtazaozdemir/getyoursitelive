@@ -137,134 +137,24 @@ export default async function ProposalPage({
         <section className="proposal-letter">
           <p className="proposal-salutation">Dear {name} owner,</p>
           <p>
-            When someone needs a mechanic and doesn&rsquo;t have a shop in
-            mind, they search Google — not Facebook, not Yelp. A website
-            is how {name} shows up in those results.
+            Right now, when someone nearby needs a mechanic and doesn&rsquo;t
+            already know your shop, they Google it. If {name} doesn&rsquo;t
+            show up, that customer goes to whoever does. A website fixes that.
           </p>
           <p>
-            I&rsquo;ve been working in web design and technology for around
-            20&nbsp;years. I&rsquo;m now focused on helping local businesses
-            get a proper website — built once, no monthly fees,
-            no subscriptions, you own it.
+            I build websites for auto shops — <strong>$500, one time, you
+            own it</strong>. I&rsquo;ve already put together a working
+            preview for {name}. You can see it right now.
           </p>
         </section>
 
-        {/* ── COMPARISON TABLE ───────────────────────────────────── */}
-        <section className="proposal-section">
-          <h2 className="proposal-section-title">How the options compare</h2>
-          <table className="proposal-table">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Shows on Google</th>
-                <th>You own it</th>
-                <th>No monthly fees</th>
-                <th>Professional look</th>
-                <th>Takes bookings</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Facebook page</td>
-                <td className="no">✗</td><td className="no">✗</td>
-                <td className="yes">✓</td><td className="no">✗</td><td className="no">✗</td>
-              </tr>
-              <tr>
-                <td>Google Sites / free builders</td>
-                <td className="no">✗</td><td className="no">✗</td>
-                <td className="yes">✓</td><td className="no">✗</td><td className="no">✗</td>
-              </tr>
-              <tr>
-                <td>Wix / Squarespace</td>
-                <td className="yes">✓</td><td className="no">✗</td>
-                <td className="no">✗</td><td className="yes">✓</td><td className="yes">✓</td>
-              </tr>
-              <tr>
-                <td>Yelp / Yellow Pages</td>
-                <td className="yes">✓</td><td className="no">✗</td>
-                <td className="no">✗</td><td className="no">✗</td><td className="no">✗</td>
-              </tr>
-              <tr className="proposal-table-highlight">
-                <td><strong>Your own website</strong></td>
-                <td className="yes">✓</td><td className="yes">✓</td>
-                <td className="yes">✓</td><td className="yes">✓</td><td className="yes">✓</td>
-              </tr>
-            </tbody>
-          </table>
-          <p className="proposal-body proposal-body--small">
-            Each option has trade-offs. The main difference with your own site
-            is that you control it and there&rsquo;s no ongoing fee to a platform.
-          </p>
-        </section>
-
-        {/* ── WHAT YOU GET ───────────────────────────────────────── */}
-        <section className="proposal-section">
-          <h2 className="proposal-section-title">What I build for you</h2>
-          <ul className="proposal-checklist">
-            {[
-              "Your address, phone, hours, and services — laid out clearly",
-              "Services and pricing page (you choose what to list)",
-              "Appointment request form — customers can send requests 24/7",
-              "Customer review section",
-              "Google Maps pointing to your address",
-              "Click-to-call button — one tap and it dials your number",
-              "4 design styles to choose from",
-              "Works perfectly on phones, tablets, and computers",
-              "Simple admin panel — change any text, photo, or hours yourself, no technical knowledge needed",
-            ].map(item => (
-              <li key={item}><span className="proposal-check">✓</span>{item}</li>
-            ))}
-          </ul>
-        </section>
-
-        {/* ── DOMAIN SUGGESTIONS ─────────────────────────────────── */}
-        <section className="proposal-section">
-          <h2 className="proposal-section-title">Your domain name</h2>
-          <p className="proposal-body">
-            The $500 package includes registering a domain name for your shop —
-            that&rsquo;s the web address customers type to reach you
-            (e.g.&nbsp;<em>starautorepair.com</em>). It&rsquo;s registered in
-            your name, so you own it. Based on your shop name, here are
-            a few options worth considering:
-          </p>
-          <p className="proposal-body">
-            Having your own domain makes a difference in a few practical ways:
-          </p>
-          <ul className="proposal-checklist proposal-checklist--single">
-            {[
-              "Looks professional — starautorepair.com vs. starauto.wixsite.com/home",
-              "Google treats it as a real business, not a subdomain of someone else's platform",
-              "Your email can match — contact@starautorepair.com instead of a Gmail address",
-              "You own it permanently — it stays yours even if you switch who builds your site",
-              "Customers remember it and type it directly",
-            ].map(item => (
-              <li key={item}><span className="proposal-check">✓</span>{item}</li>
-            ))}
-          </ul>
-          <div className="proposal-domains">
-            {domains.map(d => (
-              <div key={d} className="proposal-domain-chip">{d}</div>
-            ))}
-          </div>
-          <p className="proposal-body proposal-body--small">
-            These are suggestions only — they were available at the time
-            this proposal was prepared, but domain names can be registered
-            by anyone at any time, so availability is not guaranteed. If
-            you decide to move forward, we&rsquo;ll confirm availability
-            and if none of these work, we&rsquo;ll search for other
-            options together until we find one you like.
-            The first year of registration is included; after
-            that it renews directly with the registrar for around $15/year.
-          </p>
-        </section>
-
-        {/* ── DEMO ───────────────────────────────────────────────── */}
+        {/* ── DEMO (moved up — strongest proof element first) ────── */}
         <section className="proposal-section proposal-section--demo">
-          <h2 className="proposal-section-title">See your preview site</h2>
+          <h2 className="proposal-section-title">Your site is already built</h2>
           <p className="proposal-body">
-            I&rsquo;ve already built a complete site for {name}. You can
-            open it right now and see exactly what it looks like — try it
-            on your phone too. Scan the code below or type the short link.
+            Scan the code or type the link to see exactly what your customers
+            would see — try it on your phone. Everything you see can be
+            changed.
           </p>
           <div className="proposal-demo-row">
             <div className="proposal-qr">
@@ -279,12 +169,63 @@ export default async function ProposalPage({
                 </a>
               )}
               <p className="proposal-body proposal-body--small" style={{ marginTop: 4 }}>
-                Once your domain is registered, your site moves there
-                and this temporary address won&rsquo;t be needed anymore.
+                This is a live preview. Once you go ahead, your site
+                moves to your own domain.
               </p>
             </div>
           </div>
+        </section>
 
+        {/* ── WHAT THIS DOES FOR YOUR SHOP ──────────────────────── */}
+        <section className="proposal-section">
+          <h2 className="proposal-section-title">What this does for your shop</h2>
+          <ul className="proposal-checklist proposal-checklist--single">
+            {[
+              "Customers find you on Google when they search for a mechanic nearby",
+              "They see your services, hours, and location — and can call with one tap",
+              "They can request appointments online, even at midnight or on weekends",
+              "Your site looks professional on phones — where most people search",
+              "You can update anything yourself: prices, hours, photos, services",
+            ].map(item => (
+              <li key={item}><span className="proposal-check">✓</span>{item}</li>
+            ))}
+          </ul>
+        </section>
+
+        {/* ── WHAT'S INCLUDED ───────────────────────────────────── */}
+        <section className="proposal-section">
+          <h2 className="proposal-section-title">What&rsquo;s included</h2>
+          <ul className="proposal-checklist">
+            {[
+              "Your own domain name (e.g. starautorepair.com) — registered in your name",
+              "Full website with your services, pricing, hours, and location",
+              "Appointment request form that works 24/7",
+              "Click-to-call button on every page",
+              "Google Maps showing your address",
+              "Customer reviews section",
+              "Works on phones, tablets, and computers",
+              "Admin panel — change any text, photo, or price yourself",
+            ].map(item => (
+              <li key={item}><span className="proposal-check">✓</span>{item}</li>
+            ))}
+          </ul>
+        </section>
+
+        {/* ── DOMAIN SUGGESTIONS ─────────────────────────────────── */}
+        <section className="proposal-section">
+          <h2 className="proposal-section-title">Domain options for {name}</h2>
+          <div className="proposal-domains">
+            {domains.map(d => (
+              <div key={d} className="proposal-domain-chip">{d}</div>
+            ))}
+          </div>
+          <p className="proposal-body proposal-body--small">
+            These are suggestions — availability can change. When you&rsquo;re
+            ready, I&rsquo;ll confirm which ones are still open. If none work,
+            we&rsquo;ll find one you like. First year of registration is
+            included; after that it renews for about $15/year directly with
+            the registrar.
+          </p>
         </section>
 
         {/* ── HOW IT WORKS ───────────────────────────────────────── */}
@@ -292,115 +233,64 @@ export default async function ProposalPage({
           <h2 className="proposal-section-title">How it works</h2>
           <ol className="proposal-steps proposal-steps--how">
             <li>
-              <strong>We sit down for 20 minutes.</strong> You tell me what you
-              want on the site, what services to list, and what photos you have.
-              If you don&rsquo;t have photos, I can work around it.
+              <strong>20-minute conversation.</strong> You tell me what
+              services to list and what photos you have. No photos? I
+              handle it.
             </li>
             <li>
-              <strong>I build your site in 1–2 days.</strong> I use
-              modern tools that let me build quickly without cutting corners.
+              <strong>I build it in 1–2 days.</strong> You review it and
+              tell me what to change.
             </li>
             <li>
-              <strong>You review it</strong> and we tweak anything you want.
-            </li>
-            <li>
-              <strong>It goes live.</strong> You own it.
+              <strong>It goes live.</strong> Your domain, your site, done.
             </li>
           </ol>
         </section>
 
         {/* ── PRICE ──────────────────────────────────────────────── */}
-        <section className="proposal-section">
-          <h2 className="proposal-section-title">What it costs</h2>
-          <p className="proposal-body">
-            <strong>$500, one time.</strong> That covers the website, registering
-            the domain name, and getting everything set up and live.
-          </p>
-          <p className="proposal-body">
-            The first year of your domain name is included. After that, you
-            continue paying for it directly — it&rsquo;s a small annual fee
-            that keeps the domain yours.
-          </p>
-          <p className="proposal-body">
-            Hosting is free as long as you stay on the same platform. No
-            monthly bills, no subscriptions from me.
-          </p>
-        </section>
-
-        {/* ── THE MATH ───────────────────────────────────────────── */}
         <section className="proposal-section proposal-section--math">
           <p className="proposal-math-line">
-            To put it in perspective: <strong>$500 once</strong> vs. $500 every month for ads that stop the moment you stop paying.
+            <strong>$500. One time. No monthly fees.</strong>
           </p>
           <p className="proposal-math-sub">
-            A website keeps working whether you&rsquo;re open, closed, or busy.
+            That covers the website, your domain name, hosting setup, and
+            getting everything live. One brake job covers the cost of a
+            site that works for you year after year.
           </p>
         </section>
 
-        {/* ── Q&A ────────────────────────────────────────────────── */}
+        {/* ── Q&A (trimmed to 3) ─────────────────────────────────── */}
         <section className="proposal-section">
           <h2 className="proposal-section-title">Common questions</h2>
 
           <div className="proposal-qa">
             <div className="proposal-qa-item">
-              <p className="proposal-qa-q">I already have a Facebook page — isn&rsquo;t that enough?</p>
+              <p className="proposal-qa-q">I already have a Facebook page.</p>
               <p className="proposal-qa-a">
-                Facebook works well for people who already follow you. But when
-                a new customer is searching Google for a mechanic nearby,
-                Facebook pages don&rsquo;t show up in the results — a website
-                does. The two serve different purposes. A website reaches people
-                who don&rsquo;t know you exist yet.
+                Facebook reaches people who already follow you. A website
+                reaches the ones who don&rsquo;t know you exist yet — they&rsquo;re
+                searching Google, and that&rsquo;s where a website shows up.
+                They work together, not instead of each other.
               </p>
             </div>
 
             <div className="proposal-qa-item">
-              <p className="proposal-qa-q">Why $500? Is it worth it?</p>
+              <p className="proposal-qa-q">I have plenty of customers already.</p>
               <p className="proposal-qa-a">
-                The $500 covers the full build — design, your domain name,
-                hosting setup, and getting everything live. It&rsquo;s a
-                one-time cost, not a subscription. If it brings in a few new
-                customers over the course of a year, it more than pays for
-                itself. And even if it doesn&rsquo;t, you still walk away with
-                an asset rather than a monthly bill.
+                That&rsquo;s great — and that&rsquo;s the best time to set this
+                up, not when business slows down or a competitor opens nearby.
+                It costs nothing extra later, but takes weeks to build if you
+                wait until you need it.
               </p>
             </div>
 
             <div className="proposal-qa-item">
-              <p className="proposal-qa-q">My nephew can build it for me.</p>
+              <p className="proposal-qa-q">I had a website before and it didn&rsquo;t help.</p>
               <p className="proposal-qa-a">
-                Perfectly fair. If it gets done and works well, great. If they
-                get busy or it never finishes, I&rsquo;m still here. A lot of
-                shops I talk to went down that path and ended up with an
-                unfinished site or one that looked rough on phones.
-              </p>
-            </div>
-
-            <div className="proposal-qa-item">
-              <p className="proposal-qa-q">I have plenty of customers already. Do I really need this?</p>
-              <p className="proposal-qa-a">
-                The site really isn&rsquo;t for today — it&rsquo;s for when
-                you need it. A competitor opening nearby, a slow month, a key
-                employee leaving. Having the site ready when that happens costs
-                nothing extra now, but it takes weeks to build if you wait.
-              </p>
-            </div>
-
-            <div className="proposal-qa-item">
-              <p className="proposal-qa-q">I had a website before and it didn&rsquo;t bring me customers.</p>
-              <p className="proposal-qa-a">
-                Most generic website builders don&rsquo;t set things up properly
-                for local search. The main fixes aren&rsquo;t complicated —
-                making sure your address, phone, and hours are listed correctly,
-                and that the site loads fast on phones. I handle both as part of
-                the build.
-              </p>
-            </div>
-
-            <div className="proposal-qa-item">
-              <p className="proposal-qa-q">What if I&rsquo;m not ready to decide right now?</p>
-              <p className="proposal-qa-a">
-                No pressure. Keep this page somewhere handy. Whenever you&rsquo;re
-                ready — next week, next month, next year — just reach out.
+                Most generic builders don&rsquo;t set things up for local search
+                — your address, phone, and hours need to be structured so Google
+                can read them, and the site needs to load fast on phones. I
+                handle both.
               </p>
             </div>
           </div>
@@ -408,19 +298,15 @@ export default async function ProposalPage({
 
         {/* ── NEXT STEPS ─────────────────────────────────────────── */}
         <section className="proposal-section">
-          <h2 className="proposal-section-title">Next steps</h2>
+          <h2 className="proposal-section-title">Next step</h2>
           <div className="proposal-next-steps">
             <div className="proposal-next-step">
-              <span className="proposal-next-step-label">Ready to go</span>
-              <p>Reach out and we&rsquo;ll set up a 20-minute conversation to work out the details. I&rsquo;ll confirm domain availability while we talk.</p>
-            </div>
-            <div className="proposal-next-step">
-              <span className="proposal-next-step-label">Have questions</span>
-              <p>Email or call. No pressure — I&rsquo;ll answer anything straight.</p>
-            </div>
-            <div className="proposal-next-step">
-              <span className="proposal-next-step-label">Not the right time</span>
-              <p>Keep this page. Whenever the timing is right, reach out.</p>
+              <p>
+                Call or text me and we&rsquo;ll set up 20 minutes to go
+                over the details. I&rsquo;ll confirm your domain is available
+                while we talk. If now isn&rsquo;t the right time, keep this
+                page — the offer stands whenever you&rsquo;re ready.
+              </p>
             </div>
           </div>
         </section>
