@@ -10,18 +10,47 @@ function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+const US_STATES = new Set([
+  "AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL",
+  "IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE",
+  "NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD",
+  "TN","TX","UT","VT","VA","WA","WV","WI","WY",
+]);
+
+function looksLikeStreet(s: string): boolean {
+  return /^\d/.test(s) || /\b(st|ave|blvd|rd|dr|ln|ct|way|hwy|pkwy|suite|ste|tower)\b/i.test(s);
+}
+
 function parseAddress(address?: string) {
   if (!address?.trim()) return { city: "", state: "", zip: "" };
   const parts = address.split(",").map((s) => s.trim());
-  if (parts.length >= 3) {
-    const stateZip = parts[parts.length - 1].trim().split(/\s+/);
-    return {
-      city: parts[parts.length - 2] ?? "",
-      state: stateZip[0] ?? "",
-      zip: stateZip[1] ?? "",
-    };
+
+  let state = "";
+  let zip = "";
+  let statePartIndex = -1;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const tokens = parts[i].split(/\s+/);
+    const stateToken = tokens.find((t) => US_STATES.has(t.toUpperCase()));
+    if (stateToken) {
+      state = stateToken.toUpperCase();
+      const zipToken = tokens.find((t) => /^\d{5}/.test(t));
+      zip = zipToken ?? "";
+      statePartIndex = i;
+      break;
+    }
   }
-  return { city: "", state: "", zip: "" };
+
+  let city = "";
+  if (statePartIndex > 0) {
+    for (let i = statePartIndex - 1; i >= 0; i--) {
+      if (!looksLikeStreet(parts[i])) {
+        city = parts[i];
+        break;
+      }
+    }
+  }
+
+  return { city, state, zip };
 }
 
 function unique<T>(arr: T[]): T[] {
@@ -145,10 +174,16 @@ export default async function AdminDashboard({
     return { ...b, _city: city, _state: state, _zip: zip };
   });
 
-  // Collect unique values for dropdowns
-  const allCities = unique(enriched.map((b) => b._city));
-  const allStates = unique(enriched.map((b) => b._state));
-  const allZips = unique(enriched.map((b) => b._zip));
+  // Collect unique values for dropdowns — cascading geo filters
+  const geoMatch = (b: typeof enriched[0], skipField: "city" | "state" | "zip") => {
+    if (skipField !== "city" && filterCity && b._city.toLowerCase() !== filterCity.toLowerCase()) return false;
+    if (skipField !== "state" && filterState && b._state.toUpperCase() !== filterState.toUpperCase()) return false;
+    if (skipField !== "zip" && filterZip && b._zip !== filterZip) return false;
+    return true;
+  };
+  const allCities = unique(enriched.filter((b) => geoMatch(b, "city")).map((b) => b._city).filter(Boolean));
+  const allStates = unique(enriched.filter((b) => geoMatch(b, "state")).map((b) => b._state).filter(Boolean));
+  const allZips = unique(enriched.filter((b) => geoMatch(b, "zip")).map((b) => b._zip).filter(Boolean));
   const allCategories = unique(enriched.map((b) => b.category).filter(Boolean));
 
   // Apply filters

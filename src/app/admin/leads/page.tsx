@@ -191,10 +191,17 @@ export default async function LeadsPage({
     return { ...p, _city: city, _state: state, _zip: zip, _category: category, _distance: dist };
   });
 
-  // Collect unique values for dropdowns
-  const allCities = unique(enriched.map((p) => p._city).filter(Boolean));
-  const allStates = unique(enriched.map((p) => p._state).filter(Boolean));
-  const allZips = unique(enriched.map((p) => p._zip).filter(Boolean));
+  // Collect unique values for dropdowns — cascading: each dropdown
+  // only shows values that match the other active geo filters.
+  const geoMatch = (p: EnrichedProspect, skipField: "city" | "state" | "zip") => {
+    if (skipField !== "city" && filterCity && p._city.toLowerCase() !== filterCity.toLowerCase()) return false;
+    if (skipField !== "state" && filterState && p._state.toUpperCase() !== filterState.toUpperCase()) return false;
+    if (skipField !== "zip" && filterZip && p._zip !== filterZip) return false;
+    return true;
+  };
+  const allCities = unique(enriched.filter((p) => geoMatch(p, "city")).map((p) => p._city).filter(Boolean));
+  const allStates = unique(enriched.filter((p) => geoMatch(p, "state")).map((p) => p._state).filter(Boolean));
+  const allZips = unique(enriched.filter((p) => geoMatch(p, "zip")).map((p) => p._zip).filter(Boolean));
   const allCategories = unique(enriched.map((p) => p._category).filter(Boolean));
 
   // Apply filters
