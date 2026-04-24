@@ -4,6 +4,8 @@ import { canManageBusinesses } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
 import { normalizePhone } from "@/lib/prospects";
 
+export const runtime = "edge";
+
 interface PlaceResult {
   id: string;
   name: string;
