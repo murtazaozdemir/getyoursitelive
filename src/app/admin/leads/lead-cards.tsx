@@ -47,23 +47,32 @@ function printLabels(prospects: LeadCardData[]) {
     pages.push(prospects.slice(i, i + 2));
   }
 
+  const siteUrl = "https://getyoursitelive.com";
+
   const labelHtml = pages
     .map(
       (page, pi) => `
     <div class="page${pi < pages.length - 1 ? "" : " last"}">
       ${page
-        .map((p) => {
+        .map((p, li) => {
           const lines = formatAddressLines(p.address);
+          const previewUrl = `${siteUrl}/${p.slug}`;
+          const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(previewUrl)}`;
           return `
+        ${li > 0 ? '<div class="label-divider"></div>' : ""}
         <div class="label">
           <div class="label-content">
             <div class="label-name">${escapeHtml(p.name)}</div>
             ${lines.map((l) => `<div class="label-addr">${escapeHtml(l)}</div>`).join("")}
+            <div class="label-qr-section">
+              <img class="label-qr" src="${qrUrl}" alt="QR code" />
+              <div class="label-qr-text">We prepared a website for you!<br/>Scan this QR code to see it.</div>
+            </div>
           </div>
         </div>`;
         })
         .join("")}
-      ${page.length === 1 ? '<div class="label"></div>' : ""}
+      ${page.length === 1 ? '<div class="label-divider"></div><div class="label"></div>' : ""}
     </div>`,
     )
     .join("");
@@ -116,6 +125,34 @@ function printLabels(prospects: LeadCardData[]) {
     font-size: 13pt;
     line-height: 1.6;
     color: #111;
+  }
+
+  .label-divider {
+    width: 3.5in;
+    height: 0;
+    border-top: 1px dashed #bbb;
+    margin: 0 auto;
+  }
+
+  .label-qr-section {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .label-qr {
+    width: 1in;
+    height: 1in;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .label-qr-text {
+    font-size: 10pt;
+    line-height: 1.4;
+    color: #333;
+    text-align: left;
   }
 </style>
 </head>
