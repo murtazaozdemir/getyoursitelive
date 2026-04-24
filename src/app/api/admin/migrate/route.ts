@@ -249,6 +249,106 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped, log };
   },
 
+  "auto-domains-nj": async () => {
+    const db = await getD1();
+
+    const NOISE = new Set(["inc","llc","corp","co","incorporated","and","the","of","s","a"]);
+    const AUTO_WORDS = new Set(["auto","repair","tire","service","services","automotive","shop","garage","center","mechanic","car","truck","transmission","lube","alignment","body","motor","motors","motorsport","heavy","duty","mobile","foreign","specialist","care","works"]);
+
+    function generateDomains(name: string, state: string): string[] {
+      // Strip possessives and split
+      const cleaned = name.toLowerCase().replace(/['']/g, "").replace(/&/g, "and");
+      const words = cleaned.replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(Boolean);
+      const core = words.filter(w => !NOISE.has(w));
+      const nonAuto = core.filter(w => !AUTO_WORDS.has(w));
+      const st = state.toLowerCase();
+
+      const candidates: string[] = [];
+      const seen = new Set<string>();
+
+      function add(d: string) {
+        const full = d + ".com";
+        if (d.length >= 4 && full.length <= 17 && !seen.has(d)) {
+          seen.add(d);
+          candidates.push(d);
+        }
+      }
+
+      // 1. Core words joined
+      const coreJoined = core.join("");
+      add(coreJoined);
+
+      // 2. Non-auto + "auto"
+      if (nonAuto.length > 0) {
+        add(nonAuto.join("") + "auto");
+      }
+
+      // 3. Core + state
+      add(coreJoined + st);
+
+      // 4. Non-auto + auto + state
+      if (nonAuto.length > 0) {
+        add(nonAuto.join("") + "auto" + st);
+      }
+
+      // 5. Non-auto + state
+      if (nonAuto.length > 0) {
+        add(nonAuto.join("") + st);
+      }
+
+      // 6. Suffixes: pro, fix, shop, works, co
+      for (const suffix of ["pro", "fix", "co", "shop", "works"]) {
+        if (nonAuto.length > 0) add(nonAuto.join("") + suffix);
+        add(coreJoined + suffix);
+      }
+
+      // 7. Non-auto + "cars", "garage"
+      if (nonAuto.length > 0) {
+        add(nonAuto.join("") + "cars");
+        add(nonAuto.join("") + "garage");
+      }
+
+      // 8. First word + auto
+      if (core.length > 0) {
+        add(core[0] + "auto");
+        add(core[0] + "auto" + st);
+        add(core[0] + "fix");
+        add(core[0] + st);
+      }
+
+      return candidates.slice(0, 3);
+    }
+
+    const { results } = await db
+      .prepare(
+        `SELECT slug, name, state FROM prospects
+         WHERE state = 'NJ' AND (domain1 IS NULL OR domain1 = '')
+         ORDER BY created_at ASC`,
+      )
+      .all<{ slug: string; name: string; state: string }>();
+
+    let updated = 0;
+    let skipped = 0;
+    const log: string[] = [];
+
+    for (const row of results) {
+      const domains = generateDomains(row.name, row.state);
+      if (domains.length < 3) {
+        log.push(`${row.slug}: only ${domains.length} candidates, skipped`);
+        skipped++;
+        continue;
+      }
+      await db
+        .prepare("UPDATE prospects SET domain1 = ?, domain2 = ?, domain3 = ?, updated_at = ? WHERE slug = ? AND (domain1 IS NULL OR domain1 = '')")
+        .bind(domains[0] + ".com", domains[1] + ".com", domains[2] + ".com", new Date().toISOString(), row.slug)
+        .run();
+      log.push(`${row.slug}: ${domains[0]}.com, ${domains[1]}.com, ${domains[2]}.com`);
+      updated++;
+    }
+
+    return { updated, skipped, log };
+  },
+
   // ── Add new migrations below this line ──────────────────────────────────────
 };
 
