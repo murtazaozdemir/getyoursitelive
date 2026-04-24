@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 
 interface PlaceResult {
@@ -13,6 +13,7 @@ interface PlaceResult {
   reviewCount: number;
   website: string;
   googleMapsUrl: string;
+  _fromZip?: string;
 }
 
 type AddStatus = "idle" | "adding" | "added" | "exists" | "error";
@@ -42,66 +43,205 @@ const CATEGORIES = [
   { label: "Pet Grooming", query: "pet grooming" },
 ];
 
+const US_STATES = [
+  "AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN",
+  "IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH",
+  "NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT",
+  "VT","VA","WA","WV","WI","WY",
+];
+
+type ZipStatus = "idle" | "searching" | "cached" | "done";
+
 export function ZipSearch() {
-  const [zip, setZip] = useState("");
+  // City lookup
+  const [state, setState] = useState("NJ");
+  const [city, setCity] = useState("");
+  const [cityZips, setCityZips] = useState<string[]>([]);
+  const [selectedZips, setSelectedZips] = useState<Set<string>>(new Set());
+  const [lookingUp, setLookingUp] = useState(false);
+  const [lookupError, setLookupError] = useState("");
+
+  // Single zip fallback
+  const [manualZip, setManualZip] = useState("");
+
+  // Search
   const [query, setQuery] = useState("auto repair");
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
-  const [nextPageToken, setNextPageToken] = useState<string | null>(null);
   const [addStatuses, setAddStatuses] = useState<Record<string, AddStatus>>({});
   const [addedSlugs, setAddedSlugs] = useState<Record<string, string>>({});
-  const [cached, setCached] = useState(false);
-  const [cachedAt, setCachedAt] = useState("");
   const [hideWithWebsite, setHideWithWebsite] = useState(true);
 
-  async function handleSearch(pageToken?: string, forceRefresh?: boolean) {
-    if (!zip || !/^\d{5}$/.test(zip)) {
+  // Batch progress
+  const [zipStatuses, setZipStatuses] = useState<Record<string, ZipStatus>>({});
+  const [batchProgress, setBatchProgress] = useState({ current: 0, total: 0 });
+  const [apiCallsUsed, setApiCallsUsed] = useState(0);
+  const [duplicatesRemoved, setDuplicatesRemoved] = useState(0);
+
+  // Mode toggle
+  const [mode, setMode] = useState<"city" | "zip">("city");
+
+  async function lookupCity() {
+    if (!city.trim()) {
+      setLookupError("Enter a city name.");
+      return;
+    }
+    setLookingUp(true);
+    setLookupError("");
+    setCityZips([]);
+    setSelectedZips(new Set());
+
+    try {
+      const res = await fetch(
+        `/api/places-search/city-zips?state=${encodeURIComponent(state)}&city=${encodeURIComponent(city.trim())}`,
+      );
+      const data = (await res.json()) as { zips?: string[]; error?: string };
+
+      if (data.zips && data.zips.length > 0) {
+        setCityZips(data.zips);
+        setSelectedZips(new Set(data.zips));
+      } else {
+        setLookupError(`No zip codes found for ${city.trim()}, ${state}. Try a different spelling.`);
+      }
+    } catch {
+      setLookupError("Failed to look up zip codes. Try again.");
+    } finally {
+      setLookingUp(false);
+    }
+  }
+
+  function toggleZip(zip: string) {
+    setSelectedZips((prev) => {
+      const next = new Set(prev);
+      if (next.has(zip)) next.delete(zip);
+      else next.add(zip);
+      return next;
+    });
+  }
+
+  function selectAllZips() {
+    setSelectedZips(new Set(cityZips));
+  }
+
+  function clearZips() {
+    setSelectedZips(new Set());
+  }
+
+  const dedupeResults = useCallback((allResults: PlaceResult[]): PlaceResult[] => {
+    const seen = new Map<string, PlaceResult>();
+    for (const r of allResults) {
+      // Dedupe by Google Place ID first, then by phone
+      if (!seen.has(r.id)) {
+        const phoneKey = r.phone.replace(/\D/g, "");
+        const dupeByPhone = phoneKey.length >= 7
+          ? [...seen.values()].find((s) => s.phone.replace(/\D/g, "") === phoneKey)
+          : null;
+        if (!dupeByPhone) {
+          seen.set(r.id, r);
+        }
+      }
+    }
+    return [...seen.values()];
+  }, []);
+
+  async function searchSingleZip(zip: string, forceRefresh?: boolean): Promise<{
+    results: PlaceResult[];
+    cached: boolean;
+    apiCalls: number;
+  }> {
+    const res = await fetch("/api/places-search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ zip, query, forceRefresh }),
+    });
+
+    const data = (await res.json()) as {
+      error?: string;
+      results?: PlaceResult[];
+      nextPageToken?: string;
+      cached?: boolean;
+      cachedAt?: string;
+    };
+
+    if (!res.ok) {
+      throw new Error(data.error ?? "Search failed.");
+    }
+
+    return {
+      results: (data.results ?? []).map((r) => ({ ...r, _fromZip: zip })),
+      cached: data.cached ?? false,
+      apiCalls: data.cached ? 0 : 1,
+    };
+  }
+
+  async function handleBatchSearch() {
+    const zipsToSearch = [...selectedZips].sort();
+    if (zipsToSearch.length === 0) {
+      setError("Select at least one zip code.");
+      return;
+    }
+
+    setSearching(true);
+    setError("");
+    setResults([]);
+    setAddStatuses({});
+    setAddedSlugs({});
+    setDuplicatesRemoved(0);
+    setApiCallsUsed(0);
+    setBatchProgress({ current: 0, total: zipsToSearch.length });
+
+    const initStatuses: Record<string, ZipStatus> = {};
+    for (const z of zipsToSearch) initStatuses[z] = "idle";
+    setZipStatuses(initStatuses);
+
+    let allResults: PlaceResult[] = [];
+    let totalApiCalls = 0;
+
+    for (let i = 0; i < zipsToSearch.length; i++) {
+      const zip = zipsToSearch[i];
+      setZipStatuses((prev) => ({ ...prev, [zip]: "searching" }));
+      setBatchProgress({ current: i + 1, total: zipsToSearch.length });
+
+      try {
+        const { results: zipResults, cached, apiCalls } = await searchSingleZip(zip);
+        totalApiCalls += apiCalls;
+        setApiCallsUsed(totalApiCalls);
+        setZipStatuses((prev) => ({ ...prev, [zip]: cached ? "cached" : "done" }));
+
+        allResults = [...allResults, ...zipResults];
+        const deduped = dedupeResults(allResults);
+        setDuplicatesRemoved(allResults.length - deduped.length);
+        setResults(deduped);
+      } catch (err) {
+        setZipStatuses((prev) => ({ ...prev, [zip]: "done" }));
+        console.error(`Search failed for zip ${zip}:`, err);
+      }
+    }
+
+    setSearching(false);
+  }
+
+  async function handleSingleZipSearch() {
+    if (!manualZip || !/^\d{5}$/.test(manualZip)) {
       setError("Enter a valid 5-digit zip code.");
       return;
     }
 
     setSearching(true);
     setError("");
-
-    if (!pageToken) {
-      setResults([]);
-      setAddStatuses({});
-      setAddedSlugs({});
-      setCached(false);
-      setCachedAt("");
-    }
+    setResults([]);
+    setAddStatuses({});
+    setAddedSlugs({});
+    setDuplicatesRemoved(0);
+    setApiCallsUsed(0);
 
     try {
-      const res = await fetch("/api/places-search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ zip, query, pageToken, forceRefresh }),
-      });
-
-      const data = (await res.json()) as {
-        error?: string;
-        results?: PlaceResult[];
-        nextPageToken?: string;
-        cached?: boolean;
-        cachedAt?: string;
-      };
-
-      if (!res.ok) {
-        setError(data.error ?? "Search failed.");
-        return;
-      }
-
-      if (pageToken) {
-        setResults((prev) => [...prev, ...(data.results ?? [])]);
-      } else {
-        setResults(data.results ?? []);
-      }
-      setNextPageToken(data.nextPageToken ?? null);
-      setCached(data.cached ?? false);
-      setCachedAt(data.cachedAt ?? "");
-    } catch {
-      setError("Network error. Please try again.");
+      const { results: zipResults, apiCalls } = await searchSingleZip(manualZip);
+      setResults(zipResults);
+      setApiCallsUsed(apiCalls);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Search failed.");
     } finally {
       setSearching(false);
     }
@@ -115,7 +255,6 @@ export function ZipSearch() {
       formData.set("name", place.name);
       formData.set("phone", place.phone);
 
-      // Parse address — Google returns "Street, City, State Zip, Country"
       const parts = place.address.split(",").map((s) => s.trim());
       if (parts.length >= 3) {
         formData.set("street", parts[0]);
@@ -161,44 +300,187 @@ export function ZipSearch() {
   const hasWebsite = (url: string) =>
     url && !url.includes("business.site") && !url.includes("google.com");
 
+  const filtered = hideWithWebsite
+    ? results.filter((p) => !hasWebsite(p.website))
+    : results;
+
   return (
     <div>
+      {/* Mode toggle */}
       <div className="admin-section">
-        <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
-          <label className="admin-field" style={{ width: 140 }}>
-            <span className="admin-field-label">Zip code *</span>
-            <input
-              className="admin-input"
-              type="text"
-              maxLength={5}
-              placeholder="07011"
-              value={zip}
-              onChange={(e) => setZip(e.target.value.replace(/\D/g, ""))}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              autoFocus
-            />
-          </label>
-          <label className="admin-field" style={{ flex: 1, minWidth: 200 }}>
-            <span className="admin-field-label">Category</span>
-            <select
-              className="admin-input"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c.query} value={c.query}>{c.label}</option>
-              ))}
-            </select>
-          </label>
+        <div className="search-mode-toggle">
           <button
-            className="admin-btn admin-btn--primary"
-            onClick={() => handleSearch()}
-            disabled={searching}
-            style={{ height: 42 }}
+            className={`search-mode-btn${mode === "city" ? " search-mode-btn--active" : ""}`}
+            onClick={() => setMode("city")}
           >
-            {searching ? "Searching…" : "Search"}
+            Search by City
+          </button>
+          <button
+            className={`search-mode-btn${mode === "zip" ? " search-mode-btn--active" : ""}`}
+            onClick={() => setMode("zip")}
+          >
+            Single Zip
           </button>
         </div>
+
+        {mode === "city" ? (
+          <>
+            {/* City lookup */}
+            <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
+              <label className="admin-field" style={{ width: 100 }}>
+                <span className="admin-field-label">State</span>
+                <select
+                  className="admin-input"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                >
+                  {US_STATES.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="admin-field" style={{ flex: 1, minWidth: 180 }}>
+                <span className="admin-field-label">City</span>
+                <input
+                  className="admin-input"
+                  type="text"
+                  placeholder="Clifton"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && lookupCity()}
+                  autoFocus
+                />
+              </label>
+              <button
+                className="admin-btn admin-btn--ghost"
+                onClick={lookupCity}
+                disabled={lookingUp}
+                style={{ height: 42 }}
+              >
+                {lookingUp ? "Looking up…" : "Find Zip Codes"}
+              </button>
+            </div>
+
+            {lookupError && (
+              <div className="admin-error-banner" style={{ marginTop: 12 }}>{lookupError}</div>
+            )}
+
+            {/* Zip chips */}
+            {cityZips.length > 0 && (
+              <div style={{ marginTop: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                  <span className="admin-field-label" style={{ margin: 0 }}>
+                    Zip codes for {city.trim()}, {state}:
+                  </span>
+                  <button
+                    className="admin-btn admin-btn--ghost"
+                    style={{ fontSize: 12, padding: "2px 8px" }}
+                    onClick={selectAllZips}
+                  >
+                    Select All
+                  </button>
+                  <button
+                    className="admin-btn admin-btn--ghost"
+                    style={{ fontSize: 12, padding: "2px 8px" }}
+                    onClick={clearZips}
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div className="zip-chips">
+                  {cityZips.map((zip) => {
+                    const selected = selectedZips.has(zip);
+                    const status = zipStatuses[zip];
+                    let chipClass = "zip-chip";
+                    if (selected) chipClass += " zip-chip--selected";
+                    if (status === "done") chipClass += " zip-chip--done";
+                    if (status === "cached") chipClass += " zip-chip--cached";
+                    if (status === "searching") chipClass += " zip-chip--searching";
+
+                    return (
+                      <button
+                        key={zip}
+                        className={chipClass}
+                        onClick={() => toggleZip(zip)}
+                        disabled={searching}
+                      >
+                        {zip}
+                        {status === "done" && " \u2713"}
+                        {status === "cached" && " \u2713"}
+                        {status === "searching" && " \u2026"}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Category + search */}
+            {cityZips.length > 0 && (
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap", marginTop: 16 }}>
+                <label className="admin-field" style={{ flex: 1, minWidth: 200 }}>
+                  <span className="admin-field-label">Category</span>
+                  <select
+                    className="admin-input"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                  >
+                    {CATEGORIES.map((c) => (
+                      <option key={c.query} value={c.query}>{c.label}</option>
+                    ))}
+                  </select>
+                </label>
+                <button
+                  className="admin-btn admin-btn--primary"
+                  onClick={handleBatchSearch}
+                  disabled={searching || selectedZips.size === 0}
+                  style={{ height: 42 }}
+                >
+                  {searching
+                    ? `Searching ${batchProgress.current}/${batchProgress.total}…`
+                    : `Search ${selectedZips.size} zip${selectedZips.size !== 1 ? "s" : ""}`}
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          /* Single zip mode */
+          <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
+            <label className="admin-field" style={{ width: 140 }}>
+              <span className="admin-field-label">Zip code *</span>
+              <input
+                className="admin-input"
+                type="text"
+                maxLength={5}
+                placeholder="07011"
+                value={manualZip}
+                onChange={(e) => setManualZip(e.target.value.replace(/\D/g, ""))}
+                onKeyDown={(e) => e.key === "Enter" && handleSingleZipSearch()}
+                autoFocus
+              />
+            </label>
+            <label className="admin-field" style={{ flex: 1, minWidth: 200 }}>
+              <span className="admin-field-label">Category</span>
+              <select
+                className="admin-input"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              >
+                {CATEGORIES.map((c) => (
+                  <option key={c.query} value={c.query}>{c.label}</option>
+                ))}
+              </select>
+            </label>
+            <button
+              className="admin-btn admin-btn--primary"
+              onClick={handleSingleZipSearch}
+              disabled={searching}
+              style={{ height: 42 }}
+            >
+              {searching ? "Searching…" : "Search"}
+            </button>
+          </div>
+        )}
 
         <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10, fontSize: 13, color: "var(--admin-text-soft)", cursor: "pointer" }}>
           <input
@@ -212,12 +494,34 @@ export function ZipSearch() {
         {error && <div className="admin-error-banner" style={{ marginTop: 12 }}>{error}</div>}
       </div>
 
-      {results.length > 0 && (() => {
-        const filtered = hideWithWebsite
-          ? results.filter((p) => !hasWebsite(p.website))
-          : results;
+      {/* Batch progress bar */}
+      {batchProgress.total > 1 && (
+        <div className="admin-section" style={{ marginTop: 16 }}>
+          <div className="search-progress">
+            <div className="search-progress-bar">
+              <div
+                className="search-progress-fill"
+                style={{ width: `${(batchProgress.current / batchProgress.total) * 100}%` }}
+              />
+            </div>
+            <div className="search-progress-stats">
+              <span>{batchProgress.current}/{batchProgress.total} zips searched</span>
+              <span>{results.length} unique results</span>
+              {duplicatesRemoved > 0 && (
+                <span>{duplicatesRemoved} duplicate{duplicatesRemoved !== 1 ? "s" : ""} removed</span>
+              )}
+              <span>
+                {apiCallsUsed} API call{apiCallsUsed !== 1 ? "s" : ""}
+                {apiCallsUsed > 0 && ` (~$${(apiCallsUsed * 0.032).toFixed(2)})`}
+                {apiCallsUsed === 0 && batchProgress.current > 0 && " (all cached)"}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
-        return (
+      {/* Results */}
+      {filtered.length > 0 && (
         <div className="admin-section" style={{ marginTop: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
             <h2 className="admin-section-title" style={{ margin: 0 }}>
@@ -228,23 +532,6 @@ export function ZipSearch() {
                 </span>
               )}
             </h2>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              {cached && (
-                <span style={{ fontSize: 12, color: "var(--admin-text-muted)" }}>
-                  Cached {cachedAt ? `on ${new Date(cachedAt).toLocaleDateString()}` : ""} — no API call used
-                </span>
-              )}
-              {cached && (
-                <button
-                  className="admin-btn admin-btn--ghost"
-                  style={{ fontSize: 12, padding: "4px 10px" }}
-                  onClick={() => handleSearch(undefined, true)}
-                  disabled={searching}
-                >
-                  Refresh from Google
-                </button>
-              )}
-            </div>
           </div>
 
           <div className="search-results-list" style={{ marginTop: 12 }}>
@@ -270,6 +557,9 @@ export function ZipSearch() {
                         <span className="search-result-tag search-result-tag--warn">Has website</span>
                       ) : (
                         <span className="search-result-tag search-result-tag--good">No website</span>
+                      )}
+                      {place._fromZip && (
+                        <span className="search-result-tag">{place._fromZip}</span>
                       )}
                     </div>
                     {place.website && (
@@ -339,21 +629,17 @@ export function ZipSearch() {
               );
             })}
           </div>
-
-          {nextPageToken && (
-            <div style={{ textAlign: "center", marginTop: 16 }}>
-              <button
-                className="admin-btn admin-btn--ghost"
-                onClick={() => handleSearch(nextPageToken)}
-                disabled={searching}
-              >
-                {searching ? "Loading…" : "Load more results"}
-              </button>
-            </div>
-          )}
         </div>
-        );
-      })()}
+      )}
+
+      {/* No results message */}
+      {results.length > 0 && filtered.length === 0 && (
+        <div className="admin-section" style={{ marginTop: 16 }}>
+          <div className="admin-empty">
+            <p>All {results.length} results have websites. Uncheck the filter to see them.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

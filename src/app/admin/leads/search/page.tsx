@@ -13,10 +13,10 @@ export default async function SearchPage() {
       <div className="admin-page-header">
         <div>
           <p className="admin-eyebrow">Leads</p>
-          <h1 className="admin-h1">Search by zip code</h1>
+          <h1 className="admin-h1">Lead Search</h1>
           <p className="admin-lede">
-            Find auto repair shops (and related businesses) via Google Maps.
-            One-click add as leads with auto-generated preview sites.
+            Search by city to find businesses across all zip codes, or search a single zip.
+            Results are cached — repeat searches cost nothing.
           </p>
         </div>
       </div>

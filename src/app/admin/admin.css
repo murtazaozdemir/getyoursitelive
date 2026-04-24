@@ -1365,3 +1365,122 @@ a.prospect-preview-url:hover { text-decoration: underline; }
     flex-wrap: wrap;
   }
 }
+
+/* ── Search mode toggle ──────────────────────── */
+
+.search-mode-toggle {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  overflow: hidden;
+  width: fit-content;
+}
+
+.search-mode-btn {
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--admin-surface);
+  color: var(--admin-text-soft);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.search-mode-btn:not(:last-child) {
+  border-right: 1px solid var(--admin-border);
+}
+
+.search-mode-btn--active {
+  background: var(--admin-accent, #2563eb);
+  color: #fff;
+}
+
+/* ── Zip chips ───────────────────────────────── */
+
+.zip-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.zip-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-mono, monospace);
+  border: 2px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  background: var(--admin-surface);
+  color: var(--admin-text-soft);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.zip-chip:hover:not(:disabled) {
+  border-color: var(--admin-accent, #2563eb);
+}
+
+.zip-chip--selected {
+  border-color: var(--admin-accent, #2563eb);
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--admin-text);
+}
+
+.zip-chip--searching {
+  border-color: var(--admin-accent, #2563eb);
+  background: rgba(37, 99, 235, 0.15);
+  animation: zip-pulse 1s ease-in-out infinite;
+}
+
+.zip-chip--done {
+  border-color: #16a34a;
+  background: rgba(22, 163, 74, 0.08);
+  color: #16a34a;
+}
+
+.zip-chip--cached {
+  border-color: #16a34a;
+  background: rgba(22, 163, 74, 0.08);
+  color: #16a34a;
+}
+
+@keyframes zip-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ── Search progress ─────────────────────────── */
+
+.search-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-progress-bar {
+  height: 6px;
+  background: var(--admin-surface-2, #e5e7eb);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.search-progress-fill {
+  height: 100%;
+  background: var(--admin-accent, #2563eb);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.search-progress-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--admin-text-soft);
+}
