@@ -512,12 +512,12 @@
   body { margin: 0; background: #fff; }
 
   @page {
-    margin: 0.9in 0.7in 0.7in 0.7in;
+    margin: 0.9in 0.75in 0.75in 0.75in;
   }
 
   .proposal {
     max-width: 100%;
-    padding: 0;
+    padding: 0.9in 0.75in 0.75in 0.75in;
     margin: 0;
   }
 
