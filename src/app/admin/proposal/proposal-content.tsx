@@ -50,14 +50,13 @@ export function ProposalContent({
       <section className="proposal-letter">
         <p className="proposal-salutation">Dear {name} owner,</p>
         <p>
-          Right now, when someone nearby needs a mechanic and doesn&rsquo;t
-          already know your shop, they Google it. If {name} doesn&rsquo;t
-          show up, that customer goes to whoever does. A website fixes that.
+          I put together a website preview for {name}. It&rsquo;s
+          already live — you can scan the QR code below or type the
+          link to see exactly how it looks on your phone.
         </p>
         <p>
-          I build websites for auto shops — <strong>$500, one time, you
-          own it</strong>. I&rsquo;ve already put together a working
-          preview for {name}. You can see it right now.
+          Everything you see can be changed. If you&rsquo;re interested,
+          I&rsquo;d love to walk you through it.
         </p>
       </section>
 
