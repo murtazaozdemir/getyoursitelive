@@ -53,7 +53,7 @@ export function ZipSearch() {
   const [addedSlugs, setAddedSlugs] = useState<Record<string, string>>({});
   const [cached, setCached] = useState(false);
   const [cachedAt, setCachedAt] = useState("");
-  const [hideWithWebsite, setHideWithWebsite] = useState(false);
+  const [hideWithWebsite, setHideWithWebsite] = useState(true);
 
   async function handleSearch(pageToken?: string, forceRefresh?: boolean) {
     if (!zip || !/^\d{5}$/.test(zip)) {
