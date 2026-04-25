@@ -70,7 +70,13 @@ export default async function AuditLogPage() {
               {entries.map((e) => (
                 <tr key={e.id} className={e.action === "login_failed" ? "audit-row--danger" : ""}>
                   <td className="audit-cell-date">{formatDate(e.at)}</td>
-                  <td className="audit-cell-who">{e.userName || e.userEmail}</td>
+                  <td className="audit-cell-who">
+                    {e.userName && e.userName !== "unknown" ? (
+                      <><span>{e.userName}</span><br /><span className="audit-cell-email">{e.userEmail}</span></>
+                    ) : (
+                      <span>{e.userEmail}</span>
+                    )}
+                  </td>
                   <td>
                     <span className={actionClass(e.action)}>
                       {ACTION_LABELS[e.action] ?? e.action}

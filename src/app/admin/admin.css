@@ -1329,6 +1329,11 @@ a.prospect-preview-url:hover { text-decoration: underline; }
   font-weight: 500;
   white-space: nowrap;
 }
+.audit-cell-email {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--admin-text-muted);
+}
 
 .audit-cell-slug {
   font-family: monospace;
