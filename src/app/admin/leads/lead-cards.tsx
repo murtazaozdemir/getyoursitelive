@@ -277,7 +277,7 @@ function printDeliveryList(prospects: LeadCardData[]) {
         <th>#</th>
         <th>Business</th>
         <th>Address</th>
-        <th class="col-check">Delivered</th>
+        <th class="col-check">Dropped off</th>
         <th>Notes</th>
       </tr>
     </thead>
