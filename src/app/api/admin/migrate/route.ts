@@ -78,6 +78,39 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped, log };
   },
 
+  "clear-about-services": async () => {
+    const db = await getD1();
+    const { results } = await db
+      .prepare("SELECT slug, content FROM businesses WHERE category = 'Car repair and maintenance service'")
+      .all<BusinessRow>();
+
+    let updated = 0;
+    let skipped = 0;
+    const log: string[] = [];
+
+    for (const row of results) {
+      const biz = JSON.parse(row.content) as Business;
+      const hadAbout = !!biz.about;
+      const hadServices = !!(biz.services?.length);
+      if (!hadAbout && !hadServices) {
+        skipped++;
+        continue;
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const b = biz as any;
+      delete b.about;
+      delete b.services;
+      await db
+        .prepare("UPDATE businesses SET content = ? WHERE slug = ?")
+        .bind(JSON.stringify(biz), row.slug)
+        .run();
+      log.push(row.slug);
+      updated++;
+    }
+
+    return { updated, skipped, log };
+  },
+
   "google-category-lookup": async () => {
     // Look up businesses with non-Google categories on Google Places API
     // and update them with Google's primary type

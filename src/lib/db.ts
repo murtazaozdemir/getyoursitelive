@@ -62,6 +62,23 @@ function rowToBusiness(row: BusinessRow): Business {
       if (!h.heroImage) h.heroImage = d.heroImage;
     }
 
+    if (!biz.about) {
+      biz.about = defaults.about;
+    } else {
+      const a = biz.about;
+      const d = defaults.about;
+      if (!a.heading) a.heading = d.heading;
+      if (!a.narrative) a.narrative = d.narrative;
+      if (!a.bullets?.length) a.bullets = d.bullets;
+      if (!a.primaryImage) a.primaryImage = d.primaryImage;
+      if (!a.secondaryImage) a.secondaryImage = d.secondaryImage;
+      if (!a.whyUsCards?.length) a.whyUsCards = d.whyUsCards;
+    }
+
+    if (!biz.services?.length) {
+      biz.services = defaults.services;
+    }
+
     return biz;
   } catch {
     console.error(`[db] corrupt business JSON for slug=${row.slug}`);
