@@ -78,6 +78,60 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped, log };
   },
 
+  "reset-visibility": async () => {
+    // Reset visibility flags to prospect defaults for all auto repair businesses.
+    // These were set incorrectly by the old generic template.
+    const db = await getD1();
+    const { results } = await db
+      .prepare("SELECT slug, content FROM businesses WHERE category = 'Car repair and maintenance service'")
+      .all<BusinessRow>();
+
+    const prospectVis = {
+      showHeroEyebrow: true,
+      showHeroCtas: true,
+      showHeroHeadline: true,
+      showHeroLead: true,
+      showHeroImage: true,
+      showHeroCard: true,
+      showAbout: true,
+      showAboutWhyUs: true,
+      showStats: true,
+      showServices: true,
+      showDeals: true,
+      showPricing: true,
+      showTeam: true,
+      showTestimonials: true,
+      showFaq: true,
+      showEmergencyBanner: false,
+      showBooking: true,
+      showContactInfo: true,
+      showMap: true,
+      showHours: true,
+    };
+
+    let updated = 0;
+    let skipped = 0;
+    const log: string[] = [];
+
+    for (const row of results) {
+      const biz = JSON.parse(row.content) as Business;
+      const current = JSON.stringify(biz.visibility);
+      biz.visibility = prospectVis;
+      if (JSON.stringify(biz.visibility) === current) {
+        skipped++;
+        continue;
+      }
+      await db
+        .prepare("UPDATE businesses SET content = ? WHERE slug = ?")
+        .bind(JSON.stringify(biz), row.slug)
+        .run();
+      log.push(row.slug);
+      updated++;
+    }
+
+    return { updated, skipped, log };
+  },
+
   "clear-about-services": async () => {
     const db = await getD1();
     const { results } = await db

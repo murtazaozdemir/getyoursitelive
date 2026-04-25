@@ -82,6 +82,17 @@ function rowToBusiness(row: BusinessRow): Business {
     // Safety: ensure arrays are never undefined
     if (!biz.services) biz.services = [];
 
+    // Fill missing visibility flags from template defaults
+    if (!biz.visibility) {
+      biz.visibility = defaults.visibility;
+    } else {
+      const v = biz.visibility;
+      const dv = defaults.visibility;
+      for (const key of Object.keys(dv) as (keyof typeof dv)[]) {
+        if (v[key] === undefined) v[key] = dv[key];
+      }
+    }
+
     return biz;
   } catch {
     console.error(`[db] corrupt business JSON for slug=${row.slug}`);
