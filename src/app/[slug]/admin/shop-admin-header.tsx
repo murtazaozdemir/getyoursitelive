@@ -13,10 +13,12 @@ export function ShopAdminHeader({
   user,
   businessName,
   slug,
+  isFounder,
 }: {
   user: SessionUser;
   businessName: string;
   slug: string;
+  isFounder: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -26,7 +28,7 @@ export function ShopAdminHeader({
 
   function displayRole(): string {
     if (user.role === "admin") {
-      return user.email === "murtaza@getyoursitelive.com" ? "Founder" : "Admin";
+      return isFounder ? "Founder" : "Admin";
     }
     return "Business Owner";
   }

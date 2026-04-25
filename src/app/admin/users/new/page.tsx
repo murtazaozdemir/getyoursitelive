@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
-import { canManageBusinesses } from "@/lib/users";
+import { canManageBusinesses, isFounder } from "@/lib/users";
 import { NewUserForm } from "./new-user-form";
 
 export const metadata = {
@@ -13,7 +13,7 @@ export default async function NewUserPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/admin/login");
   if (!canManageBusinesses(user)) redirect("/admin");
-  if (user.email !== "murtaza@getyoursitelive.com") redirect("/admin");
+  if (!isFounder(user)) redirect("/admin");
 
   return (
     <div className="admin-page">
