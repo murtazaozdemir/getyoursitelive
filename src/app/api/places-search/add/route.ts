@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { getTemplateForCategory, isCategoryMapped } from "@/lib/templates/registry";
 import { sendUnmatchedCategoryAlert } from "@/lib/email";
 import { generateUniqueSlug } from "@/lib/slugify";
+import { generateVerifiedDomains } from "@/lib/domains";
 
 function nameToSlug(name: string): string {
   return name
@@ -176,6 +177,18 @@ export async function POST(req: NextRequest) {
     slug: uniqueSlug,
     detail: `${name} (zip search)`,
   });
+
+  // Generate verified domains in the background (fire-and-forget)
+  generateVerifiedDomains(name, state || "NJ").then(async (domains) => {
+    if (domains.length > 0) {
+      const { updateProspect } = await import("@/lib/prospects");
+      await updateProspect(uniqueSlug, {
+        domain1: domains[0] || undefined,
+        domain2: domains[1] || undefined,
+        domain3: domains[2] || undefined,
+      });
+    }
+  }).catch(() => {});
 
   revalidatePath("/admin/leads");
   return NextResponse.json({ ok: true, slug: uniqueSlug });

@@ -7,43 +7,10 @@ import { US_STATES } from "@/lib/us-states";
 
 const initialState = { ok: false as boolean, error: undefined as string | undefined };
 
-function slugify(name: string) {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "")
-    .replace(/^-+|-+$/g, "");
-}
-
-const NOISE_WORDS = ["auto", "repair", "center", "shop", "garage", "service", "services", "automotive", "motors", "car", "cars"];
-
-function domainSuggestions(name: string, stateAbbr: string): string[] {
-  if (!name.trim()) return [];
-
-  const base = slugify(name);
-  if (!base) return [];
-
-  // Short version: remove noise words
-  const words = name.toLowerCase().split(/\s+/);
-  const coreWords = words.filter((w) => !NOISE_WORDS.includes(slugify(w)));
-  const core = coreWords.map(slugify).join("") || base;
-
-  const suffix = stateAbbr ? stateAbbr.toLowerCase() : "nj";
-  const suggestions = [
-    `${base}.com`,
-    `${core}auto.com`,
-    `${base}${suffix}.com`,
-  ];
-
-  // Deduplicate
-  return [...new Set(suggestions)].slice(0, 3);
-}
-
 export function NewProspectForm() {
   const [state, formAction, isPending] = useActionState(createProspectAction, initialState);
   const [shopName, setShopName] = useState("");
   const [selectedState, setSelectedState] = useState("NJ");
-
-  const domains = domainSuggestions(shopName, selectedState);
 
   return (
     <form className="admin-section" action={formAction}>
@@ -75,29 +42,6 @@ export function NewProspectForm() {
             Used to generate the preview URL slug automatically.
           </span>
         </label>
-
-        {domains.length > 0 && (
-          <div className="admin-field admin-field--wide">
-            <span className="admin-field-label">Available domain ideas</span>
-            <div className="prospect-domain-suggestions">
-              {domains.map((d) => (
-                <span key={d} className="prospect-domain-chip">{d}</span>
-              ))}
-            </div>
-            <span className="admin-field-help">
-              Check availability at{" "}
-              <a
-                href="https://www.cloudflare.com/products/registrar/"
-                target="_blank"
-                rel="noreferrer"
-                className="admin-link"
-              >
-                Cloudflare Registrar
-              </a>{" "}
-              (~$10/yr).
-            </span>
-          </div>
-        )}
 
         <label className="admin-field">
           <span className="admin-field-label">Phone</span>

@@ -18,6 +18,7 @@ import { createUser } from "@/lib/users";
 import { logAudit } from "@/lib/audit-log";
 import { getTemplateForCategory } from "@/lib/templates/registry";
 import { generateUniqueSlug } from "@/lib/slugify";
+import { generateVerifiedDomains } from "@/lib/domains";
 
 export async function createProspectAction(
   _prevState: unknown,
@@ -80,6 +81,18 @@ export async function createProspectAction(
   }
 
   await logAudit({ userEmail: user.email, userName: user.name, action: "create_prospect", slug, detail: name });
+
+  // Generate verified domains in the background (fire-and-forget)
+  generateVerifiedDomains(name, state || "NJ").then(async (domains) => {
+    if (domains.length > 0) {
+      await updateProspect(slug, {
+        domain1: domains[0] || undefined,
+        domain2: domains[1] || undefined,
+        domain3: domains[2] || undefined,
+      });
+    }
+  }).catch(() => {});
+
   revalidatePath("/admin/leads");
   revalidatePath(`/${slug}`);
 
