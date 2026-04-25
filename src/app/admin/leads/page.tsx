@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { listProspects, PIPELINE_STAGES, type Prospect } from "@/lib/prospects";
 import { listBusinesses } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
-import { canManageBusinesses } from "@/lib/users";
+import { canManageBusinesses, findUserById } from "@/lib/users";
 import { FilterSortBar } from "@/app/admin/filter-bar";
 import { LeadCards, type LeadCardData } from "./lead-cards";
 import { getD1 } from "@/lib/db-d1";
@@ -170,6 +170,15 @@ export default async function LeadsPage({
   const distanceZip = params.distanceZip ?? "";
   const sortBy = (params.sortBy ?? "createdAt") as SortKey;
   const sortDir = (params.sortDir === "asc" ? "asc" : "desc") as "asc" | "desc";
+
+  // Look up full user record for address fields
+  const fullUser = await findUserById(user.id);
+  const userAddressParts = [fullUser?.street, fullUser?.city, fullUser?.state, fullUser?.zip].filter(Boolean) as string[];
+  const userAddress = userAddressParts.length > 0 ? userAddressParts.join(", ") : null;
+  const userHomeCoords = fullUser?.zip ? await zipCoords(fullUser.zip) : null;
+  const userHome = userHomeCoords && userAddress
+    ? { lat: userHomeCoords.lat, lng: userHomeCoords.lng, name: fullUser?.name ?? user.name, address: userAddress }
+    : null;
 
   const [allProspects, allBiz] = await Promise.all([listProspects(), listBusinesses()]);
   const bizBySlug = Object.fromEntries(allBiz.map((b) => [b.slug, b]));
@@ -371,6 +380,7 @@ export default async function LeadsPage({
             lat: p.lat,
             lng: p.lng,
           }))}
+          userHome={userHome}
         />
       )}
     </div>

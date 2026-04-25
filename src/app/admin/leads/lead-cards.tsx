@@ -293,7 +293,14 @@ function printDeliveryList(prospects: LeadCardData[]) {
   setTimeout(() => win.print(), 300);
 }
 
-export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
+export interface UserHome {
+  lat: number;
+  lng: number;
+  name: string;
+  address: string;
+}
+
+export function LeadCards({ prospects, userHome }: { prospects: LeadCardData[]; userHome?: UserHome | null }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const allSelected = prospects.length > 0 && selected.size === prospects.length;
@@ -336,6 +343,11 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
   }
 
   function handleShowMap() {
+    if (!userHome) {
+      alert("Set your address in Account Settings first so we can calculate routes from your location.");
+      return;
+    }
+
     const selectedLeads = prospects.filter((p) => selected.has(p.slug));
     const picked = selectedLeads.filter((p) => p.lat != null && p.lng != null);
     if (picked.length === 0) {
@@ -352,8 +364,7 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
       if (!confirm(`${skipped} lead${skipped !== 1 ? "s" : ""} missing coordinates will be skipped. Continue with ${picked.length}?`)) return;
     }
 
-    // Home: 78 Arlington Avenue, Clifton, NJ 07011
-    const home = { lat: 40.8732, lng: -74.1571, name: "Home", address: "78 Arlington Ave, Clifton, NJ" };
+    const home = { lat: userHome.lat, lng: userHome.lng, name: userHome.name, address: userHome.address };
 
     const stops = picked.map((p) => ({
       lat: p.lat!,
