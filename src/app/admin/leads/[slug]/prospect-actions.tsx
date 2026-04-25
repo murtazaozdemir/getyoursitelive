@@ -8,6 +8,7 @@ import {
   updateProspectInfoAction,
   updateProspectDomainsAction,
   createOwnerLoginAction,
+  removeContactLockAction,
 } from "@/app/admin/leads/actions";
 import type { ProspectStatus } from "@/lib/prospects";
 import { getAllCategories } from "@/lib/templates/registry";
@@ -503,6 +504,55 @@ function CreateLoginForm({ slug }: { slug: string }) {
         {isPending ? "Creating…" : "Create login"}
       </button>
     </form>
+  );
+}
+
+export function RemoveLockButton({ slug, lockedToName }: { slug: string; lockedToName: string }) {
+  const [isPending, startTransition] = useTransition();
+  const [confirm, setConfirm] = useState(false);
+
+  if (!confirm) {
+    return (
+      <button
+        type="button"
+        className="admin-btn admin-btn--ghost"
+        onClick={() => setConfirm(true)}
+      >
+        Remove lock &amp; reset to Found
+      </button>
+    );
+  }
+
+  return (
+    <div className="prospect-confirm-delete">
+      <p className="prospect-confirm-text">
+        This will remove {lockedToName}&apos;s contact lock and reset the lead to &ldquo;Found&rdquo;.
+        Any admin will be able to pick it up again.
+      </p>
+      <div className="prospect-confirm-actions">
+        <button
+          type="button"
+          className="admin-btn admin-btn--primary"
+          disabled={isPending}
+          onClick={() => {
+            startTransition(async () => {
+              await removeContactLockAction(slug);
+              setConfirm(false);
+            });
+          }}
+        >
+          {isPending ? "Removing…" : "Yes, remove lock"}
+        </button>
+        <button
+          type="button"
+          className="admin-btn admin-btn--ghost"
+          disabled={isPending}
+          onClick={() => setConfirm(false)}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
   );
 }
 

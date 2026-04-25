@@ -130,11 +130,46 @@ export async function updateProspectStatusAction(slug: string, status: ProspectS
     patch.contactedAt = new Date().toISOString();
   }
 
+  // Reverting to "found" clears the contact lock so any admin can pick it up
+  if (status === "found" && existing?.contactedBy) {
+    patch.contactedBy = undefined;
+    patch.contactedByName = undefined;
+    patch.contactedAt = undefined;
+  }
+
   await updateProspect(slug, patch);
   const detail = opts?.revertMistake
     ? `${status} (mistake correction by ${user.name})`
     : status;
   await logAudit({ userEmail: user.email, userName: user.name, action: "prospect_status", slug, detail });
+  revalidatePath("/admin/leads");
+  revalidatePath(`/admin/leads/${slug}`);
+  return { ok: true };
+}
+
+export async function removeContactLockAction(slug: string): Promise<{ ok: boolean }> {
+  const user = await getCurrentUser();
+  if (!user || !canManageBusinesses(user)) return { ok: false };
+
+  const existing = await getProspect(slug);
+  if (!existing?.contactedBy) return { ok: true };
+
+  // Only the person who contacted the lead or the Founder can remove the lock
+  if (existing.contactedBy !== user.email && !isFounder(user)) return { ok: false };
+
+  await updateProspect(slug, {
+    status: "found",
+    contactedBy: undefined,
+    contactedByName: undefined,
+    contactedAt: undefined,
+  });
+  await logAudit({
+    userEmail: user.email,
+    userName: user.name,
+    action: "prospect_status",
+    slug,
+    detail: `Removed contact lock (was: ${existing.contactedByName ?? existing.contactedBy}) and reset to found`,
+  });
   revalidatePath("/admin/leads");
   revalidatePath(`/admin/leads/${slug}`);
   return { ok: true };

@@ -4,7 +4,7 @@ import { getProspect } from "@/lib/prospects";
 import { getBusinessBySlug } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses, isFounder } from "@/lib/users";
-import { ProspectActions, PipelineStageSelector } from "./prospect-actions";
+import { ProspectActions, PipelineStageSelector, RemoveLockButton } from "./prospect-actions";
 import { getAuditLogForSlug, type AuditEntry } from "@/lib/audit-log";
 
 function formatActivityAction(entry: AuditEntry): string {
@@ -116,6 +116,11 @@ export default async function ProspectDetailPage({
               currentStatus={prospect.status}
               locked={isLocked}
             />
+            {!!prospect.contactedBy && (isFounder(user) || prospect.contactedBy === user.email) && (
+              <div style={{ marginTop: 12 }}>
+                <RemoveLockButton slug={slug} lockedToName={prospect.contactedByName ?? prospect.contactedBy} />
+              </div>
+            )}
           </section>
 
           {/* Edit contact info */}
