@@ -369,7 +369,7 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
     padding: 16px; max-width: 320px; max-height: 80vh; overflow-y: auto;
     font-size: 13px;
   }
-  #route-panel h3 { margin: 0 0 10px; font-size: 14px; }
+  #route-panel h3 { margin: 0 0 10px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
   .route-stop { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px solid #eee; }
   .route-stop:last-child { border-bottom: none; }
   .route-num {
@@ -414,10 +414,9 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
 <div id="toolbar">
   <button class="toolbar-btn toolbar-btn--print" onclick="window.print()">Print</button>
   <button class="toolbar-btn toolbar-btn--pdf" onclick="window.print()">Export PDF</button>
-  <button class="toolbar-btn toolbar-btn--csv" onclick="exportCsv()">Export CSV</button>
 </div>
 <div id="route-panel">
-  <h3>Optimal Route</h3>
+  <h3>Optimal Route <button class="toolbar-btn toolbar-btn--csv" onclick="exportCsv()">Export CSV</button></h3>
   <div id="route-list" class="route-loading">Calculating best route...</div>
 </div>
 <script>
