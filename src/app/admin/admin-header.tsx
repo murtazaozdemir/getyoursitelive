@@ -105,6 +105,9 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
                     <Link href="/admin/google-maps-info" className="admin-account-dropdown-item">
                       Google Maps Info
                     </Link>
+                    <Link href="/admin/leads/search" className="admin-account-dropdown-item">
+                      Zip Search
+                    </Link>
                     <a href="/api/admin/backup" className="admin-account-dropdown-item" download>
                       Download Backup
                     </a>

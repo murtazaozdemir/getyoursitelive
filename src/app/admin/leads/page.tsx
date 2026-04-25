@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { listProspects, PIPELINE_STAGES, type Prospect } from "@/lib/prospects";
 import { listBusinesses } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
-import { canManageBusinesses, findUserById, isFounder } from "@/lib/users";
+import { canManageBusinesses, findUserById } from "@/lib/users";
 import { FilterSortBar } from "@/app/admin/filter-bar";
 import { LeadCards } from "./lead-cards";
 import type { LeadCardData } from "./print-utils";
@@ -223,11 +223,6 @@ export default async function LeadsPage({
               Cards
             </Link>
           </div>
-          {isFounder(user) && (
-            <Link href="/admin/leads/search" className="admin-btn admin-btn--ghost">
-              Zip search
-            </Link>
-          )}
           <Link href="/admin/leads/new" className="admin-btn admin-btn--primary">
             + Add lead
           </Link>
