@@ -50,6 +50,10 @@ export default async function ProspectDetailPage({
   ]);
   if (!prospect) notFound();
 
+  // Non-founder admins can only see "found" leads or leads they contacted
+  if (prospect.status !== "found" && !isFounder(user) && prospect.contactedBy !== user.email) {
+    redirect("/admin/leads");
+  }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
   const previewUrl = `${siteUrl}/${slug}`;
