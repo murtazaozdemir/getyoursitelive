@@ -1276,6 +1276,34 @@ a.prospect-preview-url:hover { text-decoration: underline; }
    Audit log
    ================================================================= */
 
+.audit-user-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.audit-user-pill {
+  display: inline-block;
+  padding: 5px 14px;
+  font-size: 13px;
+  border: 1px solid var(--admin-border);
+  border-radius: 20px;
+  color: var(--admin-text-soft);
+  text-decoration: none;
+  background: var(--admin-surface);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.audit-user-pill:hover {
+  border-color: var(--admin-accent);
+  color: var(--admin-accent);
+}
+.audit-user-pill--active {
+  background: var(--admin-accent);
+  color: var(--admin-accent-text);
+  border-color: var(--admin-accent);
+}
+
 .audit-table-wrap {
   overflow-x: auto;
   border: 1px solid var(--admin-border);

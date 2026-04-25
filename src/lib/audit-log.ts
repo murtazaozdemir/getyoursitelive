@@ -72,6 +72,28 @@ export async function getAuditLog(limit = 200): Promise<AuditEntry[]> {
   return results.map(rowToEntry);
 }
 
+export async function getAuditLogUsers(): Promise<{ email: string; name: string; count: number }[]> {
+  const db = await getD1();
+  const { results } = await db
+    .prepare(
+      `SELECT user_email, user_name, COUNT(*) as cnt
+       FROM audit_log
+       GROUP BY user_email
+       ORDER BY cnt DESC`,
+    )
+    .all<{ user_email: string; user_name: string; cnt: number }>();
+  return results.map((r) => ({ email: r.user_email, name: r.user_name, count: r.cnt }));
+}
+
+export async function getAuditLogByUser(email: string, limit = 500): Promise<AuditEntry[]> {
+  const db = await getD1();
+  const { results } = await db
+    .prepare("SELECT * FROM audit_log WHERE user_email = ? ORDER BY at DESC LIMIT ?")
+    .bind(email, limit)
+    .all<AuditRow>();
+  return results.map(rowToEntry);
+}
+
 export async function getAuditLogForSlug(slug: string, limit = 100): Promise<AuditEntry[]> {
   const db = await getD1();
   const { results } = await db

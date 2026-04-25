@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
-import { getAuditLog } from "@/lib/audit-log";
+import { getAuditLog, getAuditLogByUser, getAuditLogUsers } from "@/lib/audit-log";
 
 const ACTION_LABELS: Record<string, string> = {
   login: "Signed in",
@@ -17,6 +17,9 @@ const ACTION_LABELS: Record<string, string> = {
   change_password: "Changed password",
   create_user: "Created user",
   delete_user: "Deleted user",
+  create_task: "Created task",
+  complete_task: "Completed task",
+  delete_task: "Deleted task",
 };
 
 function formatDate(iso: string) {
@@ -36,24 +39,58 @@ function actionClass(action: string) {
   return "audit-badge audit-badge--default";
 }
 
-export default async function AuditLogPage() {
-  const user = await getCurrentUser();
-  if (!user) redirect("/admin/login");
-  if (!canManageBusinesses(user)) redirect("/admin");
+export default async function AuditLogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ user?: string }>;
+}) {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) redirect("/admin/login");
+  if (!canManageBusinesses(currentUser)) redirect("/admin");
 
-  const entries = await getAuditLog(500);
+  const params = await searchParams;
+  const filterEmail = params.user || null;
+
+  const [users, entries] = await Promise.all([
+    getAuditLogUsers(),
+    filterEmail ? getAuditLogByUser(filterEmail, 500) : getAuditLog(500),
+  ]);
+
+  const totalEntries = users.reduce((sum, u) => sum + u.count, 0);
 
   return (
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
           <h1 className="admin-h1">Audit Log</h1>
-          <p className="admin-lede">Every sign-in and content change, newest first.</p>
+          <p className="admin-lede">
+            {totalEntries} total entries across {users.length} user{users.length !== 1 ? "s" : ""}.
+            {filterEmail && <>{" "}Showing: <strong>{filterEmail}</strong></>}
+          </p>
         </div>
       </div>
 
+      {/* User filter pills */}
+      <div className="audit-user-filters">
+        <a
+          href="/admin/audit"
+          className={`audit-user-pill${!filterEmail ? " audit-user-pill--active" : ""}`}
+        >
+          All ({totalEntries})
+        </a>
+        {users.map((u) => (
+          <a
+            key={u.email}
+            href={`/admin/audit?user=${encodeURIComponent(u.email)}`}
+            className={`audit-user-pill${filterEmail === u.email ? " audit-user-pill--active" : ""}`}
+          >
+            {u.name && u.name !== "unknown" ? u.name : u.email} ({u.count})
+          </a>
+        ))}
+      </div>
+
       {entries.length === 0 ? (
-        <p className="admin-empty">No activity recorded yet.</p>
+        <p className="admin-empty">No activity recorded{filterEmail ? ` for ${filterEmail}` : ""}.</p>
       ) : (
         <div className="audit-table-wrap">
           <table className="audit-table">
