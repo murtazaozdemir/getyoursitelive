@@ -17,13 +17,7 @@ import { saveBusiness, getBusinessBySlug, deleteBusiness } from "@/lib/db";
 import { createUser } from "@/lib/users";
 import { logAudit } from "@/lib/audit-log";
 import { getTemplateForCategory } from "@/lib/templates/registry";
-
-function nameToSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
+import { generateUniqueSlug } from "@/lib/slugify";
 
 export async function createProspectAction(
   _prevState: unknown,
@@ -45,19 +39,11 @@ export async function createProspectAction(
 
   if (!name) return { ok: false, error: "Business name is required." };
 
-  const slug = nameToSlug(name);
-  if (!slug) return { ok: false, error: "Could not generate a valid slug from that name." };
-
-  // Block duplicate slug — check both business store and prospect store
-  const [existing, existingProspect] = await Promise.all([
-    getBusinessBySlug(slug),
-    getProspect(slug),
-  ]);
-  if (existing || existingProspect) {
-    return {
-      ok: false,
-      error: `A business with that name already exists (slug "${slug}"). Check the leads list — it may already be there.`,
-    };
+  let slug: string;
+  try {
+    slug = await generateUniqueSlug(name, city, state);
+  } catch {
+    return { ok: false, error: "Could not generate a valid slug from that name." };
   }
 
   // Block duplicate phone number

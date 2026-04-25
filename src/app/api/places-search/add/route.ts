@@ -6,6 +6,7 @@ import { createProspect, getProspect, findProspectByPhone, normalizePhone, updat
 import { logAudit } from "@/lib/audit-log";
 import { revalidatePath } from "next/cache";
 import { getTemplateForCategory } from "@/lib/templates/registry";
+import { generateUniqueSlug } from "@/lib/slugify";
 
 function nameToSlug(name: string): string {
   return name
@@ -105,14 +106,22 @@ export async function POST(req: NextRequest) {
   const addressParts = [street, city, state && zipCode ? `${state} ${zipCode}` : state || zipCode].filter(Boolean);
   const address = addressParts.join(", ");
 
+  // Generate a unique slug (appends city/state/random if the base name collides)
+  let uniqueSlug: string;
+  try {
+    uniqueSlug = await generateUniqueSlug(name, city, state);
+  } catch {
+    return NextResponse.json({ ok: false, error: "Could not generate slug." });
+  }
+
   const template = getTemplateForCategory(googleCategory || "Car repair and maintenance service");
-  const business = template.buildProspectBusiness(slug, name, phone, address);
+  const business = template.buildProspectBusiness(uniqueSlug, name, phone, address);
   await saveBusiness(business);
 
   const now = new Date().toISOString();
   try {
     await createProspect({
-      slug,
+      slug: uniqueSlug,
       name,
       phone,
       address,
@@ -141,7 +150,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     // Rollback
     const { deleteBusiness } = await import("@/lib/db");
-    await deleteBusiness(slug).catch(() => {});
+    await deleteBusiness(uniqueSlug).catch(() => {});
     return NextResponse.json({
       ok: false,
       error: err instanceof Error ? err.message : "Failed to create prospect.",
@@ -152,10 +161,10 @@ export async function POST(req: NextRequest) {
     userEmail: user.email,
     userName: user.name,
     action: "create_prospect",
-    slug,
+    slug: uniqueSlug,
     detail: `${name} (zip search)`,
   });
 
   revalidatePath("/admin/leads");
-  return NextResponse.json({ ok: true, slug });
+  return NextResponse.json({ ok: true, slug: uniqueSlug });
 }
