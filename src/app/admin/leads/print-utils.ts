@@ -298,14 +298,13 @@ export function printTaskList(prospects: PrintableProspect[]) {
 }
 
 export function showLeadsMap(prospects: PrintableProspect[], userHome: UserHome) {
-  const picked = prospects.filter((p) => p.lat != null && p.lng != null);
-  if (picked.length === 0) return;
+  if (prospects.length === 0) return;
 
   const home = { lat: userHome.lat, lng: userHome.lng, name: userHome.name, address: userHome.address };
 
-  const stops = picked.map((p) => ({
-    lat: p.lat!,
-    lng: p.lng!,
+  const stops = prospects.map((p) => ({
+    lat: p.lat ?? null,
+    lng: p.lng ?? null,
     name: escapeHtml(p.name),
     address: escapeHtml(p.address),
     slug: p.slug,
@@ -316,7 +315,7 @@ export function showLeadsMap(prospects: PrintableProspect[], userHome: UserHome)
   const html = `<!DOCTYPE html>
 <html>
 <head>
-<title>Leads Map \u2014 ${picked.length} locations</title>
+<title>Leads Map \u2014 ${prospects.length} locations</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>
@@ -381,7 +380,7 @@ export function showLeadsMap(prospects: PrintableProspect[], userHome: UserHome)
   <div id="route-list" class="route-loading">Calculating best route...</div>
 </div>
 <script>
-  var stops = ${markersJson};
+  var rawStops = ${markersJson};
   var home = ${JSON.stringify(home)};
   var map = L.map('map').setView([home.lat, home.lng], 11);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -397,6 +396,43 @@ export function showLeadsMap(prospects: PrintableProspect[], userHome: UserHome)
       iconAnchor: [13, 13]
     });
   }
+
+  // Geocode stops that are missing lat/lng using Nominatim
+  async function geocodeAddress(address) {
+    try {
+      var r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address));
+      var data = await r.json();
+      if (data && data.length > 0) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+    } catch(e) { /* ignore */ }
+    return null;
+  }
+
+  async function resolveStops() {
+    document.getElementById('route-list').innerHTML = '<div class="route-loading">Geocoding addresses...</div>';
+    var resolved = [];
+    for (var i = 0; i < rawStops.length; i++) {
+      var s = rawStops[i];
+      if (s.lat != null && s.lng != null) {
+        resolved.push(s);
+      } else {
+        var geo = await geocodeAddress(s.address);
+        if (geo) {
+          s.lat = geo.lat;
+          s.lng = geo.lng;
+          resolved.push(s);
+        }
+        // Wait 1s between requests to respect Nominatim rate limit
+        if (i < rawStops.length - 1) await new Promise(function(r) { setTimeout(r, 1000); });
+      }
+    }
+    return resolved;
+  }
+
+  resolveStops().then(function(stops) {
+    if (stops.length === 0) {
+      document.getElementById('route-list').innerHTML = '<div class="route-loading">Could not geocode any addresses.</div>';
+      return;
+    }
 
   // Build OSRM trip URL: home first, then all stops
   var coords = home.lng + ',' + home.lat;
@@ -484,6 +520,8 @@ export function showLeadsMap(prospects: PrintableProspect[], userHome: UserHome)
     document.getElementById('route-list').innerHTML = listHtml;
     map.fitBounds(bounds, { padding: [40, 40] });
   }
+
+  }); // end resolveStops().then()
 
   function exportCsv() {
     var rows = document.querySelectorAll('.route-stop');

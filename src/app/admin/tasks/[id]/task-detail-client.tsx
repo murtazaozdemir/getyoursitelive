@@ -117,13 +117,12 @@ export function TaskDetailClient({
       alert("Set your address in Account Settings first.");
       return;
     }
-    const withCoords = pendingItems.filter((i) => i.prospectLat != null && i.prospectLng != null);
-    if (withCoords.length === 0) {
-      alert("No pending items have coordinates.");
+    if (pendingItems.length === 0) {
+      alert("No pending items.");
       return;
     }
     showLeadsMap(
-      withCoords.map((i) => ({
+      pendingItems.map((i) => ({
         slug: i.prospectSlug,
         name: i.prospectName,
         address: i.prospectAddress,
