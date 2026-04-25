@@ -742,7 +742,20 @@
   .prospect-pipeline { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 600px) {
-  .prospect-pipeline { grid-template-columns: 1fr 1fr; }
+  .prospect-pipeline {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .prospect-column-cards {
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .prospect-card { padding: 8px 10px; }
+  .prospect-card-name { font-size: 13px; }
+  .prospect-card-meta {
+    font-size: 11px;
+    white-space: normal;
+  }
 }
 
 /* Column */
