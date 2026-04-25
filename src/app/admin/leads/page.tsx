@@ -368,6 +368,8 @@ export default async function LeadsPage({
             chips: dataChips(p),
             contactedByName: p.contactedByName,
             notesCount: p.notes.length,
+            lat: p.lat,
+            lng: p.lng,
           }))}
         />
       )}

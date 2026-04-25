@@ -15,6 +15,8 @@ export interface LeadCardData {
   chips: { label: string; cls: string }[];
   contactedByName?: string;
   notesCount: number;
+  lat?: number | null;
+  lng?: number | null;
 }
 
 function escapeHtml(str: string) {
@@ -332,6 +334,64 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
     printDeliveryList(picked);
   }
 
+  function handleShowMap() {
+    const picked = prospects
+      .filter((p) => selected.has(p.slug) && p.lat != null && p.lng != null);
+    if (picked.length === 0) return;
+
+    const markers = picked.map((p) => ({
+      lat: p.lat!,
+      lng: p.lng!,
+      name: p.name,
+      address: p.address,
+      slug: p.slug,
+    }));
+    const avgLat = markers.reduce((s, m) => s + m.lat, 0) / markers.length;
+    const avgLng = markers.reduce((s, m) => s + m.lng, 0) / markers.length;
+
+    const markersJson = JSON.stringify(markers);
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+<title>Leads Map — ${picked.length} locations</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; }
+  #map { width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  var markers = ${markersJson};
+  var map = L.map('map').setView([${avgLat}, ${avgLng}], 11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(map);
+  var bounds = [];
+  markers.forEach(function(m) {
+    var marker = L.marker([m.lat, m.lng]).addTo(map);
+    marker.bindPopup('<strong>' + m.name + '</strong><br>' + m.address);
+    bounds.push([m.lat, m.lng]);
+  });
+  if (bounds.length > 1) {
+    map.fitBounds(bounds, { padding: [40, 40] });
+  }
+<\/script>
+</body>
+</html>`;
+
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(html);
+    win.document.close();
+  }
+
   return (
     <>
       {/* Selection toolbar */}
@@ -369,6 +429,13 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
               onClick={handlePrintDeliveryList}
             >
               Delivery list
+            </button>
+            <button
+              type="button"
+              className="admin-btn admin-btn--ghost"
+              onClick={handleShowMap}
+            >
+              Show on map
             </button>
           </>
         )}
