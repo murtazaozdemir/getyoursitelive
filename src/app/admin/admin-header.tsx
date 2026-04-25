@@ -64,9 +64,6 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
             <Link href="/admin/leads" className="admin-header-nav-link">Leads</Link>
             <Link href="/admin/tasks" className="admin-header-nav-link">Tasks</Link>
             <Link href="/admin" className="admin-header-nav-link">Clients</Link>
-            {isFounder && (
-              <Link href="/admin/users" className="admin-header-nav-link">Users</Link>
-            )}
           </nav>
         </div>
 
@@ -96,6 +93,9 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
                 {isFounder && (
                   <>
                     <div className="admin-account-dropdown-divider" />
+                    <Link href="/admin/users" className="admin-account-dropdown-item">
+                      Users
+                    </Link>
                     <Link href="/admin/audit" className="admin-account-dropdown-item">
                       Audit Log
                     </Link>
