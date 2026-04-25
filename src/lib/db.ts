@@ -44,11 +44,22 @@ function rowToBusiness(row: BusinessRow): Business {
       biz.businessInfo?.address ?? "",
     );
 
-    // --- hero.headline (test: first field using template fallback) ---
+    // Fill missing sections from template defaults.
+    // If the section is missing entirely, use the template's version.
+    // Individual fields within a section are filled only if empty.
     if (!biz.hero) {
       biz.hero = defaults.hero;
-    } else if (!biz.hero.headline) {
-      biz.hero.headline = defaults.hero.headline;
+    } else {
+      const h = biz.hero;
+      const d = defaults.hero;
+      if (!h.headline) h.headline = d.headline;
+      if (!h.eyebrowPrefix) h.eyebrowPrefix = d.eyebrowPrefix;
+      if (!h.lead) h.lead = d.lead;
+      if (!h.primaryCta) h.primaryCta = d.primaryCta;
+      if (!h.secondaryCta) h.secondaryCta = d.secondaryCta;
+      if (!h.whyTitle) h.whyTitle = d.whyTitle;
+      if (!h.whyBullets?.length) h.whyBullets = d.whyBullets;
+      if (!h.heroImage) h.heroImage = d.heroImage;
     }
 
     return biz;

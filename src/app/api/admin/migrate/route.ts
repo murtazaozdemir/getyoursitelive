@@ -47,6 +47,37 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped: 0, log };
   },
 
+  "clear-hero-content": async () => {
+    // Remove hero content from all auto repair prospect JSON blobs.
+    // The template fallback in rowToBusiness() will provide the defaults at render time.
+    const db = await getD1();
+    const { results } = await db
+      .prepare("SELECT slug, content FROM businesses WHERE category = 'Car repair and maintenance service'")
+      .all<BusinessRow>();
+
+    let updated = 0;
+    let skipped = 0;
+    const log: string[] = [];
+
+    for (const row of results) {
+      const biz = JSON.parse(row.content) as Business;
+      if (!biz.hero) {
+        skipped++;
+        continue;
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (biz as any).hero;
+      await db
+        .prepare("UPDATE businesses SET content = ? WHERE slug = ?")
+        .bind(JSON.stringify(biz), row.slug)
+        .run();
+      log.push(row.slug);
+      updated++;
+    }
+
+    return { updated, skipped, log };
+  },
+
   "google-category-lookup": async () => {
     // Look up businesses with non-Google categories on Google Places API
     // and update them with Google's primary type
