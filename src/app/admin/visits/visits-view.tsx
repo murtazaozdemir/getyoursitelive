@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { ProspectVisit } from "@/lib/prospect-visits";
+import { SortableTable, Column, FilterDef } from "@/components/admin/sortable-table";
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -17,8 +18,7 @@ function timeAgo(iso: string): string {
 }
 
 function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", {
+  return new Date(iso).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -47,6 +47,92 @@ interface CountRow {
   lastVisit: string;
 }
 
+/* ---------- All Visits columns ---------- */
+const allVisitsCols: Column<ProspectVisit>[] = [
+  {
+    key: "lead",
+    label: "Lead",
+    sortValue: (row) => row.businessName,
+    searchValue: (row) => `${row.businessName} ${row.slug}`,
+    render: (row) => (
+      <>
+        <Link href={`/admin/leads/${row.slug}`} className="admin-link">
+          {row.businessName}
+        </Link>
+        <span style={{ fontSize: 12, color: "var(--admin-text-soft)", marginLeft: 6 }}>
+          /{row.slug}
+        </span>
+      </>
+    ),
+  },
+  {
+    key: "date",
+    label: "Date & time",
+    sortValue: (row) => new Date(row.visitedAt).getTime(),
+    render: (row) => (
+      <span style={{ whiteSpace: "nowrap" }}>{formatDate(row.visitedAt)}</span>
+    ),
+  },
+  {
+    key: "ip",
+    label: "IP",
+    sortValue: (row) => row.ip,
+    searchValue: (row) => row.ip,
+    render: (row) => (
+      <span style={{ fontFamily: "monospace", fontSize: 13 }}>{row.ip}</span>
+    ),
+  },
+  {
+    key: "device",
+    label: "Device",
+    sortValue: (row) => parseDevice(row.userAgent),
+    render: (row) => <span>{parseDevice(row.userAgent)}</span>,
+  },
+  {
+    key: "referrer",
+    label: "Referrer",
+    sortValue: (row) => row.referrer ?? "",
+    searchValue: (row) => row.referrer ?? "",
+    render: (row) => (
+      <span style={{ fontSize: 13, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
+        {row.referrer ? (() => { try { return new URL(row.referrer).hostname; } catch { return row.referrer; } })() : "Direct"}
+      </span>
+    ),
+  },
+];
+
+/* ---------- Summary columns ---------- */
+const summaryCols: Column<CountRow>[] = [
+  {
+    key: "lead",
+    label: "Lead",
+    sortValue: (row) => row.businessName,
+    searchValue: (row) => `${row.businessName} ${row.slug}`,
+    render: (row) => (
+      <>
+        <Link href={`/admin/leads/${row.slug}`} className="admin-link">
+          {row.businessName}
+        </Link>
+        <span style={{ fontSize: 12, color: "var(--admin-text-soft)", marginLeft: 6 }}>
+          /{row.slug}
+        </span>
+      </>
+    ),
+  },
+  {
+    key: "count",
+    label: "Visits",
+    sortValue: (row) => row.count,
+    render: (row) => <strong>{row.count}</strong>,
+  },
+  {
+    key: "last",
+    label: "Last visit",
+    sortValue: (row) => new Date(row.lastVisit).getTime(),
+    render: (row) => <span>{timeAgo(row.lastVisit)}</span>,
+  },
+];
+
 export function VisitsView({
   visits,
   counts,
@@ -55,20 +141,35 @@ export function VisitsView({
   counts: CountRow[];
 }) {
   const [tab, setTab] = useState<"all" | "summary">("all");
-  const [slugFilter, setSlugFilter] = useState<string | null>(null);
 
-  const filtered = slugFilter
-    ? visits.filter((v) => v.slug === slugFilter)
-    : visits;
+  const uniqueSlugs = [...new Set(visits.map((v) => v.slug))];
+  const deviceOptions = [...new Set(visits.map((v) => parseDevice(v.userAgent)))].sort();
+
+  const allVisitsFilters: FilterDef<ProspectVisit>[] = [
+    {
+      key: "slug",
+      label: "Lead",
+      options: uniqueSlugs.map((s) => ({
+        value: s,
+        label: visits.find((v) => v.slug === s)?.businessName ?? s,
+      })),
+      match: (row, value) => row.slug === value,
+    },
+    {
+      key: "device",
+      label: "Device",
+      options: deviceOptions.map((d) => ({ value: d, label: d })),
+      match: (row, value) => parseDevice(row.userAgent) === value,
+    },
+  ];
 
   return (
     <>
-      {/* Tab switcher */}
       <div className="admin-tabs" style={{ marginBottom: 16 }}>
         <button
           type="button"
           className={`admin-tab ${tab === "all" ? "admin-tab--active" : ""}`}
-          onClick={() => { setTab("all"); setSlugFilter(null); }}
+          onClick={() => setTab("all")}
         >
           All visits ({visits.length})
         </button>
@@ -81,110 +182,23 @@ export function VisitsView({
         </button>
       </div>
 
-      {slugFilter && (
-        <div style={{ marginBottom: 12 }}>
-          <button
-            type="button"
-            className="admin-btn admin-btn--ghost"
-            onClick={() => setSlugFilter(null)}
-            style={{ fontSize: 13 }}
-          >
-            Showing {filtered.length} visits for /{slugFilter} &mdash; clear filter
-          </button>
-        </div>
-      )}
-
       {tab === "summary" ? (
-        /* Summary table — visit counts per lead */
-        <div className="admin-section">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Lead</th>
-                <th>Visits</th>
-                <th>Last visit</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {counts.length === 0 && (
-                <tr>
-                  <td colSpan={4} style={{ textAlign: "center", padding: 32, color: "var(--admin-text-soft)" }}>
-                    No visits recorded yet.
-                  </td>
-                </tr>
-              )}
-              {counts.map((c) => (
-                <tr key={c.slug}>
-                  <td>
-                    <Link href={`/admin/leads/${c.slug}`} className="admin-link">
-                      {c.businessName}
-                    </Link>
-                    <span style={{ fontSize: 12, color: "var(--admin-text-soft)", marginLeft: 6 }}>
-                      /{c.slug}
-                    </span>
-                  </td>
-                  <td>
-                    <strong>{c.count}</strong>
-                  </td>
-                  <td>{timeAgo(c.lastVisit)}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="admin-btn admin-btn--ghost"
-                      style={{ fontSize: 12 }}
-                      onClick={() => { setTab("all"); setSlugFilter(c.slug); }}
-                    >
-                      View all
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <SortableTable
+          data={counts}
+          columns={summaryCols}
+          rowKey={(row) => row.slug}
+          emptyMessage="No visits recorded yet."
+          searchPlaceholder="Search leads..."
+        />
       ) : (
-        /* All visits table */
-        <div className="admin-section">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Lead</th>
-                <th>Date &amp; time</th>
-                <th>IP</th>
-                <th>Device</th>
-                <th>Referrer</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={5} style={{ textAlign: "center", padding: 32, color: "var(--admin-text-soft)" }}>
-                    No visits recorded yet. Visits are tracked when prospects scan their QR code or type the URL.
-                  </td>
-                </tr>
-              )}
-              {filtered.map((v) => (
-                <tr key={v.id}>
-                  <td>
-                    <Link href={`/admin/leads/${v.slug}`} className="admin-link">
-                      {v.businessName}
-                    </Link>
-                    <span style={{ fontSize: 12, color: "var(--admin-text-soft)", marginLeft: 6 }}>
-                      /{v.slug}
-                    </span>
-                  </td>
-                  <td style={{ whiteSpace: "nowrap" }}>{formatDate(v.visitedAt)}</td>
-                  <td style={{ fontFamily: "monospace", fontSize: 13 }}>{v.ip}</td>
-                  <td>{parseDevice(v.userAgent)}</td>
-                  <td style={{ fontSize: 13, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {v.referrer ? (() => { try { return new URL(v.referrer).hostname; } catch { return v.referrer; } })() : "Direct"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <SortableTable
+          data={visits}
+          columns={allVisitsCols}
+          filters={allVisitsFilters}
+          rowKey={(row) => row.id}
+          emptyMessage="No visits recorded yet. Visits are tracked when prospects scan their QR code or type the URL."
+          searchPlaceholder="Search visits..."
+        />
       )}
     </>
   );

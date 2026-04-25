@@ -3,18 +3,12 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
 import { listUsers, canManageBusinesses, isFounder } from "@/lib/users";
 import { listInvitations } from "@/lib/invitations";
-import { DeleteUserButton, RevokeInviteButton, ResendInviteButton } from "./user-actions";
+import { UsersTable } from "./users-table";
 
 export const metadata = {
   title: "Users · Admin",
   robots: { index: false, follow: false },
 };
-
-function fmt(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-  });
-}
 
 export default async function UsersPage() {
   const currentUser = await getCurrentUser();
@@ -23,6 +17,25 @@ export default async function UsersPage() {
   if (!isFounder(currentUser)) redirect("/admin");
 
   const [users, invites] = await Promise.all([listUsers(), listInvitations()]);
+
+  const userRows = users.map((u) => ({
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    role: u.role,
+    ownedSlug: u.ownedSlug,
+    createdAt: u.createdAt,
+    isFounder: isFounder(u),
+    isSelf: u.id === currentUser.id,
+  }));
+
+  const inviteRows = invites.map((inv) => ({
+    token: inv.token,
+    email: inv.email,
+    role: inv.role,
+    ownedSlug: inv.ownedSlug,
+    createdAt: inv.createdAt,
+  }));
 
   return (
     <div className="admin-page">
@@ -41,76 +54,7 @@ export default async function UsersPage() {
         </div>
       </div>
 
-      <table className="admin-users-table">
-        <thead>
-          <tr>
-            <th>Name / Email</th>
-            <th>Role</th>
-            <th>Owned slug</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((u) => (
-            <tr key={u.id}>
-              <td>
-                <div style={{ fontWeight: 500 }}>{u.name}</div>
-                <div style={{ fontSize: 13, color: "var(--admin-text-soft)" }}>{u.email}</div>
-              </td>
-              <td>
-                <span className="admin-header-user-role" data-role={u.role}>
-                  {u.role === "admin"
-                    ? (isFounder(u) ? "Founder" : "Admin")
-                    : "Business Owner"}
-                </span>
-              </td>
-              <td>
-                {u.ownedSlug ? <code>{u.ownedSlug}</code> : <span className="admin-text-muted">—</span>}
-              </td>
-              <td>
-                <span className="prospect-chip" style={{ background: "var(--admin-success-bg, #d1fae5)", color: "var(--admin-success, #065f46)" }}>
-                  Active
-                </span>
-              </td>
-              <td>{u.createdAt ? fmt(u.createdAt) : "—"}</td>
-              <td>
-                {u.id !== currentUser.id && (
-                  <DeleteUserButton id={u.id} name={u.name} />
-                )}
-              </td>
-            </tr>
-          ))}
-
-          {invites.map((inv) => (
-            <tr key={inv.token} style={{ opacity: 0.75 }}>
-              <td>
-                <div style={{ fontStyle: "italic", color: "var(--admin-text-soft)" }}>—</div>
-                <div style={{ fontSize: 13, color: "var(--admin-text-soft)" }}>{inv.email}</div>
-              </td>
-              <td>
-                <span className="admin-header-user-role" data-role={inv.role}>
-                  {inv.role === "admin" ? "Admin" : "Business Owner"}
-                </span>
-              </td>
-              <td>
-                {inv.ownedSlug ? <code>{inv.ownedSlug}</code> : <span className="admin-text-muted">—</span>}
-              </td>
-              <td>
-                <span className="prospect-chip prospect-chip--warn">
-                  Pending invite
-                </span>
-              </td>
-              <td>{fmt(inv.createdAt)}</td>
-              <td style={{ display: "flex", gap: 6 }}>
-                <ResendInviteButton email={inv.email} role={inv.role} ownedSlug={inv.ownedSlug} />
-                <RevokeInviteButton token={inv.token} email={inv.email} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <UsersTable users={userRows} invites={inviteRows} />
     </div>
   );
 }
