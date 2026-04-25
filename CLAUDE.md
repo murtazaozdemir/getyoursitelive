@@ -5,9 +5,10 @@
 ## What this is
 
 A Next.js template for building $500 flat-fee websites for local businesses
-(auto repair shops first, expandable to salons, restaurants, etc.). Each
-business is a JSON file in `data/businesses/{slug}.json`, served from the
-same codebase via dynamic routing at `/[slug]`.
+(auto repair shops, body shops, barbers, restaurants, plumbers, etc.). Each
+business is a row in Cloudflare D1 with a minimal JSON blob (name, address,
+phone, visibility). All default content comes from vertical templates at
+render time. Served via dynamic routing at `/[slug]`.
 
 The site is sold by **Murtaza Ozdemir** (Clifton, NJ) under the brand
 **"Get Your Site Live"** for a one-time $500, no monthly fees, the client
@@ -28,8 +29,9 @@ owns the domain and site forever.
   - `/api/auth/{login,logout,me}` → auth endpoints
   - `/api/upload` → authenticated file upload (saves to `public/uploads/{slug}/`)
   - `/not-found.tsx` → 404
+- **Template-at-render architecture:** DB stores only what's unique per business (name, address, phone, visibility, owner customizations). `rowToBusiness()` in `db.ts` fills all missing sections from the vertical template (`src/lib/templates/`) at load time. Adding a new vertical = one template file + one line in the registry.
 - **Data flow:**
-  - JSON blob → `getBusinessBySlug()` (server) → `<BusinessProvider>` (client context) → `useBusiness()` hook in components
+  - D1 row → `rowToBusiness()` (fills template defaults) → `getBusinessBySlug()` (server) → `<BusinessProvider>` (client context) → `useBusiness()` hook in components
   - In Inline mode, `<EditModeProvider>` sits between and holds live editable state; changes auto-save via server action
 - **Editing surfaces:**
   - **Form mode** — tabbed forms, in-memory edits, explicit Save. Best for bulk work, reordering, structured fields.
@@ -38,26 +40,32 @@ owns the domain and site forever.
 ## Important file locations
 
 ```
-data/
-  users.json              Authorized accounts — bcrypt password hashes, roles
-  businesses/
-    {slug}.json           All per-business content (~11 sections; see Phase 4 list)
-
 public/
   uploads/{slug}/         User-uploaded images (logo, hero, about, team photos).
                           Gitignored; produced by /api/upload.
 
 src/lib/
-  db.ts                   Server-only query layer (async, via D1)
+  db.ts                   Server-only query layer (async, via D1) + template-at-render fallback
   db-d1.ts                Returns D1Database binding via getRequestContext()
   business-types.ts       Business interface, visibility flags, HoursSchedule
   business-validation.ts  Slug/hours/IDs validator
   business-context.tsx    BusinessProvider + useBusiness() hook
   edit-mode-context.tsx   EditModeProvider + useEditMode() — live state + auto-save
   hours.ts                Open-status & multi-day formatting utilities
-  service-icons.tsx       Service ID → Lucide icon component
+  service-icons.tsx       Service ID → Lucide icon component (delegates to template icon map)
   users.ts                bcrypt verify + role helpers
   session.ts              Signed-JWT cookie sessions (jose)
+  slugify.ts              Unique slug generation (name → slug, with city/state dedup)
+  templates/
+    types.ts              VerticalTemplate interface
+    shared.ts             Shared defaults (hours, visibility, footer, navLabels, sectionTitles)
+    registry.ts           Category string → template lookup + getAllTemplates/getAllCategories
+    auto-repair.ts        Auto repair shops (default vertical)
+    auto-body.ts          Auto body / collision / detailing shops
+    barber.ts             Barber shops
+    restaurant.ts         Restaurants
+    plumber.ts            Plumbers
+    generic.ts            Fallback for unknown categories
 
 src/components/site/
   home-page.tsx           Top-level composer — section order lives here
@@ -318,13 +326,13 @@ If an owner tries `/admin` they're redirected to their own shop's admin.
   - `repeatable.tsx` — shared reorder/remove/add wrapper
 
 ### Data model expansion (Phase 3 follow-up — full content migration)
-- [x] All hardcoded copy from `home.constants.ts` migrated into per-business JSON
+- [x] All hardcoded copy migrated into per-business JSON (old `home.constants.ts` deleted)
 - [x] New types in `src/types/site.ts`: `HeroContent`, `AboutContent`, `StatItem`, `PricingCard`, `FaqItem`, `EmergencyContent`
 - [x] `Business` interface expanded with `hero`, `about`, `stats`, `pricing`, `faqs`, `emergency`
 - [x] `BusinessVisibility` expanded from 6 to 11 toggles (added showAbout, showStats, showPricing, showFaq, showEmergencyBanner)
 - [x] Both `data/businesses/*.json` reseeded with full content
 - [x] All public components (Hero/About/Stats/Pricing/FAQ/Emergency) now read from `useBusiness()` context, no constants
-- [x] `home.constants.ts` reduced to nav anchors + processSteps (only the truly static template-wide bits)
+- [x] `home.constants.ts` deleted — `navItems` inlined, `processSteps` removed (dead code)
 - [x] `new-business-form.tsx` seeds blank business with sensible defaults for every new section
 - [x] `src/app/admin/actions.ts` — Server Actions: save / create / delete with role guards + `revalidatePath`
 - [x] `src/app/admin/admin.css` — self-contained admin styles (reused by /{slug}/admin via `../../admin/admin.css`)
@@ -338,10 +346,10 @@ If an owner tries `/admin` they're redirected to their own shop's admin.
 - [x] All 12 tabs functional (see list above)
 - [x] Save action with role guards + `revalidatePath` on every save
 - [x] In-progress edits held in local state until "Save changes"
-- [ ] Audit log (who changed what, when)
-- [ ] User management UI (add/remove shop owners via admin panel — currently edit users.json directly)
-- [ ] Change email flow — user can update their login email from account settings; must re-verify and update `data/users.json` via Blob write
-- [ ] Change password flow — user can update their password from account settings; bcrypt re-hash + Blob write; "forgot password" reset link via email
+- [x] Audit log (`/admin/audit`) — tracks who changed what, when
+- [x] User management UI (`/admin/users`) — add/remove users + invite links
+- [ ] Change email flow — user can update their login email from account settings
+- [ ] Change password flow — user can update their password from account settings; "forgot password" reset link via email
 
 ## Phase 4 — WYSIWYG inline editor ✅ DONE
 
@@ -503,7 +511,7 @@ Every hardcoded string in the components has been moved into per-business JSON. 
 - [ ] Multi-language support (Spanish for NJ market)
 - [ ] Customer dashboard — shop owner can edit their own content
 - [ ] Stripe checkout to accept the $500 online (currently Venmo/cash)
-- [ ] Zip-code search feature (`/admin/leads/search`) — enter a zip code, query Google Places API for auto repair shops without websites, one-click add as leads. Requires Google Places API key. Expanding to NJ, CO, VA initially.
+- [x] Zip-code search feature (`/admin/leads/search`) — enter a zip code, query Google Places API for local businesses without websites, one-click add as leads. Live with Google Places API key. Active in NJ, CO, VA.
 
 ## Content / copy improvements ✅ ALL DONE (Phase 4)
 - [x] Hero headline now per-business via `hero.headline`
@@ -523,16 +531,41 @@ Every hardcoded string in the components has been moved into per-business JSON. 
 - [x] SQLite deps removed; `db/` folder emptied; old init/seed scripts deleted
 - [x] `src/data/site-content.ts` removed
 - [x] `test-query.ts` removed
-- [x] `home.constants.ts` slimmed to nav anchors + processSteps (everything else moved to DB)
-- [ ] `middleware.ts` → `proxy.ts` rename (Next.js 16 deprecation warning)
+- [x] `home.constants.ts` deleted — `navItems` inlined into `home-chrome.tsx`, `processSteps` was dead code
 - [x] Remove the parent-folder `package.json` and `package-lock.json` that cause multi-lockfile warnings
-- [ ] Remove `out/` directory (leftover from the old `output: "export"` build)
+- [x] `src/lib/storage.ts`, `storage-local.ts`, `storage-r2.ts` deleted — dead since D1 migration
+- [x] 9 one-time cleanup migrations removed from `migrate/route.ts` (575 lines deleted)
+- [x] Unused `SESSION_COOKIE_NAME` export removed from `session.ts`
+- [ ] `middleware.ts` → `proxy.ts` rename (Next.js 16 deprecation warning)
+- [ ] Remove `out/` directory (leftover from the old `output: "export"` build, gitignored)
 - [ ] `footer.visitHeading` / `footer.servicesHeading` are unused after footer redesign — remove from type + seeds once we're sure no rollback needed
 - [ ] Rename `businesses` table → `prospect_site_previews` (or similar) — these are preview sites built for prospects, not standalone businesses. Touches 30+ files; do when stable.
 
 ---
 
 # 📒 Change log (reverse chronological)
+
+## 2026-04-25 — Template-at-render architecture + dead code cleanup
+
+### Multi-vertical template system
+- Created `src/lib/templates/` with 6 vertical templates: auto-repair, auto-body, barber, restaurant, plumber, generic (fallback)
+- `VerticalTemplate` interface defines `buildProspectBusiness()` + `buildBlankBusiness()` per vertical
+- `registry.ts` maps Google category strings → template (case-insensitive lookup)
+- `rowToBusiness()` in `db.ts` now fills ALL missing sections from the matching template at render time
+- DB only stores what's unique: `businessInfo` (name/phone/address), `slug`, `category`, `theme`, `visibility`, and any owner customizations
+- Stripped ~15KB of duplicated template content from each of 653 auto repair business JSON blobs
+- Fixed category mismatches: "Auto Repair" → "Car repair and maintenance service" via Google Places API lookup
+- Renamed `Testimonial.vehicle` → `Testimonial.context` with read-time migration for old data
+
+### Dead code removal
+- Deleted `src/lib/storage.ts`, `storage-local.ts`, `storage-r2.ts` — dead since D1 migration
+- Deleted `src/components/site/home.constants.ts` — `navItems` inlined, `processSteps` was unused
+- Removed 9 completed one-time migrations from `migrate/route.ts` (575 lines)
+- Removed unused `SESSION_COOKIE_NAME` export from `session.ts`
+
+### Admin tables
+- Built reusable `SortableTable` component with search, column sorting, and filters
+- Applied to audit log, users, and visits pages
 
 ## 2026-04-21 — Project cleanup + repo reorganization
 

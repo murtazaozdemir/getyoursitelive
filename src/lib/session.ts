@@ -161,5 +161,3 @@ export async function refreshSessionIfNeeded(): Promise<void> {
     // Token invalid or expired — don't refresh, let normal auth flow handle it
   }
 }
-
-export const SESSION_COOKIE_NAME = COOKIE_NAME;

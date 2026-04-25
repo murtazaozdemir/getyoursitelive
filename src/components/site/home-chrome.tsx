@@ -21,7 +21,7 @@ import { EditableText } from "@/components/editable/editable-text";
 import { EditableImage } from "@/components/editable/editable-image";
 import { ThemeName } from "@/types/site";
 import type { NavLabels } from "@/types/site";
-import { navItems } from "@/components/site/home.constants";
+const navItems = ["home", "about", "services", "technicians", "contact"] as const;
 
 // Theme metadata — icon + label per theme.
 const THEME_OPTIONS: Array<{ value: ThemeName; label: string; Icon: LucideIcon }> = [
