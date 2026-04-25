@@ -2,22 +2,8 @@ import { redirect, notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses, findUserById } from "@/lib/users";
 import { getTask, getTaskItems } from "@/lib/tasks";
-import { getD1 } from "@/lib/db-d1";
+import { zipCoords } from "@/lib/geo";
 import { TaskDetailClient } from "./task-detail-client";
-
-async function zipCoords(zip: string): Promise<{ lat: number; lng: number } | null> {
-  const db = await getD1();
-  const prospect = await db
-    .prepare("SELECT lat, lng FROM prospects WHERE lat IS NOT NULL AND lng IS NOT NULL AND address LIKE ? LIMIT 1")
-    .bind(`%${zip}%`)
-    .first<{ lat: number; lng: number }>();
-  if (prospect) return prospect;
-  const cached = await db
-    .prepare("SELECT lat, lng FROM places_cache WHERE lat IS NOT NULL AND lng IS NOT NULL AND zip = ? LIMIT 1")
-    .bind(zip)
-    .first<{ lat: number; lng: number }>();
-  return cached ?? null;
-}
 
 export default async function TaskDetailPage({
   params,

@@ -137,7 +137,7 @@ export function TaskDetailClient({
     <div className="task-detail">
       {/* Header */}
       <div className="task-detail-header">
-        <Link href="/admin/tasks" className="admin-btn admin-btn--ghost" style={{ marginBottom: 12 }}>
+        <Link href="/admin/tasks" className="admin-btn admin-btn--ghost task-detail-back">
           &larr; All tasks
         </Link>
 
@@ -183,9 +183,7 @@ export function TaskDetailClient({
         <div className="task-progress-bar task-progress-bar--detail">
           <div
             className="task-progress-fill"
-            style={{
-              width: totalCount > 0 ? `${(droppedOffItems.length / totalCount) * 100}%` : "0%",
-            }}
+            style={{ width: totalCount > 0 ? `${(droppedOffItems.length / totalCount) * 100}%` : "0%" }}
           />
         </div>
       </div>
@@ -193,16 +191,16 @@ export function TaskDetailClient({
       {/* Toolbar */}
       {task.status === "active" && pendingItems.length > 0 && (
         <div className="task-detail-toolbar">
-          <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintProposals}>
+          <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintProposals} disabled={isPending}>
             Print proposals ({pendingItems.length})
           </button>
-          <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintLabels}>
+          <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintLabels} disabled={isPending}>
             Print labels ({pendingItems.length})
           </button>
-          <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintTaskList}>
+          <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintTaskList} disabled={isPending}>
             Print task list
           </button>
-          <button type="button" className="admin-btn admin-btn--ghost" onClick={handleShowMap}>
+          <button type="button" className="admin-btn admin-btn--ghost" onClick={handleShowMap} disabled={isPending}>
             Show map
           </button>
         </div>
@@ -242,15 +240,15 @@ export function TaskDetailClient({
       {/* Actions */}
       <div className="task-detail-actions">
         {task.status === "active" ? (
-          <button type="button" className="admin-btn admin-btn--primary" onClick={handleComplete}>
+          <button type="button" className="admin-btn admin-btn--primary" onClick={handleComplete} disabled={isPending}>
             Mark task complete
           </button>
         ) : (
-          <button type="button" className="admin-btn admin-btn--ghost" onClick={handleReopen}>
+          <button type="button" className="admin-btn admin-btn--ghost" onClick={handleReopen} disabled={isPending}>
             Reopen task
           </button>
         )}
-        <button type="button" className="admin-btn admin-btn--danger" onClick={handleDelete}>
+        <button type="button" className="admin-btn admin-btn--danger" onClick={handleDelete} disabled={isPending}>
           Delete task
         </button>
       </div>

@@ -5,9 +5,10 @@ import { listBusinesses } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses, findUserById, isFounder } from "@/lib/users";
 import { FilterSortBar } from "@/app/admin/filter-bar";
-import { LeadCards, type LeadCardData } from "./lead-cards";
-import { getD1 } from "@/lib/db-d1";
+import { LeadCards } from "./lead-cards";
+import type { LeadCardData } from "./print-utils";
 import { parseAddress, unique } from "@/lib/address-utils";
+import { zipCoords } from "@/lib/geo";
 
 /** Haversine distance in miles between two lat/lng points */
 function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -19,23 +20,6 @@ function haversine(lat1: number, lng1: number, lat2: number, lng2: number): numb
     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
     Math.sin(dLng / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-/** Look up approximate coordinates for a zip code from places_cache or prospects */
-async function zipCoords(zip: string): Promise<{ lat: number; lng: number } | null> {
-  const db = await getD1();
-  // Try prospects first (they have stored lat/lng)
-  const prospect = await db
-    .prepare("SELECT lat, lng FROM prospects WHERE lat IS NOT NULL AND lng IS NOT NULL AND address LIKE ? LIMIT 1")
-    .bind(`%${zip}%`)
-    .first<{ lat: number; lng: number }>();
-  if (prospect) return prospect;
-  // Fall back to places_cache
-  const cached = await db
-    .prepare("SELECT lat, lng FROM places_cache WHERE lat IS NOT NULL AND lng IS NOT NULL AND zip = ? LIMIT 1")
-    .bind(zip)
-    .first<{ lat: number; lng: number }>();
-  return cached ?? null;
 }
 
 function dataChips(p: Prospect) {

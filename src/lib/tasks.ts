@@ -129,9 +129,7 @@ function rowToTaskItemWithProspect(row: TaskItemWithProspectRow): TaskItemWithPr
 // ---------------------------------------------------------------
 
 export async function listTasks(): Promise<TaskWithCounts[]> {
-  console.log("[tasks:listTasks] Getting D1...");
   const db = await getD1();
-  console.log("[tasks:listTasks] D1 obtained, running query...");
   const { results } = await db
     .prepare(
       `SELECT t.*,
@@ -143,10 +141,7 @@ export async function listTasks(): Promise<TaskWithCounts[]> {
        ORDER BY t.created_at DESC`,
     )
     .all<TaskWithCountsRow>();
-  console.log(`[tasks:listTasks] Query returned ${results.length} rows`);
-  const mapped = results.map(rowToTaskWithCounts);
-  console.log(`[tasks:listTasks] Mapped ${mapped.length} tasks`);
-  return mapped;
+  return results.map(rowToTaskWithCounts);
 }
 
 export async function getTask(id: string): Promise<Task | null> {

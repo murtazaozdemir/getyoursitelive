@@ -1825,6 +1825,9 @@ a.prospect-preview-url:hover { text-decoration: underline; }
   border-color: var(--admin-accent);
 }
 
+.task-detail-back {
+  margin-bottom: 12px;
+}
 .task-detail-actions {
   display: flex;
   gap: 12px;

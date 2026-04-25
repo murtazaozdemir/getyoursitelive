@@ -10,9 +10,6 @@ import {
   showLeadsMap,
 } from "./print-utils";
 
-// Re-export types so existing callers still work
-export type { LeadCardData, UserHome };
-
 export function LeadCards({ prospects, userHome }: { prospects: LeadCardData[]; userHome?: UserHome | null }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
