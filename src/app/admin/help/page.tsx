@@ -257,7 +257,7 @@ export default async function HelpPage() {
       {/* ─── CLIENTS ─── */}
       <Section id="clients" title="Clients">
         <p>
-          The Clients page (admin home) shows businesses that have been paid for. Leads automatically
+          The Clients page shows businesses that have been paid for. Leads automatically
           graduate here when moved to the <strong>Paid</strong> stage.
         </p>
         <p>
