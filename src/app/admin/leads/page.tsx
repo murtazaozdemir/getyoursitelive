@@ -213,6 +213,16 @@ export default async function LeadsPage({
   const allZips = unique(enriched.filter((p) => geoMatch(p, "zip")).map((p) => p._zip).filter(Boolean));
   const allCategories = unique(enriched.map((p) => p._category).filter(Boolean));
 
+  // Build geo tuples for cascading client-side filter logic
+  const geoTuplesMap = new Map<string, { city: string; state: string; zip: string }>();
+  for (const p of enriched) {
+    const key = `${p._city}|${p._state}|${p._zip}`;
+    if (!geoTuplesMap.has(key) && (p._city || p._state || p._zip)) {
+      geoTuplesMap.set(key, { city: p._city, state: p._state, zip: p._zip });
+    }
+  }
+  const geoTuples = [...geoTuplesMap.values()];
+
   // Apply filters
   const filtered = enriched.filter((p) => {
     if (filterStatus && p.status !== filterStatus) return false;
@@ -292,6 +302,7 @@ export default async function LeadsPage({
         states={allStates}
         zips={allZips}
         categories={allCategories}
+        geoTuples={geoTuples}
         filterStatus={filterStatus}
         filterCity={filterCity}
         filterState={filterState}

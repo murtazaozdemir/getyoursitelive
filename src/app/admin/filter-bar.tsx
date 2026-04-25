@@ -1,7 +1,13 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
+
+export interface GeoTuple {
+  city: string;
+  state: string;
+  zip: string;
+}
 
 export interface FilterBarConfig {
   showStatus?: boolean;
@@ -11,6 +17,8 @@ export interface FilterBarConfig {
   states?: string[];
   zips?: string[];
   categories?: string[];
+  /** Raw geo tuples so the client can cascade filters */
+  geoTuples?: GeoTuple[];
   // current values
   filterStatus?: string;
   filterCity?: string;
@@ -50,12 +58,114 @@ export function FilterSortBar(config: FilterBarConfig) {
       } else {
         params.delete(key);
       }
-      // Reset to page 1 on filter/sort change
       params.delete("page");
       router.push(`${pathname}?${params.toString()}`);
     },
     [router, pathname, searchParams],
   );
+
+  const tuples = config.geoTuples ?? [];
+
+  /**
+   * Cascading geo update: the last-changed field determines the other two.
+   *
+   * - State changed  → clear city & zip (show all within that state)
+   * - City changed   → auto-set state; clear zip (show zips in that city)
+   * - Zip changed    → auto-set city & state
+   * - Any cleared    → clear the ones below it in specificity
+   */
+  const updateGeo = useCallback(
+    (changed: "state" | "city" | "zip", value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("page");
+
+      if (!value) {
+        // Cleared — remove this and less-specific doesn't change,
+        // but more-specific should clear
+        params.delete(`filter${cap(changed)}`);
+        if (changed === "state") {
+          params.delete("filterCity");
+          params.delete("filterZip");
+        } else if (changed === "city") {
+          params.delete("filterZip");
+        }
+        router.push(`${pathname}?${params.toString()}`);
+        return;
+      }
+
+      if (changed === "state") {
+        params.set("filterState", value);
+        // Clear city & zip — they may not belong to the new state
+        params.delete("filterCity");
+        params.delete("filterZip");
+      } else if (changed === "city") {
+        params.set("filterCity", value);
+        // Find the state for this city
+        const match = tuples.find(
+          (t) => t.city.toLowerCase() === value.toLowerCase() && t.state,
+        );
+        if (match) {
+          params.set("filterState", match.state);
+        }
+        // Clear zip — let user pick from the narrowed list
+        params.delete("filterZip");
+      } else {
+        // zip
+        params.set("filterZip", value);
+        // Find city & state for this zip
+        const match = tuples.find((t) => t.zip === value);
+        if (match) {
+          if (match.state) params.set("filterState", match.state);
+          if (match.city) params.set("filterCity", match.city);
+        }
+      }
+
+      router.push(`${pathname}?${params.toString()}`);
+    },
+    [router, pathname, searchParams, tuples],
+  );
+
+  // Compute visible dropdown options based on current selections
+  const { visibleStates, visibleCities, visibleZips } = useMemo(() => {
+    if (tuples.length === 0) {
+      return {
+        visibleStates: config.states ?? [],
+        visibleCities: config.cities ?? [],
+        visibleZips: config.zips ?? [],
+      };
+    }
+
+    const curState = config.filterState ?? "";
+    const curCity = config.filterCity ?? "";
+    const curZip = config.filterZip ?? "";
+
+    // States: show all unique states (always full list)
+    const stSet = new Set<string>();
+    // Cities: filter by selected state
+    const ciSet = new Set<string>();
+    // Zips: filter by selected state + city
+    const zpSet = new Set<string>();
+
+    for (const t of tuples) {
+      if (t.state) stSet.add(t.state);
+
+      if (!curState || t.state.toUpperCase() === curState.toUpperCase()) {
+        if (t.city) ciSet.add(t.city);
+      }
+
+      if (!curState || t.state.toUpperCase() === curState.toUpperCase()) {
+        if (!curCity || t.city.toLowerCase() === curCity.toLowerCase()) {
+          if (t.zip) zpSet.add(t.zip);
+        }
+      }
+    }
+
+    return {
+      visibleStates: [...stSet].sort(),
+      visibleCities: [...ciSet].sort(),
+      visibleZips: [...zpSet].sort(),
+    };
+  }, [tuples, config.states, config.cities, config.zips, config.filterState, config.filterCity, config.filterZip]);
 
   const currentSort = config.sortBy && config.sortDir
     ? `${config.sortBy}:${config.sortDir}`
@@ -126,40 +236,40 @@ export function FilterSortBar(config: FilterBarConfig) {
           </select>
         )}
 
-        {config.states && config.states.length > 0 && (
+        {visibleStates.length > 0 && (
           <select
             className="admin-filter-select"
             value={config.filterState ?? ""}
-            onChange={(e) => update("filterState", e.target.value)}
+            onChange={(e) => updateGeo("state", e.target.value)}
           >
             <option value="">All states</option>
-            {config.states.map((s) => (
+            {visibleStates.map((s) => (
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
         )}
 
-        {config.cities && config.cities.length > 0 && (
+        {visibleCities.length > 0 && (
           <select
             className="admin-filter-select"
             value={config.filterCity ?? ""}
-            onChange={(e) => update("filterCity", e.target.value)}
+            onChange={(e) => updateGeo("city", e.target.value)}
           >
             <option value="">All cities</option>
-            {config.cities.map((c) => (
+            {visibleCities.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
         )}
 
-        {config.zips && config.zips.length > 0 && (
+        {visibleZips.length > 0 && (
           <select
             className="admin-filter-select"
             value={config.filterZip ?? ""}
-            onChange={(e) => update("filterZip", e.target.value)}
+            onChange={(e) => updateGeo("zip", e.target.value)}
           >
             <option value="">All zip codes</option>
-            {config.zips.map((z) => (
+            {visibleZips.map((z) => (
               <option key={z} value={z}>{z}</option>
             ))}
           </select>
@@ -226,4 +336,8 @@ export function FilterSortBar(config: FilterBarConfig) {
       </div>
     </div>
   );
+}
+
+function cap(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }

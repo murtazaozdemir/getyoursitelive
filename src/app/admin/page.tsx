@@ -186,6 +186,16 @@ export default async function AdminDashboard({
   const allZips = unique(enriched.filter((b) => geoMatch(b, "zip")).map((b) => b._zip).filter(Boolean));
   const allCategories = unique(enriched.map((b) => b.category).filter(Boolean));
 
+  // Build geo tuples for cascading client-side filter logic
+  const geoTuplesMap = new Map<string, { city: string; state: string; zip: string }>();
+  for (const b of enriched) {
+    const key = `${b._city}|${b._state}|${b._zip}`;
+    if (!geoTuplesMap.has(key) && (b._city || b._state || b._zip)) {
+      geoTuplesMap.set(key, { city: b._city, state: b._state, zip: b._zip });
+    }
+  }
+  const geoTuples = [...geoTuplesMap.values()];
+
   // Apply filters
   const filtered = enriched.filter((b) => {
     if (filterCity && b._city.toLowerCase() !== filterCity.toLowerCase()) return false;
@@ -238,6 +248,7 @@ export default async function AdminDashboard({
         states={allStates}
         zips={allZips}
         categories={allCategories}
+        geoTuples={geoTuples}
         filterCity={filterCity}
         filterState={filterState}
         filterZip={filterZip}
