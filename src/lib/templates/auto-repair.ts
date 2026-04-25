@@ -44,6 +44,12 @@ export const autoRepairTemplate: VerticalTemplate = {
   label: "Auto Repair Shop",
   categories: [
     "Car repair and maintenance service",
+    "Car Repair & Maintenance",
+    "Auto Repair",
+    "Auto Sales & Repair",
+    "Auto Tune Up",
+    "Mobile Mechanic",
+    "Scooter & Moto Repair",
     "Tire shop",
     "Auto repair shop",
     "Mechanic",

@@ -45,7 +45,9 @@ export const autoBodyTemplate: VerticalTemplate = {
   label: "Auto Body Shop",
   categories: [
     "Auto body shop",
+    "Auto Body",
     "Car detailing service",
+    "Car Detailing",
     "Auto painting service",
   ],
   testimonialContextLabel: "Vehicle",
