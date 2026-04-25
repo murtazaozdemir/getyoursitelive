@@ -75,12 +75,28 @@ function rowToBusiness(row: BusinessRow): Business {
       if (!a.whyUsCards?.length) a.whyUsCards = d.whyUsCards;
     }
 
-    if (!biz.services?.length) {
-      biz.services = defaults.services;
-    }
+    if (!biz.services?.length) biz.services = defaults.services;
+    if (!biz.stats?.length) biz.stats = defaults.stats;
+    if (!biz.deals?.length) biz.deals = defaults.deals;
+    if (!biz.pricing?.length) biz.pricing = defaults.pricing;
+    if (!biz.teamMembers?.length) biz.teamMembers = defaults.teamMembers;
+    if (!biz.testimonials?.length) biz.testimonials = defaults.testimonials;
+    if (!biz.faqs?.length) biz.faqs = defaults.faqs;
+    if (!biz.emergency) biz.emergency = defaults.emergency;
+    if (!biz.contact) biz.contact = defaults.contact;
+    if (!biz.footer) biz.footer = defaults.footer;
+    if (!biz.sectionTitles) biz.sectionTitles = defaults.sectionTitles;
+    if (!biz.navLabels) biz.navLabels = defaults.navLabels;
+    if (!biz.hoursSchedule) biz.hoursSchedule = defaults.hoursSchedule;
 
     // Safety: ensure arrays are never undefined
     if (!biz.services) biz.services = [];
+    if (!biz.stats) biz.stats = [];
+    if (!biz.deals) biz.deals = [];
+    if (!biz.pricing) biz.pricing = [];
+    if (!biz.teamMembers) biz.teamMembers = [];
+    if (!biz.testimonials) biz.testimonials = [];
+    if (!biz.faqs) biz.faqs = [];
 
     // Fill missing visibility flags from template defaults
     if (!biz.visibility) {
