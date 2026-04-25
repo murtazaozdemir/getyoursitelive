@@ -562,6 +562,61 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
 
   // ── Add new migrations below this line ──────────────────────────────────────
 
+  "create-tasks-tables": async () => {
+    const db = await getD1();
+    const log: string[] = [];
+    let updated = 0;
+
+    // tasks table
+    try {
+      await db.prepare(`
+        CREATE TABLE IF NOT EXISTS tasks (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          created_by TEXT NOT NULL,
+          created_by_name TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'active',
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        )
+      `).run();
+      log.push("Created tasks table");
+      updated++;
+    } catch { log.push("tasks table already exists"); }
+
+    // task_items table
+    try {
+      await db.prepare(`
+        CREATE TABLE IF NOT EXISTS task_items (
+          id TEXT PRIMARY KEY,
+          task_id TEXT NOT NULL,
+          prospect_slug TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'pending',
+          notes TEXT NOT NULL DEFAULT '',
+          sort_order INTEGER NOT NULL DEFAULT 0,
+          updated_at TEXT NOT NULL
+        )
+      `).run();
+      log.push("Created task_items table");
+      updated++;
+    } catch { log.push("task_items table already exists"); }
+
+    // Indexes
+    try {
+      await db.prepare("CREATE INDEX IF NOT EXISTS idx_task_items_task_id ON task_items(task_id)").run();
+      log.push("Created idx_task_items_task_id");
+      updated++;
+    } catch { log.push("idx_task_items_task_id already exists"); }
+
+    try {
+      await db.prepare("CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status)").run();
+      log.push("Created idx_tasks_status");
+      updated++;
+    } catch { log.push("idx_tasks_status already exists"); }
+
+    return { updated, skipped: 0, log };
+  },
+
   "add-booking-ip": async () => {
     const db = await getD1();
     const log: string[] = [];

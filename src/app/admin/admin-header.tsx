@@ -62,6 +62,7 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
           })()}
           <nav className="admin-header-nav">
             <Link href="/admin/leads" className="admin-header-nav-link">Leads</Link>
+            <Link href="/admin/tasks" className="admin-header-nav-link">Tasks</Link>
             <Link href="/admin" className="admin-header-nav-link">Clients</Link>
             {isFounder && (
               <Link href="/admin/users" className="admin-header-nav-link">Users</Link>
