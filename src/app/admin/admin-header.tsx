@@ -102,6 +102,9 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
                     <Link href="/admin/setup" className="admin-account-dropdown-item">
                       Setup
                     </Link>
+                    <a href="/api/admin/backup" className="admin-account-dropdown-item" download>
+                      Download Backup
+                    </a>
                   </>
                 )}
                 <div className="admin-account-dropdown-divider" />
