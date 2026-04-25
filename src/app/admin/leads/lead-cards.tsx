@@ -381,6 +381,26 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
   .route-name { font-weight: 600; font-size: 12px; }
   .route-addr { font-size: 11px; color: #666; }
   .route-loading { color: #999; font-style: italic; }
+  #toolbar {
+    position: absolute; top: 10px; left: 10px; z-index: 1000;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .toolbar-btn {
+    padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer;
+    font-size: 12px; font-weight: 600; font-family: Arial, sans-serif;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15); white-space: nowrap;
+  }
+  .toolbar-btn--print { background: #1a6b50; color: #fff; }
+  .toolbar-btn--print:hover { background: #155a43; }
+  .toolbar-btn--pdf { background: #333; color: #fff; }
+  .toolbar-btn--pdf:hover { background: #222; }
+  .toolbar-btn--csv { background: #fff; color: #333; border: 1px solid #ccc; }
+  .toolbar-btn--csv:hover { background: #f5f5f5; }
+  @media print {
+    #toolbar { display: none !important; }
+    #route-panel { position: static; max-height: none; box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+    #map { height: 60vh !important; }
+  }
   .numbered-icon {
     background: #1a6b50; color: #fff; border-radius: 50%;
     width: 26px; height: 26px; display: flex; align-items: center;
@@ -391,6 +411,11 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
 </head>
 <body>
 <div id="map"></div>
+<div id="toolbar">
+  <button class="toolbar-btn toolbar-btn--print" onclick="window.print()">Print</button>
+  <button class="toolbar-btn toolbar-btn--pdf" onclick="window.print()">Export PDF</button>
+  <button class="toolbar-btn toolbar-btn--csv" onclick="exportCsv()">Export CSV</button>
+</div>
 <div id="route-panel">
   <h3>Optimal Route</h3>
   <div id="route-list" class="route-loading">Calculating best route...</div>
@@ -505,6 +530,26 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
     L.polyline(pts, { color: '#1a6b50', weight: 3, opacity: 0.5, dashArray: '8 6' }).addTo(map);
     document.getElementById('route-list').innerHTML = listHtml;
     map.fitBounds(bounds, { padding: [40, 40] });
+  }
+
+  // CSV export — list only (ordered stops)
+  function exportCsv() {
+    var rows = document.querySelectorAll('.route-stop');
+    if (!rows.length) return;
+    var csv = '#,Name,Address\\n';
+    rows.forEach(function(row, i) {
+      var nameEl = row.querySelector('.route-name');
+      var addrEl = row.querySelector('.route-addr');
+      if (!nameEl || !addrEl) return;
+      var name = nameEl.textContent.replace(/"/g, '""');
+      var addr = addrEl.textContent.replace(/"/g, '""');
+      csv += (i === 0 ? 'H' : i) + ',"' + name + '","' + addr + '"\\n';
+    });
+    var blob = new Blob([csv], { type: 'text/csv' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'delivery-route.csv';
+    a.click();
   }
 <\/script>
 </body>
