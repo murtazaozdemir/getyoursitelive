@@ -23,32 +23,28 @@ interface BusinessRow {
 
 const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: number; log: string[] }>> = {
 
-  "ensure-category": async () => {
+  "fix-auto-repair-category": async () => {
     const db = await getD1();
     const { results } = await db
-      .prepare("SELECT slug, content FROM businesses")
+      .prepare("SELECT slug, content FROM businesses WHERE category = 'Auto Repair' OR content LIKE '%\"category\":\"Auto Repair\"%'")
       .all<BusinessRow>();
 
     let updated = 0;
-    let skipped = 0;
     const log: string[] = [];
+    const correct = "Car repair and maintenance service";
 
     for (const row of results) {
       const biz = JSON.parse(row.content) as Business;
-      if (!biz.category) {
-        const patched = { ...biz, category: "Auto Repair" };
-        await db
-          .prepare("UPDATE businesses SET category = ?, content = ? WHERE slug = ?")
-          .bind("Auto Repair", JSON.stringify(patched), row.slug)
-          .run();
-        log.push(`${row.slug}: set category = "Auto Repair"`);
-        updated++;
-      } else {
-        skipped++;
-      }
+      biz.category = correct;
+      await db
+        .prepare("UPDATE businesses SET category = ?, content = ? WHERE slug = ?")
+        .bind(correct, JSON.stringify(biz), row.slug)
+        .run();
+      log.push(row.slug);
+      updated++;
     }
 
-    return { updated, skipped, log };
+    return { updated, skipped: 0, log };
   },
 
   "fix-about-secondary-image": async () => {
