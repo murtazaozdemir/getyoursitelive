@@ -617,6 +617,84 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped: 0, log };
   },
 
+  "audit-empty-content": async () => {
+    const db = await getD1();
+    const { results } = await db
+      .prepare("SELECT slug, name, content FROM businesses")
+      .all<{ slug: string; name: string; content: string }>();
+
+    const log: string[] = [];
+    log.push(`Total businesses: ${results.length}`);
+    log.push("---");
+
+    const issues: { slug: string; name: string; problems: string[] }[] = [];
+
+    for (const row of results) {
+      let biz: Business;
+      try {
+        biz = JSON.parse(row.content) as Business;
+      } catch {
+        issues.push({ slug: row.slug, name: row.name, problems: ["CORRUPT JSON — cannot parse"] });
+        continue;
+      }
+
+      const problems: string[] = [];
+
+      // Arrays that render as sections
+      if (!biz.services || biz.services.length === 0) problems.push("services: EMPTY");
+      if (!biz.testimonials || biz.testimonials.length === 0) problems.push("testimonials: EMPTY");
+      if (!biz.teamMembers || biz.teamMembers.length === 0) problems.push("team: EMPTY");
+      if (!biz.pricing || biz.pricing.length === 0) problems.push("pricing: EMPTY");
+      if (!biz.faqs || biz.faqs.length === 0) problems.push("faqs: EMPTY");
+      if (!biz.deals || biz.deals.length === 0) problems.push("deals: EMPTY");
+      if (!biz.stats || biz.stats.length === 0) problems.push("stats: EMPTY");
+
+      // Critical objects
+      if (!biz.businessInfo) problems.push("businessInfo: MISSING");
+      if (!biz.hero) problems.push("hero: MISSING");
+      if (!biz.about) problems.push("about: MISSING");
+      if (!biz.contact) problems.push("contact: MISSING");
+      if (!biz.emergency) problems.push("emergency: MISSING");
+      if (!biz.visibility) problems.push("visibility: MISSING");
+      if (!biz.sectionTitles) problems.push("sectionTitles: MISSING");
+      if (!biz.footer) problems.push("footer: MISSING");
+      if (!biz.navLabels) problems.push("navLabels: MISSING");
+      if (!biz.hoursSchedule) problems.push("hoursSchedule: MISSING");
+
+      // Nested checks that could crash
+      if (biz.hero && !biz.hero.whyBullets) problems.push("hero.whyBullets: MISSING");
+      if (biz.about && !biz.about.bullets) problems.push("about.bullets: MISSING");
+      if (biz.about && !biz.about.whyUsCards) problems.push("about.whyUsCards: MISSING");
+
+      if (problems.length > 0) {
+        issues.push({ slug: row.slug, name: row.name, problems });
+      }
+    }
+
+    // Summary
+    log.push(`Businesses with issues: ${issues.length} of ${results.length}`);
+    log.push("---");
+
+    // Group by problem type for quick view
+    const problemCounts: Record<string, number> = {};
+    for (const issue of issues) {
+      for (const p of issue.problems) {
+        problemCounts[p] = (problemCounts[p] || 0) + 1;
+      }
+    }
+    for (const [problem, count] of Object.entries(problemCounts).sort((a, b) => b[1] - a[1])) {
+      log.push(`  ${problem}: ${count} businesses`);
+    }
+    log.push("---");
+
+    // Detail per business
+    for (const issue of issues) {
+      log.push(`${issue.slug} (${issue.name}): ${issue.problems.join(", ")}`);
+    }
+
+    return { updated: 0, skipped: issues.length, log };
+  },
+
   "add-booking-ip": async () => {
     const db = await getD1();
     const log: string[] = [];
