@@ -77,6 +77,8 @@ export default async function HelpPage() {
       <Section id="overview" title="How the Platform Works">
         <p>
           Get Your Site Live sells $500 one-time websites to local businesses.
+          The top navigation bar has four sections: <strong>Home</strong> (this guide),{" "}
+          <strong>Leads</strong>, <strong>Tasks</strong>, and <strong>Clients</strong>.
           The system works like this:
         </p>
         <Step n={1}>
@@ -123,15 +125,37 @@ export default async function HelpPage() {
           bulk actions like creating tasks, printing proposals, or printing labels.
         </p>
 
+        <h3>Search</h3>
+        <p>
+          The search bar at the top of the filter bar lets you type to instantly filter leads by
+          name, phone, or address. Matching text is highlighted in the results so you can quickly
+          spot what you&apos;re looking for. The search narrows as you type — no need to press Enter.
+        </p>
+
         <h3>Filtering &amp; Sorting</h3>
         <p>
-          Use the filter bar to narrow down by status, city, state, zip, category, or data
-          completeness (domains missing, no website, etc.). The geo dropdowns cascade — picking a
-          state filters the city and zip lists.
+          The filter bar is organized into three clear rows:
         </p>
+        <ul>
+          <li><strong>Search</strong> — type-ahead text filter (see above)</li>
+          <li><strong>Filter by</strong> — narrow down by status, category, city, state, zip, or data completeness (domains missing, no website, etc.). The geo dropdowns cascade — picking a state filters the city and zip lists.</li>
+          <li><strong>Sort by</strong> — choose sort order (newest, name, status, category, city, distance, etc.) and optionally enter a zip code for distance sorting.</li>
+        </ul>
         <p>
-          The <strong>Distance</strong> filter lets you enter a zip code and sort leads by how far
-          they are from that location. Useful for planning canvassing routes.
+          If you have a <strong>zip code in your profile</strong>, leads are automatically sorted
+          by distance from your location (nearest first). You can override this anytime by choosing
+          a different sort or entering a different zip. If no zip is set, leads default to newest first.
+        </p>
+        <Tip>
+          A yellow banner appears at the top of the Leads and Clients pages if your profile is missing
+          a zip code. Set it in <strong>My Account &rarr; Account settings</strong> to enable auto-distance sorting.
+        </Tip>
+
+        <h3>Lead Scoping</h3>
+        <p>
+          <strong>Found</strong> leads are shared — everyone can see them. Once a lead is moved
+          to <strong>Contacted</strong>, it becomes scoped to the person who contacted it. Other
+          admins won&apos;t see that lead in their list anymore (the Founder can still see all leads).
         </p>
       </Section>
 
@@ -147,7 +171,8 @@ export default async function HelpPage() {
             <p>
               First outreach made (visited, called, or emailed). <strong>Important:</strong> the
               first person to move a lead to Contacted gets permanently credited for commission.
-              After this, only that person (or the Founder) can advance the lead further.
+              After this, only that person (or the Founder) can see or advance the lead — it
+              disappears from other admins&apos; Leads page entirely.
             </p>
           </div>
           <div className="help-stage">
@@ -199,7 +224,8 @@ export default async function HelpPage() {
       {/* ─── TASKS ─── */}
       <Section id="tasks" title="Tasks &amp; Canvassing">
         <p>
-          Tasks are checklists for in-person canvassing runs. Here&apos;s the workflow:
+          Tasks are checklists for in-person canvassing runs. Each admin only sees their own
+          tasks — your task list is private to you.
         </p>
         <Step n={1}>
           <strong>Select leads.</strong> Go to Leads &rarr; Cards view, check the boxes next to
@@ -257,12 +283,13 @@ export default async function HelpPage() {
       {/* ─── CLIENTS ─── */}
       <Section id="clients" title="Clients">
         <p>
-          The Clients page shows businesses that have been paid for. Leads automatically
-          graduate here when moved to the <strong>Paid</strong> stage.
+          The <strong>Clients</strong> page (in the top navigation bar) shows businesses that have
+          been paid for. Leads automatically graduate here when moved to the <strong>Paid</strong> stage.
         </p>
         <p>
           From here you can filter and sort clients, view their site preview, access the site editor,
-          and see who was credited for the sale.
+          and see who was credited for the sale. Like the Leads page, Clients supports search,
+          cascading geo filters, and auto-distance sorting from your profile zip code.
         </p>
       </Section>
 
@@ -310,15 +337,19 @@ export default async function HelpPage() {
         </p>
         <h3>Profile Info</h3>
         <p>
-          Your name, phone, and <strong>home address</strong> are used in two places:
+          Your name, phone, and <strong>home address</strong> (including zip code) are used in
+          several places:
         </p>
         <ul>
           <li><strong>Proposals</strong> — your contact info appears at the bottom</li>
-          <li><strong>Distance &amp; Maps</strong> — your address is the starting point for map routes and distance calculations</li>
+          <li><strong>Auto-distance sorting</strong> — Leads and Clients pages automatically sort by nearest first using your profile zip code</li>
+          <li><strong>Map routes</strong> — your address is the starting point for task map routes</li>
+          <li><strong>Distance column</strong> — shows miles from your location on lead and client cards</li>
         </ul>
         <Tip>
-          Make sure your address is filled in. Without it, the map route button and distance
-          sorting won&apos;t work.
+          Your <strong>zip code is critical</strong>. Without it, the Leads and Clients pages
+          fall back to &ldquo;newest first&rdquo; sorting and a yellow banner reminds you to set
+          it. Fill in your address in Account settings to get the most out of the platform.
         </Tip>
         <h3>Email &amp; Password</h3>
         <p>
@@ -483,13 +514,19 @@ export default async function HelpPage() {
       <Section id="tips" title="Tips &amp; Best Practices">
         <h3>Before You Start</h3>
         <ul>
-          <li>Fill in your full profile in Account settings — your address powers distance sorting and map routes, and your contact info appears on proposals</li>
+          <li>Fill in your full profile in Account settings — especially your <strong>zip code</strong>, which enables auto-distance sorting on Leads and Clients</li>
+          <li>Your contact info appears on proposals, so make sure name, phone, and address are complete</li>
           <li>Familiarize yourself with the Pipeline and Cards views — use Pipeline for daily tracking, Cards for bulk operations</li>
+        </ul>
+        <h3>Finding Leads Fast</h3>
+        <ul>
+          <li>Use the <strong>search bar</strong> to quickly find a lead by name, phone, or address — matching text is highlighted</li>
+          <li>Leads auto-sort by distance from your profile zip, so the nearest prospects are always at the top</li>
+          <li>Combine search with filters — e.g., search &ldquo;tire&rdquo; + filter by &ldquo;Found&rdquo; stage to find uncontacted tire shops</li>
         </ul>
         <h3>Canvassing Workflow</h3>
         <ul>
-          <li>Use distance sorting to find leads near your location</li>
-          <li>Select nearby leads in Cards view and create a task</li>
+          <li>With auto-distance sorting, the nearest leads are already at the top — select a batch in Cards view and create a task</li>
           <li>Print proposals and labels from the task page</li>
           <li>Use the map button to plan your driving route</li>
           <li>Check off leads as you drop off proposals</li>
