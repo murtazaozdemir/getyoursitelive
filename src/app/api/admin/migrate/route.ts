@@ -561,6 +561,26 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
   },
 
   // ── Add new migrations below this line ──────────────────────────────────────
+
+  "add-booking-ip": async () => {
+    const db = await getD1();
+    const log: string[] = [];
+    let updated = 0;
+
+    try {
+      await db.prepare("ALTER TABLE bookings ADD COLUMN ip TEXT").run();
+      log.push("bookings: added ip column");
+      updated++;
+    } catch { log.push("bookings: ip column already exists"); }
+
+    try {
+      await db.prepare("CREATE INDEX IF NOT EXISTS idx_bookings_ip_submitted ON bookings(ip, submitted_at)").run();
+      log.push("bookings: created ip+submitted_at index");
+      updated++;
+    } catch { log.push("bookings: index creation failed"); }
+
+    return { updated, skipped: 0, log };
+  },
 };
 
 export async function GET(req: Request) {
