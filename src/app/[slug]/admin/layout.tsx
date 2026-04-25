@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser, refreshSessionIfNeeded } from "@/lib/session";
 import { canEditBusiness } from "@/lib/users";
 import { getBusinessBySlug } from "@/lib/db";
 import { ShopAdminHeader } from "./shop-admin-header";
@@ -25,6 +25,9 @@ export default async function ShopAdminLayout({
   // Also redirect users who aren't allowed to edit this slug.
   if (!user) redirect(`/${slug}/admin/login`);
   if (!canEditBusiness(user, slug)) redirect(`/${slug}/admin/login`);
+
+  // Sliding window: silently extend session if token is past halfway
+  await refreshSessionIfNeeded();
 
   const business = await getBusinessBySlug(slug);
 

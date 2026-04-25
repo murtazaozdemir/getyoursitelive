@@ -10,8 +10,9 @@ import type { SessionUser } from "@/lib/users";
  * (Cloudflare Workers), and has zero configuration beyond a secret.
  * NextAuth v5 adds significant surface area we don't need.
  *
- * Token lifetime: 7 days. Slide window is not implemented — users will
- * need to re-login after 7 days of inactivity.
+ * Token lifetime: 7 days with sliding window — if the token is past
+ * its halfway point, a fresh token is issued on the next page load.
+ * Active users never get logged out; inactive users expire after 7 days.
  */
 
 const COOKIE_NAME = "admin-session";
@@ -116,6 +117,49 @@ export async function requireUser(): Promise<SessionUser> {
   const user = await getCurrentUser();
   if (!user) throw new Error("UNAUTHORIZED");
   return user;
+}
+
+/**
+ * Sliding window: if the current token is past its halfway point,
+ * silently reissue a fresh one. Call from a layout server component
+ * so it runs on every page load. No DB hit — all claims are in the JWT.
+ */
+export async function refreshSessionIfNeeded(): Promise<void> {
+  const store = await cookies();
+  const token = store.get(COOKIE_NAME)?.value;
+  if (!token) return;
+
+  try {
+    const { payload } = await jwtVerify(token, getSecretKey(), {
+      algorithms: ["HS256"],
+    });
+
+    const iat = payload.iat;
+    if (typeof iat !== "number") return;
+
+    const ageSeconds = Math.floor(Date.now() / 1000) - iat;
+    if (ageSeconds < SESSION_TTL_SECONDS / 2) return;
+
+    // Token is past halfway — reissue
+    const user: SessionUser = {
+      id: payload.sub as string,
+      email: payload.email as string,
+      role: payload.role as "admin" | "owner",
+      name: payload.name as string,
+      ownedSlug: (payload.ownedSlug as string | null) ?? null,
+    };
+
+    const fresh = await createSessionToken(user);
+    store.set(COOKIE_NAME, fresh, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: SESSION_TTL_SECONDS,
+    });
+  } catch {
+    // Token invalid or expired — don't refresh, let normal auth flow handle it
+  }
 }
 
 export const SESSION_COOKIE_NAME = COOKIE_NAME;

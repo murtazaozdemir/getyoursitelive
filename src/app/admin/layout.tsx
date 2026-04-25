@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser, refreshSessionIfNeeded } from "@/lib/session";
 import { isFounder } from "@/lib/users";
 import { AdminHeader } from "./admin-header";
 import "./admin.css";
@@ -16,6 +16,9 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const user = await getCurrentUser();
+
+  // Sliding window: silently extend session if token is past halfway
+  if (user) await refreshSessionIfNeeded();
 
   return (
     <div className="admin-shell" data-theme="modern">
