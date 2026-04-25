@@ -10,7 +10,8 @@ export default async function TasksPage() {
   log("STEP 1: TasksPage function entered");
 
   // ── Auth ──────────────────────────────────────────────────────
-  let user: Awaited<ReturnType<typeof import("@/lib/session").getCurrentUser>> extends Promise<infer T> ? T : never;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let user: any;
   try {
     log("STEP 2: importing @/lib/session...");
     const sessionMod = await import("@/lib/session");
@@ -42,7 +43,8 @@ export default async function TasksPage() {
   }
 
   // ── Data ──────────────────────────────────────────────────────
-  let tasks: Awaited<ReturnType<typeof import("@/lib/tasks").listTasks>> extends Promise<infer T> ? T : never;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let tasks: any;
   try {
     log("STEP 11: importing @/lib/tasks...");
     const tasksMod = await import("@/lib/tasks");
