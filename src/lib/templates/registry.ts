@@ -1,5 +1,6 @@
 import type { VerticalTemplate } from "./types";
 import { autoRepairTemplate } from "./auto-repair";
+import { autoBodyTemplate } from "./auto-body";
 import { barberTemplate } from "./barber";
 import { restaurantTemplate } from "./restaurant";
 import { plumberTemplate } from "./plumber";
@@ -7,6 +8,7 @@ import { genericTemplate } from "./generic";
 
 const ALL_TEMPLATES: VerticalTemplate[] = [
   autoRepairTemplate,
+  autoBodyTemplate,
   barberTemplate,
   restaurantTemplate,
   plumberTemplate,
