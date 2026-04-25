@@ -896,13 +896,30 @@
 
 /* Filter + Sort bar */
 .admin-filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 20px;
 }
-.admin-filter-bar-selects {
+.admin-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.admin-filter-row-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+}
+.admin-filter-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--admin-text-muted);
+  white-space: nowrap;
+  min-width: 60px;
 }
 .admin-filter-select {
   height: 34px;

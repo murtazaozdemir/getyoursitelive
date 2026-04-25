@@ -221,156 +221,180 @@ export function FilterSortBar(config: FilterBarConfig) {
     router.push(`${pathname}?${params.toString()}`);
   }
 
+  const hasFilterSelects =
+    (config.showStatus && config.statuses && config.statuses.length > 0) ||
+    (config.categories && config.categories.length > 0) ||
+    config.showDataFilter ||
+    visibleStates.length > 0 ||
+    visibleCities.length > 0 ||
+    visibleZips.length > 0;
+
   return (
     <div className="admin-filter-bar">
-      <div className="admin-filter-bar-selects">
-        {config.showSearch && (
+      {/* ── Search ── */}
+      {config.showSearch && (
+        <div className="admin-filter-row">
           <input
             type="text"
             className="admin-filter-select admin-filter-search"
-            placeholder="Search leads..."
+            placeholder="Search by name, phone, address..."
             value={searchText}
             onChange={(e) => handleSearch(e.target.value)}
           />
-        )}
-        {config.showStatus && config.statuses && config.statuses.length > 0 && (
+        </div>
+      )}
+
+      {/* ── Filter By ── */}
+      {hasFilterSelects && (
+        <div className="admin-filter-row">
+          <span className="admin-filter-label">Filter by:</span>
+          <div className="admin-filter-row-controls">
+            {config.showStatus && config.statuses && config.statuses.length > 0 && (
+              <select
+                className="admin-filter-select"
+                value={config.filterStatus ?? ""}
+                onChange={(e) => update("filterStatus", e.target.value)}
+              >
+                <option value="">All statuses</option>
+                {config.statuses.map((s) => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
+                ))}
+              </select>
+            )}
+
+            {config.categories && config.categories.length > 0 && (
+              <select
+                className="admin-filter-select"
+                value={config.filterCategory ?? ""}
+                onChange={(e) => update("filterCategory", e.target.value)}
+              >
+                <option value="">All categories</option>
+                {config.categories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            )}
+
+            {config.showDataFilter && (
+              <select
+                className="admin-filter-select"
+                value={config.filterData ?? ""}
+                onChange={(e) => update("filterData", e.target.value)}
+              >
+                <option value="">All data</option>
+                <option value="domains-missing">Domains missing</option>
+                <option value="domains-incomplete">Domains incomplete</option>
+                <option value="has-domains">Has domains</option>
+                <option value="no-website">No website</option>
+                <option value="has-website">Has website</option>
+              </select>
+            )}
+
+            {visibleStates.length > 0 && (
+              <select
+                className="admin-filter-select"
+                value={config.filterState ?? ""}
+                onChange={(e) => updateGeo("state", e.target.value)}
+              >
+                <option value="">All states</option>
+                {visibleStates.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            )}
+
+            {visibleCities.length > 0 && (
+              <select
+                className="admin-filter-select"
+                value={config.filterCity ?? ""}
+                onChange={(e) => updateGeo("city", e.target.value)}
+              >
+                <option value="">All cities</option>
+                {visibleCities.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            )}
+
+            {visibleZips.length > 0 && (
+              <select
+                className="admin-filter-select"
+                value={config.filterZip ?? ""}
+                onChange={(e) => updateGeo("zip", e.target.value)}
+              >
+                <option value="">All zip codes</option>
+                {visibleZips.map((z) => (
+                  <option key={z} value={z}>{z}</option>
+                ))}
+              </select>
+            )}
+
+            {hasFilters && (
+              <button type="button" className="admin-filter-clear" onClick={clearAll}>
+                Clear filters
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Sort By ── */}
+      <div className="admin-filter-row">
+        <span className="admin-filter-label">Sort by:</span>
+        <div className="admin-filter-row-controls">
           <select
             className="admin-filter-select"
-            value={config.filterStatus ?? ""}
-            onChange={(e) => update("filterStatus", e.target.value)}
+            value={currentSort}
+            onChange={(e) => {
+              const [by, dir] = e.target.value.split(":");
+              const params = new URLSearchParams(searchParams.toString());
+              params.set("sortBy", by);
+              params.set("sortDir", dir);
+              router.push(`${pathname}?${params.toString()}`);
+            }}
           >
-            <option value="">All statuses</option>
-            {config.statuses.map((s) => (
-              <option key={s.value} value={s.value}>{s.label}</option>
+            {SORT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
-        )}
 
-        {config.categories && config.categories.length > 0 && (
-          <select
+          <input
+            type="text"
             className="admin-filter-select"
-            value={config.filterCategory ?? ""}
-            onChange={(e) => update("filterCategory", e.target.value)}
-          >
-            <option value="">All categories</option>
-            {config.categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        )}
-
-        {config.showDataFilter && (
-          <select
-            className="admin-filter-select"
-            value={config.filterData ?? ""}
-            onChange={(e) => update("filterData", e.target.value)}
-          >
-            <option value="">All data</option>
-            <option value="domains-missing">Domains missing</option>
-            <option value="domains-incomplete">Domains incomplete</option>
-            <option value="has-domains">Has domains</option>
-            <option value="no-website">No website</option>
-            <option value="has-website">Has website</option>
-          </select>
-        )}
-
-        {visibleStates.length > 0 && (
-          <select
-            className="admin-filter-select"
-            value={config.filterState ?? ""}
-            onChange={(e) => updateGeo("state", e.target.value)}
-          >
-            <option value="">All states</option>
-            {visibleStates.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-        )}
-
-        {visibleCities.length > 0 && (
-          <select
-            className="admin-filter-select"
-            value={config.filterCity ?? ""}
-            onChange={(e) => updateGeo("city", e.target.value)}
-          >
-            <option value="">All cities</option>
-            {visibleCities.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        )}
-
-        {visibleZips.length > 0 && (
-          <select
-            className="admin-filter-select"
-            value={config.filterZip ?? ""}
-            onChange={(e) => updateGeo("zip", e.target.value)}
-          >
-            <option value="">All zip codes</option>
-            {visibleZips.map((z) => (
-              <option key={z} value={z}>{z}</option>
-            ))}
-          </select>
-        )}
-
-        <input
-          type="text"
-          className="admin-filter-select"
-          placeholder="Distance from zip..."
-          defaultValue={config.distanceZip ?? ""}
-          maxLength={5}
-          style={{ width: 150 }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              const val = (e.target as HTMLInputElement).value.trim();
+            placeholder="Distance from zip..."
+            defaultValue={config.distanceZip ?? ""}
+            maxLength={5}
+            style={{ width: 160 }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                const val = (e.target as HTMLInputElement).value.trim();
+                const params = new URLSearchParams(searchParams.toString());
+                if (val && /^\d{5}$/.test(val)) {
+                  params.set("distanceZip", val);
+                  params.set("sortBy", "distance");
+                  params.set("sortDir", "asc");
+                } else {
+                  params.delete("distanceZip");
+                }
+                router.push(`${pathname}?${params.toString()}`);
+              }
+            }}
+            onBlur={(e) => {
+              const val = e.target.value.trim();
+              const current = config.distanceZip ?? "";
+              if (val === current) return;
               const params = new URLSearchParams(searchParams.toString());
               if (val && /^\d{5}$/.test(val)) {
                 params.set("distanceZip", val);
                 params.set("sortBy", "distance");
                 params.set("sortDir", "asc");
-              } else {
+              } else if (!val) {
                 params.delete("distanceZip");
               }
               router.push(`${pathname}?${params.toString()}`);
-            }
-          }}
-          onBlur={(e) => {
-            const val = e.target.value.trim();
-            const current = config.distanceZip ?? "";
-            if (val === current) return;
-            const params = new URLSearchParams(searchParams.toString());
-            if (val && /^\d{5}$/.test(val)) {
-              params.set("distanceZip", val);
-              params.set("sortBy", "distance");
-              params.set("sortDir", "asc");
-            } else if (!val) {
-              params.delete("distanceZip");
-            }
-            router.push(`${pathname}?${params.toString()}`);
-          }}
-        />
-
-        <select
-          className="admin-filter-select admin-filter-select--sort"
-          value={currentSort}
-          onChange={(e) => {
-            const [by, dir] = e.target.value.split(":");
-            const params = new URLSearchParams(searchParams.toString());
-            params.set("sortBy", by);
-            params.set("sortDir", dir);
-            router.push(`${pathname}?${params.toString()}`);
-          }}
-        >
-          {SORT_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
-
-        {hasFilters && (
-          <button type="button" className="admin-filter-clear" onClick={clearAll}>
-            Clear filters
-          </button>
-        )}
+            }}
+          />
+        </div>
       </div>
     </div>
   );
