@@ -72,7 +72,11 @@ export function printLabels(prospects: PrintableProspect[]) {
             ${p.address ? `<div class="label-addr">${escapeHtml(p.address)}</div>` : ""}
             <div class="label-qr-section">
               <img class="label-qr" src="${qrUrl}" alt="QR code" />
-              <div class="label-qr-text">We prepared a website for you! Scan this QR code to see it.</div>
+              <div class="label-qr-text">
+                <div>We built a free website preview for you!</div>
+                <div class="label-qr-instruction">Scan this QR code or type the link below in your browser:</div>
+                <div class="label-url">${previewUrl}</div>
+              </div>
             </div>
           </div>
         </div>`;
@@ -160,6 +164,20 @@ export function printLabels(prospects: PrintableProspect[]) {
     line-height: 1.4;
     color: #333;
     text-align: left;
+  }
+
+  .label-qr-instruction {
+    font-size: 9pt;
+    color: #555;
+    margin-top: 4px;
+  }
+
+  .label-url {
+    font-size: 10pt;
+    font-weight: 700;
+    color: #1a6b50;
+    margin-top: 4px;
+    word-break: break-all;
   }
 </style>
 </head>
