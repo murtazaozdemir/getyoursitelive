@@ -3,6 +3,18 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import {
+  Settings,
+  HelpCircle,
+  Users,
+  Footprints,
+  ClipboardList,
+  Wrench,
+  MapPin,
+  Search,
+  Download,
+  LogOut,
+} from "lucide-react";
 import type { SessionUser } from "@/lib/users";
 
 function displayRole(user: SessionUser, isFounder: boolean): string {
@@ -87,34 +99,34 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
             {accountOpen && (
               <div className="admin-account-dropdown">
                 <Link href="/admin/account" className="admin-account-dropdown-item">
-                  Account settings
+                  <Settings className="admin-account-dropdown-icon" /> Account settings
                 </Link>
                 <Link href="/admin/help" className="admin-account-dropdown-item">
-                  Help &amp; Guide
+                  <HelpCircle className="admin-account-dropdown-icon" /> Help &amp; Guide
                 </Link>
                 {isFounder && (
                   <>
                     <div className="admin-account-dropdown-divider" />
                     <Link href="/admin/users" className="admin-account-dropdown-item">
-                      Users
+                      <Users className="admin-account-dropdown-icon" /> Users
                     </Link>
                     <Link href="/admin/visits" className="admin-account-dropdown-item">
-                      Lead Visits
+                      <Footprints className="admin-account-dropdown-icon" /> Lead Visits
                     </Link>
                     <Link href="/admin/audit" className="admin-account-dropdown-item">
-                      Audit Log
+                      <ClipboardList className="admin-account-dropdown-icon" /> Audit Log
                     </Link>
                     <Link href="/admin/setup" className="admin-account-dropdown-item">
-                      Setup
+                      <Wrench className="admin-account-dropdown-icon" /> Setup
                     </Link>
                     <Link href="/admin/google-maps-info" className="admin-account-dropdown-item">
-                      Google Maps Info
+                      <MapPin className="admin-account-dropdown-icon" /> Google Maps Info
                     </Link>
                     <Link href="/admin/leads/search" className="admin-account-dropdown-item">
-                      Zip Search
+                      <Search className="admin-account-dropdown-icon" /> Zip Search
                     </Link>
                     <a href="/api/admin/backup" className="admin-account-dropdown-item" download>
-                      Download Backup
+                      <Download className="admin-account-dropdown-icon" /> Download Backup
                     </a>
                   </>
                 )}
@@ -124,7 +136,7 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
                   className="admin-account-dropdown-item admin-account-dropdown-item--danger"
                   onClick={handleLogout}
                 >
-                  Sign out
+                  <LogOut className="admin-account-dropdown-icon" /> Sign out
                 </button>
               </div>
             )}
