@@ -138,6 +138,23 @@ CREATE TABLE IF NOT EXISTS rate_limits (
 );
 
 -- ============================================================
+-- prospect_visits — tracks every visit to a prospect preview site
+-- ============================================================
+CREATE TABLE IF NOT EXISTS prospect_visits (
+  id            TEXT PRIMARY KEY,
+  slug          TEXT NOT NULL,
+  business_name TEXT NOT NULL,
+  ip            TEXT NOT NULL DEFAULT '',
+  user_agent    TEXT NOT NULL DEFAULT '',
+  referrer      TEXT NOT NULL DEFAULT '',
+  visited_at    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_prospect_visits_slug       ON prospect_visits(slug);
+CREATE INDEX IF NOT EXISTS idx_prospect_visits_visited_at ON prospect_visits(visited_at DESC);
+CREATE INDEX IF NOT EXISTS idx_prospect_visits_ip         ON prospect_visits(ip);
+
+-- ============================================================
 -- bookings
 -- ============================================================
 CREATE TABLE IF NOT EXISTS bookings (

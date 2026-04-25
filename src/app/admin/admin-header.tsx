@@ -98,6 +98,9 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
                     <Link href="/admin/users" className="admin-account-dropdown-item">
                       Users
                     </Link>
+                    <Link href="/admin/visits" className="admin-account-dropdown-item">
+                      Lead Visits
+                    </Link>
                     <Link href="/admin/audit" className="admin-account-dropdown-item">
                       Audit Log
                     </Link>

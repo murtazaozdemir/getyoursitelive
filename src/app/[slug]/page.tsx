@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { getBusinessBySlug } from "@/lib/db";
 import { BusinessProvider } from "@/lib/business-context";
 import { HomePage } from "@/components/site/home-page";
+import { logProspectVisit } from "@/lib/prospect-visits";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
 
@@ -141,6 +144,29 @@ export default async function BusinessPage({
   const business = await getBusinessBySlug(slug);
 
   if (!business) notFound();
+
+  // Track visit in the background (fire-and-forget, never blocks render)
+  try {
+    const hdrs = await headers();
+    const ip = hdrs.get("cf-connecting-ip")
+      ?? hdrs.get("x-forwarded-for")?.split(",")[0]?.trim()
+      ?? "unknown";
+    const userAgent = hdrs.get("user-agent") ?? "";
+    const referrer = hdrs.get("referer") ?? "";
+
+    const { ctx } = await getCloudflareContext({ async: true });
+    ctx.waitUntil(
+      logProspectVisit({
+        slug,
+        businessName: business.businessInfo.name,
+        ip,
+        userAgent,
+        referrer,
+      })
+    );
+  } catch {
+    // Local dev or missing Cloudflare context — skip tracking
+  }
 
   const jsonLd = buildJsonLd(business);
 
