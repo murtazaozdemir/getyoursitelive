@@ -3,19 +3,33 @@ import { redirect } from "next/navigation";
 import { listBusinesses } from "@/lib/db";
 import { listProspects } from "@/lib/prospects";
 import { getCurrentUser } from "@/lib/session";
-import { canManageBusinesses } from "@/lib/users";
+import { canManageBusinesses, findUserById } from "@/lib/users";
 import { FilterSortBar } from "@/app/admin/filter-bar";
 import { parseAddress, unique } from "@/lib/address-utils";
+import { zipCoords } from "@/lib/geo";
+
+/** Haversine distance in miles between two lat/lng points */
+function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 3958.8;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-type SortKey = "createdAt" | "name" | "status" | "category" | "city" | "state" | "zip";
+type SortKey = "createdAt" | "name" | "status" | "category" | "city" | "state" | "zip" | "distance";
 
 function BizCard({
   biz,
   prospect,
+  distance,
   showWarnings = true,
 }: {
   biz: { slug: string; name: string; category: string; address: string };
@@ -27,6 +41,7 @@ function BizCard({
     contactedByName?: string;
     contactedBy?: string;
   } | undefined;
+  distance?: number;
   showWarnings?: boolean;
 }) {
   const hasAddress = !!biz.address?.trim();
@@ -53,6 +68,11 @@ function BizCard({
             <span className="prospect-chip prospect-chip--warn">No domain</span>
           )}
         </div>
+        {distance != null && (
+          <p className="admin-biz-card-meta" style={{ fontWeight: 600, color: "var(--accent, #b45309)" }}>
+            {Math.round(distance)} mi away
+          </p>
+        )}
         {prospect?.contactedBy && (
           <p className="admin-biz-card-meta" style={{ marginTop: 8 }}>
             💳 {prospect.contactedByName ?? prospect.contactedBy}
@@ -110,8 +130,14 @@ export default async function AdminDashboard({
   const filterState = params.filterState ?? "";
   const filterZip = params.filterZip ?? "";
   const filterCategory = params.filterCategory ?? "";
-  const sortBy = (params.sortBy ?? "name") as SortKey;
-  const sortDir = (params.sortDir === "desc" ? "desc" : "asc") as "asc" | "desc";
+
+  // Look up admin's zip for distance sorting
+  const fullUser = await findUserById(user.id);
+  const adminHasZip = !!fullUser?.zip;
+  const origin = adminHasZip ? await zipCoords(fullUser!.zip!) : null;
+
+  const sortBy = (params.sortBy ?? (adminHasZip ? "distance" : "name")) as SortKey;
+  const sortDir = (params.sortDir ?? (sortBy === "distance" ? "asc" : "asc")) as "asc" | "desc";
 
   const [all, prospects] = await Promise.all([listBusinesses(), listProspects()]);
   const prospectBySlug = Object.fromEntries(prospects.map((p) => [p.slug, p]));
@@ -122,10 +148,15 @@ export default async function AdminDashboard({
     return !p || p.status === "paid" || p.status === "delivered";
   });
 
-  // Enrich with parsed address parts
+  // Enrich with parsed address parts + distance
   const enriched = clients.map((b) => {
     const { city, state, zip } = parseAddress(b.address);
-    return { ...b, _city: city, _state: state, _zip: zip };
+    const p = prospectBySlug[b.slug];
+    let _distance: number | undefined;
+    if (origin && p?.lat != null && p?.lng != null) {
+      _distance = haversine(origin.lat, origin.lng, p.lat, p.lng);
+    }
+    return { ...b, _city: city, _state: state, _zip: zip, _distance };
   });
 
   // Collect unique values for dropdowns — cascading geo filters
@@ -161,6 +192,11 @@ export default async function AdminDashboard({
 
   // Apply sort
   const sorted = [...filtered].sort((a, b) => {
+    if (sortBy === "distance") {
+      const da = a._distance ?? 999999;
+      const db = b._distance ?? 999999;
+      return sortDir === "asc" ? da - db : db - da;
+    }
     let va = "";
     let vb = "";
     if (sortBy === "name") { va = a.name; vb = b.name; }
@@ -180,6 +216,11 @@ export default async function AdminDashboard({
 
   return (
     <div className="admin-page">
+      {!adminHasZip && (
+        <div className="admin-banner admin-banner--warn">
+          Add your zip code in <Link href="/admin/account" className="admin-link">My Account</Link> to sort clients by distance.
+        </div>
+      )}
       <div className="admin-page-header">
         <div>
           <p className="admin-eyebrow">Platform admin</p>
@@ -227,7 +268,7 @@ export default async function AdminDashboard({
           {autoRepair.length > 0 && (
             <ul className="admin-biz-grid">
               {autoRepair.map((biz) => (
-                <BizCard key={biz.slug} biz={biz} prospect={prospectBySlug[biz.slug]} />
+                <BizCard key={biz.slug} biz={biz} prospect={prospectBySlug[biz.slug]} distance={biz._distance} />
               ))}
             </ul>
           )}
@@ -239,7 +280,7 @@ export default async function AdminDashboard({
               </div>
               <ul className="admin-biz-grid">
                 {other.map((biz) => (
-                  <BizCard key={biz.slug} biz={biz} prospect={prospectBySlug[biz.slug]} showWarnings={false} />
+                  <BizCard key={biz.slug} biz={biz} prospect={prospectBySlug[biz.slug]} distance={biz._distance} showWarnings={false} />
                 ))}
               </ul>
             </>

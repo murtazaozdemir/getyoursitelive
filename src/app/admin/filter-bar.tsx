@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export interface GeoTuple {
   city: string;
@@ -12,6 +12,7 @@ export interface GeoTuple {
 export interface FilterBarConfig {
   showStatus?: boolean;
   showDataFilter?: boolean;
+  showSearch?: boolean;
   statuses?: { value: string; label: string }[];
   cities?: string[];
   states?: string[];
@@ -20,6 +21,7 @@ export interface FilterBarConfig {
   /** Raw geo tuples so the client can cascade filters */
   geoTuples?: GeoTuple[];
   // current values
+  search?: string;
   filterStatus?: string;
   filterCity?: string;
   filterState?: string;
@@ -171,7 +173,33 @@ export function FilterSortBar(config: FilterBarConfig) {
     ? `${config.sortBy}:${config.sortDir}`
     : "createdAt:desc";
 
+  // Debounced search input
+  const [searchText, setSearchText] = useState(config.search ?? "");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Sync local state if URL param changes externally (e.g. clear filters)
+  useEffect(() => {
+    setSearchText(config.search ?? "");
+  }, [config.search]);
+  const handleSearch = useCallback(
+    (value: string) => {
+      setSearchText(value);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (value.trim()) {
+          params.set("search", value.trim());
+        } else {
+          params.delete("search");
+        }
+        params.delete("page");
+        router.push(`${pathname}?${params.toString()}`);
+      }, 250);
+    },
+    [router, pathname, searchParams],
+  );
+
   const hasFilters =
+    config.search ||
     config.filterStatus ||
     config.filterCity ||
     config.filterState ||
@@ -182,6 +210,7 @@ export function FilterSortBar(config: FilterBarConfig) {
 
   function clearAll() {
     const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
     params.delete("filterStatus");
     params.delete("filterCity");
     params.delete("filterState");
@@ -195,6 +224,15 @@ export function FilterSortBar(config: FilterBarConfig) {
   return (
     <div className="admin-filter-bar">
       <div className="admin-filter-bar-selects">
+        {config.showSearch && (
+          <input
+            type="text"
+            className="admin-filter-select admin-filter-search"
+            placeholder="Search leads..."
+            value={searchText}
+            onChange={(e) => handleSearch(e.target.value)}
+          />
+        )}
         {config.showStatus && config.statuses && config.statuses.length > 0 && (
           <select
             className="admin-filter-select"

@@ -1,3 +1,4 @@
+import type React from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { listProspects, PIPELINE_STAGES, type Prospect } from "@/lib/prospects";
@@ -20,6 +21,19 @@ function haversine(lat1: number, lng1: number, lat2: number, lng2: number): numb
     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
     Math.sin(dLng / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function highlightText(text: string, query: string): React.ReactNode {
+  if (!query) return text;
+  const idx = text.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return text;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark className="search-highlight">{text.slice(idx, idx + query.length)}</mark>
+      {text.slice(idx + query.length)}
+    </>
+  );
 }
 
 function dataChips(p: Prospect) {
@@ -96,6 +110,7 @@ export default async function LeadsPage({
 
   const params = await searchParams;
   const view = params.view === "cards" ? "cards" : "pipeline";
+  const search = params.search ?? "";
   const filterStatus = params.filterStatus ?? "";
   const filterCity = params.filterCity ?? "";
   const filterState = params.filterState ?? "";
@@ -103,17 +118,20 @@ export default async function LeadsPage({
   const filterCategory = params.filterCategory ?? "";
   const filterData = params.filterData ?? "";
   const distanceZip = params.distanceZip ?? "";
-  const sortBy = (params.sortBy ?? "createdAt") as SortKey;
-  const sortDir = (params.sortDir === "asc" ? "asc" : "desc") as "asc" | "desc";
 
   // Look up full user record for address fields
   const fullUser = await findUserById(user.id);
+  const adminHasZip = !!fullUser?.zip;
   const userAddressParts = [fullUser?.street, fullUser?.city, fullUser?.state, fullUser?.zip].filter(Boolean) as string[];
   const userAddress = userAddressParts.length > 0 ? userAddressParts.join(", ") : null;
-  const userHomeCoords = fullUser?.zip ? await zipCoords(fullUser.zip) : null;
+  const userHomeCoords = adminHasZip ? await zipCoords(fullUser!.zip!) : null;
   const userHome = userHomeCoords && userAddress
     ? { lat: userHomeCoords.lat, lng: userHomeCoords.lng, name: fullUser?.name ?? user.name, address: userAddress }
     : null;
+
+  // Default sort by distance when admin has a zip code and no explicit sort param
+  const sortBy = (params.sortBy ?? (adminHasZip ? "distance" : "createdAt")) as SortKey;
+  const sortDir = (params.sortDir ?? (sortBy === "distance" ? "asc" : "desc")) as "asc" | "desc";
 
   const [allProspects, allBiz] = await Promise.all([listProspects(), listBusinesses()]);
   const bizBySlug = Object.fromEntries(allBiz.map((b) => [b.slug, b]));
@@ -128,8 +146,9 @@ export default async function LeadsPage({
     return p.contactedBy === user.email;
   });
 
-  // Look up origin coordinates if distance zip provided
-  const origin = distanceZip ? await zipCoords(distanceZip) : null;
+  // Use admin's zip as default origin for distance; manual distanceZip overrides
+  const originZip = distanceZip || fullUser?.zip || "";
+  const origin = originZip ? await zipCoords(originZip) : null;
 
   // Enrich with parsed address + category + distance
   const enriched: EnrichedProspect[] = active.map((p) => {
@@ -166,7 +185,12 @@ export default async function LeadsPage({
   const geoTuples = [...geoTuplesMap.values()];
 
   // Apply filters
+  const searchLower = search.toLowerCase();
   const filtered = enriched.filter((p) => {
+    if (search) {
+      const haystack = `${p.name} ${p.phone ?? ""} ${p.address ?? ""} ${p.slug}`.toLowerCase();
+      if (!haystack.includes(searchLower)) return false;
+    }
     if (filterStatus && p.status !== filterStatus) return false;
     if (filterCity && p._city.toLowerCase() !== filterCity.toLowerCase()) return false;
     if (filterState && p._state.toUpperCase() !== filterState.toUpperCase()) return false;
@@ -197,6 +221,11 @@ export default async function LeadsPage({
 
   return (
     <div className="admin-page">
+      {!adminHasZip && (
+        <div className="admin-banner admin-banner--warn">
+          Add your zip code in <Link href="/admin/account" className="admin-link">My Account</Link> to sort leads by distance.
+        </div>
+      )}
       <div className="admin-page-header">
         <div>
           <p className="admin-eyebrow">Platform admin</p>
@@ -228,8 +257,10 @@ export default async function LeadsPage({
       </div>
 
       <FilterSortBar
+        showSearch
         showStatus
         showDataFilter
+        search={search}
         statuses={PIPELINE_STAGES.map((s) => ({ value: s.status, label: s.label }))}
         cities={allCities}
         states={allStates}
@@ -275,9 +306,9 @@ export default async function LeadsPage({
                     const chips = dataChips(p);
                     return (
                       <Link key={p.slug} href={`/admin/leads/${p.slug}`} className="prospect-card">
-                        <p className="prospect-card-name">{p.name}</p>
-                        {p.phone && <p className="prospect-card-meta">{p.phone}</p>}
-                        {p.address && <p className="prospect-card-meta">{p.address}</p>}
+                        <p className="prospect-card-name">{highlightText(p.name, search)}</p>
+                        {p.phone && <p className="prospect-card-meta">{highlightText(p.phone, search)}</p>}
+                        {p.address && <p className="prospect-card-meta">{highlightText(p.address, search)}</p>}
                         {p._distance != null && (
                           <p className="prospect-card-meta" style={{ fontWeight: 600, color: "var(--accent, #b45309)" }}>
                             {Math.round(p._distance)} mi away

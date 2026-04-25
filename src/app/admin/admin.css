@@ -196,6 +196,17 @@
 
 /* ----- Page chrome ----- */
 .admin-page { display: flex; flex-direction: column; gap: 28px; }
+.admin-banner {
+  padding: 10px 16px;
+  border-radius: var(--admin-radius);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.admin-banner--warn {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  color: #92400e;
+}
 .admin-page-header {
   display: flex;
   justify-content: space-between;
@@ -907,6 +918,16 @@
 }
 .admin-filter-select:focus {
   border-color: var(--admin-accent);
+}
+.admin-filter-search {
+  min-width: 200px;
+  cursor: text;
+}
+.search-highlight {
+  background: #fde68a;
+  color: #92400e;
+  border-radius: 2px;
+  padding: 0 1px;
 }
 .admin-filter-select--sort {
   border-style: dashed;
