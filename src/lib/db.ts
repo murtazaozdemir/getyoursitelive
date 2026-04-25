@@ -20,7 +20,18 @@ interface BusinessRow {
 
 function rowToBusiness(row: BusinessRow): Business {
   try {
-    return JSON.parse(row.content) as Business;
+    const biz = JSON.parse(row.content) as Business;
+    // Read-time migration: rename legacy `vehicle` → `context` in testimonials
+    if (biz.testimonials?.length) {
+      biz.testimonials = biz.testimonials.map((t) => {
+        const raw = t as unknown as Record<string, unknown>;
+        if ("vehicle" in raw && !("context" in raw)) {
+          return { name: t.name, context: raw.vehicle as string, quote: t.quote };
+        }
+        return t;
+      });
+    }
+    return biz;
   } catch {
     console.error(`[db] corrupt business JSON for slug=${row.slug}`);
     throw new Error(`Business data corrupted: ${row.slug}`);

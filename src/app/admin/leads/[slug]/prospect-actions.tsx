@@ -10,30 +10,9 @@ import {
   createOwnerLoginAction,
 } from "@/app/admin/leads/actions";
 import type { ProspectStatus } from "@/lib/prospects";
+import { getAllCategories } from "@/lib/templates/registry";
 
-const BUSINESS_CATEGORIES = [
-  "Car repair and maintenance service",
-  "Auto body shop",
-  "Tire shop",
-  "Auto repair shop",
-  "Mechanic",
-  "Transmission shop",
-  "Brake shop",
-  "Oil change service",
-  "Muffler shop",
-  "Car detailing service",
-  "Towing service",
-  "Used car dealer",
-  "Car dealer",
-  "Auto electrical service",
-  "Auto glass shop",
-  "Auto air conditioning service",
-  "Car wash",
-  "Truck repair shop",
-  "Diesel engine repair service",
-  "Auto radiator repair service",
-  "Other",
-] as const;
+const BUSINESS_CATEGORIES = getAllCategories();
 
 type ActionProps =
   | { action: "status"; slug: string; status: ProspectStatus; label: string; active: boolean; past: boolean; locked?: boolean }

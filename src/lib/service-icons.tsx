@@ -1,33 +1,8 @@
-import {
-  Activity,
-  Circle,
-  Cog,
-  Disc3,
-  Droplets,
-  Snowflake,
-  ClipboardCheck,
-  Gauge,
-  Wrench,
-  type LucideIcon,
-} from "lucide-react";
+import { Wrench } from "lucide-react";
+import { getTemplateForCategory } from "@/lib/templates/registry";
 
-// Map common auto-service IDs to Lucide icon components.
-// Falls back to a generic Wrench icon for unknown IDs.
-const ICON_MAP: Record<string, LucideIcon> = {
-  diagnostic:   Gauge,
-  diagnostics:  Gauge,
-  brakes:       Disc3,
-  brake:        Disc3,
-  oil:          Droplets,
-  transmission: Cog,
-  ac:           Snowflake,
-  hvac:         Snowflake,
-  tires:        Circle,
-  tire:         Circle,
-  alignment:    Activity,
-  inspection:   ClipboardCheck,
-  general:      Wrench,
-};
+// Default icon map used when no category is provided (auto-repair fallback)
+const DEFAULT_ICONS = getTemplateForCategory("Car repair and maintenance service").serviceIcons;
 
 /**
  * Render the icon element for a given service id.
@@ -37,11 +12,16 @@ const ICON_MAP: Record<string, LucideIcon> = {
  */
 export function ServiceIcon({
   id,
+  category,
   className,
 }: {
   id: string;
+  category?: string;
   className?: string;
 }) {
-  const Icon = ICON_MAP[id.toLowerCase()] ?? Wrench;
+  const icons = category
+    ? getTemplateForCategory(category).serviceIcons
+    : DEFAULT_ICONS;
+  const Icon = icons[id.toLowerCase()] ?? Wrench;
   return <Icon className={className} aria-hidden />;
 }

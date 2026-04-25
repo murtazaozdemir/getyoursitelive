@@ -10,7 +10,7 @@ import { SectionH2 } from "@/components/site/section-h2";
 import type { Testimonial } from "@/types/site";
 
 function blankTestimonial(): Testimonial {
-  return { name: "New customer", vehicle: "Vehicle", quote: "Great service." };
+  return { name: "New customer", context: "", quote: "Great service." };
 }
 
 export function TestimonialsSection({
@@ -77,12 +77,11 @@ export function TestimonialsSection({
                       onCommit={(v) => patchT(i, { name: v })}
                       placeholder="Customer name"
                     />
-                    {" - "}
-                    <EditableText
-                      value={t.vehicle}
-                      onCommit={(v) => patchT(i, { vehicle: v })}
-                      placeholder="Vehicle"
-                    />
+                    {t.context && <>{" - "}<EditableText
+                      value={t.context}
+                      onCommit={(v) => patchT(i, { context: v })}
+                      placeholder="Context"
+                    /></>}
                   </p>
                 </div>
               )}
@@ -109,7 +108,7 @@ export function TestimonialsSection({
           </div>
           <p className="testimonial-quote text-lg">&ldquo;{current.quote}&rdquo;</p>
           <p className="mt-4 font-semibold">
-            {current.name} - {current.vehicle}
+            {current.name}{current.context ? ` - ${current.context}` : ""}
           </p>
           <div className="mt-4 flex gap-2">
             <button className="icon-button" onClick={onPrevious} aria-label="Previous testimonial">

@@ -5,7 +5,7 @@ import type { Testimonial } from "@/types/site";
 import { RepeatableList, moveInArray } from "./repeatable";
 
 function blankTestimonial(): Testimonial {
-  return { name: "", vehicle: "", quote: "" };
+  return { name: "", context: "", quote: "" };
 }
 
 export function TestimonialsTab({
@@ -49,12 +49,12 @@ export function TestimonialsTab({
               />
             </label>
             <label className="admin-field">
-              <span className="admin-field-label">Vehicle (or context)</span>
+              <span className="admin-field-label">Context</span>
               <input
                 className="admin-input"
-                placeholder="2018 Honda Civic"
-                value={t.vehicle}
-                onChange={(e) => patch(i, { vehicle: e.target.value })}
+                placeholder="2018 Honda Civic, Haircut, etc."
+                value={t.context}
+                onChange={(e) => patch(i, { context: e.target.value })}
               />
             </label>
             <label className="admin-field admin-field--wide">

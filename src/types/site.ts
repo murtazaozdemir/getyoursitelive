@@ -38,7 +38,10 @@ export interface TeamMember {
 
 export interface Testimonial {
   name: string;
-  vehicle: string;
+  /** Contextual detail shown after the customer name — vehicle for auto shops,
+   *  service type for others. Old data may still have a `vehicle` field;
+   *  read-time migration in db.ts normalizes it to `context`. */
+  context: string;
   quote: string;
 }
 
