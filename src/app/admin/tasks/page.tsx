@@ -10,7 +10,19 @@ export default async function TasksPage() {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) redirect("/admin/login");
 
-  const tasks = await listTasks();
+  let tasks;
+  try {
+    tasks = await listTasks();
+  } catch (err) {
+    return (
+      <div>
+        <h1>Tasks — Error</h1>
+        <pre style={{ whiteSpace: "pre-wrap", color: "red" }}>
+          {err instanceof Error ? `${err.message}\n${err.stack}` : String(err)}
+        </pre>
+      </div>
+    );
+  }
   const activeTasks = tasks.filter((t) => t.status === "active");
   const completedTasks = tasks.filter((t) => t.status === "completed");
 
