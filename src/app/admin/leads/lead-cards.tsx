@@ -376,6 +376,7 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
   var bounds = [];
   markers.forEach(function(m) {
     var marker = L.marker([m.lat, m.lng]).addTo(map);
+    marker.bindTooltip(m.name, { direction: 'top', offset: [0, -10] });
     marker.bindPopup('<strong>' + m.name + '</strong><br>' + m.address);
     bounds.push([m.lat, m.lng]);
   });
