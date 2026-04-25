@@ -37,10 +37,13 @@ function coreFromName(name: string): string {
 async function isDomainAvailable(domain: string): Promise<boolean> {
   const name = domain.replace(/\.com$/i, "");
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
     const res = await fetch(`${RDAP_URL}/${name}.com`, {
       method: "HEAD",
-      signal: AbortSignal.timeout(8000),
+      signal: controller.signal,
     });
+    clearTimeout(timer);
     // 404 = not found = available. 200 = registered = taken.
     return res.status === 404;
   } catch {

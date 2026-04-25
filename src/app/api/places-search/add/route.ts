@@ -9,6 +9,7 @@ import { getTemplateForCategory, isCategoryMapped } from "@/lib/templates/regist
 import { sendUnmatchedCategoryAlert } from "@/lib/email";
 import { generateUniqueSlug } from "@/lib/slugify";
 import { generateVerifiedDomains } from "@/lib/domains";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 function nameToSlug(name: string): string {
   return name
@@ -178,17 +179,24 @@ export async function POST(req: NextRequest) {
     detail: `${name} (zip search)`,
   });
 
-  // Generate verified domains in the background (fire-and-forget)
-  generateVerifiedDomains(name, state || "NJ").then(async (domains) => {
-    if (domains.length > 0) {
-      const { updateProspect } = await import("@/lib/prospects");
-      await updateProspect(uniqueSlug, {
-        domain1: domains[0] || undefined,
-        domain2: domains[1] || undefined,
-        domain3: domains[2] || undefined,
-      });
-    }
-  }).catch(() => {});
+  // Generate verified domains in the background via waitUntil
+  try {
+    const { ctx } = await getCloudflareContext({ async: true });
+    ctx.waitUntil(
+      generateVerifiedDomains(name, state || "NJ").then(async (domains) => {
+        if (domains.length > 0) {
+          const { updateProspect } = await import("@/lib/prospects");
+          await updateProspect(uniqueSlug, {
+            domain1: domains[0] || undefined,
+            domain2: domains[1] || undefined,
+            domain3: domains[2] || undefined,
+          });
+        }
+      })
+    );
+  } catch {
+    // Local dev without Cloudflare context — skip
+  }
 
   revalidatePath("/admin/leads");
   return NextResponse.json({ ok: true, slug: uniqueSlug });
