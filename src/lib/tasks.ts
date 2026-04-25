@@ -133,8 +133,8 @@ export async function listTasks(): Promise<TaskWithCounts[]> {
   const { results } = await db
     .prepare(
       `SELECT t.*,
-        COUNT(ti.id) as total_items,
-        SUM(CASE WHEN ti.status = 'dropped_off' THEN 1 ELSE 0 END) as dropped_off_count
+        COALESCE(COUNT(ti.id), 0) as total_items,
+        COALESCE(SUM(CASE WHEN ti.status = 'dropped_off' THEN 1 ELSE 0 END), 0) as dropped_off_count
        FROM tasks t
        LEFT JOIN task_items ti ON ti.task_id = t.id
        GROUP BY t.id

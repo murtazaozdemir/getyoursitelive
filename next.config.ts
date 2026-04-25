@@ -12,6 +12,9 @@ if (process.env.NODE_ENV === "development") {
 
 function getBuildId() {
   try {
+    // Cloudflare Pages does a shallow clone (depth=1).
+    // Unshallow so rev-list --count returns the real commit count.
+    try { execSync("git fetch --unshallow 2>/dev/null"); } catch { /* already full */ }
     return execSync("git rev-list --count HEAD").toString().trim();
   } catch {
     return "0";
