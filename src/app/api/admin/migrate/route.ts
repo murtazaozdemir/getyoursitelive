@@ -132,6 +132,50 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped, log };
   },
 
+  "strip-template-content": async () => {
+    // Remove all template-provided content from auto repair JSON blobs.
+    // Only keep: slug, name, category, theme, businessInfo (name/phone/address),
+    // and visibility. Everything else comes from the template at render time.
+    const db = await getD1();
+    const { results } = await db
+      .prepare("SELECT slug, content FROM businesses WHERE category = 'Car repair and maintenance service'")
+      .all<BusinessRow>();
+
+    let updated = 0;
+    let skipped = 0;
+    const log: string[] = [];
+
+    const templateKeys = [
+      "hero", "about", "stats", "services", "deals", "pricing",
+      "teamMembers", "testimonials", "faqs", "emergency", "contact",
+      "footer", "sectionTitles", "navLabels", "hoursSchedule",
+    ];
+
+    for (const row of results) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const biz = JSON.parse(row.content) as any;
+      let changed = false;
+      for (const key of templateKeys) {
+        if (key in biz) {
+          delete biz[key];
+          changed = true;
+        }
+      }
+      if (!changed) {
+        skipped++;
+        continue;
+      }
+      await db
+        .prepare("UPDATE businesses SET content = ? WHERE slug = ?")
+        .bind(JSON.stringify(biz), row.slug)
+        .run();
+      log.push(row.slug);
+      updated++;
+    }
+
+    return { updated, skipped, log };
+  },
+
   "clear-about-services": async () => {
     const db = await getD1();
     const { results } = await db
