@@ -1,5 +1,6 @@
 import type { Business, BusinessVisibility } from "@/lib/business-types";
 import { getD1 } from "@/lib/db-d1";
+import { getTemplateForCategory } from "@/lib/templates/registry";
 
 // Re-export types so existing callers can still do `import { Business } from "@/lib/db"`.
 export type { Business, BusinessVisibility };
@@ -31,6 +32,25 @@ function rowToBusiness(row: BusinessRow): Business {
         return t;
       });
     }
+
+    // Template defaults: fill missing fields from the vertical template.
+    // This means new prospects only need name/address/phone in the DB —
+    // everything else falls back to template content at render time.
+    const template = getTemplateForCategory(row.category);
+    const defaults = template.buildProspectBusiness(
+      row.slug,
+      row.name,
+      biz.businessInfo?.phone ?? "",
+      biz.businessInfo?.address ?? "",
+    );
+
+    // --- hero.headline (test: first field using template fallback) ---
+    if (!biz.hero) {
+      biz.hero = defaults.hero;
+    } else if (!biz.hero.headline) {
+      biz.hero.headline = defaults.hero.headline;
+    }
+
     return biz;
   } catch {
     console.error(`[db] corrupt business JSON for slug=${row.slug}`);
