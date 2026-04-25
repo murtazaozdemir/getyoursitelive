@@ -339,17 +339,18 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
       .filter((p) => selected.has(p.slug) && p.lat != null && p.lng != null);
     if (picked.length === 0) return;
 
-    const markers = picked.map((p) => ({
+    // Home: 78 Arlington Avenue, Clifton, NJ 07011
+    const home = { lat: 40.8732, lng: -74.1571, name: "Home", address: "78 Arlington Ave, Clifton, NJ" };
+
+    const stops = picked.map((p) => ({
       lat: p.lat!,
       lng: p.lng!,
       name: p.name,
       address: p.address,
       slug: p.slug,
     }));
-    const avgLat = markers.reduce((s, m) => s + m.lat, 0) / markers.length;
-    const avgLng = markers.reduce((s, m) => s + m.lng, 0) / markers.length;
 
-    const markersJson = JSON.stringify(markers);
+    const markersJson = JSON.stringify(stops);
 
     const html = `<!DOCTYPE html>
 <html>
@@ -360,27 +361,149 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 100%; height: 100%; }
+  html, body { width: 100%; height: 100%; font-family: Arial, sans-serif; }
   #map { width: 100%; height: 100%; }
+  #route-panel {
+    position: absolute; top: 10px; right: 10px; z-index: 1000;
+    background: #fff; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    padding: 16px; max-width: 320px; max-height: 80vh; overflow-y: auto;
+    font-size: 13px;
+  }
+  #route-panel h3 { margin: 0 0 10px; font-size: 14px; }
+  .route-stop { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px solid #eee; }
+  .route-stop:last-child { border-bottom: none; }
+  .route-num {
+    width: 22px; height: 22px; border-radius: 50%; background: #1a6b50; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+  }
+  .route-num--home { background: #333; }
+  .route-name { font-weight: 600; font-size: 12px; }
+  .route-addr { font-size: 11px; color: #666; }
+  .route-loading { color: #999; font-style: italic; }
+  .numbered-icon {
+    background: #1a6b50; color: #fff; border-radius: 50%;
+    width: 26px; height: 26px; display: flex; align-items: center;
+    justify-content: center; font-weight: 700; font-size: 12px;
+    border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
 </style>
 </head>
 <body>
 <div id="map"></div>
+<div id="route-panel">
+  <h3>Optimal Route</h3>
+  <div id="route-list" class="route-loading">Calculating best route...</div>
+</div>
 <script>
-  var markers = ${markersJson};
-  var map = L.map('map').setView([${avgLat}, ${avgLng}], 11);
+  var stops = ${markersJson};
+  var home = ${JSON.stringify(home)};
+  var map = L.map('map').setView([home.lat, home.lng], 11);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors',
     maxZoom: 19
   }).addTo(map);
-  var bounds = [];
-  markers.forEach(function(m) {
-    var marker = L.marker([m.lat, m.lng]).addTo(map);
-    marker.bindTooltip(m.name, { direction: 'top', offset: [0, -10] });
-    marker.bindPopup('<strong>' + m.name + '</strong><br>' + m.address);
-    bounds.push([m.lat, m.lng]);
-  });
-  if (bounds.length > 1) {
+
+  function numIcon(n, isHome) {
+    return L.divIcon({
+      className: '',
+      html: '<div class="numbered-icon" style="background:' + (isHome ? '#333' : '#1a6b50') + '">' + n + '</div>',
+      iconSize: [26, 26],
+      iconAnchor: [13, 13]
+    });
+  }
+
+  // Build OSRM trip URL: home first, then all stops
+  var coords = home.lng + ',' + home.lat;
+  stops.forEach(function(s) { coords += ';' + s.lng + ',' + s.lat; });
+  var url = 'https://router.project-osrm.org/trip/v1/driving/' + coords
+    + '?source=first&roundtrip=false&geometries=geojson&overview=full';
+
+  fetch(url)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.code !== 'Ok' || !data.trips || !data.trips[0]) {
+        // Fallback: nearest-neighbor order
+        showFallback();
+        return;
+      }
+      var trip = data.trips[0];
+      var waypoints = data.waypoints;
+      // waypoints[i].waypoint_index gives the visit order
+      // waypoints[0] is home, rest are stops
+      var ordered = [];
+      for (var i = 1; i < waypoints.length; i++) {
+        ordered.push({ stop: stops[i - 1], tripIndex: waypoints[i].waypoint_index });
+      }
+      ordered.sort(function(a, b) { return a.tripIndex - b.tripIndex; });
+
+      // Draw route line
+      var routeCoords = trip.geometry.coordinates.map(function(c) { return [c[1], c[0]]; });
+      L.polyline(routeCoords, { color: '#1a6b50', weight: 4, opacity: 0.7 }).addTo(map);
+
+      // Place numbered markers
+      L.marker([home.lat, home.lng], { icon: numIcon('H', true) }).addTo(map)
+        .bindTooltip('Home', { direction: 'top', offset: [0, -10] })
+        .bindPopup('<strong>Start: Home</strong><br>' + home.address);
+
+      var bounds = [[home.lat, home.lng]];
+      var listHtml = '<div class="route-stop"><span class="route-num route-num--home">H</span><div><div class="route-name">Home (Start)</div><div class="route-addr">' + home.address + '</div></div></div>';
+
+      ordered.forEach(function(item, idx) {
+        var s = item.stop;
+        var n = idx + 1;
+        L.marker([s.lat, s.lng], { icon: numIcon(n, false) }).addTo(map)
+          .bindTooltip(n + '. ' + s.name, { direction: 'top', offset: [0, -10] })
+          .bindPopup('<strong>' + n + '. ' + s.name + '</strong><br>' + s.address);
+        bounds.push([s.lat, s.lng]);
+        listHtml += '<div class="route-stop"><span class="route-num">' + n + '</span><div><div class="route-name">' + s.name + '</div><div class="route-addr">' + s.address + '</div></div></div>';
+      });
+
+      // Total distance/duration
+      var distMi = (trip.distance / 1609.34).toFixed(1);
+      var durMin = Math.round(trip.duration / 60);
+      listHtml += '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #ddd;font-size:12px;color:#555"><strong>' + distMi + ' mi</strong> · ~' + durMin + ' min driving</div>';
+
+      document.getElementById('route-list').innerHTML = listHtml;
+      map.fitBounds(bounds, { padding: [40, 40] });
+    })
+    .catch(function() { showFallback(); });
+
+  function showFallback() {
+    // Simple nearest-neighbor from home
+    var remaining = stops.slice();
+    var ordered = [];
+    var current = home;
+    while (remaining.length > 0) {
+      var best = 0, bestDist = Infinity;
+      for (var i = 0; i < remaining.length; i++) {
+        var d = Math.pow(remaining[i].lat - current.lat, 2) + Math.pow(remaining[i].lng - current.lng, 2);
+        if (d < bestDist) { bestDist = d; best = i; }
+      }
+      ordered.push(remaining[best]);
+      current = remaining[best];
+      remaining.splice(best, 1);
+    }
+
+    L.marker([home.lat, home.lng], { icon: numIcon('H', true) }).addTo(map)
+      .bindTooltip('Home', { direction: 'top', offset: [0, -10] });
+
+    var bounds = [[home.lat, home.lng]];
+    var pts = [[home.lat, home.lng]];
+    var listHtml = '<div class="route-stop"><span class="route-num route-num--home">H</span><div><div class="route-name">Home (Start)</div><div class="route-addr">' + home.address + '</div></div></div>';
+
+    ordered.forEach(function(s, idx) {
+      var n = idx + 1;
+      L.marker([s.lat, s.lng], { icon: numIcon(n, false) }).addTo(map)
+        .bindTooltip(n + '. ' + s.name, { direction: 'top', offset: [0, -10] })
+        .bindPopup('<strong>' + n + '. ' + s.name + '</strong><br>' + s.address);
+      bounds.push([s.lat, s.lng]);
+      pts.push([s.lat, s.lng]);
+      listHtml += '<div class="route-stop"><span class="route-num">' + n + '</span><div><div class="route-name">' + s.name + '</div><div class="route-addr">' + s.address + '</div></div></div>';
+    });
+
+    L.polyline(pts, { color: '#1a6b50', weight: 3, opacity: 0.5, dashArray: '8 6' }).addTo(map);
+    document.getElementById('route-list').innerHTML = listHtml;
     map.fitBounds(bounds, { padding: [40, 40] });
   }
 <\/script>
