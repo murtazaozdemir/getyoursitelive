@@ -7,6 +7,7 @@ import { canManageBusinesses, findUserById, isFounder } from "@/lib/users";
 import { FilterSortBar } from "@/app/admin/filter-bar";
 import { LeadCards, type LeadCardData } from "./lead-cards";
 import { getD1 } from "@/lib/db-d1";
+import { parseAddress, unique } from "@/lib/address-utils";
 
 /** Haversine distance in miles between two lat/lng points */
 function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -37,52 +38,6 @@ async function zipCoords(zip: string): Promise<{ lat: number; lng: number } | nu
   return cached ?? null;
 }
 
-const US_STATES = new Set([
-  "AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL",
-  "IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE",
-  "NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD",
-  "TN","TX","UT","VT","VA","WA","WV","WI","WY",
-]);
-
-function looksLikeStreet(s: string): boolean {
-  return /^\d/.test(s) || /\b(st|ave|blvd|rd|dr|ln|ct|way|hwy|pkwy|suite|ste|tower|apt|unit|floor|bldg|room|lot)\b/i.test(s);
-}
-
-function parseAddress(address?: string) {
-  if (!address?.trim()) return { city: "", state: "", zip: "" };
-  const parts = address.split(",").map((s) => s.trim());
-
-  // Walk backwards to find "STATE ZIP" part
-  let state = "";
-  let zip = "";
-  let statePartIndex = -1;
-  for (let i = parts.length - 1; i >= 0; i--) {
-    const tokens = parts[i].split(/\s+/);
-    // Look for a 2-letter state code
-    const stateToken = tokens.find((t) => US_STATES.has(t.toUpperCase()));
-    if (stateToken) {
-      state = stateToken.toUpperCase();
-      const zipToken = tokens.find((t) => /^\d{5}(-\d{4})?$/.test(t));
-      zip = zipToken ? zipToken.slice(0, 5) : "";
-      statePartIndex = i;
-      break;
-    }
-  }
-
-  // City is the part just before the state part, but only if it doesn't look like a street
-  let city = "";
-  if (statePartIndex > 0) {
-    for (let i = statePartIndex - 1; i >= 0; i--) {
-      if (!looksLikeStreet(parts[i])) {
-        city = parts[i];
-        break;
-      }
-    }
-  }
-
-  return { city, state, zip };
-}
-
 function dataChips(p: Prospect) {
   const allDomains = p.domain1?.trim() && p.domain2?.trim() && p.domain3?.trim();
   const anyDomain = p.domain1?.trim() || p.domain2?.trim() || p.domain3?.trim();
@@ -109,10 +64,6 @@ function statusBadge(status: Prospect["status"]) {
 
 function statusLabel(status: Prospect["status"]) {
   return PIPELINE_STAGES.find((s) => s.status === status)?.label ?? status;
-}
-
-function unique<T>(arr: T[]): T[] {
-  return [...new Set(arr)].filter(Boolean).sort() as T[];
 }
 
 type SortKey = "createdAt" | "name" | "status" | "category" | "city" | "state" | "zip" | "distance";
@@ -183,8 +134,13 @@ export default async function LeadsPage({
   const [allProspects, allBiz] = await Promise.all([listProspects(), listBusinesses()]);
   const bizBySlug = Object.fromEntries(allBiz.map((b) => [b.slug, b]));
 
-  // Only active leads (not graduated to clients)
-  const active = allProspects.filter((p) => p.status !== "paid" && p.status !== "delivered");
+  // Default view: only active leads (not graduated to clients).
+  // But if the user explicitly filters by a graduated status (paid/delivered),
+  // include those so the status dropdown is consistent with the pipeline stages.
+  const showGraduated = filterStatus === "paid" || filterStatus === "delivered";
+  const active = showGraduated
+    ? allProspects.filter((p) => p.status === filterStatus)
+    : allProspects.filter((p) => p.status !== "paid" && p.status !== "delivered");
 
   // Look up origin coordinates if distance zip provided
   const origin = distanceZip ? await zipCoords(distanceZip) : null;
@@ -246,16 +202,16 @@ export default async function LeadsPage({
   const prospects = applySort(filtered, sortBy, sortDir);
 
   // For pipeline view, group by status (after filter+sort)
+  const pipelineStages = showGraduated
+    ? PIPELINE_STAGES
+    : PIPELINE_STAGES.filter(({ status }) => status !== "paid" && status !== "delivered");
+
   const byStatus = Object.fromEntries(
-    PIPELINE_STAGES.filter(({ status }) => status !== "paid" && status !== "delivered").map(({ status }) => [
+    pipelineStages.map(({ status }) => [
       status,
       prospects.filter((p) => p.status === status),
     ]),
   ) as Record<Prospect["status"], typeof prospects>;
-
-  const activeStatuses = PIPELINE_STAGES.filter(
-    ({ status }) => status !== "paid" && status !== "delivered",
-  );
 
   return (
     <div className="admin-page">
@@ -297,7 +253,7 @@ export default async function LeadsPage({
       <FilterSortBar
         showStatus
         showDataFilter
-        statuses={activeStatuses.map((s) => ({ value: s.status, label: s.label }))}
+        statuses={PIPELINE_STAGES.map((s) => ({ value: s.status, label: s.label }))}
         cities={allCities}
         states={allStates}
         zips={allZips}
@@ -328,7 +284,7 @@ export default async function LeadsPage({
       ) : view === "pipeline" ? (
         /* ── PIPELINE VIEW ────────────────────────────────────── */
         <div className="prospect-pipeline">
-          {activeStatuses.map(({ status, label }) => (
+          {pipelineStages.map(({ status, label }) => (
             <div key={status} className="prospect-column">
               <div className="prospect-column-header">
                 <span className={`prospect-badge ${statusBadge(status)}`}>{label}</span>
