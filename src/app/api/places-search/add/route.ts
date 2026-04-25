@@ -5,7 +5,8 @@ import { getBusinessBySlug, saveBusiness } from "@/lib/db";
 import { createProspect, getProspect, findProspectByPhone, normalizePhone, updateProspectGoogleData } from "@/lib/prospects";
 import { logAudit } from "@/lib/audit-log";
 import { revalidatePath } from "next/cache";
-import { getTemplateForCategory } from "@/lib/templates/registry";
+import { getTemplateForCategory, isCategoryMapped } from "@/lib/templates/registry";
+import { sendUnmatchedCategoryAlert } from "@/lib/email";
 import { generateUniqueSlug } from "@/lib/slugify";
 
 function nameToSlug(name: string): string {
@@ -155,6 +156,17 @@ export async function POST(req: NextRequest) {
       ok: false,
       error: err instanceof Error ? err.message : "Failed to create prospect.",
     });
+  }
+
+  const effectiveCategory = googleCategory || "Car repair and maintenance service";
+  if (!isCategoryMapped(effectiveCategory)) {
+    sendUnmatchedCategoryAlert({
+      category: effectiveCategory,
+      businessName: name,
+      slug: uniqueSlug,
+      address,
+      addedBy: user.email,
+    }).catch(() => {});
   }
 
   await logAudit({

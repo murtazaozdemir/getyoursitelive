@@ -1,5 +1,6 @@
 
 const FROM = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
+const FOUNDER_EMAIL = process.env.FOUNDER_EMAIL ?? "murtazaozdemir@gmail.com";
 
 interface SendResult {
   ok: boolean;
@@ -135,6 +136,60 @@ export async function sendPasswordResetEmail(opts: {
 
   if (error) {
     console.error("[reset-email] resend error", error);
+    return { ok: false, error: error.message };
+  }
+
+  return { ok: true };
+}
+
+export async function sendUnmatchedCategoryAlert(opts: {
+  category: string;
+  businessName: string;
+  slug: string;
+  address: string;
+  addedBy: string;
+}): Promise<SendResult> {
+  const resend = await getResend();
+
+  const html = `
+    <p><strong>Unmapped Google Category Detected</strong></p>
+    <p>A prospect was added with a Google category that doesn't match any template.
+    It was assigned the <strong>generic</strong> template (minimal content).</p>
+    <table style="border-collapse:collapse;margin:16px 0">
+      <tr><td style="padding:4px 12px 4px 0;font-weight:600">Category:</td><td style="padding:4px 0"><code>${opts.category}</code></td></tr>
+      <tr><td style="padding:4px 12px 4px 0;font-weight:600">Business:</td><td style="padding:4px 0">${opts.businessName}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;font-weight:600">Slug:</td><td style="padding:4px 0">${opts.slug}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;font-weight:600">Address:</td><td style="padding:4px 0">${opts.address}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;font-weight:600">Added by:</td><td style="padding:4px 0">${opts.addedBy}</td></tr>
+    </table>
+    <p><strong>What to do:</strong></p>
+    <ol>
+      <li>Decide if this category belongs in an existing template (e.g. add it to auto-repair's categories list)</li>
+      <li>Or create a new template file at <code>src/lib/templates/{vertical}.ts</code></li>
+      <li>Register it in <code>src/lib/templates/registry.ts</code></li>
+      <li>Rebuild and push — new prospects with this category will then get the right content</li>
+    </ol>
+    <p style="color:#888;font-size:13px">This prospect's site preview is live but has generic placeholder content until a matching template is assigned.</p>
+  `;
+
+  if (!resend) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("[unmatched-category] RESEND_API_KEY not set — category='${opts.category}' business='${opts.businessName}'");
+      return { ok: false, error: "Email service is not configured." };
+    }
+    console.log("[unmatched-category] DEV — category='${opts.category}' business='${opts.businessName}' slug='${opts.slug}'");
+    return { ok: true };
+  }
+
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: FOUNDER_EMAIL,
+    subject: "Unmapped category: " + opts.category + " — " + opts.businessName,
+    html,
+  });
+
+  if (error) {
+    console.error("[unmatched-category] resend error", error);
     return { ok: false, error: error.message };
   }
 

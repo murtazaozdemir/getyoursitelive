@@ -25,6 +25,10 @@ export function getTemplateForCategory(category: string): VerticalTemplate {
   return categoryIndex.get(category.toLowerCase()) ?? genericTemplate;
 }
 
+export function isCategoryMapped(category: string): boolean {
+  return categoryIndex.has(category.toLowerCase());
+}
+
 export function getAllTemplates(): VerticalTemplate[] {
   return ALL_TEMPLATES;
 }
