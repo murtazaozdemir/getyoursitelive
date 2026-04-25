@@ -61,12 +61,13 @@
 .admin-header-mark {
   display: inline-block;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   background: var(--admin-text);
   color: var(--admin-bg);
-  padding: 6px 10px;
+  padding: 5px 8px;
   border-radius: var(--admin-radius-sm);
-  font-size: 13px;
+  font-size: 11px;
+  white-space: nowrap;
 }
 .admin-header-title {
   font-weight: 600;

@@ -43,23 +43,9 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
       <div className="admin-header-inner">
         <div className="admin-header-brand">
           <Link href="/admin" className="admin-header-brand-link">
-            <span className="admin-header-mark">GYSL</span>
+            <span className="admin-header-mark">Get Your Site Live</span>
             <span className="admin-header-title">Admin</span>
           </Link>
-          {(() => {
-            const version = process.env.NEXT_PUBLIC_APP_VERSION;
-            const raw = process.env.NEXT_PUBLIC_BUILD_TIME;
-            const d = raw ? new Date(raw) : null;
-            const dateStr = d && !isNaN(d.getTime())
-              ? d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true })
-              : null;
-            if (!version && !dateStr) return null;
-            return (
-              <span className="admin-header-build">
-                {version}{dateStr ? ` (${dateStr})` : ""}
-              </span>
-            );
-          })()}
           <nav className="admin-header-nav">
             <Link href="/admin/leads" className="admin-header-nav-link">Leads</Link>
             <Link href="/admin/tasks" className="admin-header-nav-link">Tasks</Link>
@@ -73,6 +59,20 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
             <span className="admin-header-user-role" data-role={user.role}>
               {displayRole(user, isFounder)}
             </span>
+            {isFounder && (() => {
+              const version = process.env.NEXT_PUBLIC_APP_VERSION;
+              const raw = process.env.NEXT_PUBLIC_BUILD_TIME;
+              const d = raw ? new Date(raw) : null;
+              const dateStr = d && !isNaN(d.getTime())
+                ? d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true })
+                : null;
+              if (!version && !dateStr) return null;
+              return (
+                <span className="admin-header-build">
+                  {version}{dateStr ? ` (${dateStr})` : ""}
+                </span>
+              );
+            })()}
           </span>
 
           {/* My Account dropdown */}
@@ -101,6 +101,9 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
                     </Link>
                     <Link href="/admin/setup" className="admin-account-dropdown-item">
                       Setup
+                    </Link>
+                    <Link href="/admin/google-maps-info" className="admin-account-dropdown-item">
+                      Google Maps Info
                     </Link>
                     <a href="/api/admin/backup" className="admin-account-dropdown-item" download>
                       Download Backup
