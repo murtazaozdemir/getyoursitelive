@@ -19,7 +19,8 @@ export interface LeadCardData {
   lng?: number | null;
 }
 
-function escapeHtml(str: string) {
+function escapeHtml(str: string | null | undefined) {
+  if (!str) return "";
   return str
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -64,7 +65,7 @@ function printLabels(prospects: LeadCardData[]) {
         <div class="label">
           <div class="label-content">
             <div class="label-name">${escapeHtml(p.name)}</div>
-            <div class="label-addr">${escapeHtml(p.address)}</div>
+            ${p.address ? `<div class="label-addr">${escapeHtml(p.address)}</div>` : ""}
             <div class="label-qr-section">
               <img class="label-qr" src="${qrUrl}" alt="QR code" />
               <div class="label-qr-text">We prepared a website for you! Scan this QR code to see it.</div>
@@ -335,9 +336,21 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
   }
 
   function handleShowMap() {
-    const picked = prospects
-      .filter((p) => selected.has(p.slug) && p.lat != null && p.lng != null);
-    if (picked.length === 0) return;
+    const selectedLeads = prospects.filter((p) => selected.has(p.slug));
+    const picked = selectedLeads.filter((p) => p.lat != null && p.lng != null);
+    if (picked.length === 0) {
+      const missing = selectedLeads.length - picked.length;
+      alert(
+        missing > 0
+          ? `None of the ${missing} selected lead${missing !== 1 ? "s" : ""} have coordinates. Leads need latitude/longitude to appear on the map.`
+          : "No leads selected."
+      );
+      return;
+    }
+    if (picked.length < selectedLeads.length) {
+      const skipped = selectedLeads.length - picked.length;
+      if (!confirm(`${skipped} lead${skipped !== 1 ? "s" : ""} missing coordinates will be skipped. Continue with ${picked.length}?`)) return;
+    }
 
     // Home: 78 Arlington Avenue, Clifton, NJ 07011
     const home = { lat: 40.8732, lng: -74.1571, name: "Home", address: "78 Arlington Ave, Clifton, NJ" };
@@ -345,8 +358,8 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
     const stops = picked.map((p) => ({
       lat: p.lat!,
       lng: p.lng!,
-      name: p.name,
-      address: p.address,
+      name: escapeHtml(p.name),
+      address: escapeHtml(p.address),
       slug: p.slug,
     }));
 
@@ -596,7 +609,7 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
               className="admin-btn admin-btn--ghost"
               onClick={handlePrintDeliveryList}
             >
-              Delivery list
+              Print delivery list
             </button>
             <button
               type="button"
@@ -613,8 +626,9 @@ export function LeadCards({ prospects }: { prospects: LeadCardData[] }) {
       <ul className="admin-biz-grid">
         {prospects.map((p) => (
           <li key={p.slug} className={`admin-biz-card${selected.has(p.slug) ? " admin-biz-card--selected" : ""}`}>
-            <label className="lead-card-checkbox" onClick={(e) => e.stopPropagation()}>
+            <label className="lead-card-checkbox" htmlFor={`lead-cb-${p.slug}`} onClick={(e) => e.stopPropagation()}>
               <input
+                id={`lead-cb-${p.slug}`}
                 type="checkbox"
                 checked={selected.has(p.slug)}
                 onChange={() => toggle(p.slug)}

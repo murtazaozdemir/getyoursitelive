@@ -19,7 +19,12 @@ interface BusinessRow {
 }
 
 function rowToBusiness(row: BusinessRow): Business {
-  return JSON.parse(row.content) as Business;
+  try {
+    return JSON.parse(row.content) as Business;
+  } catch {
+    console.error(`[db] corrupt business JSON for slug=${row.slug}`);
+    throw new Error(`Business data corrupted: ${row.slug}`);
+  }
 }
 
 // ---------------------------------------------------------------

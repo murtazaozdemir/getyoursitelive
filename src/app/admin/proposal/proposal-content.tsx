@@ -48,7 +48,7 @@ export function ProposalContent({
 
       {/* ── OPENING LETTER ─────────────────────────────────────── */}
       <section className="proposal-letter">
-        <p className="proposal-salutation">Dear {name} owner,</p>
+        <p className="proposal-salutation">Dear {name} team,</p>
         <p>
           I put together a website preview for {name}. It&rsquo;s
           already live — you can scan the QR code below or type the
@@ -66,7 +66,7 @@ export function ProposalContent({
         <table className="proposal-table">
           <thead>
             <tr>
-              <th></th>
+              <th scope="col"><span className="sr-only">Platform</span></th>
               <th>Found on Google</th>
               <th>Yours to keep</th>
               <th>No monthly cost</th>
@@ -102,9 +102,7 @@ export function ProposalContent({
       <section className="proposal-section proposal-section--demo">
         <h2 className="proposal-section-title">Your site is already built</h2>
         <p className="proposal-body">
-          Scan the code or type the link to see exactly what your customers
-          would see — try it on your phone. Everything you see can be
-          changed.
+          Try it on your phone — scan the QR code or type the link below.
         </p>
         <div className="proposal-demo-row">
           <div className="proposal-qr">

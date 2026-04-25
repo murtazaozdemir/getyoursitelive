@@ -587,7 +587,8 @@ export async function GET(req: Request) {
     const result = await fn();
     return NextResponse.json({ migration, ...result });
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    console.error(`[migrate:GET] ${migration} failed:`, err);
+    return NextResponse.json({ error: "Migration failed. Check server logs." }, { status: 500 });
   }
 }
 
@@ -618,6 +619,7 @@ export async function POST(req: Request) {
     const result = await fn();
     return NextResponse.json({ migration, ...result });
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    console.error(`[migrate:POST] ${migration} failed:`, err);
+    return NextResponse.json({ error: "Migration failed. Check server logs." }, { status: 500 });
   }
 }

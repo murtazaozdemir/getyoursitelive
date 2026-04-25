@@ -18,7 +18,7 @@ const US_STATES = new Set([
 ]);
 
 function looksLikeStreet(s: string): boolean {
-  return /^\d/.test(s) || /\b(st|ave|blvd|rd|dr|ln|ct|way|hwy|pkwy|suite|ste|tower)\b/i.test(s);
+  return /^\d/.test(s) || /\b(st|ave|blvd|rd|dr|ln|ct|way|hwy|pkwy|suite|ste|tower|apt|unit|floor|bldg|room|lot)\b/i.test(s);
 }
 
 function parseAddress(address?: string) {
@@ -33,8 +33,8 @@ function parseAddress(address?: string) {
     const stateToken = tokens.find((t) => US_STATES.has(t.toUpperCase()));
     if (stateToken) {
       state = stateToken.toUpperCase();
-      const zipToken = tokens.find((t) => /^\d{5}/.test(t));
-      zip = zipToken ?? "";
+      const zipToken = tokens.find((t) => /^\d{5}(-\d{4})?$/.test(t));
+      zip = zipToken ? zipToken.slice(0, 5) : "";
       statePartIndex = i;
       break;
     }

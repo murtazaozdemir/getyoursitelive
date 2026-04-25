@@ -16,10 +16,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  // Validate field lengths
+  if (name.length > 200 || email.length > 254 || phone.length > 30 || service.length > 200) {
+    return NextResponse.json({ error: "Field value too long" }, { status: 400 });
+  }
+  if (typeof message === "string" && message.length > 2000) {
+    return NextResponse.json({ error: "Message too long" }, { status: 400 });
+  }
+
+  // Basic email format check
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
+  }
+
+  // Validate slug exists
+  const db = await getD1();
+  const bizExists = await db
+    .prepare("SELECT 1 FROM businesses WHERE slug = ?")
+    .bind(slug.trim())
+    .first();
+  if (!bizExists) {
+    return NextResponse.json({ error: "Business not found" }, { status: 404 });
+  }
+
   const id = `b-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
   const submittedAt = new Date().toISOString();
 
-  const db = await getD1();
   await db
     .prepare(
       `INSERT INTO bookings (id, slug, name, email, phone, service, date, message, submitted_at)

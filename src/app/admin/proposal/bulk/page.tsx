@@ -69,8 +69,8 @@ export default async function BulkProposalPage({
 
       {valid.map((entry, i) => {
         const { slug, biz, prospect } = entry;
-        const name = biz!.businessInfo.name;
-        const address = biz!.businessInfo.address;
+        const name = biz?.businessInfo?.name ?? slug;
+        const address = biz?.businessInfo?.address ?? "";
 
         const storedDomains = [prospect?.domain1, prospect?.domain2, prospect?.domain3].filter(Boolean) as string[];
         const domains = storedDomains.length > 0 ? storedDomains : domainSuggestions(name);

@@ -9,13 +9,13 @@ function slugify(name: string) {
 
 export function domainSuggestions(name: string): string[] {
   const baseClean = slugify(name);
-  const base = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  if (!baseClean) return ["example.com", "exampleauto.com", "examplnj.com"];
   const words = name.toLowerCase().split(/\s+/);
   const core = words.filter(w => !NOISE_WORDS.includes(slugify(w))).map(slugify).join("") || baseClean;
   return [...new Set([
     `${baseClean}.com`,
     `${core}auto.com`,
-    `${base.replace(/-/g, "")}nj.com`,
+    `${baseClean}nj.com`,
   ])].slice(0, 3);
 }
 

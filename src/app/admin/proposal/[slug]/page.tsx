@@ -83,8 +83,8 @@ export default async function ProposalPage({
       </div>
 
       <ProposalContent
-        name={biz.businessInfo.name}
-        address={biz.businessInfo.address}
+        name={biz.businessInfo?.name ?? slug}
+        address={biz.businessInfo?.address ?? ""}
         domains={domains}
         shortUrl={shortUrl}
         qrImageUrl={qrImageUrl}
