@@ -86,7 +86,7 @@ export async function createProspectAction(
   redirect(`/admin/leads/${slug}`);
 }
 
-export async function updateProspectStatusAction(slug: string, status: ProspectStatus): Promise<{ ok: boolean; locked?: boolean }> {
+export async function updateProspectStatusAction(slug: string, status: ProspectStatus, opts?: { revertMistake?: boolean }): Promise<{ ok: boolean; locked?: boolean }> {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) return { ok: false };
 
@@ -109,7 +109,10 @@ export async function updateProspectStatusAction(slug: string, status: ProspectS
   }
 
   await updateProspect(slug, patch);
-  await logAudit({ userEmail: user.email, userName: user.name, action: "prospect_status", slug, detail: status });
+  const detail = opts?.revertMistake
+    ? `${status} (mistake correction by ${user.name})`
+    : status;
+  await logAudit({ userEmail: user.email, userName: user.name, action: "prospect_status", slug, detail });
   revalidatePath("/admin/leads");
   revalidatePath(`/admin/leads/${slug}`);
   return { ok: true };

@@ -14,6 +14,96 @@ import { getAllCategories } from "@/lib/templates/registry";
 
 const BUSINESS_CATEGORIES = getAllCategories();
 
+const STAGE_ORDER: ProspectStatus[] = ["found", "contacted", "interested", "paid", "delivered"];
+const STAGE_LABELS: Record<ProspectStatus, string> = {
+  found: "Found",
+  contacted: "Contacted",
+  interested: "Interested",
+  paid: "Paid",
+  delivered: "Delivered",
+};
+
+export function PipelineStageSelector({
+  slug,
+  currentStatus,
+  locked,
+}: {
+  slug: string;
+  currentStatus: ProspectStatus;
+  locked: boolean;
+}) {
+  const [isPending, startTransition] = useTransition();
+  const currentIdx = STAGE_ORDER.indexOf(currentStatus);
+
+  function handleClick(targetStatus: ProspectStatus, targetIdx: number) {
+    if (locked) return;
+    if (targetStatus === currentStatus) return;
+
+    const isGoingBack = targetIdx < currentIdx;
+    const isSkipping = targetIdx > currentIdx + 1;
+
+    if (isSkipping) {
+      const missing = STAGE_ORDER.slice(currentIdx + 1, targetIdx)
+        .map((s) => STAGE_LABELS[s])
+        .join(", ");
+      alert(`You need to complete ${missing} first before selecting ${STAGE_LABELS[targetStatus]}.`);
+      return;
+    }
+
+    if (isGoingBack) {
+      const confirmed = confirm(
+        `This lead is currently at "${STAGE_LABELS[currentStatus]}". ` +
+        `Moving it back to "${STAGE_LABELS[targetStatus]}" is unusual.\n\n` +
+        `Did you select this by mistake?`
+      );
+      if (!confirmed) return;
+      startTransition(async () => {
+        await updateProspectStatusAction(slug, targetStatus, { revertMistake: true });
+      });
+      return;
+    }
+
+    // Normal forward move (next stage)
+    startTransition(async () => {
+      await updateProspectStatusAction(slug, targetStatus);
+    });
+  }
+
+  return (
+    <div className="prospect-stages">
+      {STAGE_ORDER.map((status, i) => {
+        const isActive = status === currentStatus;
+        const isPast = i < currentIdx;
+        return (
+          <button
+            key={status}
+            type="button"
+            className={[
+              "prospect-stage-btn",
+              isActive ? "prospect-stage-btn--active" : "",
+              isPast ? "prospect-stage-btn--past" : "",
+              locked && !isActive ? "prospect-stage-btn--locked" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            disabled={isActive || isPending || (locked && !isActive)}
+            title={
+              locked && !isActive
+                ? "Locked — another reseller is handling this lead"
+                : i > currentIdx + 1
+                  ? `Complete ${STAGE_LABELS[STAGE_ORDER[currentIdx + 1]]} first`
+                  : undefined
+            }
+            onClick={() => handleClick(status, i)}
+          >
+            {STAGE_LABELS[status]}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 type ActionProps =
   | { action: "status"; slug: string; status: ProspectStatus; label: string; active: boolean; past: boolean; locked?: boolean }
   | { action: "copy"; slug: string; previewUrl: string }

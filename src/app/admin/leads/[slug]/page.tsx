@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { getProspect, PIPELINE_STAGES } from "@/lib/prospects";
+import { getProspect } from "@/lib/prospects";
 import { getBusinessBySlug } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses, isFounder } from "@/lib/users";
-import { ProspectActions } from "./prospect-actions";
+import { ProspectActions, PipelineStageSelector } from "./prospect-actions";
 import { getAuditLogForSlug, type AuditEntry } from "@/lib/audit-log";
 
 function formatActivityAction(entry: AuditEntry): string {
@@ -50,7 +50,7 @@ export default async function ProspectDetailPage({
   ]);
   if (!prospect) notFound();
 
-  const currentStageIdx = PIPELINE_STAGES.findIndex((s) => s.status === prospect.status);
+
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
   const previewUrl = `${siteUrl}/${slug}`;
   const shortUrl = prospect.shortId ? `${siteUrl}/p/${prospect.shortId}` : null;
@@ -107,20 +107,11 @@ export default async function ProspectDetailPage({
                 🔒 Locked to {lockedToName} — only they can advance this lead.
               </p>
             )}
-            <div className="prospect-stages">
-              {PIPELINE_STAGES.map(({ status, label }, i) => (
-                <ProspectActions
-                  key={status}
-                  slug={slug}
-                  action="status"
-                  status={status}
-                  label={label}
-                  active={prospect.status === status}
-                  past={i < currentStageIdx}
-                  locked={isLocked}
-                />
-              ))}
-            </div>
+            <PipelineStageSelector
+              slug={slug}
+              currentStatus={prospect.status}
+              locked={isLocked}
+            />
           </section>
 
           {/* Edit contact info */}
