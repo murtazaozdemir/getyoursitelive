@@ -34,6 +34,18 @@ export function LeadCards({ prospects, userHome }: { prospects: LeadCardData[]; 
     setSelected(next);
   }
 
+  function toggleRow(startIdx: number) {
+    const rowSlugs = prospects.slice(startIdx, startIdx + 3).map((p) => p.slug);
+    const allInRow = rowSlugs.every((s) => selected.has(s));
+    const next = new Set(selected);
+    if (allInRow) {
+      rowSlugs.forEach((s) => next.delete(s));
+    } else {
+      rowSlugs.forEach((s) => next.add(s));
+    }
+    setSelected(next);
+  }
+
   function handlePrint() {
     const picked = prospects.filter((p) => selected.has(p.slug));
     printLabels(picked);
@@ -153,53 +165,70 @@ export function LeadCards({ prospects, userHome }: { prospects: LeadCardData[]; 
 
       {/* Cards grid */}
       <ul className="admin-biz-grid">
-        {prospects.map((p) => (
-          <li key={p.slug} className={`admin-biz-card${selected.has(p.slug) ? " admin-biz-card--selected" : ""}`}>
-            <label className="lead-card-checkbox" htmlFor={`lead-cb-${p.slug}`} onClick={(e) => e.stopPropagation()}>
-              <input
-                id={`lead-cb-${p.slug}`}
-                type="checkbox"
-                checked={selected.has(p.slug)}
-                onChange={() => toggle(p.slug)}
-              />
-            </label>
-            <div className="admin-biz-card-body">
-              <p className="admin-biz-card-slug">/{p.slug}</p>
-              <h2 className="admin-biz-card-name">{p.name}</h2>
-              {p.phone && <p className="admin-biz-card-meta">{p.phone}</p>}
-              {p.address && <p className="admin-biz-card-meta">{p.address}</p>}
-              {p.distance != null && (
-                <p className="admin-biz-card-meta" style={{ fontWeight: 600, color: "var(--accent, #b45309)" }}>
-                  {Math.round(p.distance)} mi away
-                </p>
+        {prospects.map((p, i) => {
+          const isRowStart = i % 3 === 0;
+          const rowSlugs = prospects.slice(i, i + 3).map((r) => r.slug);
+          const rowCount = rowSlugs.length;
+          const allInRow = rowSlugs.every((s) => selected.has(s));
+
+          return (
+            <li key={p.slug} className={`admin-biz-card${selected.has(p.slug) ? " admin-biz-card--selected" : ""}`}>
+              {isRowStart && (
+                <label className="lead-row-select" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={allInRow}
+                    onChange={() => toggleRow(i)}
+                  />
+                  <span>Select {rowCount}</span>
+                </label>
               )}
-              <div className="admin-biz-card-chips" style={{ marginTop: 8 }}>
-                <span className={`prospect-badge ${p.statusBadgeClass}`} style={{ fontSize: 11 }}>
-                  {p.statusLabel}
-                </span>
-                {p.chips.map((c) => (
-                  <span key={c.label} className={`prospect-chip ${c.cls}`}>{c.label}</span>
-                ))}
+              <label className="lead-card-checkbox" htmlFor={`lead-cb-${p.slug}`} onClick={(e) => e.stopPropagation()}>
+                <input
+                  id={`lead-cb-${p.slug}`}
+                  type="checkbox"
+                  checked={selected.has(p.slug)}
+                  onChange={() => toggle(p.slug)}
+                />
+              </label>
+              <div className="admin-biz-card-body">
+                <p className="admin-biz-card-slug">/{p.slug}</p>
+                <h2 className="admin-biz-card-name">{p.name}</h2>
+                {p.phone && <p className="admin-biz-card-meta">{p.phone}</p>}
+                {p.address && <p className="admin-biz-card-meta">{p.address}</p>}
+                {p.distance != null && (
+                  <p className="admin-biz-card-meta" style={{ fontWeight: 600, color: "var(--accent, #b45309)" }}>
+                    {Math.round(p.distance)} mi away
+                  </p>
+                )}
+                <div className="admin-biz-card-chips" style={{ marginTop: 8 }}>
+                  <span className={`prospect-badge ${p.statusBadgeClass}`} style={{ fontSize: 11 }}>
+                    {p.statusLabel}
+                  </span>
+                  {p.chips.map((c) => (
+                    <span key={c.label} className={`prospect-chip ${c.cls}`}>{c.label}</span>
+                  ))}
+                </div>
+                {p.contactedByName && (
+                  <p className="admin-biz-card-meta" style={{ marginTop: 6, fontSize: 12, fontStyle: "italic" }}>
+                    Contacted by {p.contactedByName}
+                  </p>
+                )}
               </div>
-              {p.contactedByName && (
-                <p className="admin-biz-card-meta" style={{ marginTop: 6, fontSize: 12, fontStyle: "italic" }}>
-                  Contacted by {p.contactedByName}
-                </p>
-              )}
-            </div>
-            <div className="admin-biz-card-actions">
-              <Link href={`/admin/leads/${p.slug}`} className="admin-btn admin-btn--primary">
-                Lead info
-              </Link>
-              <Link href={`/${p.slug}`} className="admin-btn admin-btn--ghost" target="_blank" rel="noreferrer">
-                Preview Site
-              </Link>
-              <Link href={`/admin/proposal/${p.slug}`} className="admin-btn admin-btn--ghost" target="_blank" rel="noreferrer">
-                Proposal
-              </Link>
-            </div>
-          </li>
-        ))}
+              <div className="admin-biz-card-actions">
+                <Link href={`/admin/leads/${p.slug}`} className="admin-btn admin-btn--primary">
+                  Lead info
+                </Link>
+                <Link href={`/${p.slug}`} className="admin-btn admin-btn--ghost" target="_blank" rel="noreferrer">
+                  Preview Site
+                </Link>
+                <Link href={`/admin/proposal/${p.slug}`} className="admin-btn admin-btn--ghost" target="_blank" rel="noreferrer">
+                  Proposal
+                </Link>
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </>
   );

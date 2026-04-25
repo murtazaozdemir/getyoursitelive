@@ -1594,6 +1594,31 @@ a.prospect-preview-url:hover { text-decoration: underline; }
   accent-color: var(--admin-accent, #2563eb);
 }
 
+.lead-row-select {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--admin-text-soft, #6b7280);
+  user-select: none;
+}
+
+.lead-row-select input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--admin-accent, #2563eb);
+}
+
+.lead-row-select:hover {
+  color: var(--admin-text, #111);
+}
+
 .lead-card-checkbox {
   position: absolute;
   top: 12px;
