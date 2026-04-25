@@ -47,6 +47,90 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped: 0, log };
   },
 
+  "google-category-lookup": async () => {
+    // Look up businesses with non-Google categories on Google Places API
+    // and update them with Google's primary type
+    let apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    if (!apiKey) {
+      try {
+        const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+        const { env } = await getCloudflareContext({ async: true });
+        apiKey = (env as unknown as Record<string, string>).GOOGLE_PLACES_API_KEY;
+      } catch { /* fallthrough */ }
+    }
+    if (!apiKey) {
+      return { updated: 0, skipped: 0, log: ["ERROR: Google Places API key not configured"] };
+    }
+
+    const db = await getD1();
+    const { results } = await db
+      .prepare("SELECT slug, name, category, content FROM businesses WHERE category NOT IN ('Car repair and maintenance service')")
+      .all<{ slug: string; name: string; category: string; content: string }>();
+
+    let updated = 0;
+    let skipped = 0;
+    const log: string[] = [];
+
+    for (const row of results) {
+      try {
+        const res = await fetch(
+          "https://places.googleapis.com/v1/places:searchText",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Goog-Api-Key": apiKey,
+              "X-Goog-FieldMask": "places.displayName,places.primaryTypeDisplayName",
+            },
+            body: JSON.stringify({
+              textQuery: row.name,
+              languageCode: "en",
+              maxResultCount: 1,
+            }),
+          },
+        );
+
+        if (!res.ok) {
+          log.push(`${row.slug}: Google API error ${res.status}`);
+          skipped++;
+          continue;
+        }
+
+        const data = (await res.json()) as { places?: Record<string, unknown>[] };
+        const place = data.places?.[0];
+        if (!place) {
+          log.push(`${row.slug}: no Google result for "${row.name}"`);
+          skipped++;
+          continue;
+        }
+
+        const primaryType = place.primaryTypeDisplayName as { text?: string } | undefined;
+        const googleCategory = primaryType?.text;
+        if (!googleCategory) {
+          log.push(`${row.slug}: Google returned no primaryTypeDisplayName`);
+          skipped++;
+          continue;
+        }
+
+        // Update both the DB column and the JSON content
+        const biz = JSON.parse(row.content) as Business;
+        biz.category = googleCategory;
+        await db
+          .prepare("UPDATE businesses SET category = ?, content = ? WHERE slug = ?")
+          .bind(googleCategory, JSON.stringify(biz), row.slug)
+          .run();
+
+        log.push(`${row.slug}: "${row.category}" → "${googleCategory}"`);
+        updated++;
+      } catch (err) {
+        log.push(`${row.slug}: error — ${err instanceof Error ? err.message : String(err)}`);
+        skipped++;
+      }
+    }
+
+    return { updated, skipped, log };
+  },
+
   "fix-about-secondary-image": async () => {
     const DARK_URL =
       "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=1400";
