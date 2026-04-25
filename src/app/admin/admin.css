@@ -945,6 +945,9 @@
 .prospect-column-header .prospect-badge--delivered { background: rgba(255,255,255,0.15); color: #d1d5db; }
 
 /* Stage selector — chevron arrow chain */
+.prospect-stages-wrap {
+  position: relative;
+}
 .prospect-stages {
   display: flex;
   align-items: stretch;
@@ -1029,6 +1032,65 @@
   background: var(--admin-surface-2);
   border-radius: var(--admin-radius);
   border: 1px solid var(--admin-border);
+}
+
+/* Inline toast — appears below the stage buttons */
+.stage-toast {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: var(--admin-radius);
+  font-size: 13px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  animation: stageToastIn 0.15s ease-out;
+}
+@keyframes stageToastIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.stage-toast--skip {
+  background: #fef3cd;
+  border: 1px solid #e6c200;
+  color: #856404;
+}
+.stage-toast--revert {
+  background: #fff3f0;
+  border: 1px solid #f0a090;
+  color: #9a3412;
+}
+.stage-toast-msg {
+  flex: 1;
+}
+.stage-toast-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.stage-toast-btn {
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+.stage-toast-btn--dismiss {
+  background: rgba(0,0,0,0.08);
+  color: inherit;
+}
+.stage-toast-btn--dismiss:hover {
+  background: rgba(0,0,0,0.14);
+}
+.stage-toast-btn--confirm {
+  background: #9a3412;
+  color: white;
+}
+.stage-toast-btn--confirm:hover {
+  background: #7c2d12;
 }
 
 /* Preview link row */

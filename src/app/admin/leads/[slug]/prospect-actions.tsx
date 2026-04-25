@@ -33,7 +33,12 @@ export function PipelineStageSelector({
   locked: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
+  const [toast, setToast] = useState<{ type: "skip" | "revert"; message: string; targetStatus: ProspectStatus } | null>(null);
   const currentIdx = STAGE_ORDER.indexOf(currentStatus);
+
+  function dismissToast() {
+    setToast(null);
+  }
 
   function handleClick(targetStatus: ProspectStatus, targetIdx: number) {
     if (locked) return;
@@ -46,60 +51,80 @@ export function PipelineStageSelector({
       const missing = STAGE_ORDER.slice(currentIdx + 1, targetIdx)
         .map((s) => STAGE_LABELS[s])
         .join(", ");
-      alert(`You need to complete ${missing} first before selecting ${STAGE_LABELS[targetStatus]}.`);
+      setToast({
+        type: "skip",
+        message: `Complete ${missing} first.`,
+        targetStatus,
+      });
       return;
     }
 
     if (isGoingBack) {
-      const confirmed = confirm(
-        `This lead is currently at "${STAGE_LABELS[currentStatus]}". ` +
-        `Moving it back to "${STAGE_LABELS[targetStatus]}" is unusual.\n\n` +
-        `Did you select this by mistake?`
-      );
-      if (!confirmed) return;
-      startTransition(async () => {
-        await updateProspectStatusAction(slug, targetStatus, { revertMistake: true });
+      setToast({
+        type: "revert",
+        message: `Move back to "${STAGE_LABELS[targetStatus]}"? This is unusual — did you select it by mistake?`,
+        targetStatus,
       });
       return;
     }
 
     // Normal forward move (next stage)
+    dismissToast();
     startTransition(async () => {
       await updateProspectStatusAction(slug, targetStatus);
     });
   }
 
+  function confirmRevert() {
+    if (!toast || toast.type !== "revert") return;
+    const target = toast.targetStatus;
+    dismissToast();
+    startTransition(async () => {
+      await updateProspectStatusAction(slug, target, { revertMistake: true });
+    });
+  }
+
   return (
-    <div className="prospect-stages">
-      {STAGE_ORDER.map((status, i) => {
-        const isActive = status === currentStatus;
-        const isPast = i < currentIdx;
-        return (
-          <button
-            key={status}
-            type="button"
-            className={[
-              "prospect-stage-btn",
-              isActive ? "prospect-stage-btn--active" : "",
-              isPast ? "prospect-stage-btn--past" : "",
-              locked && !isActive ? "prospect-stage-btn--locked" : "",
-            ]
-              .filter(Boolean)
-              .join(" ")}
-            disabled={isActive || isPending || (locked && !isActive)}
-            title={
-              locked && !isActive
-                ? "Locked — another reseller is handling this lead"
-                : i > currentIdx + 1
-                  ? `Complete ${STAGE_LABELS[STAGE_ORDER[currentIdx + 1]]} first`
-                  : undefined
-            }
-            onClick={() => handleClick(status, i)}
-          >
-            {STAGE_LABELS[status]}
-          </button>
+    <div className="prospect-stages-wrap">
+      <div className="prospect-stages">
+        {STAGE_ORDER.map((status, i) => {
+          const isActive = status === currentStatus;
+          const isPast = i < currentIdx;
+          return (
+            <button
+              key={status}
+              type="button"
+              className={[
+                "prospect-stage-btn",
+                isActive ? "prospect-stage-btn--active" : "",
+                isPast ? "prospect-stage-btn--past" : "",
+                locked && !isActive ? "prospect-stage-btn--locked" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              disabled={isActive || isPending || (locked && !isActive)}
+              onClick={() => handleClick(status, i)}
+            >
+              {STAGE_LABELS[status]}
+            </button>
         );
       })}
+      </div>
+      {toast && (
+        <div className={`stage-toast stage-toast--${toast.type}`}>
+          <span className="stage-toast-msg">{toast.message}</span>
+          <div className="stage-toast-actions">
+            {toast.type === "revert" && (
+              <button type="button" className="stage-toast-btn stage-toast-btn--confirm" onClick={confirmRevert}>
+                Yes, revert
+              </button>
+            )}
+            <button type="button" className="stage-toast-btn stage-toast-btn--dismiss" onClick={dismissToast}>
+              {toast.type === "revert" ? "Cancel" : "OK"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
