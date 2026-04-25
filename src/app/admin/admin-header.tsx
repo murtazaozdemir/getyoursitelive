@@ -44,7 +44,6 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
         <div className="admin-header-brand">
           <Link href="/admin" className="admin-header-brand-link">
             <span className="admin-header-mark">Get Your Site Live</span>
-            <span className="admin-header-title">Admin</span>
           </Link>
           <nav className="admin-header-nav">
             <Link href="/admin/leads" className="admin-header-nav-link">Leads</Link>
