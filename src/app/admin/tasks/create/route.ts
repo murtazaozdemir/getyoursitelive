@@ -4,8 +4,6 @@ import { canManageBusinesses } from "@/lib/users";
 import { createTask } from "@/lib/tasks";
 import { logAudit } from "@/lib/audit-log";
 
-export const runtime = "edge";
-
 export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) {

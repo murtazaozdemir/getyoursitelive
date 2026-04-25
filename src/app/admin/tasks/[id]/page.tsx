@@ -5,8 +5,6 @@ import { getTask, getTaskItems } from "@/lib/tasks";
 import { getD1 } from "@/lib/db-d1";
 import { TaskDetailClient } from "./task-detail-client";
 
-export const runtime = "edge";
-
 async function zipCoords(zip: string): Promise<{ lat: number; lng: number } | null> {
   const db = await getD1();
   const prospect = await db
