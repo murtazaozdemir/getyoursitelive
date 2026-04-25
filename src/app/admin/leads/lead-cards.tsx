@@ -212,7 +212,7 @@ function printDeliveryList(prospects: LeadCardData[]) {
   const html = `<!DOCTYPE html>
 <html>
 <head>
-<title>Delivery List — ${today}</title>
+<title>Task List — ${today}</title>
 <style>
   @page { size: letter portrait; margin: 0.5in 0.6in; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -268,7 +268,7 @@ function printDeliveryList(prospects: LeadCardData[]) {
 </head>
 <body>
   <div class="dl-header">
-    <span class="dl-title">Delivery List</span>
+    <span class="dl-title">Task List</span>
     <span class="dl-date">${today} &middot; ${prospects.length} lead${prospects.length !== 1 ? "s" : ""}</span>
   </div>
   <table>
@@ -620,7 +620,7 @@ export function LeadCards({ prospects, userHome }: { prospects: LeadCardData[]; 
               className="admin-btn admin-btn--ghost"
               onClick={handlePrintDeliveryList}
             >
-              Print delivery list
+              Print task list
             </button>
             <button
               type="button"
