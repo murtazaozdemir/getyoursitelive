@@ -8,7 +8,7 @@ export default async function TasksPage() {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) redirect("/admin/login");
 
-  const tasks = await listTasks();
+  const tasks = await listTasks(user.id);
 
   return (
     <>

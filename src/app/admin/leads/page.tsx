@@ -118,13 +118,7 @@ export default async function LeadsPage({
   const [allProspects, allBiz] = await Promise.all([listProspects(), listBusinesses()]);
   const bizBySlug = Object.fromEntries(allBiz.map((b) => [b.slug, b]));
 
-  // Default view: only active leads (not graduated to clients).
-  // But if the user explicitly filters by a graduated status (paid/delivered),
-  // include those so the status dropdown is consistent with the pipeline stages.
-  const showGraduated = filterStatus === "paid" || filterStatus === "delivered";
-  const active = showGraduated
-    ? allProspects.filter((p) => p.status === filterStatus)
-    : allProspects.filter((p) => p.status !== "paid" && p.status !== "delivered");
+  const active = allProspects;
 
   // Look up origin coordinates if distance zip provided
   const origin = distanceZip ? await zipCoords(distanceZip) : null;
@@ -186,12 +180,8 @@ export default async function LeadsPage({
   const prospects = applySort(filtered, sortBy, sortDir);
 
   // For pipeline view, group by status (after filter+sort)
-  const pipelineStages = showGraduated
-    ? PIPELINE_STAGES
-    : PIPELINE_STAGES.filter(({ status }) => status !== "paid" && status !== "delivered");
-
   const byStatus = Object.fromEntries(
-    pipelineStages.map(({ status }) => [
+    PIPELINE_STAGES.map(({ status }) => [
       status,
       prospects.filter((p) => p.status === status),
     ]),
@@ -263,7 +253,7 @@ export default async function LeadsPage({
       ) : view === "pipeline" ? (
         /* ── PIPELINE VIEW ────────────────────────────────────── */
         <div className="prospect-pipeline">
-          {pipelineStages.map(({ status, label }) => (
+          {PIPELINE_STAGES.map(({ status, label }) => (
             <div key={status} className="prospect-column">
               <div className="prospect-column-header">
                 <span className={`prospect-badge ${statusBadge(status)}`}>{label}</span>

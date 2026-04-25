@@ -128,19 +128,29 @@ function rowToTaskItemWithProspect(row: TaskItemWithProspectRow): TaskItemWithPr
 // Queries
 // ---------------------------------------------------------------
 
-export async function listTasks(): Promise<TaskWithCounts[]> {
+export async function listTasks(userId?: string): Promise<TaskWithCounts[]> {
   const db = await getD1();
-  const { results } = await db
-    .prepare(
-      `SELECT t.*,
-        COALESCE(COUNT(ti.id), 0) as total_items,
-        COALESCE(SUM(CASE WHEN ti.status = 'dropped_off' THEN 1 ELSE 0 END), 0) as dropped_off_count
-       FROM tasks t
-       LEFT JOIN task_items ti ON ti.task_id = t.id
-       GROUP BY t.id
-       ORDER BY t.created_at DESC`,
-    )
-    .all<TaskWithCountsRow>();
+  const query = userId
+    ? db.prepare(
+        `SELECT t.*,
+          COALESCE(COUNT(ti.id), 0) as total_items,
+          COALESCE(SUM(CASE WHEN ti.status = 'dropped_off' THEN 1 ELSE 0 END), 0) as dropped_off_count
+         FROM tasks t
+         LEFT JOIN task_items ti ON ti.task_id = t.id
+         WHERE t.created_by = ?
+         GROUP BY t.id
+         ORDER BY t.created_at DESC`,
+      ).bind(userId)
+    : db.prepare(
+        `SELECT t.*,
+          COALESCE(COUNT(ti.id), 0) as total_items,
+          COALESCE(SUM(CASE WHEN ti.status = 'dropped_off' THEN 1 ELSE 0 END), 0) as dropped_off_count
+         FROM tasks t
+         LEFT JOIN task_items ti ON ti.task_id = t.id
+         GROUP BY t.id
+         ORDER BY t.created_at DESC`,
+      );
+  const { results } = await query.all<TaskWithCountsRow>();
   return results.map(rowToTaskWithCounts);
 }
 
