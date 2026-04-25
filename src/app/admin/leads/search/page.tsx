@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
-import { canManageBusinesses } from "@/lib/users";
+import { canManageBusinesses, isFounder } from "@/lib/users";
 import { ZipSearch } from "./zip-search";
 
 export default async function SearchPage() {
   const user = await getCurrentUser();
   if (!user) return null;
-  if (!canManageBusinesses(user)) redirect("/admin");
+  if (!canManageBusinesses(user) || !isFounder(user)) redirect("/admin/leads");
 
   return (
     <div className="admin-page">
