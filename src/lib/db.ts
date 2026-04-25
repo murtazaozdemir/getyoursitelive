@@ -79,6 +79,9 @@ function rowToBusiness(row: BusinessRow): Business {
       biz.services = defaults.services;
     }
 
+    // Safety: ensure arrays are never undefined
+    if (!biz.services) biz.services = [];
+
     return biz;
   } catch {
     console.error(`[db] corrupt business JSON for slug=${row.slug}`);
