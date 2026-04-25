@@ -126,6 +126,19 @@ export function FilterSortBar(config: FilterBarConfig) {
           </select>
         )}
 
+        {config.states && config.states.length > 0 && (
+          <select
+            className="admin-filter-select"
+            value={config.filterState ?? ""}
+            onChange={(e) => update("filterState", e.target.value)}
+          >
+            <option value="">All states</option>
+            {config.states.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        )}
+
         {config.cities && config.cities.length > 0 && (
           <select
             className="admin-filter-select"
@@ -148,19 +161,6 @@ export function FilterSortBar(config: FilterBarConfig) {
             <option value="">All zip codes</option>
             {config.zips.map((z) => (
               <option key={z} value={z}>{z}</option>
-            ))}
-          </select>
-        )}
-
-        {config.states && config.states.length > 0 && (
-          <select
-            className="admin-filter-select"
-            value={config.filterState ?? ""}
-            onChange={(e) => update("filterState", e.target.value)}
-          >
-            <option value="">All states</option>
-            {config.states.map((s) => (
-              <option key={s} value={s}>{s}</option>
             ))}
           </select>
         )}
