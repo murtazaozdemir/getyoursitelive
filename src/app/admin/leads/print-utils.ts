@@ -358,7 +358,21 @@ export function showLeadsMap(prospects: PrintableProspect[], userHome: UserHome)
   .route-num--home { background: #333; }
   .route-name { font-weight: 600; font-size: 12px; }
   .route-addr { font-size: 11px; color: #666; }
-  .route-loading { color: #999; font-style: italic; }
+  .route-loading { color: #555; font-size: 13px; }
+  .route-loading-spinner {
+    display: inline-block; width: 16px; height: 16px; border: 2px solid #ddd;
+    border-top-color: #1a6b50; border-radius: 50%; animation: spin 0.8s linear infinite;
+    vertical-align: middle; margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .route-progress-bar {
+    width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px;
+    margin-top: 10px; overflow: hidden;
+  }
+  .route-progress-fill {
+    height: 100%; background: #1a6b50; border-radius: 3px;
+    transition: width 0.3s ease;
+  }
   #toolbar {
     position: absolute; top: 10px; left: 10px; z-index: 1000;
     display: flex; flex-direction: column; gap: 6px;
@@ -395,7 +409,7 @@ export function showLeadsMap(prospects: PrintableProspect[], userHome: UserHome)
 </div>
 <div id="route-panel">
   <h3>Optimal Route <button class="toolbar-btn toolbar-btn--csv" onclick="exportCsv()">Export CSV</button></h3>
-  <div id="route-list" class="route-loading">Calculating best route...</div>
+  <div id="route-list" class="route-loading"><span class="route-loading-spinner"></span> Please wait\u2026 Preparing map</div>
 </div>
 <script>
   var rawStops = ${markersJson};
@@ -425,11 +439,23 @@ export function showLeadsMap(prospects: PrintableProspect[], userHome: UserHome)
     return null;
   }
 
+  function showProgress(current, total, label) {
+    var pct = total > 0 ? Math.round((current / total) * 100) : 0;
+    document.getElementById('route-list').innerHTML =
+      '<div class="route-loading">' +
+        '<div><span class="route-loading-spinner"></span> Please wait\u2026 ' + label + '</div>' +
+        '<div class="route-progress-bar"><div class="route-progress-fill" style="width:' + pct + '%"></div></div>' +
+        '<div style="margin-top:6px;font-size:11px;color:#999">' + current + ' of ' + total + '</div>' +
+      '</div>';
+  }
+
   async function resolveStops() {
-    document.getElementById('route-list').innerHTML = '<div class="route-loading">Geocoding addresses...</div>';
+    var total = rawStops.length;
+    showProgress(0, total, 'Preparing addresses');
     var resolved = [];
     for (var i = 0; i < rawStops.length; i++) {
       var s = rawStops[i];
+      showProgress(i + 1, total, 'Processing ' + s.name);
       if (s.lat != null && s.lng != null) {
         resolved.push(s);
       } else {
@@ -443,6 +469,7 @@ export function showLeadsMap(prospects: PrintableProspect[], userHome: UserHome)
         if (i < rawStops.length - 1) await new Promise(function(r) { setTimeout(r, 1000); });
       }
     }
+    showProgress(total, total, 'Calculating best route');
     return resolved;
   }
 
