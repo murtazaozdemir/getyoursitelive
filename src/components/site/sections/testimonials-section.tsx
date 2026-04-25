@@ -93,6 +93,7 @@ export function TestimonialsSection({
   }
 
   // View mode: carousel
+  if (testimonials.length === 0) return null;
   const current = testimonials[testimonialIndex] ?? testimonials[0];
   return (
     <SectionBlock name="Testimonials" visibilityKey="showTestimonials" isEmpty={testimonials.length === 0}>

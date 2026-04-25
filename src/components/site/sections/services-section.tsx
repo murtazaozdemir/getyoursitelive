@@ -32,6 +32,8 @@ export function ServicesSection({
   const { services } = useBusiness();
   const edit = useEditMode();
 
+  if (services.length === 0 && !edit) return null;
+
   if (edit && services.length === 0) {
     return (
       <SectionBlock name="Services" visibilityKey="showServices" isEmpty={false}>
