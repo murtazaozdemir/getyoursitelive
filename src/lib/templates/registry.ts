@@ -1,9 +1,15 @@
 import type { VerticalTemplate } from "./types";
 import { autoRepairTemplate } from "./auto-repair";
+import { barberTemplate } from "./barber";
+import { restaurantTemplate } from "./restaurant";
+import { plumberTemplate } from "./plumber";
 import { genericTemplate } from "./generic";
 
 const ALL_TEMPLATES: VerticalTemplate[] = [
   autoRepairTemplate,
+  barberTemplate,
+  restaurantTemplate,
+  plumberTemplate,
 ];
 
 const categoryIndex = new Map<string, VerticalTemplate>();
