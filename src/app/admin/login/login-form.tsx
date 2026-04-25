@@ -30,7 +30,7 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({})) as { error?: string };
-      setError(data.error ?? "Something went wrong. Try again.");
+      setError(data.error ?? `Login failed (${res.status}). Try again.`);
       setIsFetching(false);
       return;
     }
