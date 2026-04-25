@@ -202,31 +202,31 @@ export default async function LeadsPage({
       <div className="admin-page-header">
         <div>
           <p className="admin-eyebrow">Platform admin</p>
-          <h1 className="admin-h1">Leads</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <h1 className="admin-h1" style={{ margin: 0 }}>Leads</h1>
+            <div className="admin-view-toggle">
+              <Link
+                href={`/admin/leads?view=pipeline`}
+                className={`admin-view-toggle-btn${view === "pipeline" ? " admin-view-toggle-btn--active" : ""}`}
+              >
+                Pipeline
+              </Link>
+              <Link
+                href={`/admin/leads?view=cards`}
+                className={`admin-view-toggle-btn${view === "cards" ? " admin-view-toggle-btn--active" : ""}`}
+              >
+                Cards
+              </Link>
+            </div>
+          </div>
           <p className="admin-lede">
             {prospects.length} of {active.length} active lead{active.length !== 1 ? "s" : ""}.
             {" "}Paid leads move to Clients automatically.
           </p>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div className="admin-view-toggle">
-            <Link
-              href={`/admin/leads?view=pipeline`}
-              className={`admin-view-toggle-btn${view === "pipeline" ? " admin-view-toggle-btn--active" : ""}`}
-            >
-              Pipeline
-            </Link>
-            <Link
-              href={`/admin/leads?view=cards`}
-              className={`admin-view-toggle-btn${view === "cards" ? " admin-view-toggle-btn--active" : ""}`}
-            >
-              Cards
-            </Link>
-          </div>
-          <Link href="/admin/leads/new" className="admin-btn admin-btn--primary">
-            + Add lead
-          </Link>
-        </div>
+        <Link href="/admin/leads/new" className="admin-btn admin-btn--primary">
+          + Add lead
+        </Link>
       </div>
 
       <FilterSortBar
