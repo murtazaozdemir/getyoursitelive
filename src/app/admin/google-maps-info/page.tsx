@@ -5,8 +5,6 @@ import { isFounder } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
 import { isCategoryMapped } from "@/lib/templates/registry";
 
-export const runtime = "edge";
-
 export const metadata = {
   title: "Google Maps Info · Admin",
   robots: { index: false, follow: false },

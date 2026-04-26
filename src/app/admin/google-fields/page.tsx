@@ -4,8 +4,6 @@ import { getCurrentUser } from "@/lib/session";
 import { isFounder } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
 
-export const runtime = "edge";
-
 export const metadata = {
   title: "Google Fields · Admin",
   robots: { index: false, follow: false },

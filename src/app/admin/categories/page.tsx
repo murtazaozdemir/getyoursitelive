@@ -5,8 +5,6 @@ import { isFounder } from "@/lib/users";
 import { CategoriesView } from "./categories-view";
 import categoriesData from "../../../../data/google-categories.json";
 
-export const runtime = "edge";
-
 export const metadata = {
   title: "Categories & Templates · Admin",
   robots: { index: false, follow: false },
