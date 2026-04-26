@@ -1029,3 +1029,68 @@
 .sortable-row--faded {
   opacity: 0.75;
 }
+
+/* ---------- Stat cards row ---------- */
+.admin-stats-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.admin-stat-card {
+  flex: 1;
+  min-width: 120px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.admin-stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--admin-text);
+  line-height: 1.1;
+}
+.admin-stat-label {
+  font-size: 0.8rem;
+  color: var(--admin-text-muted);
+}
+
+/* ---------- Badges ---------- */
+.admin-badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.admin-badge--accent {
+  background: hsl(160 50% 92%);
+  color: hsl(160 60% 30%);
+}
+.admin-badge--success {
+  background: hsl(140 50% 92%);
+  color: hsl(140 60% 28%);
+}
+.admin-badge--neutral {
+  background: hsl(220 10% 92%);
+  color: hsl(220 10% 50%);
+}
+
+/* ---------- Text utilities ---------- */
+.admin-text-primary {
+  font-weight: 500;
+  color: var(--admin-text);
+}
+.admin-text-muted {
+  color: var(--admin-text-muted);
+}
+
+/* ---------- Categories page ---------- */
+.categories-row--mapped {
+  background: hsl(140 40% 97%);
+}
