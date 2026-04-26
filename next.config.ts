@@ -12,9 +12,9 @@ if (process.env.NODE_ENV === "development") {
 
 function getBuildId() {
   try {
-    return execSync("git rev-list --count HEAD").toString().trim();
+    return execSync("git rev-parse --short HEAD").toString().trim();
   } catch {
-    return "0";
+    return "unknown";
   }
 }
 
