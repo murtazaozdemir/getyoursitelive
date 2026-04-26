@@ -82,6 +82,7 @@ export function ZipSearch() {
   const [error, setError] = useState("");
   const [addStatuses, setAddStatuses] = useState<Record<string, AddStatus>>({});
   const [addedSlugs, setAddedSlugs] = useState<Record<string, string>>({});
+  const [addErrors, setAddErrors] = useState<Record<string, string>>({});
   const [hideWithWebsite, setHideWithWebsite] = useState(true);
   const [forceRefresh, setForceRefresh] = useState(false);
 
@@ -209,6 +210,7 @@ export function ZipSearch() {
     setResults([]);
     setAddStatuses({});
     setAddedSlugs({});
+    setAddErrors({});
     setDuplicatesRemoved(0);
     setApiCallsUsed(0);
     setBatchProgress({ current: 0, total: totalSteps });
@@ -260,6 +262,7 @@ export function ZipSearch() {
     setResults([]);
     setAddStatuses({});
     setAddedSlugs({});
+    setAddErrors({});
 
     // Step 1: Look up zip codes
     let zips: string[] = [];
@@ -302,6 +305,7 @@ export function ZipSearch() {
     setResults([]);
     setAddStatuses({});
     setAddedSlugs({});
+    setAddErrors({});
     setDuplicatesRemoved(0);
     setApiCallsUsed(0);
     setBatchProgress({ current: 0, total: queries.length });
@@ -387,10 +391,13 @@ export function ZipSearch() {
           setAddedSlugs((prev) => ({ ...prev, [place.id]: data.slug as string }));
         }
       } else {
-        setError(data.error ?? "Failed to add.");
+        const errMsg = data.error ?? "Failed to add.";
+        setAddErrors((prev) => ({ ...prev, [place.id]: errMsg }));
         setAddStatuses((prev) => ({ ...prev, [place.id]: "error" }));
       }
-    } catch {
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : "Network error";
+      setAddErrors((prev) => ({ ...prev, [place.id]: errMsg }));
       setAddStatuses((prev) => ({ ...prev, [place.id]: "error" }));
     }
   }
@@ -751,13 +758,20 @@ export function ZipSearch() {
                       </Link>
                     )}
                     {status === "error" && (
-                      <button
-                        className="admin-btn admin-btn--ghost"
-                        onClick={() => handleAdd(place)}
-                        style={{ color: "var(--color-error, #dc2626)" }}
-                      >
-                        Failed — Retry
-                      </button>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
+                        <button
+                          className="admin-btn admin-btn--ghost"
+                          onClick={() => handleAdd(place)}
+                          style={{ color: "var(--color-error, #dc2626)" }}
+                        >
+                          Failed — Retry
+                        </button>
+                        {addErrors[place.id] && (
+                          <span style={{ fontSize: 11, color: "#999", maxWidth: 200, textAlign: "right" }}>
+                            {addErrors[place.id]}
+                          </span>
+                        )}
+                      </div>
                     )}
                     {place.googleMapsUrl && (
                       <a
