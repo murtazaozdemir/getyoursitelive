@@ -16,6 +16,10 @@ import { getD1 } from "@/lib/db-d1";
 
 const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: number; log: string[] }>> = {
 
+  "test-ping": async () => {
+    return { updated: 0, skipped: 0, log: ["Migration system working — commit 08150c3"] };
+  },
+
   "add-google-fields-to-prospects": async () => {
     const db = await getD1();
     const cols = [
