@@ -140,7 +140,7 @@ export function CategoriesView({ categories }: { categories: CategoryRow[] }) {
         rowKey={(r) => r.name}
         rowClassName={(r) => r.template ? "categories-row--mapped" : ""}
         emptyMessage="No categories match your search."
-        searchPlaceholder="Search 4,039 categories..."
+        searchPlaceholder="Search 4,038 categories..."
       />
     </>
   );
