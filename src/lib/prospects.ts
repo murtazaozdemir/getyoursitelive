@@ -187,20 +187,7 @@ export async function findExistingProspects(
 ): Promise<{ phones: Set<string>; placeIds: Set<string> }> {
   const db = await getD1();
 
-  // Check phones
-  const normalizedPhones = phones.map(normalizePhone).filter((p) => p.length >= 7);
-  const foundPhones = new Set<string>();
-  for (let i = 0; i < normalizedPhones.length; i += 50) {
-    const chunk = normalizedPhones.slice(i, i + 50);
-    const placeholders = chunk.map(() => "?").join(",");
-    const { results } = await db
-      .prepare(`SELECT phone_normalized FROM prospects WHERE phone_normalized IN (${placeholders})`)
-      .bind(...chunk)
-      .all<{ phone_normalized: string }>();
-    for (const r of results) foundPhones.add(r.phone_normalized);
-  }
-
-  // Check Google Place IDs
+  // 1. Check Google Place IDs — authoritative match
   const validPlaceIds = placeIds.filter(Boolean);
   const foundPlaceIds = new Set<string>();
   for (let i = 0; i < validPlaceIds.length; i += 50) {
@@ -211,6 +198,23 @@ export async function findExistingProspects(
       .bind(...chunk)
       .all<{ google_place_id: string }>();
     for (const r of results) foundPlaceIds.add(r.google_place_id);
+  }
+
+  // 2. Check phones — ONLY for prospects that have no Place ID (manually added)
+  const normalizedPhones = phones.map(normalizePhone).filter((p) => p.length >= 7);
+  const foundPhones = new Set<string>();
+  for (let i = 0; i < normalizedPhones.length; i += 50) {
+    const chunk = normalizedPhones.slice(i, i + 50);
+    const placeholders = chunk.map(() => "?").join(",");
+    const { results } = await db
+      .prepare(
+        `SELECT phone_normalized FROM prospects
+         WHERE phone_normalized IN (${placeholders})
+         AND (google_place_id IS NULL OR google_place_id = '')`,
+      )
+      .bind(...chunk)
+      .all<{ phone_normalized: string }>();
+    for (const r of results) foundPhones.add(r.phone_normalized);
   }
 
   return { phones: foundPhones, placeIds: foundPlaceIds };
