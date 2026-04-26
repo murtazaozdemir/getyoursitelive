@@ -4,10 +4,14 @@ import { canManageBusinesses } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
 
 export async function GET() {
+  console.log("[migrate-city-zip] Route handler entered — build c60c868");
   const user = await getCurrentUser();
+  console.log("[migrate-city-zip] User:", user?.email ?? "null");
   if (!user || !canManageBusinesses(user)) {
+    console.log("[migrate-city-zip] Unauthorized");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  console.log("[migrate-city-zip] Starting migration...");
 
   const db = await getD1();
   const log: string[] = [];
