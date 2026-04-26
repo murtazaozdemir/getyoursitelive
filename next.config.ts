@@ -37,10 +37,11 @@ const nextConfig: NextConfig = {
       return t;
     })(),
     NEXT_PUBLIC_APP_VERSION: (() => {
-      const sha = process.env.CF_PAGES_COMMIT_SHA;
-      const branch = process.env.CF_PAGES_BRANCH;
-      console.log("[next.config] CF_PAGES_COMMIT_SHA =", sha ?? "(not set)");
-      console.log("[next.config] CF_PAGES_BRANCH =", branch ?? "(not set)");
+      // CF_PAGES_COMMIT_SHA is set by CF Pages builds;
+      // COMMIT_SHA is injected by our deploy script for Workers builds.
+      const sha =
+        process.env.CF_PAGES_COMMIT_SHA ?? process.env.COMMIT_SHA;
+      console.log("[next.config] COMMIT_SHA =", sha ?? "(not set)");
       console.log("[next.config] NODE_ENV =", process.env.NODE_ENV);
       const version = sha?.slice(0, 7) ?? "dev";
       console.log("[next.config] NEXT_PUBLIC_APP_VERSION =", version);
