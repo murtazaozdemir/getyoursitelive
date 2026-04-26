@@ -181,25 +181,39 @@ export async function findProspectByPhone(phone: string): Promise<Prospect | nul
 }
 
 /** Check which phones already exist in the DB. Returns set of normalized phones found. */
-export async function findExistingPhones(phones: string[]): Promise<Set<string>> {
-  const normalized = phones
-    .map(normalizePhone)
-    .filter((p) => p.length >= 7);
-  if (normalized.length === 0) return new Set();
-
+export async function findExistingProspects(
+  phones: string[],
+  placeIds: string[],
+): Promise<{ phones: Set<string>; placeIds: Set<string> }> {
   const db = await getD1();
-  // D1 doesn't support large IN clauses well, batch in chunks of 50
-  const found = new Set<string>();
-  for (let i = 0; i < normalized.length; i += 50) {
-    const chunk = normalized.slice(i, i + 50);
+
+  // Check phones
+  const normalizedPhones = phones.map(normalizePhone).filter((p) => p.length >= 7);
+  const foundPhones = new Set<string>();
+  for (let i = 0; i < normalizedPhones.length; i += 50) {
+    const chunk = normalizedPhones.slice(i, i + 50);
     const placeholders = chunk.map(() => "?").join(",");
     const { results } = await db
       .prepare(`SELECT phone_normalized FROM prospects WHERE phone_normalized IN (${placeholders})`)
       .bind(...chunk)
       .all<{ phone_normalized: string }>();
-    for (const r of results) found.add(r.phone_normalized);
+    for (const r of results) foundPhones.add(r.phone_normalized);
   }
-  return found;
+
+  // Check Google Place IDs
+  const validPlaceIds = placeIds.filter(Boolean);
+  const foundPlaceIds = new Set<string>();
+  for (let i = 0; i < validPlaceIds.length; i += 50) {
+    const chunk = validPlaceIds.slice(i, i + 50);
+    const placeholders = chunk.map(() => "?").join(",");
+    const { results } = await db
+      .prepare(`SELECT google_place_id FROM prospects WHERE google_place_id IN (${placeholders})`)
+      .bind(...chunk)
+      .all<{ google_place_id: string }>();
+    for (const r of results) foundPlaceIds.add(r.google_place_id);
+  }
+
+  return { phones: foundPhones, placeIds: foundPlaceIds };
 }
 
 // ---------------------------------------------------------------

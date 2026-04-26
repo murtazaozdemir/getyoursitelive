@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
-import { findExistingPhones } from "@/lib/prospects";
+import { findExistingProspects } from "@/lib/prospects";
 
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { phones?: string[] };
+  let body: { phones?: string[]; placeIds?: string[] };
   try {
     body = await req.json();
   } catch {
@@ -17,10 +17,14 @@ export async function POST(req: NextRequest) {
   }
 
   const phones = body.phones ?? [];
-  if (phones.length === 0) {
-    return NextResponse.json({ existing: [] });
+  const placeIds = body.placeIds ?? [];
+  if (phones.length === 0 && placeIds.length === 0) {
+    return NextResponse.json({ existingPhones: [], existingPlaceIds: [] });
   }
 
-  const existingSet = await findExistingPhones(phones);
-  return NextResponse.json({ existing: [...existingSet] });
+  const existing = await findExistingProspects(phones, placeIds);
+  return NextResponse.json({
+    existingPhones: [...existing.phones],
+    existingPlaceIds: [...existing.placeIds],
+  });
 }

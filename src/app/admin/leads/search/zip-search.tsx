@@ -436,32 +436,36 @@ export function ZipSearch() {
 
   // Check which results already exist in DB after search completes
   const [existingPhones, setExistingPhones] = useState<Set<string>>(new Set());
+  const [existingPlaceIds, setExistingPlaceIds] = useState<Set<string>>(new Set());
   const [checkedExisting, setCheckedExisting] = useState(false);
 
   useEffect(() => {
     if (results.length === 0 || searching) {
       setExistingPhones(new Set());
+      setExistingPlaceIds(new Set());
       setCheckedExisting(false);
       return;
     }
 
     const phones = results.map((r) => r.phone).filter(Boolean);
-    if (phones.length === 0) { setCheckedExisting(true); return; }
+    const placeIds = results.map((r) => r.id).filter(Boolean);
 
     fetch("/api/places-search/check-existing", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phones }),
+      body: JSON.stringify({ phones, placeIds }),
     })
-      .then((res) => res.json() as Promise<{ existing?: string[] }>)
+      .then((res) => res.json() as Promise<{ existingPhones?: string[]; existingPlaceIds?: string[] }>)
       .then((data) => {
-        setExistingPhones(new Set(data.existing ?? []));
+        setExistingPhones(new Set(data.existingPhones ?? []));
+        setExistingPlaceIds(new Set(data.existingPlaceIds ?? []));
         setCheckedExisting(true);
       })
       .catch(() => setCheckedExisting(true));
   }, [results, searching]);
 
   const isExistingInDb = (place: PlaceResult) => {
+    if (existingPlaceIds.has(place.id)) return true;
     const norm = place.phone.replace(/\D/g, "");
     return norm.length >= 7 && existingPhones.has(norm);
   };
