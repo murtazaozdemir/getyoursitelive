@@ -75,8 +75,10 @@ export function ZipSearch() {
 
   // Search — multi-category
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set(["auto repair"]));
+  const [catInputValue, setCatInputValue] = useState("");
   const [catDropdownOpen, setCatDropdownOpen] = useState(false);
   const catDropdownRef = useRef<HTMLDivElement>(null);
+  const catInputRef = useRef<HTMLInputElement>(null);
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
@@ -110,25 +112,30 @@ export function ZipSearch() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  function toggleCategory(query: string) {
+  function addCategory(query: string) {
+    setSelectedCategories((prev) => new Set(prev).add(query));
+    setCatInputValue("");
+    setCatDropdownOpen(false);
+    catInputRef.current?.focus();
+  }
+
+  function removeCategory(query: string) {
     setSelectedCategories((prev) => {
+      if (prev.size <= 1) return prev; // keep at least 1
       const next = new Set(prev);
-      if (next.has(query)) {
-        if (next.size > 1) next.delete(query); // keep at least 1
-      } else {
-        next.add(query);
-      }
+      next.delete(query);
       return next;
     });
   }
 
-  function getCategoryLabel(): string {
-    if (selectedCategories.size === 1) {
-      const q = [...selectedCategories][0];
-      return CATEGORIES.find((c) => c.query === q)?.label ?? q;
-    }
-    return `${selectedCategories.size} categories`;
+  function getCategoryLabel(query: string): string {
+    return CATEGORIES.find((c) => c.query === query)?.label ?? query;
   }
+
+  const filteredCategories = CATEGORIES.filter(
+    (c) => !selectedCategories.has(c.query) &&
+      c.label.toLowerCase().includes(catInputValue.toLowerCase()),
+  );
 
   // Load cities when state changes
   useEffect(() => {
@@ -511,13 +518,18 @@ export function ZipSearch() {
             </label>
             <div className="admin-field" style={{ flex: 1, minWidth: 200 }}>
               <span className="admin-field-label">Category</span>
-              <CategoryMultiSelect
+              <CategoryTagInput
                 selected={selectedCategories}
-                onToggle={toggleCategory}
+                onAdd={addCategory}
+                onRemove={removeCategory}
+                getLabel={getCategoryLabel}
+                filtered={filteredCategories}
+                inputValue={catInputValue}
+                onInputChange={setCatInputValue}
                 open={catDropdownOpen}
                 setOpen={setCatDropdownOpen}
                 dropdownRef={catDropdownRef}
-                label={getCategoryLabel()}
+                inputRef={catInputRef}
               />
             </div>
             <button
@@ -546,13 +558,18 @@ export function ZipSearch() {
             </label>
             <div className="admin-field" style={{ flex: 1, minWidth: 200 }}>
               <span className="admin-field-label">Category</span>
-              <CategoryMultiSelect
+              <CategoryTagInput
                 selected={selectedCategories}
-                onToggle={toggleCategory}
+                onAdd={addCategory}
+                onRemove={removeCategory}
+                getLabel={getCategoryLabel}
+                filtered={filteredCategories}
+                inputValue={catInputValue}
+                onInputChange={setCatInputValue}
                 open={catDropdownOpen}
                 setOpen={setCatDropdownOpen}
                 dropdownRef={catDropdownRef}
-                label={getCategoryLabel()}
+                inputRef={catInputRef}
               />
             </div>
             <button
@@ -803,42 +820,86 @@ export function ZipSearch() {
   );
 }
 
-function CategoryMultiSelect({
+function CategoryTagInput({
   selected,
-  onToggle,
+  onAdd,
+  onRemove,
+  getLabel,
+  filtered,
+  inputValue,
+  onInputChange,
   open,
   setOpen,
   dropdownRef,
-  label,
+  inputRef,
 }: {
   selected: Set<string>;
-  onToggle: (query: string) => void;
+  onAdd: (query: string) => void;
+  onRemove: (query: string) => void;
+  getLabel: (query: string) => string;
+  filtered: typeof CATEGORIES;
+  inputValue: string;
+  onInputChange: (v: string) => void;
   open: boolean;
   setOpen: (v: boolean) => void;
   dropdownRef: React.RefObject<HTMLDivElement | null>;
-  label: string;
+  inputRef: React.RefObject<HTMLInputElement | null>;
 }) {
   return (
-    <div className="cat-multi" ref={dropdownRef}>
-      <button
-        type="button"
-        className="admin-input cat-multi-trigger"
-        onClick={() => setOpen(!open)}
+    <div className="cat-tags" ref={dropdownRef}>
+      <div
+        className="cat-tags-box"
+        onClick={() => inputRef.current?.focus()}
       >
-        <span className="cat-multi-label">{label}</span>
-        <span className="cat-multi-arrow">{open ? "\u25B2" : "\u25BC"}</span>
-      </button>
-      {open && (
-        <div className="cat-multi-dropdown">
-          {CATEGORIES.map((c) => (
-            <label key={c.query} className="cat-multi-option">
-              <input
-                type="checkbox"
-                checked={selected.has(c.query)}
-                onChange={() => onToggle(c.query)}
-              />
+        {[...selected].map((q) => (
+          <span key={q} className="cat-tag">
+            <span className="cat-tag-label">{getLabel(q)}</span>
+            <button
+              type="button"
+              className="cat-tag-x"
+              onClick={(e) => { e.stopPropagation(); onRemove(q); }}
+              aria-label={`Remove ${getLabel(q)}`}
+            >
+              &times;
+            </button>
+          </span>
+        ))}
+        <input
+          ref={inputRef}
+          type="text"
+          className="cat-tags-input"
+          placeholder={selected.size === 0 ? "Type to search categories…" : ""}
+          value={inputValue}
+          onChange={(e) => { onInputChange(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Backspace" && inputValue === "" && selected.size > 1) {
+              const last = [...selected].pop();
+              if (last) onRemove(last);
+            }
+            if (e.key === "Enter" && filtered.length > 0) {
+              e.preventDefault();
+              onAdd(filtered[0].query);
+            }
+            if (e.key === "Escape") {
+              setOpen(false);
+              inputRef.current?.blur();
+            }
+          }}
+        />
+      </div>
+      {open && filtered.length > 0 && (
+        <div className="cat-tags-dropdown">
+          {filtered.map((c) => (
+            <button
+              key={c.query}
+              type="button"
+              className="cat-tags-option"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => onAdd(c.query)}
+            >
               {c.label}
-            </label>
+            </button>
           ))}
         </div>
       )}
