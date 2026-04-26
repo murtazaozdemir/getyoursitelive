@@ -73,8 +73,10 @@ export function ZipSearch() {
   // Single zip mode
   const [manualZip, setManualZip] = useState("");
 
-  // Search
-  const [query, setQuery] = useState("auto repair");
+  // Search — multi-category
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set(["auto repair"]));
+  const [catDropdownOpen, setCatDropdownOpen] = useState(false);
+  const catDropdownRef = useRef<HTMLDivElement>(null);
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
@@ -91,9 +93,40 @@ export function ZipSearch() {
   // Mode toggle
   const [mode, setMode] = useState<"city" | "zip">("city");
 
-  // Ref to read current query in async flow
-  const queryRef = useRef(query);
-  queryRef.current = query;
+  // Ref to read current categories in async flow
+  const selectedCategoriesRef = useRef(selectedCategories);
+  selectedCategoriesRef.current = selectedCategories;
+
+  // Close category dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (catDropdownRef.current && !catDropdownRef.current.contains(e.target as Node)) {
+        setCatDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  function toggleCategory(query: string) {
+    setSelectedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(query)) {
+        if (next.size > 1) next.delete(query); // keep at least 1
+      } else {
+        next.add(query);
+      }
+      return next;
+    });
+  }
+
+  function getCategoryLabel(): string {
+    if (selectedCategories.size === 1) {
+      const q = [...selectedCategories][0];
+      return CATEGORIES.find((c) => c.query === q)?.label ?? q;
+    }
+    return `${selectedCategories.size} categories`;
+  }
 
   // Load cities when state changes
   useEffect(() => {
@@ -167,7 +200,8 @@ export function ZipSearch() {
   }
 
   async function runBatchSearch(zips: string[]) {
-    const currentQuery = queryRef.current;
+    const queries = [...selectedCategoriesRef.current];
+    const totalSteps = zips.length * queries.length;
 
     setSearching(true);
     setError("");
@@ -176,7 +210,7 @@ export function ZipSearch() {
     setAddedSlugs({});
     setDuplicatesRemoved(0);
     setApiCallsUsed(0);
-    setBatchProgress({ current: 0, total: zips.length });
+    setBatchProgress({ current: 0, total: totalSteps });
 
     const initStatuses: Record<string, ZipStatus> = {};
     for (const z of zips) initStatuses[z] = "idle";
@@ -184,25 +218,29 @@ export function ZipSearch() {
 
     let allResults: PlaceResult[] = [];
     let totalApiCalls = 0;
+    let step = 0;
 
-    for (let i = 0; i < zips.length; i++) {
-      const zip = zips[i];
-      setZipStatuses((prev) => ({ ...prev, [zip]: "searching" }));
-      setBatchProgress({ current: i + 1, total: zips.length });
+    for (const searchQuery of queries) {
+      for (let i = 0; i < zips.length; i++) {
+        const zip = zips[i];
+        setZipStatuses((prev) => ({ ...prev, [zip]: "searching" }));
+        step++;
+        setBatchProgress({ current: step, total: totalSteps });
 
-      try {
-        const { results: zipResults, cached, apiCalls } = await searchOneZip(zip, currentQuery);
-        totalApiCalls += apiCalls;
-        setApiCallsUsed(totalApiCalls);
-        setZipStatuses((prev) => ({ ...prev, [zip]: cached ? "cached" : "done" }));
+        try {
+          const { results: zipResults, cached, apiCalls } = await searchOneZip(zip, searchQuery);
+          totalApiCalls += apiCalls;
+          setApiCallsUsed(totalApiCalls);
+          setZipStatuses((prev) => ({ ...prev, [zip]: cached ? "cached" : "done" }));
 
-        allResults = [...allResults, ...zipResults];
-        const deduped = dedupeResults(allResults);
-        setDuplicatesRemoved(allResults.length - deduped.length);
-        setResults(deduped);
-      } catch (err) {
-        setZipStatuses((prev) => ({ ...prev, [zip]: "done" }));
-        console.error(`Search failed for zip ${zip}:`, err);
+          allResults = [...allResults, ...zipResults];
+          const deduped = dedupeResults(allResults);
+          setDuplicatesRemoved(allResults.length - deduped.length);
+          setResults(deduped);
+        } catch (err) {
+          setZipStatuses((prev) => ({ ...prev, [zip]: "done" }));
+          console.error(`Search failed for zip ${zip} query ${searchQuery}:`, err);
+        }
       }
     }
 
@@ -255,6 +293,8 @@ export function ZipSearch() {
       return;
     }
 
+    const queries = [...selectedCategoriesRef.current];
+
     setCityZips([]);
     setSearching(true);
     setError("");
@@ -263,17 +303,27 @@ export function ZipSearch() {
     setAddedSlugs({});
     setDuplicatesRemoved(0);
     setApiCallsUsed(0);
-    setBatchProgress({ current: 0, total: 0 });
+    setBatchProgress({ current: 0, total: queries.length });
 
-    try {
-      const { results: zipResults, apiCalls } = await searchOneZip(manualZip, query);
-      setResults(zipResults);
-      setApiCallsUsed(apiCalls);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Search failed.");
-    } finally {
-      setSearching(false);
+    let allResults: PlaceResult[] = [];
+    let totalApiCalls = 0;
+
+    for (let i = 0; i < queries.length; i++) {
+      setBatchProgress({ current: i + 1, total: queries.length });
+      try {
+        const { results: zipResults, apiCalls } = await searchOneZip(manualZip, queries[i]);
+        totalApiCalls += apiCalls;
+        allResults = [...allResults, ...zipResults];
+      } catch (err) {
+        console.error(`Search failed for query ${queries[i]}:`, err);
+      }
     }
+
+    const deduped = dedupeResults(allResults);
+    setResults(deduped);
+    setDuplicatesRemoved(allResults.length - deduped.length);
+    setApiCallsUsed(totalApiCalls);
+    setSearching(false);
   }
 
   async function handleAdd(place: PlaceResult) {
@@ -451,18 +501,17 @@ export function ZipSearch() {
                 ))}
               </select>
             </label>
-            <label className="admin-field" style={{ flex: 1, minWidth: 200 }}>
+            <div className="admin-field" style={{ flex: 1, minWidth: 200 }}>
               <span className="admin-field-label">Category</span>
-              <select
-                className="admin-input"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c.query} value={c.query}>{c.label}</option>
-                ))}
-              </select>
-            </label>
+              <CategoryMultiSelect
+                selected={selectedCategories}
+                onToggle={toggleCategory}
+                open={catDropdownOpen}
+                setOpen={setCatDropdownOpen}
+                dropdownRef={catDropdownRef}
+                label={getCategoryLabel()}
+              />
+            </div>
             <button
               className="admin-btn admin-btn--primary"
               onClick={handleCitySearch}
@@ -487,18 +536,17 @@ export function ZipSearch() {
                 autoFocus
               />
             </label>
-            <label className="admin-field" style={{ flex: 1, minWidth: 200 }}>
+            <div className="admin-field" style={{ flex: 1, minWidth: 200 }}>
               <span className="admin-field-label">Category</span>
-              <select
-                className="admin-input"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c.query} value={c.query}>{c.label}</option>
-                ))}
-              </select>
-            </label>
+              <CategoryMultiSelect
+                selected={selectedCategories}
+                onToggle={toggleCategory}
+                open={catDropdownOpen}
+                setOpen={setCatDropdownOpen}
+                dropdownRef={catDropdownRef}
+                label={getCategoryLabel()}
+              />
+            </div>
             <button
               className="admin-btn admin-btn--primary"
               onClick={handleSingleZipSearch}
@@ -721,6 +769,49 @@ export function ZipSearch() {
           <div className="admin-empty">
             <p>All {results.length} results have websites. Uncheck the filter to see them.</p>
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CategoryMultiSelect({
+  selected,
+  onToggle,
+  open,
+  setOpen,
+  dropdownRef,
+  label,
+}: {
+  selected: Set<string>;
+  onToggle: (query: string) => void;
+  open: boolean;
+  setOpen: (v: boolean) => void;
+  dropdownRef: React.RefObject<HTMLDivElement | null>;
+  label: string;
+}) {
+  return (
+    <div className="cat-multi" ref={dropdownRef}>
+      <button
+        type="button"
+        className="admin-input cat-multi-trigger"
+        onClick={() => setOpen(!open)}
+      >
+        <span className="cat-multi-label">{label}</span>
+        <span className="cat-multi-arrow">{open ? "\u25B2" : "\u25BC"}</span>
+      </button>
+      {open && (
+        <div className="cat-multi-dropdown">
+          {CATEGORIES.map((c) => (
+            <label key={c.query} className="cat-multi-option">
+              <input
+                type="checkbox"
+                checked={selected.has(c.query)}
+                onChange={() => onToggle(c.query)}
+              />
+              {c.label}
+            </label>
+          ))}
         </div>
       )}
     </div>
