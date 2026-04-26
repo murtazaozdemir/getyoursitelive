@@ -83,6 +83,7 @@ export function ZipSearch() {
   const [addStatuses, setAddStatuses] = useState<Record<string, AddStatus>>({});
   const [addedSlugs, setAddedSlugs] = useState<Record<string, string>>({});
   const [hideWithWebsite, setHideWithWebsite] = useState(true);
+  const [forceRefresh, setForceRefresh] = useState(false);
 
   // Batch progress
   const [zipStatuses, setZipStatuses] = useState<Record<string, ZipStatus>>({});
@@ -179,7 +180,7 @@ export function ZipSearch() {
     const res = await fetch("/api/places-search", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ zip, query: searchQuery }),
+      body: JSON.stringify({ zip, query: searchQuery, forceRefresh }),
     });
 
     const data = (await res.json()) as {
@@ -565,6 +566,14 @@ export function ZipSearch() {
             onChange={(e) => setHideWithWebsite(e.target.checked)}
           />
           No website only — hide businesses that already have a site
+        </label>
+        <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, fontSize: 13, color: "var(--admin-text-soft)", cursor: "pointer" }}>
+          <input
+            type="checkbox"
+            checked={forceRefresh}
+            onChange={(e) => setForceRefresh(e.target.checked)}
+          />
+          Force fresh search — skip cache, re-query Google Places API
         </label>
 
         {error && <div className="admin-error-banner" style={{ marginTop: 12 }}>{error}</div>}
