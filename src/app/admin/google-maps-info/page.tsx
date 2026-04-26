@@ -70,16 +70,12 @@ export default async function GoogleMapsInfoPage() {
         </div>
       </div>
 
-      {/* Navigation links */}
-      <div className="admin-link-cards">
-        <Link href="/admin/categories" className="admin-link-card">
-          <h3>Categories &amp; Templates</h3>
-          <p>All 4,039 Google Business categories with template mappings, filtering, and search.</p>
-        </Link>
-        <Link href="/admin/google-fields" className="admin-link-card">
-          <h3>Google Fields We Store</h3>
-          <p>Field-level fill rates, data types, and sizes for all {totalProspects.toLocaleString()} prospects.</p>
-        </Link>
+      <div className="admin-page-nav">
+        <span className="admin-page-nav-current">Google Maps Info</span>
+        <span className="admin-page-nav-sep">/</span>
+        <Link href="/admin/categories">Categories &amp; Templates</Link>
+        <span className="admin-page-nav-sep">/</span>
+        <Link href="/admin/google-fields">Google Fields</Link>
       </div>
 
       {/* Unmapped categories alert */}

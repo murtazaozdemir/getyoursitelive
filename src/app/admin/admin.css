@@ -1098,6 +1098,30 @@
   line-height: 1.4;
 }
 
+/* ---------- Page nav (cross-links between related pages) ---------- */
+.admin-page-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+}
+.admin-page-nav a {
+  color: var(--admin-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+.admin-page-nav a:hover {
+  text-decoration: underline;
+}
+.admin-page-nav-current {
+  color: var(--admin-text);
+  font-weight: 600;
+}
+.admin-page-nav-sep {
+  color: var(--admin-text-muted);
+}
+
 /* ---------- Badges ---------- */
 .admin-badge {
   display: inline-block;
