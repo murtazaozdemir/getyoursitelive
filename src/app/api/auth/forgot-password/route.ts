@@ -52,6 +52,5 @@ export async function POST(req: NextRequest) {
     console.error(`[forgot-password] failed to send reset email to ${user.email}: ${result.error}`);
   }
 
-  // TODO: remove debug flag after confirming emails work
-  return NextResponse.json({ ok: true, _debug: result.ok ? "sent" : result.error });
+  return NextResponse.json({ ok: true });
 }

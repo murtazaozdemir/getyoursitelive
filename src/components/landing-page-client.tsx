@@ -37,7 +37,7 @@ const FEATURES = [
 ];
 
 const STEPS = [
-  { n: "01", title: "We talk", body: "20 minutes. You describe your shop; I ask the questions you didn't think of." },
+  { n: "01", title: "We talk", body: "20 minutes. You describe your business; I ask the questions you didn't think of." },
   { n: "02", title: "We build", body: "Live in 1–2 days. Professional tools, no shortcuts." },
   { n: "03", title: "Pick your theme", body: "Multiple design themes available. Switch any time from your dashboard." },
   { n: "04", title: "It's yours", body: "Pay once, go live. You own it completely — forever." },
@@ -190,7 +190,7 @@ export function LandingPageClient({
             <div className="flex flex-1 items-center justify-center gap-1.5 overflow-hidden">
               <span className="text-green-500 text-xs">🔒</span>
               <span className="lp-mono lp-surface-muted truncate text-xs">
-                your<span style={{ color: "var(--lp-hero-fg)", fontWeight: 600 }}>shop</span>.com
+                your<span style={{ color: "var(--lp-hero-fg)", fontWeight: 600 }}>business</span>.com
               </span>
             </div>
           </div>
