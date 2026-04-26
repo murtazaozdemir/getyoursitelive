@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useRef, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Task, TaskItemWithProspect } from "@/lib/tasks";
@@ -40,7 +40,7 @@ export function TaskDetailClient({
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<{ slug: string; name: string; address: string }[]>([]);
   const [searching, setSearching] = useState(false);
-  const searchTimeout = useState<ReturnType<typeof setTimeout> | null>(null);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const pendingItems = items.filter((i) => i.status === "pending");
   const droppedOffItems = items.filter((i) => i.status === "dropped_off");
@@ -90,15 +90,20 @@ export function TaskDetailClient({
 
   function handleSearchChange(value: string) {
     setSearchQuery(value);
-    if (searchTimeout[0]) clearTimeout(searchTimeout[0]);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     if (value.trim().length < 2) {
       setSearchResults([]);
+      setSearching(false);
       return;
     }
     setSearching(true);
-    searchTimeout[0] = setTimeout(async () => {
-      const results = await searchProspectsAction(task.id, value);
-      setSearchResults(results);
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const results = await searchProspectsAction(task.id, value);
+        setSearchResults(results);
+      } catch {
+        setSearchResults([]);
+      }
       setSearching(false);
     }, 300);
   }
