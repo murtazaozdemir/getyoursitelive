@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import { execSync } from "child_process";
 
 // Wire up Cloudflare D1/R2 bindings for local `next dev`.
 // In production (Cloudflare Pages) this is handled by the runtime automatically.
@@ -8,14 +7,6 @@ if (process.env.NODE_ENV === "development") {
   import("@cloudflare/next-on-pages/next-dev")
     .then(({ setupDevPlatform }) => setupDevPlatform())
     .catch(() => {}); // non-fatal if package isn't available
-}
-
-function getBuildId() {
-  try {
-    return execSync("git rev-parse --short HEAD").toString().trim();
-  } catch {
-    return "unknown";
-  }
 }
 
 const securityHeaders = [
@@ -40,8 +31,21 @@ const nextConfig: NextConfig = {
   },
 
   env: {
-    NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
-    NEXT_PUBLIC_APP_VERSION: `v${getBuildId()}`,
+    NEXT_PUBLIC_BUILD_TIME: (() => {
+      const t = new Date().toISOString();
+      console.log("[next.config] NEXT_PUBLIC_BUILD_TIME =", t);
+      return t;
+    })(),
+    NEXT_PUBLIC_APP_VERSION: (() => {
+      const sha = process.env.CF_PAGES_COMMIT_SHA;
+      const branch = process.env.CF_PAGES_BRANCH;
+      console.log("[next.config] CF_PAGES_COMMIT_SHA =", sha ?? "(not set)");
+      console.log("[next.config] CF_PAGES_BRANCH =", branch ?? "(not set)");
+      console.log("[next.config] NODE_ENV =", process.env.NODE_ENV);
+      const version = sha?.slice(0, 7) ?? "dev";
+      console.log("[next.config] NEXT_PUBLIC_APP_VERSION =", version);
+      return version;
+    })(),
   },
   // Server-rendered. Each request is served fresh from the storage layer
   // (local filesystem in dev, Cloudflare R2 in production). This replaces
