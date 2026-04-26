@@ -238,6 +238,7 @@ export const restaurantTemplate: VerticalTemplate = {
           answer: "Yes — from small gatherings to large parties. Call us to discuss a custom menu.",
         },
       ],
+      photos: [],
       emergency: {
         heading: "Large Party? Let Us Know Ahead.",
         description: "Call to arrange seating for groups of 8 or more.",
@@ -330,6 +331,7 @@ export const restaurantTemplate: VerticalTemplate = {
       teamMembers: [],
       testimonials: [],
       faqs: [],
+      photos: [],
       emergency: {
         heading: "Large Party? Call Ahead.",
         description: "We accommodate groups with advance notice.",

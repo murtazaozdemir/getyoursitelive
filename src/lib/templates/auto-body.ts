@@ -252,6 +252,7 @@ export const autoBodyTemplate: VerticalTemplate = {
           answer: "No — walk in anytime during business hours. We'll inspect the damage and give you a detailed written estimate on the spot.",
         },
       ],
+      photos: [],
       emergency: {
         heading: "Just Had an Accident? We Can Help.",
         description: "Call us right from the scene. We'll guide you through the next steps and can arrange towing to our shop.",
@@ -335,6 +336,7 @@ export const autoBodyTemplate: VerticalTemplate = {
       teamMembers: [],
       testimonials: [],
       faqs: [],
+      photos: [],
       emergency: {
         heading: "Just Had an Accident? Call Us.",
         description: "We'll guide you through the next steps and arrange towing if needed.",

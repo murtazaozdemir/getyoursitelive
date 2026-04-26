@@ -13,6 +13,7 @@ import type {
   FooterContent,
   HeroContent,
   NavLabels,
+  PhotoItem,
   PricingCard,
   SectionTitles,
   ServiceItem,
@@ -38,6 +39,7 @@ export interface BusinessVisibility {
   showTeam: boolean;
   showTestimonials: boolean;
   showFaq: boolean;
+  showPhotos: boolean;         // photo gallery section
   showEmergencyBanner: boolean;
   showBooking: boolean;        // the left-column request-service form
   showContactInfo: boolean;    // the right-column address/phone/email (excl. map)
@@ -86,6 +88,7 @@ export interface Business {
   teamMembers: TeamMember[];
   testimonials: Testimonial[];
   faqs: FaqItem[];
+  photos: PhotoItem[];
   emergency: EmergencyContent;
   contact: ContactContent;
   footer: FooterContent;

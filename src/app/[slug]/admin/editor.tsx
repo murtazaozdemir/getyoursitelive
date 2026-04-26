@@ -15,6 +15,7 @@ import { PricingTab } from "./_tabs/pricing-tab";
 import { TeamTab } from "./_tabs/team-tab";
 import { TestimonialsTab } from "./_tabs/testimonials-tab";
 import { FaqTab } from "./_tabs/faq-tab";
+import { PhotosTab } from "./_tabs/photos-tab";
 import { ContactHoursTab } from "./_tabs/contact-hours-tab";
 import { LabelsTab } from "./_tabs/labels-tab";
 import { VisibilityTab } from "./_tabs/visibility-tab";
@@ -34,6 +35,7 @@ type TabKey =
   | "team"
   | "testimonials"
   | "faq"
+  | "photos"
   | "contact"
   | "labels"
   | "visibility";
@@ -49,6 +51,7 @@ const TABS: Array<{ key: TabKey; label: string }> = [
   { key: "team", label: "Team" },
   { key: "testimonials", label: "Testimonials" },
   { key: "faq", label: "FAQ" },
+  { key: "photos", label: "Photos" },
   { key: "contact", label: "Contact & Hours" },
   { key: "labels", label: "Labels" },
   { key: "visibility", label: "Visibility" },
@@ -142,6 +145,7 @@ export function BusinessEditor({
           <TestimonialsTab business={business} update={update} />
         )}
         {activeTab === "faq" && <FaqTab business={business} update={update} />}
+        {activeTab === "photos" && <PhotosTab business={business} update={update} />}
         {activeTab === "contact" && (
           <ContactHoursTab business={business} update={update} />
         )}

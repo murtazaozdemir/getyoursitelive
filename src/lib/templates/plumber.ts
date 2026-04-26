@@ -242,6 +242,7 @@ export const plumberTemplate: VerticalTemplate = {
           answer: "We serve the local area and surrounding communities. Call to confirm coverage for your location.",
         },
       ],
+      photos: [],
       emergency: {
         heading: "Plumbing Emergency? Call Now.",
         description: "Burst pipes, major leaks, and sewer backups — we respond fast.",
@@ -325,6 +326,7 @@ export const plumberTemplate: VerticalTemplate = {
       teamMembers: [],
       testimonials: [],
       faqs: [],
+      photos: [],
       emergency: {
         heading: "Plumbing Emergency? Call Now.",
         description: "We respond fast to burst pipes, major leaks, and sewer backups.",

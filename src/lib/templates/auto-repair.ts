@@ -259,6 +259,7 @@ export const autoRepairTemplate: VerticalTemplate = {
           answer: "Yes — call ahead and we'll arrange a loaner for longer repairs.",
         },
       ],
+      photos: [],
       emergency: {
         heading: "Car Won't Start? We're Here for You.",
         description: "Emergency towing referrals and after-hours assistance available. Call us first.",
@@ -342,6 +343,7 @@ export const autoRepairTemplate: VerticalTemplate = {
       teamMembers: [],
       testimonials: [],
       faqs: [],
+      photos: [],
       emergency: {
         heading: "Car Won't Start? We're Here 24/7.",
         description: "Emergency towing, after-hours repairs, and loaner car options available.",

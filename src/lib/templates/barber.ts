@@ -235,6 +235,7 @@ export const barberTemplate: VerticalTemplate = {
           answer: "Cash, credit cards, debit cards, and most mobile payment apps.",
         },
       ],
+      photos: [],
       emergency: {
         heading: "Last-Minute Appointment? Call Us.",
         description: "We fit walk-ins between appointments whenever we can.",
@@ -318,6 +319,7 @@ export const barberTemplate: VerticalTemplate = {
       teamMembers: [],
       testimonials: [],
       faqs: [],
+      photos: [],
       emergency: {
         heading: "Need a Walk-In? Come On By.",
         description: "No appointment needed. Walk-ins welcome during business hours.",

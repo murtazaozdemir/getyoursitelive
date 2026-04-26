@@ -99,6 +99,13 @@ export interface FaqItem {
   answer: string;
 }
 
+/** Photo gallery item. */
+export interface PhotoItem {
+  id: string;
+  url: string;
+  caption: string;
+}
+
 /** Emergency banner copy. */
 export interface EmergencyContent {
   heading: string;             // e.g. "Car Won't Start? We're Here 24/7."
@@ -146,6 +153,7 @@ export interface SectionTitles {
   team: string;                // "Meet Our Technicians"
   testimonials: string;        // "What Customers Say"
   faq: string;                 // "Frequently Asked Questions"
+  photos: string;              // "Our Work"
   dealsCta: string;            // "Claim this offer"
   pricingPopular: string;      // "Popular"
   pricingRegular: string;      // "No surprises"

@@ -531,6 +531,160 @@ body {
 .deal-cta:hover { gap: 0.7rem; }
 
 /* ==================================================================
+   PHOTOS / GALLERY SECTION
+   Responsive grid of uploaded images with optional captions.
+   ================================================================== */
+
+.photos-section {
+  background: var(--surface-2);
+  padding: 4rem 1rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+@media (min-width: 768px) {
+  .photos-section { padding: 5rem 2rem; }
+}
+
+.photos-section-inner {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+.photos-section-head {
+  text-align: center;
+  max-width: 42rem;
+  margin: 0 auto 3rem;
+}
+
+.photos-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: var(--font-accent), monospace;
+}
+
+.photos-title {
+  margin-top: 1rem;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--text);
+}
+
+[data-theme="modern"] .photos-title {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 400;
+  font-variation-settings: "opsz" 96, "SOFT" 40;
+}
+
+.photos-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+}
+@media (min-width: 768px) {
+  .photos-grid { gap: 1.25rem; }
+}
+
+.photo-card {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 250ms;
+}
+.photo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.photo-card-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-card-image-wrap {
+  display: block;
+  width: 100%;
+}
+
+.photo-card-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.photo-card-caption {
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Admin-specific photo styles */
+.admin-photo-upload {
+  margin-top: 0.25rem;
+}
+
+.admin-photo-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 2rem;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg, 0.75rem);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+  font-size: 0.875rem;
+  transition: border-color 200ms, color 200ms;
+}
+.admin-photo-upload-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.admin-photo-preview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-photo-thumb {
+  width: 8rem;
+  height: 6rem;
+  object-fit: cover;
+  border-radius: var(--radius-lg, 0.75rem);
+  border: 1px solid var(--border);
+}
+
+.admin-photo-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ==================================================================
    WEEKLY HOURS LIST
    Multi-line definition list. Day name left, hours right.
    ================================================================== */

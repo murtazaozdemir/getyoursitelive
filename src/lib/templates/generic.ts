@@ -91,6 +91,7 @@ export const genericTemplate: VerticalTemplate = {
       teamMembers: [],
       testimonials: [],
       faqs: [],
+      photos: [],
       emergency: {
         heading: "Need Help? We're Here for You.",
         description: "Contact us for assistance.",
@@ -171,6 +172,7 @@ export const genericTemplate: VerticalTemplate = {
       teamMembers: [],
       testimonials: [],
       faqs: [],
+      photos: [],
       emergency: {
         heading: "Need Help? We're Here.",
         description: "Contact us anytime for assistance.",

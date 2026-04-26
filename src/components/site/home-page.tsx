@@ -15,6 +15,7 @@ import { TechniciansSection } from "@/components/site/sections/technicians-secti
 import { TestimonialsSection } from "@/components/site/sections/testimonials-section";
 import { EmergencyBanner } from "@/components/site/sections/emergency-banner";
 import { PricingSection } from "@/components/site/sections/pricing-section";
+import { PhotosSection } from "@/components/site/sections/photos-section";
 import { FaqSection } from "@/components/site/sections/faq-section";
 import { ContactSection } from "@/components/site/sections/contact-section";
 import { FooterSection } from "@/components/site/sections/footer-section";
@@ -155,6 +156,7 @@ export function HomePage() {
         onPrevious={() => setTestimonialIndex((i) => (i - 1 + Math.max(testimonials.length, 1)) % Math.max(testimonials.length, 1))}
         onNext={() => setTestimonialIndex((i) => (i + 1) % Math.max(testimonials.length, 1))}
       />
+      <PhotosSection />
       <FaqSection faqOpen={faqOpen} onToggle={(index) => setFaqOpen(index === faqOpen ? -1 : index)} />
       <EmergencyBanner />
       <ContactSection

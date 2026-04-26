@@ -82,6 +82,7 @@ function rowToBusiness(row: BusinessRow): Business {
     if (!biz.teamMembers?.length) biz.teamMembers = defaults.teamMembers;
     if (!biz.testimonials?.length) biz.testimonials = defaults.testimonials;
     if (!biz.faqs?.length) biz.faqs = defaults.faqs;
+    if (!biz.photos) biz.photos = [];
     if (!biz.emergency) biz.emergency = defaults.emergency;
     if (!biz.contact) biz.contact = defaults.contact;
     if (!biz.footer) biz.footer = defaults.footer;
@@ -97,6 +98,7 @@ function rowToBusiness(row: BusinessRow): Business {
     if (!biz.teamMembers) biz.teamMembers = [];
     if (!biz.testimonials) biz.testimonials = [];
     if (!biz.faqs) biz.faqs = [];
+    if (!biz.photos) biz.photos = [];
 
     // Fill missing visibility flags from template defaults
     if (!biz.visibility) {

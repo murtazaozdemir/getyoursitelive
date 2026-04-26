@@ -18,6 +18,7 @@ const TOGGLES: Array<{ key: keyof BusinessVisibility; label: string; help: strin
   { key: "showTeam", label: "Team section", help: "Bios of your technicians." },
   { key: "showTestimonials", label: "Testimonials", help: "Customer quote carousel." },
   { key: "showFaq", label: "FAQ section", help: "Accordion of common questions." },
+  { key: "showPhotos", label: "Photos section", help: "Gallery of work photos, before/after shots." },
   { key: "showEmergencyBanner", label: "Emergency banner", help: "Accent-colored call-us-24/7 strip." },
   { key: "showBooking", label: "Booking form", help: "Request-service form customers use to book." },
   { key: "showContactInfo", label: "Contact info", help: "Address, phone, email, open-status pill." },
