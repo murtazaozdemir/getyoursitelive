@@ -105,6 +105,16 @@ export function PhotosTab({
         Upload photos of your work, shop, team, or anything you want customers
         to see. Toggle the section on in Visibility once you&rsquo;ve added photos.
       </p>
+      <p className="admin-section-lede">
+        Each photo must be under <strong>5 MB</strong> (PNG, JPG, or WebP).
+        If your photo is too large, open it on your phone and take a screenshot
+        &mdash; that creates a smaller copy. On a computer you can use a free
+        site like{" "}
+        <a href="https://imageresizer.com" target="_blank" rel="noopener noreferrer" className="admin-link">
+          imageresizer.com
+        </a>{" "}
+        to shrink it before uploading.
+      </p>
 
       <RepeatableList
         items={photos}
