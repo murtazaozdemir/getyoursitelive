@@ -51,6 +51,10 @@ function defaultDestinationForAuthedUser(pathname: string): string {
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // Never gate /api/* routes — they handle their own auth internally
+  if (pathname.startsWith("/api/")) return NextResponse.next();
+
   const token = req.cookies.get(COOKIE_NAME)?.value;
   const authed = await isValidToken(token);
 
