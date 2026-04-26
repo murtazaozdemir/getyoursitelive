@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
+
 /**
  * POST /api/admin/migrate
  * Body: { migration: string }
