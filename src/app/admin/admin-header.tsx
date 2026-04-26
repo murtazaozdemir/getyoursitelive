@@ -15,6 +15,7 @@ import {
   Download,
   LogOut,
   LayoutGrid,
+  Database,
 } from "lucide-react";
 import type { SessionUser } from "@/lib/users";
 
@@ -128,6 +129,9 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
                     </Link>
                     <Link href="/admin/categories" className="admin-account-dropdown-item">
                       <LayoutGrid className="admin-account-dropdown-icon" /> Categories
+                    </Link>
+                    <Link href="/admin/google-fields" className="admin-account-dropdown-item">
+                      <Database className="admin-account-dropdown-icon" /> Google Fields
                     </Link>
                     <a href="/api/admin/backup" className="admin-account-dropdown-item" download>
                       <Download className="admin-account-dropdown-icon" /> Download Backup

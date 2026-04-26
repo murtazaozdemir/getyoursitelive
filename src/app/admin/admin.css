@@ -1057,6 +1057,46 @@
   font-size: 0.8rem;
   color: var(--admin-text-muted);
 }
+.admin-stat-card--warn {
+  background: #fef3cd;
+  border-color: #e6c200;
+}
+.admin-stat-card--warn .admin-stat-value {
+  color: #856404;
+}
+
+/* ---------- Link cards ---------- */
+.admin-link-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.admin-link-card {
+  display: block;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.admin-link-card:hover {
+  border-color: var(--admin-accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.admin-link-card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--admin-accent);
+}
+.admin-link-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--admin-text-soft);
+  line-height: 1.4;
+}
 
 /* ---------- Badges ---------- */
 .admin-badge {
