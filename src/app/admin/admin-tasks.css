@@ -279,6 +279,78 @@
   border-top: 1px solid var(--admin-border);
 }
 
+/* Remove button */
+.task-item-remove {
+  background: none;
+  border: none;
+  color: var(--admin-text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  border-radius: var(--admin-radius-sm);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+.task-item:hover .task-item-remove {
+  opacity: 1;
+}
+.task-item-remove:hover {
+  color: var(--admin-danger);
+  background: color-mix(in srgb, var(--admin-danger) 8%, transparent);
+}
+
+/* Add leads search */
+.task-add-leads {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+}
+.task-add-leads-input {
+  width: 100%;
+  font-size: 14px;
+  padding: 8px 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  font-family: inherit;
+  color: var(--admin-text);
+  background: var(--admin-bg);
+}
+.task-add-leads-input:focus {
+  outline: none;
+  border-color: var(--admin-accent);
+}
+.task-add-leads-status {
+  font-size: 13px;
+  color: var(--admin-text-muted);
+  margin-top: 8px;
+}
+.task-add-leads-results {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.task-add-leads-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--admin-radius-sm);
+  font-size: 13px;
+}
+.task-add-leads-result:hover {
+  background: var(--admin-surface-2);
+}
+.task-add-leads-address {
+  color: var(--admin-text-muted);
+  font-size: 12px;
+}
+
 /* Empty state */
 .admin-empty-state {
   text-align: center;

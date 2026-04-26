@@ -16,6 +16,9 @@ import {
   reopenTaskAction,
   toggleItemDroppedOffAction,
   saveItemNotesAction,
+  searchProspectsAction,
+  addItemsAction,
+  removeItemAction,
   deleteTaskAction,
 } from "../actions";
 
@@ -33,6 +36,11 @@ export function TaskDetailClient({
   const [taskName, setTaskName] = useState(task.name);
   const [editingName, setEditingName] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [showAddLeads, setShowAddLeads] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<{ slug: string; name: string; address: string }[]>([]);
+  const [searching, setSearching] = useState(false);
+  const searchTimeout = useState<ReturnType<typeof setTimeout> | null>(null);
 
   const pendingItems = items.filter((i) => i.status === "pending");
   const droppedOffItems = items.filter((i) => i.status === "dropped_off");
@@ -77,6 +85,37 @@ export function TaskDetailClient({
   function handleReopen() {
     startTransition(() => {
       reopenTaskAction(task.id).then(() => router.refresh());
+    });
+  }
+
+  function handleSearchChange(value: string) {
+    setSearchQuery(value);
+    if (searchTimeout[0]) clearTimeout(searchTimeout[0]);
+    if (value.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    setSearching(true);
+    searchTimeout[0] = setTimeout(async () => {
+      const results = await searchProspectsAction(task.id, value);
+      setSearchResults(results);
+      setSearching(false);
+    }, 300);
+  }
+
+  function handleAddLead(slug: string) {
+    setSearchResults((prev) => prev.filter((r) => r.slug !== slug));
+    startTransition(async () => {
+      await addItemsAction(task.id, [slug]);
+      router.refresh();
+    });
+  }
+
+  function handleRemoveItem(itemId: string, name: string) {
+    if (!confirm(`Remove "${name}" from this task?`)) return;
+    setItems((prev) => prev.filter((i) => i.id !== itemId));
+    startTransition(() => {
+      removeItemAction(task.id, itemId);
     });
   }
 
@@ -189,20 +228,64 @@ export function TaskDetailClient({
       </div>
 
       {/* Toolbar */}
-      {task.status === "active" && pendingItems.length > 0 && (
+      {task.status === "active" && (
         <div className="task-detail-toolbar">
-          <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintProposals} disabled={isPending}>
-            Print proposals ({pendingItems.length})
+          <button type="button" className="admin-btn admin-btn--primary" onClick={() => setShowAddLeads(!showAddLeads)} disabled={isPending}>
+            + Add leads
           </button>
-          <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintLabels} disabled={isPending}>
-            Print labels ({pendingItems.length})
-          </button>
-          <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintTaskList} disabled={isPending}>
-            Print task list
-          </button>
-          <button type="button" className="admin-btn admin-btn--ghost" onClick={handleShowMap} disabled={isPending}>
-            Show map
-          </button>
+          {pendingItems.length > 0 && (
+            <>
+              <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintProposals} disabled={isPending}>
+                Print proposals ({pendingItems.length})
+              </button>
+              <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintLabels} disabled={isPending}>
+                Print labels ({pendingItems.length})
+              </button>
+              <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintTaskList} disabled={isPending}>
+                Print task list
+              </button>
+              <button type="button" className="admin-btn admin-btn--ghost" onClick={handleShowMap} disabled={isPending}>
+                Show map
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Add leads search */}
+      {showAddLeads && (
+        <div className="task-add-leads">
+          <input
+            type="text"
+            className="task-add-leads-input"
+            placeholder="Search leads by name..."
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            autoFocus
+          />
+          {searching && <p className="task-add-leads-status">Searching...</p>}
+          {!searching && searchQuery.length >= 2 && searchResults.length === 0 && (
+            <p className="task-add-leads-status">No leads found</p>
+          )}
+          {searchResults.length > 0 && (
+            <div className="task-add-leads-results">
+              {searchResults.map((r) => (
+                <div key={r.slug} className="task-add-leads-result">
+                  <div>
+                    <strong>{r.name}</strong>
+                    {r.address && <span className="task-add-leads-address"> — {r.address}</span>}
+                  </div>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn--ghost"
+                    onClick={() => handleAddLead(r.slug)}
+                  >
+                    Add
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -217,6 +300,7 @@ export function TaskDetailClient({
                 index={idx + 1}
                 onToggle={() => handleToggleItem(item.id, item.status)}
                 onNotesBlur={(notes) => handleNotesBlur(item.id, notes)}
+                onRemove={task.status === "active" ? () => handleRemoveItem(item.id, item.prospectName) : undefined}
               />
             ))}
           </div>
@@ -231,6 +315,7 @@ export function TaskDetailClient({
                 item={item}
                 onToggle={() => handleToggleItem(item.id, item.status)}
                 onNotesBlur={(notes) => handleNotesBlur(item.id, notes)}
+                onRemove={task.status === "active" ? () => handleRemoveItem(item.id, item.prospectName) : undefined}
               />
             ))}
           </div>
@@ -261,11 +346,13 @@ function TaskItemRow({
   index,
   onToggle,
   onNotesBlur,
+  onRemove,
 }: {
   item: TaskItemWithProspect;
   index?: number;
   onToggle: () => void;
   onNotesBlur: (notes: string) => void;
+  onRemove?: () => void;
 }) {
   const [notes, setNotes] = useState(item.notes);
   const isDroppedOff = item.status === "dropped_off";
@@ -311,6 +398,18 @@ function TaskItemRow({
           onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
         />
       </div>
+
+      {onRemove && (
+        <button
+          type="button"
+          className="task-item-remove"
+          onClick={onRemove}
+          aria-label="Remove from task"
+          title="Remove from task"
+        >
+          ×
+        </button>
+      )}
     </div>
   );
 }

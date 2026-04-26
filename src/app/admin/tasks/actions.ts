@@ -11,6 +11,9 @@ import {
   updateTaskStatus,
   updateTaskItemStatus,
   updateTaskItemNotes,
+  addTaskItems,
+  removeTaskItem,
+  searchProspectsForTask,
   deleteTask,
 } from "@/lib/tasks";
 
@@ -27,7 +30,7 @@ export async function createTaskAction(slugs: string[]): Promise<string> {
   const name = `Task - ${today}`;
 
   await createTask(
-    { id, name, createdBy: user.email, createdByName: user.name },
+    { id, name, createdBy: user.id, createdByName: user.name },
     slugs,
   );
 
@@ -89,6 +92,36 @@ export async function saveItemNotesAction(itemId: string, notes: string) {
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
   await updateTaskItemNotes(itemId, notes);
+}
+
+export async function searchProspectsAction(
+  taskId: string,
+  query: string,
+): Promise<{ slug: string; name: string; address: string }[]> {
+  const user = await getCurrentUser();
+  if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
+  if (query.trim().length < 2) return [];
+
+  return searchProspectsForTask(taskId, query.trim());
+}
+
+export async function addItemsAction(taskId: string, slugs: string[]) {
+  const user = await getCurrentUser();
+  if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
+  if (slugs.length === 0) return;
+
+  await addTaskItems(taskId, slugs);
+  revalidatePath(`/admin/tasks/${taskId}`);
+  revalidatePath("/admin/tasks");
+}
+
+export async function removeItemAction(taskId: string, itemId: string) {
+  const user = await getCurrentUser();
+  if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
+
+  await removeTaskItem(itemId);
+  revalidatePath(`/admin/tasks/${taskId}`);
+  revalidatePath("/admin/tasks");
 }
 
 export async function deleteTaskAction(taskId: string) {

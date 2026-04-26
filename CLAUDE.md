@@ -135,7 +135,7 @@ Star Auto Repair Center seeds with `modern` (the primary/only demo business).
 
 **Platform:** Cloudflare Pages — connected to GitHub, auto-deploys on push to `main`.
 
-**Build command:** `npx @cloudflare/next-on-pages@1` (runs `vercel build` then processes output into `_worker.js`).
+**Build command:** `npx @opennextjs/cloudflare build` (builds Next.js then processes output into `.open-next/cloudflare/`).
 
 **Bindings (wrangler.toml):**
 - `DB` → Cloudflare D1 database `getyoursitelive-d1`
@@ -157,16 +157,16 @@ These are non-obvious constraints discovered during the Vercel → Cloudflare mi
 `server-only` v0.0.1 has two export conditions: `"react-server"` (safe) and `"default"` (throws with "This module cannot be imported from a Client Component"). The Cloudflare edge worker bundler resolves `"default"`, not `"react-server"` → every route that imports an affected lib crashes at runtime. Remove `import "server-only"` from all files in `src/lib/`. Already done as of `eabd495`.
 
 **2. Every dynamic route/page must export `export const runtime = "edge"`**
-`@cloudflare/next-on-pages` only bundles routes marked as edge. Node.js routes are silently skipped. Add to every file in `src/app/**/{page,route,layout}.ts(x)`.
+`@opennextjs/cloudflare` only bundles routes marked as edge. Routes without this export are silently skipped and serve stale cached versions from older deploys. Add to every file in `src/app/**/{page,route,layout}.ts(x)`. This was the cause of a hard-to-debug issue where the migrate route appeared deployed but served old code.
 
 **3. `src/middleware.ts` — not `src/proxy.ts`**
-Next.js 16 renamed the middleware convention from `middleware.ts` → `proxy.ts`. But `@cloudflare/next-on-pages@1.x` was written for the old name and only recognises `middleware.ts`. Keep the file as `middleware.ts` despite the deprecation warning. Do NOT add `export const runtime = "edge"` to it — middleware is always edge, and adding the export causes a build error.
+Next.js 16 renamed the middleware convention from `middleware.ts` → `proxy.ts`. But the Cloudflare build tooling was written for the old name and only recognises `middleware.ts`. Keep the file as `middleware.ts` despite the deprecation warning. Do NOT add `export const runtime = "edge"` to it — middleware is always edge, and adding the export causes a build error.
 
 **4. D1 binding is only available inside a request context**
-`getRequestContext()` (from `@cloudflare/next-on-pages`) throws if called at module load time. Always call `getD1()` inside a route handler, server action, or server component — never at the top level of a module.
+`getCloudflareContext()` (from `@opennextjs/cloudflare`) throws if called at module load time. Always call `getD1()` inside a route handler, server action, or server component — never at the top level of a module.
 
 **5. Local dev uses `--experimental-edge` flag**
-Run dev with `npx wrangler pages dev` or ensure the dev server wires up miniflare via `@cloudflare/next-on-pages/next-dev`. Plain `next dev` won't have D1 bindings.
+Run dev with `npx wrangler pages dev` or ensure the dev server wires up miniflare. Plain `next dev` won't have D1 bindings.
 
 ## Convention notes
 
@@ -465,7 +465,7 @@ Every hardcoded string in the components has been moved into per-business JSON. 
 - [x] `src/lib/db-d1.ts` — returns D1 binding via `getRequestContext().env.DB`
 - [x] `src/lib/db.ts` — rewrote all queries to use D1 prepared statements
 - [x] `export const runtime = "edge"` added to all 26 dynamic routes/pages
-- [x] `src/middleware.ts` created (replaces `src/proxy.ts` — Next.js 16 renamed convention but `@cloudflare/next-on-pages` requires old name)
+- [x] `src/middleware.ts` created (replaces `src/proxy.ts` — Next.js 16 renamed convention but Cloudflare build tooling requires old name)
 - [x] Removed `import "server-only"` from all lib files (incompatible with edge bundler)
 - [x] `src/app/api/upload/route.ts` rewrote to use R2 binding (not S3 SDK)
 - [x] Cloudflare Pages project created, connected to GitHub, auto-deploys on push

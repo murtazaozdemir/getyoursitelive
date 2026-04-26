@@ -243,6 +243,68 @@ export async function updateTaskItemNotes(itemId: string, notes: string): Promis
     .run();
 }
 
+export async function addTaskItems(
+  taskId: string,
+  prospectSlugs: string[],
+): Promise<void> {
+  const db = await getD1();
+  const now = new Date().toISOString();
+
+  // Get current max sort_order
+  const max = await db
+    .prepare("SELECT COALESCE(MAX(sort_order), -1) as max_order FROM task_items WHERE task_id = ?")
+    .bind(taskId)
+    .first<{ max_order: number }>();
+  let nextOrder = (max?.max_order ?? -1) + 1;
+
+  for (const slug of prospectSlugs) {
+    // Skip if already in task
+    const existing = await db
+      .prepare("SELECT id FROM task_items WHERE task_id = ? AND prospect_slug = ?")
+      .bind(taskId, slug)
+      .first();
+    if (existing) continue;
+
+    const itemId = crypto.randomUUID();
+    await db
+      .prepare(
+        `INSERT INTO task_items (id, task_id, prospect_slug, status, notes, sort_order, updated_at)
+         VALUES (?, ?, ?, 'pending', '', ?, ?)`,
+      )
+      .bind(itemId, taskId, slug, nextOrder++, now)
+      .run();
+  }
+
+  await db
+    .prepare("UPDATE tasks SET updated_at = ? WHERE id = ?")
+    .bind(now, taskId)
+    .run();
+}
+
+export async function removeTaskItem(itemId: string): Promise<void> {
+  const db = await getD1();
+  await db.prepare("DELETE FROM task_items WHERE id = ?").bind(itemId).run();
+}
+
+export async function searchProspectsForTask(
+  taskId: string,
+  query: string,
+): Promise<{ slug: string; name: string; address: string }[]> {
+  const db = await getD1();
+  const { results } = await db
+    .prepare(
+      `SELECT p.slug, p.name, p.address
+       FROM prospects p
+       WHERE p.name LIKE ?
+         AND p.slug NOT IN (SELECT prospect_slug FROM task_items WHERE task_id = ?)
+       ORDER BY p.name ASC
+       LIMIT 20`,
+    )
+    .bind(`%${query}%`, taskId)
+    .all<{ slug: string; name: string; address: string }>();
+  return results;
+}
+
 export async function deleteTask(id: string): Promise<void> {
   const db = await getD1();
   await db.prepare("DELETE FROM task_items WHERE task_id = ?").bind(id).run();
