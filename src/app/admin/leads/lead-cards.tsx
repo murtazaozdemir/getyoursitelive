@@ -89,23 +89,6 @@ export function LeadCards({ prospects, userHome }: { prospects: LeadCardData[]; 
     showLeadsMap(picked, userHome);
   }
 
-  function handleCreateTask() {
-    const slugs = prospects
-      .filter((p) => selected.has(p.slug))
-      .map((p) => p.slug)
-      .join(",");
-    // Navigate to create-task server action via form submission
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = "/admin/tasks/create";
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = "slugs";
-    input.value = slugs;
-    form.appendChild(input);
-    document.body.appendChild(form);
-    form.submit();
-  }
 
   return (
     <>
@@ -124,13 +107,6 @@ export function LeadCards({ prospects, userHome }: { prospects: LeadCardData[]; 
         </label>
         {someSelected && (
           <>
-            <button
-              type="button"
-              className="admin-btn admin-btn--primary"
-              onClick={handleCreateTask}
-            >
-              Create task ({selected.size})
-            </button>
             <button
               type="button"
               className="admin-btn admin-btn--ghost"
