@@ -1,3 +1,4 @@
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 const FOUNDER_EMAIL = process.env.FOUNDER_EMAIL ?? "murtazaozdemir@gmail.com";
 
@@ -6,28 +7,34 @@ interface SendResult {
   error?: string;
 }
 
-async function getEnvVar(name: string): Promise<string | undefined> {
-  // Try process.env first (works in local dev)
-  if (process.env[name]) return process.env[name];
-  // Cloudflare Pages secrets aren't in process.env — read from bindings
+async function getCfEnv(): Promise<Record<string, unknown>> {
   try {
-    const { getCloudflareContext } = await import("@opennextjs/cloudflare");
     const { env } = await getCloudflareContext({ async: true });
-    return (env as unknown as Record<string, string>)[name];
+    return env as unknown as Record<string, unknown>;
   } catch {
-    return undefined;
+    return {};
   }
+}
+
+async function getEnvVar(name: string): Promise<string | undefined> {
+  // process.env works in local dev
+  if (process.env[name]) return process.env[name];
+  // Cloudflare Workers: secrets live on the env bindings, not process.env
+  const cf = await getCfEnv();
+  const val = cf[name];
+  return typeof val === "string" ? val : undefined;
 }
 
 async function getResend() {
   const apiKey = await getEnvVar("RESEND_API_KEY");
+  console.log(`[email] getResend apiKey=${apiKey ? "set (" + apiKey.slice(0, 8) + "...)" : "MISSING"}`);
   if (!apiKey) return null;
   const { Resend } = await import("resend");
   return new Resend(apiKey);
 }
 
 async function getFromEmail(): Promise<string> {
-  return (await getEnvVar("RESEND_FROM_EMAIL")) ?? "onboarding@resend.dev";
+  return (await getEnvVar("RESEND_FROM_EMAIL")) ?? "info@getyoursitelive.com";
 }
 
 export async function sendAdminInviteEmail(opts: {
@@ -136,24 +143,29 @@ export async function sendPasswordResetEmail(opts: {
   `;
 
   if (!resend) {
-    if (process.env.NODE_ENV === "production") {
-      console.error("[reset-email] RESEND_API_KEY is not set — email not sent");
-      return { ok: false, error: "Email service is not configured." };
-    }
-    console.log(`[reset-email] DEV (no RESEND_API_KEY) to=${opts.to} url=${opts.resetUrl}`);
-    return { ok: true };
+    console.error("[reset-email] RESEND_API_KEY is not set — email not sent");
+    return { ok: false, error: "Email service is not configured." };
   }
 
-  const { error } = await resend.emails.send({
-    from: await getFromEmail(),
-    to: opts.to,
-    subject: "Reset your Get Your Site Live password",
-    html,
-  });
+  const from = await getFromEmail();
+  console.log(`[reset-email] sending from=${from} to=${opts.to}`);
 
-  if (error) {
-    console.error("[reset-email] resend error", error);
-    return { ok: false, error: error.message };
+  try {
+    const { data, error } = await resend.emails.send({
+      from,
+      to: opts.to,
+      subject: "Reset your Get Your Site Live password",
+      html,
+    });
+
+    if (error) {
+      console.error("[reset-email] resend error", JSON.stringify(error));
+      return { ok: false, error: error.message };
+    }
+    console.log(`[reset-email] sent id=${data?.id}`);
+  } catch (e) {
+    console.error("[reset-email] exception", e);
+    return { ok: false, error: String(e) };
   }
 
   return { ok: true };
