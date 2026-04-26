@@ -169,6 +169,16 @@ export async function getProspectByShortId(shortId: number): Promise<Prospect | 
   return row ? rowToProspect(row) : null;
 }
 
+export async function findProspectByPlaceId(placeId: string): Promise<Prospect | null> {
+  if (!placeId) return null;
+  const db = await getD1();
+  const row = await db
+    .prepare("SELECT * FROM prospects WHERE google_place_id = ?")
+    .bind(placeId)
+    .first<ProspectRow>();
+  return row ? rowToProspect(row) : null;
+}
+
 export async function findProspectByPhone(phone: string): Promise<Prospect | null> {
   const normalized = normalizePhone(phone);
   if (normalized.length < 7) return null;

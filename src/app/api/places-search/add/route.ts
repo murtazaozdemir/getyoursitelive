@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 import { getBusinessBySlug, saveBusiness } from "@/lib/db";
-import { createProspect, getProspect, findProspectByPhone, normalizePhone, updateProspectGoogleData } from "@/lib/prospects";
+import { createProspect, getProspect, findProspectByPlaceId, updateProspectGoogleData } from "@/lib/prospects";
 import { logAudit } from "@/lib/audit-log";
 import { revalidatePath } from "next/cache";
 import { getTemplateForCategory, isCategoryMapped } from "@/lib/templates/registry";
@@ -79,31 +79,29 @@ export async function POST(req: NextRequest) {
     lng,
   };
 
-  // Check for existing by slug
+  // Check for existing by Google Place ID (authoritative)
+  if (googlePlaceId) {
+    const placeIdMatch = await findProspectByPlaceId(googlePlaceId);
+    if (placeIdMatch) {
+      try {
+        await updateProspectGoogleData(placeIdMatch.slug, googleData);
+      } catch { /* ignore if columns don't exist yet */ }
+      return NextResponse.json({ ok: true, updated: true, slug: placeIdMatch.slug });
+    }
+  }
+
+  // Fallback: check by slug (catches manual entries or businesses table)
   const [existingBiz, existingProspect] = await Promise.all([
     getBusinessBySlug(slug),
     getProspect(slug),
   ]);
 
   if (existingBiz || existingProspect) {
-    // Update existing prospect with Google data
     const targetSlug = existingProspect?.slug ?? slug;
     try {
       await updateProspectGoogleData(targetSlug, googleData);
     } catch { /* ignore if columns don't exist yet */ }
     return NextResponse.json({ ok: true, updated: true, slug: targetSlug });
-  }
-
-  // Check duplicate phone
-  if (phone && normalizePhone(phone).length >= 7) {
-    const phoneMatch = await findProspectByPhone(phone);
-    if (phoneMatch) {
-      // Update existing prospect with Google data
-      try {
-        await updateProspectGoogleData(phoneMatch.slug, googleData);
-      } catch { /* ignore if columns don't exist yet */ }
-      return NextResponse.json({ ok: true, updated: true, slug: phoneMatch.slug });
-    }
   }
 
   const addressParts = [street, city, state && zipCode ? `${state} ${zipCode}` : state || zipCode].filter(Boolean);
