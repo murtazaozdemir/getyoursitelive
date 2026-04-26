@@ -119,6 +119,28 @@ export function ZipSearch() {
     catInputRef.current?.focus();
   }
 
+  function bulkAddCategories(text: string) {
+    const lines = text.split(/[\n,]+/).map((l) => l.trim()).filter(Boolean);
+    const matched: string[] = [];
+    for (const line of lines) {
+      const lower = line.toLowerCase();
+      const cat = CATEGORIES.find(
+        (c) => c.label.toLowerCase() === lower || c.query.toLowerCase() === lower,
+      );
+      if (cat) matched.push(cat.query);
+    }
+    if (matched.length > 0) {
+      setSelectedCategories((prev) => {
+        const next = new Set(prev);
+        for (const q of matched) next.add(q);
+        return next;
+      });
+      setCatInputValue("");
+      setCatDropdownOpen(false);
+    }
+    return matched.length;
+  }
+
   function removeCategory(query: string) {
     setSelectedCategories((prev) => {
       if (prev.size <= 1) return prev; // keep at least 1
@@ -522,6 +544,7 @@ export function ZipSearch() {
                 selected={selectedCategories}
                 onAdd={addCategory}
                 onRemove={removeCategory}
+                onBulkAdd={bulkAddCategories}
                 getLabel={getCategoryLabel}
                 filtered={filteredCategories}
                 inputValue={catInputValue}
@@ -562,6 +585,7 @@ export function ZipSearch() {
                 selected={selectedCategories}
                 onAdd={addCategory}
                 onRemove={removeCategory}
+                onBulkAdd={bulkAddCategories}
                 getLabel={getCategoryLabel}
                 filtered={filteredCategories}
                 inputValue={catInputValue}
@@ -824,6 +848,7 @@ function CategoryTagInput({
   selected,
   onAdd,
   onRemove,
+  onBulkAdd,
   getLabel,
   filtered,
   inputValue,
@@ -836,6 +861,7 @@ function CategoryTagInput({
   selected: Set<string>;
   onAdd: (query: string) => void;
   onRemove: (query: string) => void;
+  onBulkAdd: (text: string) => number;
   getLabel: (query: string) => string;
   filtered: typeof CATEGORIES;
   inputValue: string;
@@ -871,6 +897,13 @@ function CategoryTagInput({
           placeholder={selected.size === 0 ? "Type to search categories…" : ""}
           value={inputValue}
           onChange={(e) => { onInputChange(e.target.value); setOpen(true); }}
+          onPaste={(e) => {
+            const text = e.clipboardData.getData("text");
+            if (text.includes("\n") || text.includes(",")) {
+              e.preventDefault();
+              onBulkAdd(text);
+            }
+          }}
           onFocus={() => setOpen(true)}
           onKeyDown={(e) => {
             if (e.key === "Backspace" && inputValue === "" && selected.size > 1) {
