@@ -235,7 +235,14 @@ export const barberTemplate: VerticalTemplate = {
           answer: "Cash, credit cards, debit cards, and most mobile payment apps.",
         },
       ],
-      photos: [],
+      photos: [
+        { id: "p1", url: "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Classic cut" },
+        { id: "p2", url: "https://images.pexels.com/photos/1570807/pexels-photo-1570807.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Precision fade" },
+        { id: "p3", url: "https://images.pexels.com/photos/3998429/pexels-photo-3998429.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Beard trim" },
+        { id: "p4", url: "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Hot towel shave" },
+        { id: "p5", url: "https://images.pexels.com/photos/1319460/pexels-photo-1319460.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Our shop" },
+        { id: "p6", url: "https://images.pexels.com/photos/3992874/pexels-photo-3992874.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Styled and ready" },
+      ],
       emergency: {
         heading: "Last-Minute Appointment? Call Us.",
         description: "We fit walk-ins between appointments whenever we can.",

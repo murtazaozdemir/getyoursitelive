@@ -259,7 +259,14 @@ export const autoRepairTemplate: VerticalTemplate = {
           answer: "Yes — call ahead and we'll arrange a loaner for longer repairs.",
         },
       ],
-      photos: [],
+      photos: [
+        { id: "p1", url: "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Engine diagnostics" },
+        { id: "p2", url: "https://images.pexels.com/photos/3642618/pexels-photo-3642618.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Brake inspection" },
+        { id: "p3", url: "https://images.pexels.com/photos/4489702/pexels-photo-4489702.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Under the hood" },
+        { id: "p4", url: "https://images.pexels.com/photos/4489767/pexels-photo-4489767.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Professional service" },
+        { id: "p5", url: "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Our shop" },
+        { id: "p6", url: "https://images.pexels.com/photos/3807386/pexels-photo-3807386.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Quality parts" },
+      ],
       emergency: {
         heading: "Car Won't Start? We're Here for You.",
         description: "Emergency towing referrals and after-hours assistance available. Call us first.",

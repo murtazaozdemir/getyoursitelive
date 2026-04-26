@@ -242,7 +242,14 @@ export const plumberTemplate: VerticalTemplate = {
           answer: "We serve the local area and surrounding communities. Call to confirm coverage for your location.",
         },
       ],
-      photos: [],
+      photos: [
+        { id: "p1", url: "https://images.pexels.com/photos/6419128/pexels-photo-6419128.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Pipe repair" },
+        { id: "p2", url: "https://images.pexels.com/photos/6419186/pexels-photo-6419186.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Fixture installation" },
+        { id: "p3", url: "https://images.pexels.com/photos/6419073/pexels-photo-6419073.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Professional tools" },
+        { id: "p4", url: "https://images.pexels.com/photos/6419099/pexels-photo-6419099.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Water heater service" },
+        { id: "p5", url: "https://images.pexels.com/photos/5691622/pexels-photo-5691622.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Kitchen plumbing" },
+        { id: "p6", url: "https://images.pexels.com/photos/6419161/pexels-photo-6419161.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Job complete" },
+      ],
       emergency: {
         heading: "Plumbing Emergency? Call Now.",
         description: "Burst pipes, major leaks, and sewer backups — we respond fast.",

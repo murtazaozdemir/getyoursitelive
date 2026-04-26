@@ -252,7 +252,14 @@ export const autoBodyTemplate: VerticalTemplate = {
           answer: "No — walk in anytime during business hours. We'll inspect the damage and give you a detailed written estimate on the spot.",
         },
       ],
-      photos: [],
+      photos: [
+        { id: "p1", url: "https://images.pexels.com/photos/1409999/pexels-photo-1409999.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Paint booth finish" },
+        { id: "p2", url: "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Precision bodywork" },
+        { id: "p3", url: "https://images.pexels.com/photos/4489702/pexels-photo-4489702.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Detail work" },
+        { id: "p4", url: "https://images.pexels.com/photos/4489767/pexels-photo-4489767.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Collision repair" },
+        { id: "p5", url: "https://images.pexels.com/photos/3807277/pexels-photo-3807277.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Our facility" },
+        { id: "p6", url: "https://images.pexels.com/photos/3807386/pexels-photo-3807386.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Quality materials" },
+      ],
       emergency: {
         heading: "Just Had an Accident? We Can Help.",
         description: "Call us right from the scene. We'll guide you through the next steps and can arrange towing to our shop.",

@@ -238,7 +238,14 @@ export const restaurantTemplate: VerticalTemplate = {
           answer: "Yes — from small gatherings to large parties. Call us to discuss a custom menu.",
         },
       ],
-      photos: [],
+      photos: [
+        { id: "p1", url: "https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Fresh from the kitchen" },
+        { id: "p2", url: "https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Our dining room" },
+        { id: "p3", url: "https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Signature dish" },
+        { id: "p4", url: "https://images.pexels.com/photos/2253643/pexels-photo-2253643.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Dessert selection" },
+        { id: "p5", url: "https://images.pexels.com/photos/3338681/pexels-photo-3338681.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Bar area" },
+        { id: "p6", url: "https://images.pexels.com/photos/2544829/pexels-photo-2544829.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Chef at work" },
+      ],
       emergency: {
         heading: "Large Party? Let Us Know Ahead.",
         description: "Call to arrange seating for groups of 8 or more.",

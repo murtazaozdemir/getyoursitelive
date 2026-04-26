@@ -82,7 +82,7 @@ export function prospectVisibility(): BusinessVisibility {
     showTeam: true,
     showTestimonials: true,
     showFaq: true,
-    showPhotos: false,
+    showPhotos: true,
     showEmergencyBanner: false,
     showBooking: true,
     showContactInfo: true,
