@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
+import allGoogleCategories from "../../../../../data/google-categories.json";
 
 interface PlaceResult {
   id: string;
@@ -28,30 +29,23 @@ interface PlaceResult {
 
 type AddStatus = "idle" | "adding" | "added" | "updated" | "exists" | "error";
 
-const CATEGORIES = [
-  { label: "Car repair and maintenance service", query: "auto repair" },
-  { label: "Auto body shop", query: "auto body shop" },
-  { label: "Car detailing service", query: "car detailing" },
-  { label: "Tire shop", query: "tire shop" },
-  { label: "Towing service", query: "towing service" },
-  { label: "Oil change service", query: "oil change" },
-  { label: "Muffler shop", query: "muffler shop" },
-  { label: "Barber shop", query: "barber shop" },
-  { label: "Hair salon", query: "hair salon" },
-  { label: "Nail salon", query: "nail salon" },
-  { label: "Restaurant", query: "restaurant" },
-  { label: "Pizzeria", query: "pizzeria" },
-  { label: "Bakery", query: "bakery" },
-  { label: "Deli", query: "deli" },
-  { label: "Dentist", query: "dentist" },
-  { label: "Plumber", query: "plumber" },
-  { label: "Electrician", query: "electrician" },
-  { label: "HVAC contractor", query: "hvac" },
-  { label: "Landscaper", query: "landscaping" },
-  { label: "Dry cleaner", query: "dry cleaner" },
-  { label: "Laundromat", query: "laundromat" },
-  { label: "Pet groomer", query: "pet grooming" },
-];
+// Custom search queries for categories where the Google name differs from
+// the best Places API search term. Everything else uses the name as-is.
+const QUERY_OVERRIDES: Record<string, string> = {
+  "Car repair and maintenance service": "auto repair",
+  "Car detailing service": "car detailing",
+  "HVAC contractor": "hvac",
+  "Landscaper": "landscaping",
+  "Pet groomer": "pet grooming",
+};
+
+// Build full list from 4,038 Google categories
+const ALL_CATEGORIES: { label: string; query: string }[] = allGoogleCategories.map(
+  (c: { name: string }) => ({
+    label: c.name,
+    query: QUERY_OVERRIDES[c.name] ?? c.name.toLowerCase(),
+  }),
+);
 
 const US_STATES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN",
@@ -124,7 +118,7 @@ export function ZipSearch() {
     const matched: string[] = [];
     for (const line of lines) {
       const lower = line.toLowerCase();
-      const cat = CATEGORIES.find(
+      const cat = ALL_CATEGORIES.find(
         (c) => c.label.toLowerCase() === lower || c.query.toLowerCase() === lower,
       );
       if (cat) matched.push(cat.query);
@@ -151,13 +145,22 @@ export function ZipSearch() {
   }
 
   function getCategoryLabel(query: string): string {
-    return CATEGORIES.find((c) => c.query === query)?.label ?? query;
+    return ALL_CATEGORIES.find((c) => c.query === query)?.label ?? query;
   }
 
-  const filteredCategories = CATEGORIES.filter(
-    (c) => !selectedCategories.has(c.query) &&
-      c.label.toLowerCase().includes(catInputValue.toLowerCase()),
-  );
+  const filteredCategories = useMemo(() => {
+    if (!catInputValue.trim()) return [];
+    const lower = catInputValue.toLowerCase();
+    const matches: typeof ALL_CATEGORIES = [];
+    for (const c of ALL_CATEGORIES) {
+      if (selectedCategories.has(c.query)) continue;
+      if (c.label.toLowerCase().includes(lower)) {
+        matches.push(c);
+        if (matches.length >= 20) break; // cap dropdown at 20 results
+      }
+    }
+    return matches;
+  }, [catInputValue, selectedCategories]);
 
   // Load cities when state changes
   useEffect(() => {
@@ -863,7 +866,7 @@ function CategoryTagInput({
   onRemove: (query: string) => void;
   onBulkAdd: (text: string) => number;
   getLabel: (query: string) => string;
-  filtered: typeof CATEGORIES;
+  filtered: typeof ALL_CATEGORIES;
   inputValue: string;
   onInputChange: (v: string) => void;
   open: boolean;
