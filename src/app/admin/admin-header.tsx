@@ -14,6 +14,7 @@ import {
   Search,
   Download,
   Copy,
+  Globe,
   LogOut,
 } from "lucide-react";
 import type { SessionUser } from "@/lib/users";
@@ -125,6 +126,9 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
                     </Link>
                     <Link href="/admin/leads/search" className="admin-account-dropdown-item">
                       <Search className="admin-account-dropdown-icon" /> Zip Search
+                    </Link>
+                    <Link href="/admin/domains" className="admin-account-dropdown-item">
+                      <Globe className="admin-account-dropdown-icon" /> Domain Generator
                     </Link>
                     <Link href="/admin/duplicates" className="admin-account-dropdown-item">
                       <Copy className="admin-account-dropdown-icon" /> Duplicate Cleaner
