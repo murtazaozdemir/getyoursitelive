@@ -1,6 +1,7 @@
 "use client";
 
 import { SortableTable, type Column, type FilterDef } from "@/components/admin/sortable-table";
+import allCategories from "../../../../data/google-categories.json";
 
 interface CategoryRow {
   name: string;
@@ -109,7 +110,8 @@ const filters: FilterDef<CategoryRow>[] = [
   },
 ];
 
-export function CategoriesView({ categories }: { categories: CategoryRow[] }) {
+export function CategoriesView() {
+  const categories: CategoryRow[] = allCategories;
   const mapped = categories.filter((c) => c.template).length;
 
   return (

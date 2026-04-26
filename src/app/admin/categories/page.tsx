@@ -3,7 +3,6 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
 import { isFounder } from "@/lib/users";
 import { CategoriesView } from "./categories-view";
-import categoriesData from "../../../../data/google-categories.json";
 
 export const metadata = {
   title: "Categories & Templates · Admin",
@@ -22,7 +21,7 @@ export default async function CategoriesPage() {
           <p className="admin-eyebrow">Founder</p>
           <h1 className="admin-h1">Categories &amp; Templates</h1>
           <p className="admin-lede">
-            All {categoriesData.length.toLocaleString()} Google Business Profile categories.
+            All Google Business Profile categories with template mappings.
             Use filters and search to find categories worth building templates for.
           </p>
         </div>
@@ -36,7 +35,7 @@ export default async function CategoriesPage() {
         <Link href="/admin/google-fields">Google Fields</Link>
       </div>
 
-      <CategoriesView categories={categoriesData} />
+      <CategoriesView />
     </div>
   );
 }
