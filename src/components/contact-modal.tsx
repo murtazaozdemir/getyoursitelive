@@ -51,6 +51,13 @@ export function ContactModal({
               </button>
             </div>
 
+            <p className="mb-6 text-sm text-white/50">
+              Or email us directly at{" "}
+              <a href="mailto:info@getyoursitelive.com" className="text-[#E85D29] hover:underline">
+                info@getyoursitelive.com
+              </a>
+            </p>
+
             <ContactForm />
           </div>
         </div>

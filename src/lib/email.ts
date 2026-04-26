@@ -1,6 +1,6 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-const FOUNDER_EMAIL = process.env.FOUNDER_EMAIL ?? "murtazaozdemir@gmail.com";
+const FOUNDER_EMAIL = process.env.FOUNDER_EMAIL ?? "info@getyoursitelive.com";
 
 interface SendResult {
   ok: boolean;
