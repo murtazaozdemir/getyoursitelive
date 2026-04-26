@@ -1,5 +1,4 @@
 
-const FROM = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev";
 const FOUNDER_EMAIL = process.env.FOUNDER_EMAIL ?? "murtazaozdemir@gmail.com";
 
 interface SendResult {
@@ -7,11 +6,28 @@ interface SendResult {
   error?: string;
 }
 
+async function getEnvVar(name: string): Promise<string | undefined> {
+  // Try process.env first (works in local dev)
+  if (process.env[name]) return process.env[name];
+  // Cloudflare Pages secrets aren't in process.env — read from bindings
+  try {
+    const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+    const { env } = await getCloudflareContext({ async: true });
+    return (env as unknown as Record<string, string>)[name];
+  } catch {
+    return undefined;
+  }
+}
+
 async function getResend() {
-  const apiKey = process.env.RESEND_API_KEY;
+  const apiKey = await getEnvVar("RESEND_API_KEY");
   if (!apiKey) return null;
   const { Resend } = await import("resend");
   return new Resend(apiKey);
+}
+
+async function getFromEmail(): Promise<string> {
+  return (await getEnvVar("RESEND_FROM_EMAIL")) ?? "onboarding@resend.dev";
 }
 
 export async function sendAdminInviteEmail(opts: {
@@ -44,9 +60,10 @@ export async function sendAdminInviteEmail(opts: {
     return { ok: true };
   }
 
-  console.log(`[invite-email] sending from=${FROM} to=${opts.to}`);
+  const from = await getFromEmail();
+  console.log(`[invite-email] sending from=${from} to=${opts.to}`);
   const { data, error } = await resend.emails.send({
-    from: FROM,
+    from,
     to: opts.to,
     subject: "You've been invited to Get Your Site Live",
     html,
@@ -89,7 +106,7 @@ export async function sendAdminWelcomeEmail(opts: {
   }
 
   const { error } = await resend.emails.send({
-    from: FROM,
+    from: await getFromEmail(),
     to: opts.to,
     subject: "Your Get Your Site Live account is ready",
     html,
@@ -128,7 +145,7 @@ export async function sendPasswordResetEmail(opts: {
   }
 
   const { error } = await resend.emails.send({
-    from: FROM,
+    from: await getFromEmail(),
     to: opts.to,
     subject: "Reset your Get Your Site Live password",
     html,
@@ -182,7 +199,7 @@ export async function sendUnmatchedCategoryAlert(opts: {
   }
 
   const { error } = await resend.emails.send({
-    from: FROM,
+    from: await getFromEmail(),
     to: FOUNDER_EMAIL,
     subject: "Unmapped category: " + opts.category + " — " + opts.businessName,
     html,
