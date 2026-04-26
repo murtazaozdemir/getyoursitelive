@@ -210,7 +210,12 @@ export async function createProspect(prospect: Omit<Prospect, "shortId">): Promi
   const db = await getD1();
   const now = new Date().toISOString();
 
-  // Assign next sequential short_id atomically via subquery (no separate SELECT)
+  // D1 doesn't count subqueries in VALUES as bound values, so compute short_id first
+  const maxRow = await db
+    .prepare("SELECT COALESCE(MAX(short_id), 0) + 1 AS next_id FROM prospects")
+    .first<{ next_id: number }>();
+  const nextShortId = maxRow?.next_id ?? 1;
+
   await db
     .prepare(
       `INSERT INTO prospects (
@@ -225,10 +230,11 @@ export async function createProspect(prospect: Omit<Prospect, "shortId">): Promi
         google_short_address, google_address_components,
         lat, lng,
         created_at, updated_at
-      ) VALUES (?, (SELECT COALESCE(MAX(short_id), 0) + 1 FROM prospects), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       prospect.slug,
+      nextShortId,
       prospect.name,
       prospect.phone,
       normalizePhone(prospect.phone),
