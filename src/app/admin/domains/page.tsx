@@ -15,19 +15,12 @@ export interface ProspectNoDomain {
   name: string;
   phone: string;
   address: string;
-  state: string;
   city: string;
+  state: string;
   googleCategory: string;
   domain1: string;
   domain2: string;
   domain3: string;
-}
-
-function extractCity(address: string): string {
-  // "198 Lakeview Ave, Clifton, NJ 07011" → "Clifton"
-  const parts = address.split(",").map((s) => s.trim());
-  if (parts.length >= 2) return parts[1];
-  return "";
 }
 
 export default async function DomainsPage() {
@@ -40,7 +33,7 @@ export default async function DomainsPage() {
   // Get all prospects missing at least one domain
   const { results } = await db
     .prepare(
-      `SELECT slug, short_id, name, phone, address, state,
+      `SELECT slug, short_id, name, phone, address, city, state,
               google_category,
               COALESCE(domain1, '') as domain1,
               COALESCE(domain2, '') as domain2,
@@ -57,6 +50,7 @@ export default async function DomainsPage() {
       name: string;
       phone: string;
       address: string;
+      city: string | null;
       state: string | null;
       google_category: string | null;
       domain1: string;
@@ -70,8 +64,8 @@ export default async function DomainsPage() {
     name: r.name,
     phone: r.phone,
     address: r.address,
+    city: r.city ?? "",
     state: r.state ?? "",
-    city: extractCity(r.address),
     googleCategory: r.google_category ?? "",
     domain1: r.domain1,
     domain2: r.domain2,

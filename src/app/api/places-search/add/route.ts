@@ -60,7 +60,9 @@ export async function POST(req: NextRequest) {
   }
 
   const googleData = {
+    city: city || undefined,
     state: state || undefined,
+    zip: zipCode || undefined,
     website: website || undefined,
     googlePlaceId: googlePlaceId || undefined,
     googleRating,
@@ -126,7 +128,9 @@ export async function POST(req: NextRequest) {
       name,
       phone,
       address,
+      city: city || undefined,
       state: state || undefined,
+      zip: zipCode || undefined,
       status: "found",
       notes: [],
       website: googleData.website,

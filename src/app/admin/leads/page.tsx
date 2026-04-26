@@ -152,7 +152,11 @@ export default async function LeadsPage({
 
   // Enrich with parsed address + category + distance
   const enriched: EnrichedProspect[] = active.map((p) => {
-    const { city, state, zip } = parseAddress(p.address);
+    // Prefer DB columns; fall back to parsing address for legacy data
+    const parsed = parseAddress(p.address);
+    const city = p.city || parsed.city;
+    const state = p.state || parsed.state;
+    const zip = p.zip || parsed.zip;
     const category = bizBySlug[p.slug]?.category ?? "Car repair and maintenance service";
     let dist: number | undefined;
     if (origin && p.lat != null && p.lng != null) {
