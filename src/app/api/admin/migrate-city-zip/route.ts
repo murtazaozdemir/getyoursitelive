@@ -3,6 +3,8 @@ import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   console.log("[migrate-city-zip] Route handler entered — build c60c868");
   const user = await getCurrentUser();
