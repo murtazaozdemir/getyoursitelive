@@ -4,6 +4,9 @@ import { getCurrentUser, refreshSessionIfNeeded } from "@/lib/session";
 import { isFounder } from "@/lib/users";
 import { AdminHeader } from "./admin-header";
 import "./admin.css";
+import "./admin-leads.css";
+import "./admin-tasks.css";
+import "./admin-help.css";
 
 export const metadata: Metadata = {
   title: "Admin · Get Your Site Live",

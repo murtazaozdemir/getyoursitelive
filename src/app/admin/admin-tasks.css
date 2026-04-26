@@ -1,0 +1,292 @@
+/* =================================================================
+   Tasks — list, cards, detail, checklist, progress
+   Split from admin.css for maintainability.
+   ================================================================= */
+
+.task-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--admin-text-soft);
+  margin-bottom: 12px;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.task-card:hover {
+  border-color: var(--admin-accent);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.task-card--completed {
+  opacity: 0.6;
+}
+
+.task-card-main {
+  flex: 1;
+  min-width: 0;
+}
+.task-card-name {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.task-card-meta {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  margin-top: 2px;
+}
+
+.task-card-progress {
+  text-align: right;
+  flex-shrink: 0;
+}
+.task-card-count {
+  font-size: 13px;
+  color: var(--admin-text-soft);
+}
+
+.task-progress-bar {
+  width: 120px;
+  height: 6px;
+  background: var(--admin-surface-2);
+  border-radius: 3px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.task-progress-bar--detail {
+  width: 100%;
+  max-width: 400px;
+  height: 8px;
+  margin-top: 10px;
+}
+.task-progress-fill {
+  height: 100%;
+  background: var(--admin-accent);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Task detail page */
+.task-detail {
+  max-width: 800px;
+}
+
+.task-detail-header {
+  margin-bottom: 24px;
+}
+
+.task-detail-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.task-detail-name {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  cursor: pointer;
+}
+.task-detail-name:hover {
+  color: var(--admin-accent);
+}
+
+.task-name-input {
+  font-size: 22px;
+  font-weight: 700;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  padding: 4px 8px;
+  flex: 1;
+  font-family: inherit;
+}
+
+.task-status-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.task-status-badge--active {
+  background: color-mix(in srgb, var(--admin-accent) 12%, transparent);
+  color: var(--admin-accent);
+}
+.task-status-badge--completed {
+  background: #e8e8e8;
+  color: #666;
+}
+
+.task-detail-meta {
+  font-size: 13px;
+  color: var(--admin-text-muted);
+  margin-top: 6px;
+}
+
+.task-detail-progress-text {
+  font-size: 14px;
+  color: var(--admin-text-soft);
+  margin-top: 12px;
+}
+
+.task-detail-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding: 12px 0;
+  border-top: 1px solid var(--admin-border);
+  border-bottom: 1px solid var(--admin-border);
+}
+
+/* Task checklist */
+.task-checklist {
+  margin-bottom: 32px;
+}
+
+.task-checklist-divider {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--admin-text-muted);
+  margin: 20px 0 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--admin-border);
+}
+
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.task-item--done {
+  opacity: 0.5;
+}
+.task-item--done .task-item-name {
+  text-decoration: line-through;
+}
+
+.task-item-check {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--admin-border-strong);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  padding: 0;
+  color: #fff;
+  transition: all 0.15s;
+}
+.task-item-check:hover {
+  border-color: var(--admin-accent);
+}
+.task-item-check--checked {
+  background: var(--admin-accent);
+  border-color: var(--admin-accent);
+}
+
+.task-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-item-name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.task-item-num {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  font-weight: 600;
+}
+.task-item-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--admin-accent);
+  text-decoration: none;
+}
+.task-item-name:hover {
+  text-decoration: underline;
+}
+.task-item-address {
+  font-size: 12px;
+  color: var(--admin-text-soft);
+  margin-top: 2px;
+}
+.task-item-phone {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+}
+
+.task-item-notes {
+  width: 200px;
+  flex-shrink: 0;
+}
+.task-item-notes-input {
+  width: 100%;
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  font-family: inherit;
+  color: var(--admin-text);
+  background: var(--admin-bg);
+}
+.task-item-notes-input:focus {
+  outline: none;
+  border-color: var(--admin-accent);
+}
+
+.task-detail-back {
+  margin-bottom: 12px;
+}
+.task-detail-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--admin-border);
+}
+
+/* Empty state */
+.admin-empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--admin-text-soft);
+}
+.admin-empty-hint {
+  font-size: 13px;
+  color: var(--admin-text-muted);
+  margin-top: 8px;
+}

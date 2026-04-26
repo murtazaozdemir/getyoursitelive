@@ -6,6 +6,9 @@ import { canEditBusiness, isFounder } from "@/lib/users";
 import { getBusinessBySlug } from "@/lib/db";
 import { ShopAdminHeader } from "./shop-admin-header";
 import "../../admin/admin.css";
+import "../../admin/admin-leads.css";
+import "../../admin/admin-tasks.css";
+import "../../admin/admin-help.css";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
