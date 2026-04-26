@@ -108,6 +108,11 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
                   <HelpCircle className="admin-account-dropdown-icon" /> Help &amp; Guide
                 </Link>
                 {isFounder && (
+                  <Link href="/admin/account/founder-help" className="admin-account-dropdown-item">
+                    <HelpCircle className="admin-account-dropdown-icon" /> Founder Only Help
+                  </Link>
+                )}
+                {isFounder && (
                   <>
                     <div className="admin-account-dropdown-divider" />
                     <Link href="/admin/users" className="admin-account-dropdown-item">
