@@ -616,7 +616,12 @@ export function ZipSearch() {
                 />
               </div>
               <div className="search-progress-stats">
-                <span>{batchProgress.current}/{batchProgress.total} zips searched</span>
+                <span>
+                  {batchProgress.current}/{batchProgress.total}
+                  {selectedCategories.size > 1
+                    ? ` searches (${cityZips.length || 1} zips × ${selectedCategories.size} categories)`
+                    : " zips searched"}
+                </span>
                 <span>{results.length} unique results</span>
                 {duplicatesRemoved > 0 && (
                   <span>{duplicatesRemoved} duplicate{duplicatesRemoved !== 1 ? "s" : ""} removed</span>
