@@ -284,6 +284,20 @@ const API_BASE = "${apiBase}";
   fs.writeFileSync(path.join(outputDir, "site/js/config.js"), configContent);
   console.log(`Writing config.js with API_BASE = "${apiBase}"...`);
 
+  // 4c. Write _headers with correct CSP (include Worker URL in connect-src if cross-origin)
+  const connectSrc = workerUrl ? `'self' ${new URL(workerUrl).origin}` : "'self'";
+  const headersContent = `/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https:; connect-src ${connectSrc}; frame-src https://maps.google.com; form-action 'self'; base-uri 'self'; frame-ancestors 'none'
+`;
+  fs.writeFileSync(path.join(outputDir, "site/_headers"), headersContent);
+  console.log(`Writing _headers with connect-src = "${connectSrc}"...`);
+
   // 5. Copy worker files
   console.log("Copying worker files...");
   copyDirSync(path.join(templateSource, "worker"), path.join(outputDir, "worker"));
