@@ -126,14 +126,14 @@ export function ProposalContent({
 
       {/* ── WHAT THIS DOES FOR YOUR SHOP ──────────────────────── */}
       <section className="proposal-section">
-        <h2 className="proposal-section-title">What this does for your shop</h2>
+        <h2 className="proposal-section-title">What this gets you</h2>
         <ul className="proposal-checklist proposal-checklist--single">
           {[
-            "Customers find you on Google when they search for a mechanic nearby",
-            "They see your services, hours, and location \u2014 and can call with one tap",
-            "They can request appointments online, even at midnight or on weekends",
-            "Your site looks professional on phones \u2014 where most people search",
-            "You can update anything yourself: prices, hours, photos, services",
+            "People searching for a mechanic nearby can actually find you",
+            "You stop losing calls to competitors who show up first",
+            "Customers can call you in one tap from their phone",
+            "Your shop looks professional \u2014 not like a side hustle",
+            "You control everything: prices, hours, photos, services",
           ].map(item => (
             <li key={item}><span className="proposal-check">&#x2713;</span>{item}</li>
           ))}
@@ -239,14 +239,17 @@ export function ProposalContent({
           <div className="proposal-next-steps">
             <div className="proposal-next-step">
               <p>
-                Call or text me and we&rsquo;ll set up 20 minutes to go
-                over the details. I&rsquo;ll confirm your domain is available
-                while we talk. If now isn&rsquo;t the right time, keep this
-                page — the offer stands whenever you&rsquo;re ready.
+                If you like what you see, I can make this live for you
+                this week. It takes about 20 minutes to set up.
+              </p>
+              <p style={{ marginTop: "0.5rem" }}>
+                Call or text me and I&rsquo;ll handle everything &mdash;
+                domain, setup, the whole thing.
               </p>
               <p style={{ marginTop: "0.5rem", fontSize: "9.5pt", color: "#666" }}>
-                It&rsquo;s a one-time flat fee, no monthly costs — and the
-                site is yours to keep.
+                If now isn&rsquo;t the right time, keep this page &mdash;
+                the offer stands whenever you&rsquo;re ready.
+                One-time $500, no monthly costs.
               </p>
             </div>
           </div>
