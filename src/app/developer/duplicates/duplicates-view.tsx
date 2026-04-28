@@ -24,8 +24,36 @@ interface DupeGroup {
   prospects: Prospect[];
 }
 
+/** Score how "rich" a prospect record is — more populated fields = higher score */
+function richnessScore(p: Prospect): number {
+  let score = 0;
+  if (p.phone) score += 1;
+  if (p.address) score += 1;
+  if (p.googlePlaceId) score += 2;
+  if (p.googleCategory) score += 1;
+  if (p.googleRating != null) score += 2;
+  if (p.googleReviewCount != null && p.googleReviewCount > 0) score += 1;
+  if (p.shortId != null) score += 1;
+  // Prefer advanced statuses over "found"
+  if (p.status !== "found") score += 3;
+  return score;
+}
+
+/** Sort prospects so the richest record is first (ties broken by newest) */
+function sortByRichness(prospects: Prospect[]): Prospect[] {
+  return [...prospects].sort((a, b) => {
+    const diff = richnessScore(b) - richnessScore(a);
+    if (diff !== 0) return diff;
+    // Tie-break: newer record (more likely to have fresh data)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+}
+
 export function DuplicatesView({ groups: initialGroups }: { groups: DupeGroup[] }) {
-  const [groups, setGroups] = useState(initialGroups);
+  // Sort each group so the richest record is first
+  const [groups, setGroups] = useState(() =>
+    initialGroups.map((g) => ({ ...g, prospects: sortByRichness(g.prospects) }))
+  );
   const [deleting, setDeleting] = useState<Set<string>>(new Set());
   const [deleted, setDeleted] = useState<Set<string>>(new Set());
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -126,7 +154,7 @@ export function DuplicatesView({ groups: initialGroups }: { groups: DupeGroup[] 
                 key={p.slug}
                 className={`dupe-card${i === 0 ? " dupe-card--keep" : ""}`}
               >
-                {i === 0 && <span className="dupe-card-badge-keep">Keep (oldest)</span>}
+                {i === 0 && <span className="dupe-card-badge-keep">Keep (most info)</span>}
                 {i > 0 && <span className="dupe-card-badge-delete">Duplicate</span>}
 
                 <h3 className="dupe-card-name">
