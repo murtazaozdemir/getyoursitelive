@@ -161,6 +161,72 @@ export default async function DuplicatesPage() {
     });
   }
 
+  // 3. Duplicate name + address (potential duplicates from different searches)
+  const { results: nameAddrDupes } = await db
+    .prepare(
+      `SELECT LOWER(TRIM(name)) AS norm_name, LOWER(TRIM(address)) AS norm_addr, COUNT(*) as cnt
+       FROM prospects
+       WHERE name != '' AND address != ''
+       GROUP BY norm_name, norm_addr
+       HAVING cnt > 1
+       ORDER BY cnt DESC
+       LIMIT 100`,
+    )
+    .all<{ norm_name: string; norm_addr: string; cnt: number }>();
+
+  for (const row of nameAddrDupes) {
+    const { results: prospects } = await db
+      .prepare(
+        `SELECT slug, short_id, name, phone, address, google_place_id,
+                google_category, google_rating, google_review_count,
+                status, created_at, updated_at
+         FROM prospects
+         WHERE LOWER(TRIM(name)) = ? AND LOWER(TRIM(address)) = ?
+         ORDER BY created_at ASC`,
+      )
+      .bind(row.norm_name, row.norm_addr)
+      .all<{
+        slug: string;
+        short_id: number | null;
+        name: string;
+        phone: string;
+        address: string;
+        google_place_id: string | null;
+        google_category: string | null;
+        google_rating: number | null;
+        google_review_count: number | null;
+        status: string;
+        created_at: string;
+        updated_at: string;
+      }>();
+
+    // Skip if already covered by a place_id or phone group
+    const slugs = prospects.map((p) => p.slug);
+    const alreadyCovered = groups.some(
+      (g) => g.prospects.some((p) => slugs.includes(p.slug)),
+    );
+    if (alreadyCovered) continue;
+
+    groups.push({
+      key: `${row.norm_name}|${row.norm_addr}`,
+      type: "name_address",
+      prospects: prospects.map((p) => ({
+        slug: p.slug,
+        shortId: p.short_id,
+        name: p.name,
+        phone: p.phone,
+        address: p.address,
+        googlePlaceId: p.google_place_id,
+        googleCategory: p.google_category,
+        googleRating: p.google_rating,
+        googleReviewCount: p.google_review_count,
+        status: p.status,
+        createdAt: p.created_at,
+        updatedAt: p.updated_at,
+      })),
+    });
+  }
+
   return (
     <div className="admin-page">
       <div className="admin-page-header">
@@ -168,7 +234,7 @@ export default async function DuplicatesPage() {
           <p className="admin-eyebrow">Developer</p>
           <h1 className="admin-h1">Duplicate Cleaner</h1>
           <p className="admin-lede">
-            Prospects that share a Google Place ID or phone number. Review and delete duplicates.
+            Prospects that share a Google Place ID, phone number, or name + address. Review and delete duplicates.
           </p>
         </div>
       </div>
@@ -195,6 +261,12 @@ export default async function DuplicatesPage() {
             {groups.filter((g) => g.type === "phone").length}
           </span>
           <span className="admin-stat-label">Same phone</span>
+        </div>
+        <div className="admin-stat-card">
+          <span className="admin-stat-value">
+            {groups.filter((g) => g.type === "name_address").length}
+          </span>
+          <span className="admin-stat-label">Same name + address</span>
         </div>
       </div>
 
