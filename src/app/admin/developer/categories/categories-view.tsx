@@ -1,7 +1,7 @@
 "use client";
 
 import { SortableTable, type Column, type FilterDef } from "@/components/admin/sortable-table";
-import allCategories from "../../../../data/google-categories.json";
+import allCategories from "../../../../../data/google-categories.json";
 
 interface CategoryRow {
   name: string;

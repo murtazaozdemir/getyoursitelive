@@ -29,7 +29,7 @@ export async function resendInviteAction(
   const inviteUrl = `${SITE_URL}/admin/invite/${invite.token}`;
   await sendAdminInviteEmail({ to: email, inviteUrl, invitedBy: currentUser.name, role });
   await logAudit({ userEmail: currentUser.email, userName: currentUser.name, action: "resend_invite", detail: email });
-  revalidatePath("/admin/users");
+  revalidatePath("/admin/developer/users");
   return { ok: true };
 }
 
@@ -38,7 +38,7 @@ export async function revokeInviteAction(token: string): Promise<{ ok: boolean; 
   if (!canManageBusinesses(user)) return { ok: false, error: "Unauthorized" };
   await revokeInvitation(token);
   await logAudit({ userEmail: user.email, userName: user.name, action: "revoke_invite", detail: token.slice(0, 8) });
-  revalidatePath("/admin/users");
+  revalidatePath("/admin/developer/users");
   return { ok: true };
 }
 
@@ -49,7 +49,7 @@ export async function deleteUserAction(id: string): Promise<{ ok: boolean; error
 
   await deleteUser(id);
   await logAudit({ userEmail: user.email, userName: user.name, action: "delete_user", detail: id });
-  revalidatePath("/admin/users");
+  revalidatePath("/admin/developer/users");
   return { ok: true };
 }
 
@@ -156,6 +156,6 @@ export async function createUserAction(
   }
 
   await logAudit({ userEmail: user.email, userName: user.name, action: "create_user", detail: `${email} (${role})` });
-  revalidatePath("/admin/users");
-  redirect("/admin/users");
+  revalidatePath("/admin/developer/users");
+  redirect("/admin/developer/users");
 }

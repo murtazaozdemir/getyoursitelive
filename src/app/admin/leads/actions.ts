@@ -279,7 +279,7 @@ export async function createOwnerLoginAction(
     detail: `${email.trim()} (owner → ${slug})`,
   });
   revalidatePath(`/admin/leads/${slug}`);
-  revalidatePath("/admin/users");
+  revalidatePath("/admin/developer/users");
   return { ok: true };
 }
 

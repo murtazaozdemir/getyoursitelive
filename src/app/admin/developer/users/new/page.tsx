@@ -20,7 +20,7 @@ export default async function NewUserPage() {
       <div className="admin-page-header">
         <div>
           <p className="admin-eyebrow">
-            <Link href="/admin/users" className="admin-crumb">Users</Link>
+            <Link href="/admin/developer/users" className="admin-crumb">Users</Link>
             {" / New"}
           </p>
           <h1 className="admin-h1">Invite user</h1>
