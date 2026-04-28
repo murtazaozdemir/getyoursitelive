@@ -161,6 +161,39 @@
   border-bottom: 1px solid var(--admin-border);
 }
 
+/* Task filter */
+.task-filter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.task-filter-input {
+  flex: 1;
+  max-width: 320px;
+  font-size: 14px;
+  padding: 8px 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  font-family: inherit;
+  color: var(--admin-text);
+  background: var(--admin-bg);
+}
+.task-filter-input:focus {
+  outline: none;
+  border-color: var(--admin-accent);
+}
+.task-filter-count {
+  font-size: 13px;
+  color: var(--admin-text-muted);
+}
+.task-highlight {
+  background: #fef08a;
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
 /* Task checklist */
 .task-checklist {
   margin-bottom: 32px;

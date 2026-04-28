@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useTransition } from "react";
+import { useState, useRef, useTransition, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Task, TaskItemWithProspect } from "@/lib/tasks";
@@ -42,10 +42,27 @@ export function TaskDetailClient({
   const [searching, setSearching] = useState(false);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const pendingItems = items.filter((i) => i.status === "pending");
-  const droppedOffItems = items.filter((i) => i.status === "dropped_off");
+  const [filterQuery, setFilterQuery] = useState("");
+
+  const sortedItems = useMemo(() =>
+    [...items].sort((a, b) => a.prospectName.localeCompare(b.prospectName)),
+    [items]
+  );
+
+  const filteredItems = useMemo(() => {
+    if (!filterQuery.trim()) return sortedItems;
+    const q = filterQuery.toLowerCase();
+    return sortedItems.filter((i) =>
+      i.prospectName.toLowerCase().includes(q) ||
+      (i.prospectAddress && i.prospectAddress.toLowerCase().includes(q)) ||
+      (i.prospectPhone && i.prospectPhone.includes(q))
+    );
+  }, [sortedItems, filterQuery]);
+
+  const pendingItems = filteredItems.filter((i) => i.status === "pending");
+  const droppedOffItems = filteredItems.filter((i) => i.status === "dropped_off");
   const totalCount = items.length;
-  const remainingCount = pendingItems.length;
+  const remainingCount = items.filter((i) => i.status === "pending").length;
 
   function handleRename() {
     if (!taskName.trim()) return;
@@ -294,6 +311,24 @@ export function TaskDetailClient({
         </div>
       )}
 
+      {/* Filter */}
+      {items.length > 0 && (
+        <div className="task-filter">
+          <input
+            type="text"
+            className="task-filter-input"
+            placeholder="Filter leads..."
+            value={filterQuery}
+            onChange={(e) => setFilterQuery(e.target.value)}
+          />
+          {filterQuery && (
+            <span className="task-filter-count">
+              {filteredItems.length} of {items.length}
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Checklist — pending items first */}
       <div className="task-checklist">
         {pendingItems.length > 0 && (
@@ -303,6 +338,7 @@ export function TaskDetailClient({
                 key={item.id}
                 item={item}
                 index={idx + 1}
+                highlight={filterQuery}
                 onToggle={() => handleToggleItem(item.id, item.status)}
                 onNotesBlur={(notes) => handleNotesBlur(item.id, notes)}
                 onRemove={task.status === "active" ? () => handleRemoveItem(item.id, item.prospectName) : undefined}
@@ -318,6 +354,7 @@ export function TaskDetailClient({
               <TaskItemRow
                 key={item.id}
                 item={item}
+                highlight={filterQuery}
                 onToggle={() => handleToggleItem(item.id, item.status)}
                 onNotesBlur={(notes) => handleNotesBlur(item.id, notes)}
                 onRemove={task.status === "active" ? () => handleRemoveItem(item.id, item.prospectName) : undefined}
@@ -346,21 +383,37 @@ export function TaskDetailClient({
   );
 }
 
+function highlightText(text: string, query: string) {
+  if (!query.trim()) return text;
+  const idx = text.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return text;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark className="task-highlight">{text.slice(idx, idx + query.length)}</mark>
+      {text.slice(idx + query.length)}
+    </>
+  );
+}
+
 function TaskItemRow({
   item,
   index,
+  highlight,
   onToggle,
   onNotesBlur,
   onRemove,
 }: {
   item: TaskItemWithProspect;
   index?: number;
+  highlight?: string;
   onToggle: () => void;
   onNotesBlur: (notes: string) => void;
   onRemove?: () => void;
 }) {
   const [notes, setNotes] = useState(item.notes);
   const isDroppedOff = item.status === "dropped_off";
+  const q = highlight || "";
 
   return (
     <div className={`task-item${isDroppedOff ? " task-item--done" : ""}`}>
@@ -381,14 +434,14 @@ function TaskItemRow({
         <div className="task-item-name-row">
           {index != null && <span className="task-item-num">{index}.</span>}
           <Link href={`/admin/leads/${item.prospectSlug}`} className="task-item-name">
-            {item.prospectName}
+            {highlightText(item.prospectName, q)}
           </Link>
         </div>
         {item.prospectAddress && (
-          <p className="task-item-address">{item.prospectAddress}</p>
+          <p className="task-item-address">{highlightText(item.prospectAddress, q)}</p>
         )}
         {item.prospectPhone && (
-          <p className="task-item-phone">{item.prospectPhone}</p>
+          <p className="task-item-phone">{highlightText(item.prospectPhone, q)}</p>
         )}
       </div>
 
