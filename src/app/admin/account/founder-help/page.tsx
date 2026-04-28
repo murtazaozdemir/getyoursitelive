@@ -82,12 +82,12 @@ export default async function FounderHelpPage() {
 
         <h3>Part 2 — Email Account</h3>
         <Step n={3}>
-          <strong>Create a Tuta email account.</strong> Go to <code>tuta.com</code> and create a free
-          account for this client (e.g., <code>businessname@tuta.com</code>). This email will be
+          <strong>Create a Protonmail account.</strong> Go to <code>proton.me</code> and create a free
+          account for this client (e.g., <code>businessname@proton.me</code>). This email will be
           used for all service accounts below.
         </Step>
         <Tip>
-          Use a consistent naming convention for client emails. The Tuta account is for
+          Use a consistent naming convention for client emails. The Protonmail account is for
           service signups only — the client never needs to access it.
         </Tip>
 
