@@ -402,6 +402,67 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped, log };
   },
 
+  "update-barber-photos": async () => {
+    const db = await getD1();
+    const log: string[] = [];
+    let updated = 0;
+    let skipped = 0;
+
+    // Photo URL replacements: old → new
+    const replacements: [string, string][] = [
+      // Hero: barbershop scene → barber cutting hair mirror reflection
+      ["pexels-photo-1813272.jpeg", "pexels-photo-1860567.jpeg"],
+      ["photos/1813272/", "photos/1860567/"],
+      // About primary: old shop → barbershop with clients
+      ["pexels-photo-1319460.jpeg", "pexels-photo-7697329.jpeg"],
+      ["photos/1319460/", "photos/7697329/"],
+      // About secondary: man in hat → beard trim close-up
+      ["pexels-photo-3998429.jpeg", "pexels-photo-3998421.jpeg"],
+      ["photos/3998429/", "photos/3998421/"],
+      // Gallery: old fade → razor fade
+      ["pexels-photo-1570807.jpeg", "pexels-photo-2809652.jpeg"],
+      ["photos/1570807/", "photos/2809652/"],
+      // Gallery: old hot towel → towel on face
+      ["pexels-photo-3993449.jpeg", "pexels-photo-8867553.jpeg"],
+      ["photos/3993449/", "photos/8867553/"],
+      // Gallery: old styled → man in chair
+      ["pexels-photo-3992874.jpeg", "pexels-photo-4625644.jpeg"],
+      ["photos/3992874/", "photos/4625644/"],
+    ];
+
+    const { results } = await db
+      .prepare("SELECT slug, content FROM businesses WHERE category = 'Barber shop'")
+      .all<{ slug: string; content: string }>();
+
+    log.push(`Found ${results.length} barber businesses`);
+
+    for (const row of results) {
+      let content = row.content;
+      let changed = false;
+
+      for (const [oldStr, newStr] of replacements) {
+        if (content.includes(oldStr)) {
+          content = content.replaceAll(oldStr, newStr);
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        await db
+          .prepare("UPDATE businesses SET content = ? WHERE slug = ?")
+          .bind(content, row.slug)
+          .run();
+        log.push(`${row.slug}: photos updated`);
+        updated++;
+      } else {
+        log.push(`${row.slug}: no old photos found, skipped`);
+        skipped++;
+      }
+    }
+
+    return { updated, skipped, log };
+  },
+
   "add-booking-ip": async () => {
     const db = await getD1();
     const log: string[] = [];
