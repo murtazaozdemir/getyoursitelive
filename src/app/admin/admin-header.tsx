@@ -19,6 +19,27 @@ import {
 } from "lucide-react";
 import type { SessionUser } from "@/lib/users";
 
+function BuildInfo() {
+  const version = process.env.NEXT_PUBLIC_APP_VERSION;
+  const raw = process.env.NEXT_PUBLIC_BUILD_TIME;
+  const [dateStr, setDateStr] = useState<string | null>(null);
+
+  // Format build time in the browser's timezone (not server UTC)
+  useEffect(() => {
+    if (!raw) return;
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return;
+    setDateStr(d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true }));
+  }, [raw]);
+
+  if (!version && !dateStr) return null;
+  return (
+    <span className="admin-header-build">
+      {version}{dateStr ? ` (${dateStr})` : ""}
+    </span>
+  );
+}
+
 function displayRole(user: SessionUser, isDeveloper: boolean): string {
   if (user.role === "admin") {
     return isDeveloper ? "Developer" : "Admin";
@@ -73,20 +94,7 @@ export function AdminHeader({ user, isDeveloper }: { user: SessionUser; isDevelo
             <span className="admin-header-user-role" data-role={user.role}>
               {displayRole(user, isDeveloper)}
             </span>
-            {isDeveloper && (() => {
-              const version = process.env.NEXT_PUBLIC_APP_VERSION;
-              const raw = process.env.NEXT_PUBLIC_BUILD_TIME;
-              const d = raw ? new Date(raw) : null;
-              const dateStr = d && !isNaN(d.getTime())
-                ? d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true })
-                : null;
-              if (!version && !dateStr) return null;
-              return (
-                <span className="admin-header-build" suppressHydrationWarning>
-                  {version}{dateStr ? ` (${dateStr})` : ""}
-                </span>
-              );
-            })()}
+            {isDeveloper && <BuildInfo />}
           </span>
 
           {/* My Account dropdown */}
