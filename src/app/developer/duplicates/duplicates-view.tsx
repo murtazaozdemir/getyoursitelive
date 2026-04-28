@@ -187,18 +187,26 @@ export function DuplicatesView({ groups: initialGroups }: { groups: DupeGroup[] 
 
                 {i > 0 && !deleted.has(p.slug) && (
                   <div style={{ marginTop: 8 }}>
-                    <button
-                      className="admin-btn admin-btn--danger"
-                      onClick={() => handleDelete(p.slug)}
-                      disabled={deleting.has(p.slug)}
-                      style={{ fontSize: 12 }}
-                    >
-                      {deleting.has(p.slug) ? "Deleting…" : "Delete this duplicate"}
-                    </button>
-                    {errors[p.slug] && (
-                      <span style={{ fontSize: 11, color: "#dc2626", marginLeft: 8 }}>
-                        {errors[p.slug]}
-                      </span>
+                    {p.status !== "found" ? (
+                      <p style={{ fontSize: 12, color: "var(--color-warn, #d97706)", margin: 0 }}>
+                        Cannot delete — lead is in <strong>{p.status}</strong> stage. Transfer stage info first.
+                      </p>
+                    ) : (
+                      <>
+                        <button
+                          className="admin-btn admin-btn--danger"
+                          onClick={() => handleDelete(p.slug)}
+                          disabled={deleting.has(p.slug)}
+                          style={{ fontSize: 12 }}
+                        >
+                          {deleting.has(p.slug) ? "Deleting…" : "Delete this duplicate"}
+                        </button>
+                        {errors[p.slug] && (
+                          <span style={{ fontSize: 11, color: "#dc2626", marginLeft: 8 }}>
+                            {errors[p.slug]}
+                          </span>
+                        )}
+                      </>
                     )}
                   </div>
                 )}
