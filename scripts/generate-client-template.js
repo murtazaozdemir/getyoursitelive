@@ -324,7 +324,7 @@ const API_BASE = "${apiBase}";
   }
   console.log(`  ${workerUrl ? "1" : "2"}. Deploy worker/ to client's Cloudflare account`);
   console.log(`  ${workerUrl ? "2" : "3"}. Deploy site/ to Cloudflare Pages`);
-  console.log(`  ${workerUrl ? "3" : "4"}. Seed KV with: wrangler kv:key put --binding CONTENT content '$(cat ${contentPath})' --remote\n`);
+  console.log(`  ${workerUrl ? "3" : "4"}. Seed KV with: wrangler kv:key put --binding CONTENT business '$(cat ${contentPath})' --remote\n`);
 }
 
 main();
