@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
-import { isFounder } from "@/lib/users";
+import { isDeveloper } from "@/lib/users";
 import { deleteProspect } from "@/lib/prospects";
 import { deleteBusiness } from "@/lib/db";
 import { logAudit } from "@/lib/audit-log";
 
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
-  if (!user || !isFounder(user)) {
+  if (!user || !isDeveloper(user)) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 

@@ -3,7 +3,7 @@ import { getD1 } from "@/lib/db-d1";
 /**
  * Tracks visits to prospect preview sites (/{slug}).
  * Every visit is recorded — no deduplication.
- * Founder can view all visits in /admin/visits.
+ * Developer can view all visits in /admin/visits.
  */
 
 export interface ProspectVisit {

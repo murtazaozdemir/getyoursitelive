@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
-import { isFounder } from "@/lib/users";
+import { isDeveloper } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
 
 export const metadata = {
@@ -41,7 +41,7 @@ const GOOGLE_FIELDS: { field: string; dbColumn: string; type: string }[] = [
 export default async function GoogleFieldsPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/admin/login");
-  if (!isFounder(user)) redirect("/admin");
+  if (!isDeveloper(user)) redirect("/admin");
 
   const db = await getD1();
 
@@ -101,7 +101,7 @@ export default async function GoogleFieldsPage() {
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
-          <p className="admin-eyebrow">Founder</p>
+          <p className="admin-eyebrow">Developer</p>
           <h1 className="admin-h1">Google Fields We Store</h1>
           <p className="admin-lede">
             Every field fetched from Google Places API and stored per prospect in D1.

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCurrentUser, refreshSessionIfNeeded } from "@/lib/session";
-import { isFounder } from "@/lib/users";
+import { isDeveloper } from "@/lib/users";
 import { AdminHeader } from "./admin-header";
 import "./admin.css";
 import "./admin-leads.css";
@@ -26,7 +26,7 @@ export default async function AdminLayout({
   return (
     <div className="admin-shell" data-theme="modern">
       {/* Login page hides the header — middleware ensures user is present everywhere else */}
-      {user && <AdminHeader user={user} isFounder={isFounder(user)} />}
+      {user && <AdminHeader user={user} isDeveloper={isDeveloper(user)} />}
       <main className="admin-main">{children}</main>
       <footer className="admin-footer">
         <div className="admin-footer-inner">

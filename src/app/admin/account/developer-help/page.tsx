@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
-import { isFounder } from "@/lib/users";
+import { isDeveloper } from "@/lib/users";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Founder Help · Admin",
+  title: "Developer Help · Admin",
   robots: { index: false, follow: false },
 };
 
@@ -30,18 +30,18 @@ function Tip({ children }: { children: React.ReactNode }) {
   return <div className="help-tip">{children}</div>;
 }
 
-export default async function FounderHelpPage() {
+export default async function DeveloperHelpPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/admin/login");
-  if (!isFounder(user)) redirect("/admin");
+  if (!isDeveloper(user)) redirect("/admin");
 
   return (
     <div className="admin-page help-page">
       <div className="admin-page-header">
         <div>
-          <h1 className="admin-h1">Founder Only Help</h1>
+          <h1 className="admin-h1">Developer Only Help</h1>
           <p className="admin-lede">
-            Tools and features available only to the platform founder.
+            Tools and features available only to the platform developer.
           </p>
         </div>
         <Link href="/admin/help" className="admin-btn admin-btn--ghost">
@@ -57,7 +57,7 @@ export default async function FounderHelpPage() {
           <li><a href="#zip-search">Zip Search</a></li>
           <li><a href="#users">User Management</a></li>
           <li><a href="#templates">Business Categories &amp; Templates</a></li>
-          <li><a href="#tools">Founder Tools</a></li>
+          <li><a href="#tools">Developer Tools</a></li>
         </ol>
       </nav>
 
@@ -398,8 +398,8 @@ npx wrangler kv key put "business" \\
         </p>
         <h3>Roles</h3>
         <ul>
-          <li><strong>Founder</strong> — full access to everything, including Zip Search, Users, Audit Log, Setup, and Backup</li>
-          <li><strong>Admin</strong> — access to Leads, Tasks, Clients, proposals, and site editing. Cannot access founder-only tools.</li>
+          <li><strong>Developer</strong> — full access to everything, including Zip Search, Users, Audit Log, Setup, and Backup</li>
+          <li><strong>Admin</strong> — access to Leads, Tasks, Clients, proposals, and site editing. Cannot access developer-only tools.</li>
           <li><strong>Business Owner</strong> — can only access their own site&apos;s editor. Cannot see the admin platform.</li>
         </ul>
         <h3>Inviting Users</h3>
@@ -462,7 +462,7 @@ npx wrangler kv key put "business" \\
       </Section>
 
       {/* ─── FOUNDER TOOLS ─── */}
-      <Section id="tools" title="Founder Tools">
+      <Section id="tools" title="Developer Tools">
         <p>
           These tools are in the <strong>My Account</strong> dropdown:
         </p>

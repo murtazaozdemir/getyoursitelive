@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
-import { listUsers, canManageBusinesses, isFounder } from "@/lib/users";
+import { listUsers, canManageBusinesses, isDeveloper } from "@/lib/users";
 import { listInvitations } from "@/lib/invitations";
 import { UsersTable } from "./users-table";
 
@@ -14,7 +14,7 @@ export default async function UsersPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/admin/login");
   if (!canManageBusinesses(currentUser)) redirect("/admin");
-  if (!isFounder(currentUser)) redirect("/admin");
+  if (!isDeveloper(currentUser)) redirect("/admin");
 
   const [users, invites] = await Promise.all([listUsers(), listInvitations()]);
 
@@ -25,7 +25,7 @@ export default async function UsersPage() {
     role: u.role,
     ownedSlug: u.ownedSlug,
     createdAt: u.createdAt,
-    isFounder: isFounder(u),
+    isDeveloper: isDeveloper(u),
     isSelf: u.id === currentUser.id,
   }));
 

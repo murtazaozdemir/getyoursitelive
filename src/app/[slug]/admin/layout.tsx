@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser, refreshSessionIfNeeded } from "@/lib/session";
-import { canEditBusiness, isFounder } from "@/lib/users";
+import { canEditBusiness, isDeveloper } from "@/lib/users";
 import { getBusinessBySlug } from "@/lib/db";
 import { ShopAdminHeader } from "./shop-admin-header";
 import "../../admin/admin.css";
@@ -37,7 +37,7 @@ export default async function ShopAdminLayout({
   return (
     <div className="admin-shell" data-theme="modern">
       {business && (
-        <ShopAdminHeader user={user} businessName={business.businessInfo.name} slug={slug} isFounder={isFounder(user)} />
+        <ShopAdminHeader user={user} businessName={business.businessInfo.name} slug={slug} isDeveloper={isDeveloper(user)} />
       )}
       <main className="admin-main">{children}</main>
       <footer className="admin-footer">

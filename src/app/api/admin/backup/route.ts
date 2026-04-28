@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
-import { isFounder } from "@/lib/users";
+import { isDeveloper } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
 
 const TABLES = [
@@ -20,7 +20,7 @@ const TABLES = [
 
 export async function GET() {
   const user = await getCurrentUser();
-  if (!user || !isFounder(user)) {
+  if (!user || !isDeveloper(user)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

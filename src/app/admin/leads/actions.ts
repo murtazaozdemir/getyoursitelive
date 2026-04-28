@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/session";
-import { canManageBusinesses, isFounder } from "@/lib/users";
+import { canManageBusinesses, isDeveloper } from "@/lib/users";
 import {
   createProspect,
   updateProspect,
@@ -118,8 +118,8 @@ export async function updateProspectStatusAction(slug: string, status: ProspectS
   const existing = await getProspect(slug);
 
   // Once a lead is contacted, it's locked to that reseller.
-  // Only the reseller who contacted it (or the Founder) can advance the stage.
-  if (existing?.contactedBy && existing.contactedBy !== user.email && !isFounder(user)) {
+  // Only the reseller who contacted it (or the Developer) can advance the stage.
+  if (existing?.contactedBy && existing.contactedBy !== user.email && !isDeveloper(user)) {
     return { ok: false, locked: true };
   }
 
@@ -157,8 +157,8 @@ export async function removeContactLockAction(slug: string): Promise<{ ok: boole
   const existing = await getProspect(slug);
   if (!existing?.contactedBy) return { ok: true };
 
-  // Only the person who contacted the lead or the Founder can remove the lock
-  if (existing.contactedBy !== user.email && !isFounder(user)) return { ok: false };
+  // Only the person who contacted the lead or the Developer can remove the lock
+  if (existing.contactedBy !== user.email && !isDeveloper(user)) return { ok: false };
 
   await updateProspect(slug, {
     status: "found",

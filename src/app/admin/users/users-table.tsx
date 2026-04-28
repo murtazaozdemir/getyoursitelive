@@ -10,7 +10,7 @@ interface UserRow {
   role: string;
   ownedSlug: string | null;
   createdAt?: string;
-  isFounder: boolean;
+  isDeveloper: boolean;
   isSelf: boolean;
 }
 
@@ -55,7 +55,7 @@ const columns: Column<CombinedRow>[] = [
     sortValue: (row) => row.role,
     render: (row) => {
       let label = row.role === "admin" ? "Admin" : "Business Owner";
-      if (row.kind === "user" && row.isFounder) label = "Founder";
+      if (row.kind === "user" && row.isDeveloper) label = "Developer";
       return (
         <span className="admin-header-user-role" data-role={row.role}>
           {label}

@@ -332,16 +332,16 @@ export function canManageBusinesses(user: SessionUser): boolean {
 }
 
 /**
- * The platform founder — has elevated permissions such as overriding
+ * The platform developer — has elevated permissions such as overriding
  * lead ownership locks. Read from env so the email isn't scattered
  * across source files.
  */
-export function isFounder(user: { email: string }): boolean {
-  const envEmail = process.env.FOUNDER_EMAIL;
-  const founderEmails = envEmail
+export function isDeveloper(user: { email: string }): boolean {
+  const envEmail = process.env.DEVELOPER_EMAIL;
+  const developerEmails = envEmail
     ? [envEmail.toLowerCase()]
     : ["murtazaozdemir@gmail.com", "info@getyoursitelive.com"];
-  return founderEmails.includes(user.email.toLowerCase());
+  return developerEmails.includes(user.email.toLowerCase());
 }
 
 // ---------------------------------------------------------------

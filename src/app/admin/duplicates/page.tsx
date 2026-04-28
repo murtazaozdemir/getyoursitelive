@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
-import { isFounder } from "@/lib/users";
+import { isDeveloper } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
 import { DuplicatesView } from "./duplicates-view";
 
@@ -31,7 +31,7 @@ interface DupeGroup {
 export default async function DuplicatesPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/admin/login");
-  if (!isFounder(user)) redirect("/admin");
+  if (!isDeveloper(user)) redirect("/admin");
 
   const db = await getD1();
   const groups: DupeGroup[] = [];
@@ -165,7 +165,7 @@ export default async function DuplicatesPage() {
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
-          <p className="admin-eyebrow">Founder</p>
+          <p className="admin-eyebrow">Developer</p>
           <h1 className="admin-h1">Duplicate Cleaner</h1>
           <p className="admin-lede">
             Prospects that share a Google Place ID or phone number. Review and delete duplicates.

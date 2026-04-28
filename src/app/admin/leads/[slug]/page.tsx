@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getProspect } from "@/lib/prospects";
 import { getBusinessBySlug } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
-import { canManageBusinesses, isFounder } from "@/lib/users";
+import { canManageBusinesses, isDeveloper } from "@/lib/users";
 import { ProspectActions, PipelineStageSelector, RemoveLockButton } from "./prospect-actions";
 import { getAuditLogForSlug, type AuditEntry } from "@/lib/audit-log";
 
@@ -50,8 +50,8 @@ export default async function ProspectDetailPage({
   ]);
   if (!prospect) notFound();
 
-  // Non-founder admins can only see "found" leads or leads they contacted
-  if (prospect.status !== "found" && !isFounder(user) && prospect.contactedBy !== user.email) {
+  // Non-developer admins can only see "found" leads or leads they contacted
+  if (prospect.status !== "found" && !isDeveloper(user) && prospect.contactedBy !== user.email) {
     redirect("/admin/leads");
   }
 
@@ -59,11 +59,11 @@ export default async function ProspectDetailPage({
   const previewUrl = `${siteUrl}/${slug}`;
   const shortUrl = prospect.shortId ? `${siteUrl}/p/${prospect.shortId}` : null;
 
-  // Lock stage changes: only the reseller who first contacted it (or Founder) can advance
+  // Lock stage changes: only the reseller who first contacted it (or Developer) can advance
   const isLocked =
     !!prospect.contactedBy &&
     prospect.contactedBy !== user.email &&
-    !isFounder(user);
+    !isDeveloper(user);
   const lockedToName = prospect.contactedByName ?? prospect.contactedBy ?? null;
 
   return (
@@ -116,7 +116,7 @@ export default async function ProspectDetailPage({
               currentStatus={prospect.status}
               locked={isLocked}
             />
-            {!!prospect.contactedBy && (isFounder(user) || prospect.contactedBy === user.email) && (
+            {!!prospect.contactedBy && (isDeveloper(user) || prospect.contactedBy === user.email) && (
               <div style={{ marginTop: 12 }}>
                 <RemoveLockButton slug={slug} lockedToName={prospect.contactedByName ?? prospect.contactedBy} />
               </div>

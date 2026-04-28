@@ -19,14 +19,14 @@ import {
 } from "lucide-react";
 import type { SessionUser } from "@/lib/users";
 
-function displayRole(user: SessionUser, isFounder: boolean): string {
+function displayRole(user: SessionUser, isDeveloper: boolean): string {
   if (user.role === "admin") {
-    return isFounder ? "Founder" : "Admin";
+    return isDeveloper ? "Developer" : "Admin";
   }
   return "Business Owner";
 }
 
-export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder: boolean }) {
+export function AdminHeader({ user, isDeveloper }: { user: SessionUser; isDeveloper: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -71,9 +71,9 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
           <span className="admin-header-user">
             <span className="admin-header-user-name">{user.name}</span>
             <span className="admin-header-user-role" data-role={user.role}>
-              {displayRole(user, isFounder)}
+              {displayRole(user, isDeveloper)}
             </span>
-            {isFounder && (() => {
+            {isDeveloper && (() => {
               const version = process.env.NEXT_PUBLIC_APP_VERSION;
               const raw = process.env.NEXT_PUBLIC_BUILD_TIME;
               const d = raw ? new Date(raw) : null;
@@ -107,12 +107,12 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
                 <Link href="/admin/help" className="admin-account-dropdown-item">
                   <HelpCircle className="admin-account-dropdown-icon" /> Help &amp; Guide
                 </Link>
-                {isFounder && (
-                  <Link href="/admin/account/founder-help" className="admin-account-dropdown-item">
-                    <HelpCircle className="admin-account-dropdown-icon" /> Founder Only Help
+                {isDeveloper && (
+                  <Link href="/admin/account/developer-help" className="admin-account-dropdown-item">
+                    <HelpCircle className="admin-account-dropdown-icon" /> Developer Only Help
                   </Link>
                 )}
-                {isFounder && (
+                {isDeveloper && (
                   <>
                     <div className="admin-account-dropdown-divider" />
                     <Link href="/admin/users" className="admin-account-dropdown-item">
@@ -157,7 +157,7 @@ export function AdminHeader({ user, isFounder }: { user: SessionUser; isFounder:
           </div>
 
           {/* Keep standalone sign out for non-dropdown fallback */}
-          {!isFounder && (
+          {!isDeveloper && (
             <button type="button" className="admin-btn admin-btn--ghost" onClick={handleLogout}>
               Sign out
             </button>

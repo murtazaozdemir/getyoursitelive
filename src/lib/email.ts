@@ -1,6 +1,6 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-const FOUNDER_EMAIL = process.env.FOUNDER_EMAIL ?? "info@getyoursitelive.com";
+const DEVELOPER_EMAIL = process.env.DEVELOPER_EMAIL ?? "info@getyoursitelive.com";
 
 interface SendResult {
   ok: boolean;
@@ -212,7 +212,7 @@ export async function sendUnmatchedCategoryAlert(opts: {
 
   const { error } = await resend.emails.send({
     from: await getFromEmail(),
-    to: FOUNDER_EMAIL,
+    to: DEVELOPER_EMAIL,
     subject: "Unmapped category: " + opts.category + " — " + opts.businessName,
     html,
   });

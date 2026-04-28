@@ -145,7 +145,7 @@ export default async function HelpPage() {
         <p>
           <strong>Found</strong> leads are shared — everyone can see them. Once a lead is moved
           to <strong>Contacted</strong>, it becomes scoped to the person who contacted it. Other
-          admins won&apos;t see that lead in their list anymore (the Founder can still see all leads).
+          admins won&apos;t see that lead in their list anymore (the Developer can still see all leads).
         </p>
       </Section>
 
@@ -161,7 +161,7 @@ export default async function HelpPage() {
             <p>
               First outreach made (visited, called, or emailed). <strong>Important:</strong> the
               first person to move a lead to Contacted gets permanently credited for commission.
-              After this, only that person (or the Founder) can see or advance the lead — it
+              After this, only that person (or the Developer) can see or advance the lead — it
               disappears from other admins&apos; Leads page entirely.
             </p>
           </div>
@@ -359,7 +359,7 @@ export default async function HelpPage() {
             is permanently credited. Their name, email, and timestamp are stored.
           </li>
           <li>
-            After a lead is contacted, <strong>only the credited person</strong> (or the Founder)
+            After a lead is contacted, <strong>only the credited person</strong> (or the Developer)
             can advance it further. Other admins will see a lock icon.
           </li>
           <li>
@@ -368,7 +368,7 @@ export default async function HelpPage() {
         </ul>
         <Tip>
           Don&apos;t click &ldquo;Contacted&rdquo; until you&apos;ve actually made contact.
-          Once set, attribution cannot be changed (except by the Founder).
+          Once set, attribution cannot be changed (except by the Developer).
         </Tip>
       </Section>
 

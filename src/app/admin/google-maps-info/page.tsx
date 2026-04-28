@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
-import { isFounder } from "@/lib/users";
+import { isDeveloper } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
 import { isCategoryMapped } from "@/lib/templates/registry";
 
@@ -13,7 +13,7 @@ export const metadata = {
 export default async function GoogleMapsInfoPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/admin/login");
-  if (!isFounder(user)) redirect("/admin");
+  if (!isDeveloper(user)) redirect("/admin");
 
   const db = await getD1();
 
@@ -40,7 +40,7 @@ export default async function GoogleMapsInfoPage() {
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
-          <p className="admin-eyebrow">Founder</p>
+          <p className="admin-eyebrow">Developer</p>
           <h1 className="admin-h1">Google Maps Info</h1>
           <p className="admin-lede">
             Overview of Google Places data across {totalProspects.toLocaleString()} prospects.

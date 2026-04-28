@@ -13,12 +13,12 @@ export function ShopAdminHeader({
   user,
   businessName,
   slug,
-  isFounder,
+  isDeveloper,
 }: {
   user: SessionUser;
   businessName: string;
   slug: string;
-  isFounder: boolean;
+  isDeveloper: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -28,7 +28,7 @@ export function ShopAdminHeader({
 
   function displayRole(): string {
     if (user.role === "admin") {
-      return isFounder ? "Founder" : "Admin";
+      return isDeveloper ? "Developer" : "Admin";
     }
     return "Business Owner";
   }

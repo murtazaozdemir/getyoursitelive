@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { listProspects, PIPELINE_STAGES, type Prospect } from "@/lib/prospects";
 import { listBusinesses } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
-import { canManageBusinesses, findUserById, isFounder } from "@/lib/users";
+import { canManageBusinesses, findUserById, isDeveloper } from "@/lib/users";
 import { FilterSortBar } from "@/app/admin/filter-bar";
 import { LeadCards } from "./lead-cards";
 import type { LeadCardData } from "./print-utils";
@@ -139,10 +139,10 @@ export default async function LeadsPage({
   // "Found" leads are shared — all admins see them.
   // Once a lead moves past "found", only the admin who contacted them sees it
   // (unless you're the founder, who sees everything).
-  const founder = isFounder(user);
+  const developer = isDeveloper(user);
   const active = allProspects.filter((p) => {
     if (p.status === "found") return true;
-    if (founder) return true;
+    if (developer) return true;
     return p.contactedBy === user.email;
   });
 
