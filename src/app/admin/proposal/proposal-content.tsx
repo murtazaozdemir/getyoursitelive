@@ -240,7 +240,7 @@ export function ProposalContent({
             <div className="proposal-next-step">
               <p>
                 If you like what you see, I can make this live for you
-                this week. It takes about 20 minutes to set up.
+                in a few days. It takes about 20 minutes to set up.
               </p>
               <p style={{ marginTop: "0.5rem" }}>
                 Call or text me and I&rsquo;ll handle everything &mdash;
