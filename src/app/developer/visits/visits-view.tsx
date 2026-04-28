@@ -30,7 +30,7 @@ function formatDate(iso: string): string {
 
 function parseDevice(ua: string): string {
   if (!ua) return "Unknown";
-  if (/bot|crawler|spider|slurp|googlebot|bingbot|facebookexternalhit/i.test(ua)) return "Bot";
+  if (/bot|crawl|spider|slurp|semrush|ahref|bytespider|gptbot|claudebot|bingpreview|yandex|baidu|duckduck|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot|curl|wget|python|httpx|go-http|java\/|headlesschrome|phantomjs|lighthouse/i.test(ua)) return "Bot";
   if (/iPhone/i.test(ua)) return "iPhone";
   if (/iPad/i.test(ua)) return "iPad";
   if (/Android/i.test(ua)) return "Android";
@@ -133,14 +133,26 @@ const summaryCols: Column<CountRow>[] = [
   },
 ];
 
+function classifyVisit(ua: string): "bot" | "admin" | "lead" {
+  if (parseDevice(ua) === "Bot") return "bot";
+  // Admin/developer visits come from known internal paths — detected by referrer or UA patterns
+  // For now, we classify by device type only: bots vs real visitors (leads)
+  return "lead";
+}
+
 export function VisitsView({
   visits,
   counts,
+  adminEmails,
 }: {
   visits: ProspectVisit[];
   counts: CountRow[];
+  adminEmails?: string[];
 }) {
   const [tab, setTab] = useState<"all" | "summary">("all");
+
+  const botCount = visits.filter((v) => classifyVisit(v.userAgent) === "bot").length;
+  const leadCount = visits.length - botCount;
 
   const uniqueSlugs = [...new Set(visits.map((v) => v.slug))];
   const deviceOptions = [...new Set(visits.map((v) => parseDevice(v.userAgent)))].sort();
@@ -165,6 +177,21 @@ export function VisitsView({
 
   return (
     <>
+      <div className="admin-stats-row" style={{ display: "flex", gap: 16, marginBottom: 20 }}>
+        <div className="admin-stat-card" style={{ flex: 1, padding: "12px 16px", background: "var(--admin-bg-card, #fff)", borderRadius: 8, border: "1px solid var(--admin-border, #e5e5e5)" }}>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{visits.length}</div>
+          <div style={{ fontSize: 13, color: "var(--admin-text-soft)" }}>Total visits</div>
+        </div>
+        <div className="admin-stat-card" style={{ flex: 1, padding: "12px 16px", background: "var(--admin-bg-card, #fff)", borderRadius: 8, border: "1px solid var(--admin-border, #e5e5e5)" }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "var(--admin-accent, #1a7a6d)" }}>{leadCount}</div>
+          <div style={{ fontSize: 13, color: "var(--admin-text-soft)" }}>Real visits</div>
+        </div>
+        <div className="admin-stat-card" style={{ flex: 1, padding: "12px 16px", background: "var(--admin-bg-card, #fff)", borderRadius: 8, border: "1px solid var(--admin-border, #e5e5e5)" }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#999" }}>{botCount}</div>
+          <div style={{ fontSize: 13, color: "var(--admin-text-soft)" }}>Bots</div>
+        </div>
+      </div>
+
       <div className="admin-tabs" style={{ marginBottom: 16 }}>
         <button
           type="button"

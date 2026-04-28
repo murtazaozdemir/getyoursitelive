@@ -9,6 +9,8 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
 
+
+
 // All business pages are server-rendered on demand (no static generation).
 // Cloudflare Pages does not support ISR, and D1 bindings are only available
 // at request time — not during the build step.
