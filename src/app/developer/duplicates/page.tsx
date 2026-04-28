@@ -166,7 +166,9 @@ export default async function DuplicatesPage() {
     .prepare(
       `SELECT LOWER(TRIM(address)) AS norm_addr, COUNT(*) as cnt
        FROM prospects
-       WHERE address != '' AND LENGTH(TRIM(address)) >= 15 AND address GLOB '*[0-9]*'
+       WHERE address != ''
+         AND INSTR(address, ',') > 0
+         AND SUBSTR(address, 1, INSTR(address, ',') - 1) GLOB '*[0-9]*'
        GROUP BY norm_addr
        HAVING cnt > 1
        ORDER BY cnt DESC
