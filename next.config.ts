@@ -38,10 +38,11 @@ const nextConfig: NextConfig = {
     })(),
     NEXT_PUBLIC_APP_VERSION: (() => {
       // Use git commit count as version number — increments by 1 on every push
+      // CF Pages does a shallow clone (depth=1), so unshallow first if needed
+      const { execSync } = require("child_process");
       try {
-        const count = require("child_process")
-          .execSync("git rev-list --count HEAD", { encoding: "utf-8" })
-          .trim();
+        try { execSync("git fetch --unshallow 2>/dev/null || true", { encoding: "utf-8", stdio: "pipe" }); } catch {}
+        const count = execSync("git rev-list --count HEAD", { encoding: "utf-8", stdio: "pipe" }).trim();
         const version = `v${count}`;
         console.log("[next.config] NEXT_PUBLIC_APP_VERSION =", version);
         return version;
