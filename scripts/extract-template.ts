@@ -10,9 +10,11 @@
  */
 
 import { autoRepairTemplate } from "../src/lib/templates/auto-repair";
+import { barberTemplate } from "../src/lib/templates/barber";
 
 const TEMPLATES: Record<string, typeof autoRepairTemplate> = {
   "auto-repair": autoRepairTemplate,
+  "barber": barberTemplate,
 };
 
 const [vertical, slug, name, phone, address] = process.argv.slice(2);
