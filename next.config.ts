@@ -37,15 +37,18 @@ const nextConfig: NextConfig = {
       return t;
     })(),
     NEXT_PUBLIC_APP_VERSION: (() => {
-      // CF_PAGES_COMMIT_SHA is set by CF Pages builds;
-      // COMMIT_SHA is injected by our deploy script for Workers builds.
-      const sha =
-        process.env.CF_PAGES_COMMIT_SHA ?? process.env.COMMIT_SHA;
-      console.log("[next.config] COMMIT_SHA =", sha ?? "(not set)");
-      console.log("[next.config] NODE_ENV =", process.env.NODE_ENV);
-      const version = sha?.slice(0, 7) ?? "dev";
-      console.log("[next.config] NEXT_PUBLIC_APP_VERSION =", version);
-      return version;
+      // Use git commit count as version number — increments by 1 on every push
+      try {
+        const count = require("child_process")
+          .execSync("git rev-list --count HEAD", { encoding: "utf-8" })
+          .trim();
+        const version = `v${count}`;
+        console.log("[next.config] NEXT_PUBLIC_APP_VERSION =", version);
+        return version;
+      } catch {
+        console.log("[next.config] NEXT_PUBLIC_APP_VERSION = dev (git not available)");
+        return "dev";
+      }
     })(),
   },
   // Server-rendered. Each request is served fresh from the storage layer
