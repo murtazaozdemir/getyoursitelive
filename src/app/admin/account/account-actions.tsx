@@ -114,7 +114,9 @@ export function ChangeEmailForm({ currentEmail: _ }: { currentEmail: string }) {
     <form className="admin-section" onSubmit={handleSubmit}>
       <h2 className="admin-section-title">Change email</h2>
       <p className="admin-lede">
-        After saving you will be signed out and must log in with the new email.
+        Your email is not just contact info — it&rsquo;s the credential you use
+        to sign in. Changing it will immediately sign you out of all sessions.
+        You&rsquo;ll need to verify your new email before you can log in again.
       </p>
 
       <div className="admin-grid">
