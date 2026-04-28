@@ -32,7 +32,7 @@ export function TaskDetailClient({
   userHome: UserHome | null;
 }) {
   const router = useRouter();
-  const [items, setItems] = useState(initialItems);
+  const [items, setItems] = useState(() => initialItems.filter((i) => i.prospectName));
   const [taskName, setTaskName] = useState(task.name);
   const [editingName, setEditingName] = useState(false);
   const [isPending, startTransition] = useTransition();

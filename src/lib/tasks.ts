@@ -116,7 +116,7 @@ function rowToTaskItem(row: TaskItemRow): TaskItem {
 function rowToTaskItemWithProspect(row: TaskItemWithProspectRow): TaskItemWithProspect {
   return {
     ...rowToTaskItem(row),
-    prospectName: row.prospect_name ?? "(deleted)",
+    prospectName: row.prospect_name ?? "",
     prospectPhone: row.prospect_phone ?? "",
     prospectAddress: row.prospect_address ?? "",
     prospectLat: row.prospect_lat,
