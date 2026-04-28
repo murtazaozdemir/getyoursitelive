@@ -82,7 +82,7 @@ export const barberTemplate: VerticalTemplate = {
         secondaryCta: "Book an Appointment",
         whyTitle: "Why clients keep coming back",
         heroImage:
-          "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          "https://images.pexels.com/photos/1860567/pexels-photo-1860567.jpeg?auto=compress&cs=tinysrgb&w=1400",
         whyBullets: [
           "Experienced barbers who listen.",
           "Walk-ins always welcome.",
@@ -99,9 +99,9 @@ export const barberTemplate: VerticalTemplate = {
           "Clean and comfortable environment",
         ],
         primaryImage:
-          "https://images.pexels.com/photos/1319460/pexels-photo-1319460.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          "https://images.pexels.com/photos/7697329/pexels-photo-7697329.jpeg?auto=compress&cs=tinysrgb&w=1400",
         secondaryImage:
-          "https://images.pexels.com/photos/3998429/pexels-photo-3998429.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          "https://images.pexels.com/photos/3998421/pexels-photo-3998421.jpeg?auto=compress&cs=tinysrgb&w=1400",
         whyUsCards: [
           { title: "Expert Barbers", description: "Trained in classic and modern styles." },
           { title: "Walk-Ins Welcome", description: "No appointment needed — just come in." },
@@ -186,14 +186,14 @@ export const barberTemplate: VerticalTemplate = {
           role: "Owner & Head Barber",
           experience: "12+ years",
           specialty: "Fades and classic cuts",
-          image: "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=800",
+          image: "https://images.pexels.com/photos/3998415/pexels-photo-3998415.jpeg?auto=compress&cs=tinysrgb&w=800",
         },
         {
           name: "Marco",
           role: "Senior Barber",
           experience: "8+ years",
           specialty: "Beard grooming and designs",
-          image: "https://images.pexels.com/photos/3998429/pexels-photo-3998429.jpeg?auto=compress&cs=tinysrgb&w=800",
+          image: "https://images.pexels.com/photos/4351728/pexels-photo-4351728.jpeg?auto=compress&cs=tinysrgb&w=800",
         },
       ],
       testimonials: [
@@ -237,11 +237,11 @@ export const barberTemplate: VerticalTemplate = {
       ],
       photos: [
         { id: "p1", url: "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Classic cut" },
-        { id: "p2", url: "https://images.pexels.com/photos/1570807/pexels-photo-1570807.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Precision fade" },
-        { id: "p3", url: "https://images.pexels.com/photos/3998429/pexels-photo-3998429.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Beard trim" },
-        { id: "p4", url: "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Hot towel shave" },
-        { id: "p5", url: "https://images.pexels.com/photos/1319460/pexels-photo-1319460.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Our shop" },
-        { id: "p6", url: "https://images.pexels.com/photos/3992874/pexels-photo-3992874.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Styled and ready" },
+        { id: "p2", url: "https://images.pexels.com/photos/2809652/pexels-photo-2809652.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Precision fade" },
+        { id: "p3", url: "https://images.pexels.com/photos/3998421/pexels-photo-3998421.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Beard trim" },
+        { id: "p4", url: "https://images.pexels.com/photos/8867553/pexels-photo-8867553.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Hot towel shave" },
+        { id: "p5", url: "https://images.pexels.com/photos/7697329/pexels-photo-7697329.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Our shop" },
+        { id: "p6", url: "https://images.pexels.com/photos/4625644/pexels-photo-4625644.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "In the chair" },
       ],
       emergency: {
         heading: "Last-Minute Appointment? Call Us.",
@@ -289,7 +289,7 @@ export const barberTemplate: VerticalTemplate = {
         primaryCta: "Our Services",
         secondaryCta: "Book Now",
         whyTitle: "Why clients choose us",
-        heroImage: "https://images.pexels.com/photos/1813272/pexels-photo-1813272.jpeg?auto=compress&cs=tinysrgb&w=1400",
+        heroImage: "https://images.pexels.com/photos/1860567/pexels-photo-1860567.jpeg?auto=compress&cs=tinysrgb&w=1400",
         whyBullets: [
           "Experienced barbers.",
           "Walk-ins always welcome.",
@@ -305,8 +305,8 @@ export const barberTemplate: VerticalTemplate = {
           "Walk-ins welcome",
           "Clean and comfortable environment",
         ],
-        primaryImage: "https://images.pexels.com/photos/1319460/pexels-photo-1319460.jpeg?auto=compress&cs=tinysrgb&w=1400",
-        secondaryImage: "https://images.pexels.com/photos/3998429/pexels-photo-3998429.jpeg?auto=compress&cs=tinysrgb&w=1400",
+        primaryImage: "https://images.pexels.com/photos/7697329/pexels-photo-7697329.jpeg?auto=compress&cs=tinysrgb&w=1400",
+        secondaryImage: "https://images.pexels.com/photos/3998421/pexels-photo-3998421.jpeg?auto=compress&cs=tinysrgb&w=1400",
         whyUsCards: [
           { title: "Expert Barbers", description: "Classic and modern styles." },
           { title: "Walk-Ins Welcome", description: "No appointment needed." },
