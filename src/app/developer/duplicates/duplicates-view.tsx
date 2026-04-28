@@ -57,12 +57,69 @@ export function DuplicatesView({ groups: initialGroups }: { groups: DupeGroup[] 
   const [deleting, setDeleting] = useState<Set<string>>(new Set());
   const [deleted, setDeleted] = useState<Set<string>>(new Set());
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [transferring, setTransferring] = useState<Set<string>>(new Set());
+  const [pendingTransfer, setPendingTransfer] = useState<Set<string>>(new Set());
+
+  async function handleTransferAndDelete(dupeSlug: string, keepSlug: string, status: string) {
+    setPendingTransfer((prev) => new Set(prev).add(dupeSlug));
+  }
+
+  async function confirmTransferAndDelete(dupeSlug: string, keepSlug: string, status: string) {
+    setTransferring((prev) => new Set(prev).add(dupeSlug));
+    setErrors((prev) => { const next = { ...prev }; delete next[dupeSlug]; return next; });
+
+    try {
+      // Transfer stage to the "Keep" record
+      const transferRes = await fetch(`/api/admin/transfer-stage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fromSlug: dupeSlug, toSlug: keepSlug }),
+      });
+      const transferData = await transferRes.json() as { ok?: boolean; error?: string };
+      if (!transferData.ok) {
+        setErrors((prev) => ({ ...prev, [dupeSlug]: transferData.error ?? "Transfer failed" }));
+        return;
+      }
+
+      // Update the Keep record's status in local state
+      setGroups((prev) =>
+        prev.map((g) => ({
+          ...g,
+          prospects: g.prospects.map((p) =>
+            p.slug === keepSlug ? { ...p, status } : p
+          ),
+        }))
+      );
+
+      // Now delete the duplicate
+      await doDelete(dupeSlug);
+    } catch (err) {
+      setErrors((prev) => ({
+        ...prev,
+        [dupeSlug]: err instanceof Error ? err.message : "Network error",
+      }));
+    } finally {
+      setTransferring((prev) => {
+        const next = new Set(prev);
+        next.delete(dupeSlug);
+        return next;
+      });
+      setPendingTransfer((prev) => {
+        const next = new Set(prev);
+        next.delete(dupeSlug);
+        return next;
+      });
+    }
+  }
 
   async function handleDelete(slug: string) {
     if (!confirm(`Delete prospect "${slug}"? This removes the prospect record and its site preview.`)) {
       return;
     }
+    await doDelete(slug);
+  }
 
+  async function doDelete(slug: string) {
     setDeleting((prev) => new Set(prev).add(slug));
     setErrors((prev) => { const next = { ...prev }; delete next[slug]; return next; });
 
@@ -187,15 +244,44 @@ export function DuplicatesView({ groups: initialGroups }: { groups: DupeGroup[] 
 
                 {i > 0 && !deleted.has(p.slug) && (
                   <div style={{ marginTop: 8 }}>
-                    {p.status !== "found" ? (
-                      <p style={{ fontSize: 12, color: "var(--color-warn, #d97706)", margin: 0 }}>
-                        Cannot delete — lead is in <strong>{p.status}</strong> stage. Transfer stage info first.
-                      </p>
+                    {pendingTransfer.has(p.slug) ? (
+                      <div style={{ fontSize: 12, background: "var(--admin-bg-warn, #fef3c7)", border: "1px solid var(--color-warn, #d97706)", borderRadius: 6, padding: "8px 10px" }}>
+                        <p style={{ margin: "0 0 6px", fontWeight: 600 }}>
+                          This lead is in &ldquo;{p.status}&rdquo; stage.
+                        </p>
+                        <p style={{ margin: "0 0 8px" }}>
+                          Transfer stage to <strong>{group.prospects[0].name}</strong> (the record to keep), then delete this duplicate?
+                        </p>
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <button
+                            className="admin-btn admin-btn--danger"
+                            onClick={() => confirmTransferAndDelete(p.slug, group.prospects[0].slug, p.status)}
+                            disabled={transferring.has(p.slug)}
+                            style={{ fontSize: 12 }}
+                          >
+                            {transferring.has(p.slug) ? "Transferring…" : "Transfer & delete"}
+                          </button>
+                          <button
+                            className="admin-btn admin-btn--ghost"
+                            onClick={() => setPendingTransfer((prev) => { const next = new Set(prev); next.delete(p.slug); return next; })}
+                            disabled={transferring.has(p.slug)}
+                            style={{ fontSize: 12 }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
                     ) : (
                       <>
                         <button
                           className="admin-btn admin-btn--danger"
-                          onClick={() => handleDelete(p.slug)}
+                          onClick={() => {
+                            if (p.status !== "found") {
+                              handleTransferAndDelete(p.slug, group.prospects[0].slug, p.status);
+                            } else {
+                              handleDelete(p.slug);
+                            }
+                          }}
                           disabled={deleting.has(p.slug)}
                           style={{ fontSize: 12 }}
                         >
