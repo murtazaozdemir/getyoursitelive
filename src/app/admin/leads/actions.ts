@@ -180,12 +180,12 @@ export async function removeContactLockAction(slug: string): Promise<{ ok: boole
 
 export async function updateProspectInfoAction(
   slug: string,
-  data: { name: string; phone: string; address: string; category: string },
+  data: { name: string; phone: string; street: string; city: string; state: string; zip: string; category: string },
 ): Promise<{ ok: boolean; error?: string }> {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) return { ok: false, error: "Unauthorized" };
 
-  const { name, phone, address, category } = data;
+  const { name, phone, street, city, state, zip, category } = data;
   if (!name.trim()) return { ok: false, error: "Name is required." };
 
   // Block if new phone belongs to a different prospect
@@ -199,15 +199,26 @@ export async function updateProspectInfoAction(
     }
   }
 
-  // Update prospect record
-  await updateProspect(slug, { name: name.trim(), phone: phone.trim(), address: address.trim() });
+  // Reconstruct combined address from parts
+  const addressParts = [street.trim(), city.trim(), state.trim() && zip.trim() ? `${state.trim()} ${zip.trim()}` : state.trim() || zip.trim()].filter(Boolean);
+  const address = addressParts.join(", ");
+
+  // Update prospect record (address + separate fields)
+  await updateProspect(slug, {
+    name: name.trim(),
+    phone: phone.trim(),
+    address,
+    city: city.trim() || undefined,
+    state: state.trim() || undefined,
+    zip: zip.trim() || undefined,
+  });
 
   // Keep business JSON in sync (name, phone, address, category)
   const biz = await getBusinessBySlug(slug);
   if (biz) {
     biz.businessInfo.name = name.trim();
     biz.businessInfo.phone = phone.trim();
-    biz.businessInfo.address = address.trim();
+    biz.businessInfo.address = address;
     biz.businessInfo.emergencyPhone = phone.trim();
     biz.category = category.trim();
     await saveBusiness(biz);

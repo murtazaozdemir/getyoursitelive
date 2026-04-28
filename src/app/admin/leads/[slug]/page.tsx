@@ -132,6 +132,9 @@ export default async function ProspectDetailPage({
               name={prospect.name}
               phone={prospect.phone ?? ""}
               address={prospect.address ?? ""}
+              city={prospect.city ?? ""}
+              state={prospect.state ?? ""}
+              zip={prospect.zip ?? ""}
               category={prospect.googleCategory ?? biz?.category ?? "Car repair and maintenance service"}
             />
           </section>

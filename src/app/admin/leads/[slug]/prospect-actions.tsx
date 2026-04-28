@@ -134,7 +134,7 @@ type ActionProps =
   | { action: "status"; slug: string; status: ProspectStatus; label: string; active: boolean; past: boolean; locked?: boolean }
   | { action: "copy"; slug: string; previewUrl: string }
   | { action: "add-note"; slug: string }
-  | { action: "edit-info"; slug: string; name: string; phone: string; address: string; category: string }
+  | { action: "edit-info"; slug: string; name: string; phone: string; address: string; city: string; state: string; zip: string; category: string }
   | { action: "edit-domains"; slug: string; domain1: string; domain2: string; domain3: string }
   | { action: "create-login"; slug: string }
   | { action: "delete"; slug: string };
@@ -184,6 +184,9 @@ export function ProspectActions(props: ActionProps) {
         name={props.name}
         phone={props.phone}
         address={props.address}
+        city={props.city}
+        state={props.state}
+        zip={props.zip}
         category={props.category}
       />
     );

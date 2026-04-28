@@ -71,22 +71,45 @@ export function AddNoteForm({ slug }: { slug: string }) {
   );
 }
 
+/**
+ * Derive street from the combined address by stripping city/state/zip if known.
+ * e.g. "353 Lexington Ave, Clifton, NJ 07011" with city="Clifton" → "353 Lexington Ave"
+ */
+function deriveStreet(address: string, city?: string, state?: string, zip?: string): string {
+  if (!address) return "";
+  // If we have structured fields, parse the street from the combined address
+  if (city || state || zip) {
+    const parts = address.split(",").map((p) => p.trim());
+    if (parts.length >= 2) return parts[0];
+  }
+  return address;
+}
+
 export function EditInfoForm({
   slug,
   name: initialName,
   phone: initialPhone,
   address: initialAddress,
+  city: initialCity,
+  state: initialState,
+  zip: initialZip,
   category: initialCategory,
 }: {
   slug: string;
   name: string;
   phone: string;
   address: string;
+  city: string;
+  state: string;
+  zip: string;
   category: string;
 }) {
   const [name, setName] = useState(initialName);
   const [phone, setPhone] = useState(initialPhone);
-  const [address, setAddress] = useState(initialAddress);
+  const [street, setStreet] = useState(() => deriveStreet(initialAddress, initialCity, initialState, initialZip));
+  const [city, setCity] = useState(initialCity);
+  const [state, setState] = useState(initialState);
+  const [zip, setZip] = useState(initialZip);
   const [category, setCategory] = useState(initialCategory || "Car repair and maintenance service");
   const categoryOptions = BUSINESS_CATEGORIES.includes(initialCategory as typeof BUSINESS_CATEGORIES[number])
     ? BUSINESS_CATEGORIES
@@ -100,7 +123,7 @@ export function EditInfoForm({
     setError("");
     setSaved(false);
     startTransition(async () => {
-      const result = await updateProspectInfoAction(slug, { name, phone, address, category });
+      const result = await updateProspectInfoAction(slug, { name, phone, street, city, state, zip, category });
       if (result.ok) {
         setSaved(true);
         setTimeout(() => setSaved(false), 2500);
@@ -146,14 +169,48 @@ export function EditInfoForm({
         />
       </div>
       <div className="admin-field">
-        <label className="admin-label">Address</label>
+        <label className="admin-label">Street</label>
         <input
           className="admin-input"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
+          value={street}
+          onChange={(e) => setStreet(e.target.value)}
           disabled={isPending}
-          placeholder="123 Main St, City, NJ 07000"
+          placeholder="123 Main St"
         />
+      </div>
+      <div className="admin-field-row">
+        <div className="admin-field admin-field--flex">
+          <label className="admin-label">City</label>
+          <input
+            className="admin-input"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            disabled={isPending}
+            placeholder="City"
+          />
+        </div>
+        <div className="admin-field admin-field--narrow">
+          <label className="admin-label">State</label>
+          <input
+            className="admin-input"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+            disabled={isPending}
+            placeholder="NJ"
+            maxLength={2}
+          />
+        </div>
+        <div className="admin-field admin-field--narrow">
+          <label className="admin-label">Zip</label>
+          <input
+            className="admin-input"
+            value={zip}
+            onChange={(e) => setZip(e.target.value)}
+            disabled={isPending}
+            placeholder="07000"
+            maxLength={10}
+          />
+        </div>
       </div>
       {error && <p className="admin-error">{error}</p>}
       <button
