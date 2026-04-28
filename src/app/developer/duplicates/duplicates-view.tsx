@@ -20,7 +20,7 @@ interface Prospect {
 
 interface DupeGroup {
   key: string;
-  type: "place_id" | "phone" | "name_address";
+  type: "place_id" | "phone" | "address";
   prospects: Prospect[];
 }
 
@@ -80,7 +80,7 @@ export function DuplicatesView({ groups: initialGroups }: { groups: DupeGroup[] 
     switch (type) {
       case "place_id": return "Same Google Place ID";
       case "phone": return "Same phone number";
-      case "name_address": return "Similar name/address";
+      case "address": return "Same address";
       default: return type;
     }
   };

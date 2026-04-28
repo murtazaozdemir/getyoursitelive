@@ -11,7 +11,7 @@ export const metadata = {
 
 interface DupeGroup {
   key: string;
-  type: "place_id" | "phone" | "name_address";
+  type: "place_id" | "phone" | "address";
   prospects: {
     slug: string;
     shortId: number | null;
@@ -161,30 +161,30 @@ export default async function DuplicatesPage() {
     });
   }
 
-  // 3. Duplicate name + address (potential duplicates from different searches)
-  const { results: nameAddrDupes } = await db
+  // 3. Same address (catches "Pete" vs "Pete LLC" vs "Pete's Service Center" at same location)
+  const { results: addrDupes } = await db
     .prepare(
-      `SELECT LOWER(TRIM(name)) AS norm_name, LOWER(TRIM(address)) AS norm_addr, COUNT(*) as cnt
+      `SELECT LOWER(TRIM(address)) AS norm_addr, COUNT(*) as cnt
        FROM prospects
-       WHERE name != '' AND address != ''
-       GROUP BY norm_name, norm_addr
+       WHERE address != '' AND LENGTH(TRIM(address)) >= 10
+       GROUP BY norm_addr
        HAVING cnt > 1
        ORDER BY cnt DESC
        LIMIT 100`,
     )
-    .all<{ norm_name: string; norm_addr: string; cnt: number }>();
+    .all<{ norm_addr: string; cnt: number }>();
 
-  for (const row of nameAddrDupes) {
+  for (const row of addrDupes) {
     const { results: prospects } = await db
       .prepare(
         `SELECT slug, short_id, name, phone, address, google_place_id,
                 google_category, google_rating, google_review_count,
                 status, created_at, updated_at
          FROM prospects
-         WHERE LOWER(TRIM(name)) = ? AND LOWER(TRIM(address)) = ?
+         WHERE LOWER(TRIM(address)) = ?
          ORDER BY created_at ASC`,
       )
-      .bind(row.norm_name, row.norm_addr)
+      .bind(row.norm_addr)
       .all<{
         slug: string;
         short_id: number | null;
@@ -200,7 +200,7 @@ export default async function DuplicatesPage() {
         updated_at: string;
       }>();
 
-    // Skip if already covered by a place_id or phone group
+    // Skip if already covered by any earlier group
     const slugs = prospects.map((p) => p.slug);
     const alreadyCovered = groups.some(
       (g) => g.prospects.some((p) => slugs.includes(p.slug)),
@@ -208,8 +208,8 @@ export default async function DuplicatesPage() {
     if (alreadyCovered) continue;
 
     groups.push({
-      key: `${row.norm_name}|${row.norm_addr}`,
-      type: "name_address",
+      key: row.norm_addr,
+      type: "address",
       prospects: prospects.map((p) => ({
         slug: p.slug,
         shortId: p.short_id,
@@ -264,9 +264,9 @@ export default async function DuplicatesPage() {
         </div>
         <div className="admin-stat-card">
           <span className="admin-stat-value">
-            {groups.filter((g) => g.type === "name_address").length}
+            {groups.filter((g) => g.type === "address").length}
           </span>
-          <span className="admin-stat-label">Same name + address</span>
+          <span className="admin-stat-label">Same address</span>
         </div>
       </div>
 
