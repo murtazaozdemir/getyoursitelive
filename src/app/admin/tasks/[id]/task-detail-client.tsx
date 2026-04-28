@@ -45,7 +45,7 @@ export function TaskDetailClient({
   const [filterQuery, setFilterQuery] = useState("");
 
   const sortedItems = useMemo(() =>
-    [...items].sort((a, b) => a.prospectName.localeCompare(b.prospectName)),
+    [...items].sort((a, b) => (a.prospectName ?? "").localeCompare(b.prospectName ?? "")),
     [items]
   );
 
