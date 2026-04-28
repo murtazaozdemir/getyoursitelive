@@ -53,12 +53,226 @@ export default async function FounderHelpPage() {
       <nav className="help-toc">
         <h3 className="help-toc-title">Contents</h3>
         <ol className="help-toc-list">
+          <li><a href="#client-onboarding">Client Onboarding (Domain to Live)</a></li>
           <li><a href="#zip-search">Zip Search</a></li>
           <li><a href="#users">User Management</a></li>
           <li><a href="#templates">Business Categories &amp; Templates</a></li>
           <li><a href="#tools">Founder Tools</a></li>
         </ol>
       </nav>
+
+      {/* ─── CLIENT ONBOARDING ─── */}
+      <Section id="client-onboarding" title="Client Onboarding (Domain to Live)">
+        <p>
+          Complete steps for taking a paying client from zero to a live site on their own
+          Cloudflare account. Follow every step in order.
+        </p>
+
+        <h3>Part 1 — Buy the Domain</h3>
+        <Step n={1}>
+          <strong>Find a .com domain.</strong> Use IONOS (ionos.com) or another registrar.
+          Search for the client&apos;s business name as a .com. Keep it short, no dashes, no
+          Inc/LLC. If the exact name is taken, try adding the state abbreviation
+          (e.g., <code>starautonj.com</code>).
+        </Step>
+        <Step n={2}>
+          <strong>Purchase the domain.</strong> Use the cheapest plan (typically $1/year for the
+          first year on IONOS). Register under the client&apos;s business name if possible.
+        </Step>
+
+        <h3>Part 2 — Email Account</h3>
+        <Step n={3}>
+          <strong>Create a Tuta email account.</strong> Go to <code>tuta.com</code> and create a free
+          account for this client (e.g., <code>businessname@tuta.com</code>). This email will be
+          used for all service accounts below.
+        </Step>
+        <Tip>
+          Use a consistent naming convention for client emails. The Tuta account is for
+          service signups only — the client never needs to access it.
+        </Tip>
+
+        <h3>Part 3 — Cloudflare Account</h3>
+        <Step n={4}>
+          <strong>Create a Cloudflare account.</strong> Go to <code>dash.cloudflare.com</code> and
+          sign up with the Tuta email. When asked for account type, select <strong>Personal</strong>.
+        </Step>
+        <Step n={5}>
+          <strong>Add the domain to Cloudflare.</strong> Click <strong>Add a site or application</strong> &rarr;
+          enter the domain name &rarr; select the <strong>Free</strong> plan &rarr;
+          click <strong>Continue</strong>.
+        </Step>
+        <Step n={6}>
+          <strong>Update nameservers at the registrar.</strong> Cloudflare shows two nameservers
+          (e.g., <code>alice.ns.cloudflare.com</code>). Go to IONOS (or your registrar) &rarr;
+          domain settings &rarr; <strong>Use custom nameservers</strong> &rarr; paste both Cloudflare
+          nameservers &rarr; save.
+        </Step>
+        <Step n={7}>
+          <strong>Confirm in Cloudflare.</strong> Back in Cloudflare, click <strong>&ldquo;I&apos;ve updated
+          my nameservers&rdquo;</strong> &rarr; then <strong>Check nameservers</strong>. It can take up
+          to 24 hours but usually completes in minutes.
+        </Step>
+        <Tip>
+          Wait until Cloudflare shows the domain as <strong>Active</strong> before proceeding
+          to deployment. You can continue with GitHub setup in the meantime.
+        </Tip>
+
+        <h3>Part 4 — GitHub Account &amp; Repository</h3>
+        <Step n={8}>
+          <strong>Create a GitHub account.</strong> Go to <code>github.com</code> and sign up with
+          the same Tuta email.
+        </Step>
+        <Step n={9}>
+          <strong>Generate the client template locally.</strong> From the CarMechanic
+          project root, run:
+          <pre className="help-code">
+{`node scripts/generate-client-template.js \\
+  "Business Name" \\
+  "(555) 123-4567" \\
+  "123 Main St, City, ST 07011" \\
+  /Users/Shared/client-template-OUTPUT \\
+  "" \\
+  auto-repair`}
+          </pre>
+          Leave the worker URL empty for now — you&apos;ll set it after deploying the Worker.
+        </Step>
+        <Step n={10}>
+          <strong>Create a GitHub repo and push.</strong> In the generated output directory:
+          <pre className="help-code">
+{`cd /Users/Shared/client-template-OUTPUT
+git init
+git add -A
+git commit -m "Initial client site"
+# Create repo on GitHub, then:
+git remote add origin https://github.com/ACCOUNT/REPO.git
+git push -u origin main`}
+          </pre>
+        </Step>
+
+        <h3>Part 5 — Cloudflare Workers &amp; KV</h3>
+        <Step n={11}>
+          <strong>Authenticate wrangler.</strong> Run <code>npx wrangler login</code> and sign in
+          with the client&apos;s Cloudflare account.
+        </Step>
+        <Step n={12}>
+          <strong>Create KV namespaces.</strong>
+          <pre className="help-code">
+{`npx wrangler kv namespace create CONTENT
+npx wrangler kv namespace create RATE_LIMIT`}
+          </pre>
+          Copy both IDs — you&apos;ll need them for <code>wrangler.toml</code>.
+        </Step>
+        <Step n={13}>
+          <strong>Create R2 bucket.</strong> In the Cloudflare dashboard, go to
+          R2 &rarr; <strong>Create bucket</strong> &rarr; name it <code>site-uploads</code>.
+        </Step>
+        <Step n={14}>
+          <strong>Update wrangler.toml.</strong> Edit <code>worker/wrangler.toml</code> — paste the
+          KV namespace IDs and R2 bucket name.
+        </Step>
+        <Step n={15}>
+          <strong>Deploy the Worker.</strong>
+          <pre className="help-code">
+{`cd worker
+npx wrangler deploy`}
+          </pre>
+          Note the Worker URL printed (e.g., <code>https://site-api.account.workers.dev</code>).
+        </Step>
+        <Step n={16}>
+          <strong>Set Worker secrets.</strong>
+          <pre className="help-code">
+{`npx wrangler secret put PASSWORD
+# Enter the admin password for the site editor
+
+npx wrangler secret put TOKEN_SECRET
+# Enter a random 32+ character string
+
+npx wrangler secret put ALLOWED_ORIGIN
+# Enter the site URL, e.g.: https://clientdomain.com`}
+          </pre>
+        </Step>
+
+        <h3>Part 6 — Update Config &amp; Seed Content</h3>
+        <Step n={17}>
+          <strong>Update config.js with Worker URL.</strong> Edit the site&apos;s <code>config.js</code> and
+          set <code>API_BASE</code> to the Worker URL from step 15 (e.g.,
+          <code>https://site-api.account.workers.dev/api</code>).
+        </Step>
+        <Step n={18}>
+          <strong>Seed content to KV.</strong>
+          <pre className="help-code">
+{`cd worker
+npx wrangler kv key put "business" \\
+  --path ../sample-content.json \\
+  --binding CONTENT --remote`}
+          </pre>
+        </Step>
+        <Tip>
+          The KV key MUST be <code>&ldquo;business&rdquo;</code> — that&apos;s what the Worker reads.
+          Using <code>&ldquo;content&rdquo;</code> or any other key name will show
+          &ldquo;Site loading... Content not yet configured.&rdquo;
+        </Tip>
+
+        <h3>Part 7 — Deploy to Cloudflare Pages</h3>
+        <Step n={19}>
+          <strong>Connect GitHub to Cloudflare Pages.</strong> In the Cloudflare dashboard &rarr;
+          <strong>Workers &amp; Pages</strong> &rarr; <strong>Create</strong> &rarr;
+          <strong>Pages</strong> &rarr; <strong>Connect to Git</strong>.
+        </Step>
+        <Step n={20}>
+          <strong>Select the repo</strong> you pushed in step 10. Set these build settings:
+          <ul>
+            <li>Framework preset: <strong>None</strong></li>
+            <li>Build command: <em>(leave empty)</em></li>
+            <li>Build output directory: <code>site</code></li>
+          </ul>
+        </Step>
+        <Step n={21}>
+          <strong>Set production branch</strong> to <code>main</code> and click <strong>Save and Deploy</strong>.
+        </Step>
+
+        <h3>Part 8 — Custom Domain</h3>
+        <Step n={22}>
+          <strong>Add custom domain.</strong> In the Pages project &rarr;
+          <strong>Custom domains</strong> &rarr; add the client&apos;s domain
+          (e.g., <code>clientdomain.com</code>). Also add <code>www.clientdomain.com</code>.
+        </Step>
+        <Step n={23}>
+          <strong>Update ALLOWED_ORIGIN.</strong> If you set the Pages URL earlier, update it to
+          include the custom domain:
+          <pre className="help-code">
+{`npx wrangler secret put ALLOWED_ORIGIN
+# Enter: https://clientdomain.com,https://www.clientdomain.com`}
+          </pre>
+        </Step>
+
+        <h3>Part 9 — Verify</h3>
+        <Step n={24}>
+          <strong>Check the public site.</strong> Visit the domain — all sections should render
+          with the client&apos;s content.
+        </Step>
+        <Step n={25}>
+          <strong>Check the browser console.</strong> No CSP, CORS, or fetch errors.
+        </Step>
+        <Step n={26}>
+          <strong>Test the editor.</strong> Go to <code>/mysite/login.html</code> &rarr; sign in
+          with the password from step 16 &rarr; edit content &rarr; verify it saves and
+          persists on reload.
+        </Step>
+        <Step n={27}>
+          <strong>Hand over credentials.</strong> Give the client:
+          <ul>
+            <li>Their site URL</li>
+            <li>The admin password</li>
+            <li>Quick walkthrough of the editor (click to edit, drag to reorder)</li>
+          </ul>
+        </Step>
+        <Tip>
+          After handover, the client&apos;s site runs independently forever. No server to maintain,
+          no database to manage, no monthly fees. They edit their own content and Cloudflare
+          handles hosting, CDN, and SSL for free.
+        </Tip>
+      </Section>
 
       {/* ─── ZIP SEARCH ─── */}
       <Section id="zip-search" title="Zip Search">
