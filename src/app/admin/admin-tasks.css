@@ -296,6 +296,8 @@
   font-family: inherit;
   color: var(--admin-text);
   background: var(--admin-bg);
+  resize: vertical;
+  line-height: 1.4;
 }
 .task-item-notes-input:focus {
   outline: none;

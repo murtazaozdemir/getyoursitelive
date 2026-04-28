@@ -446,14 +446,13 @@ function TaskItemRow({
       </div>
 
       <div className="task-item-notes">
-        <input
-          type="text"
+        <textarea
           className="task-item-notes-input"
           placeholder="Notes..."
+          rows={3}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           onBlur={() => onNotesBlur(notes)}
-          onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
         />
       </div>
 
