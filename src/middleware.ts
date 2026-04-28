@@ -38,6 +38,7 @@ function isLoginPath(pathname: string): boolean {
 }
 
 function loginPathFor(pathname: string): string {
+  if (pathname.startsWith("/developer")) return "/admin/login";
   const slugMatch = pathname.match(/^\/([^/]+)\/admin(?:\/|$)/);
   if (slugMatch) return `/${slugMatch[1]}/admin/login`;
   return "/admin/login";
@@ -77,6 +78,7 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/admin/:path*",
+    "/developer/:path*",
     "/:slug/admin/:path*",
   ],
 };

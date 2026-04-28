@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import Link from "next/link";
-import { sendInviteAction } from "@/app/admin/developer/users/actions";
+import { sendInviteAction } from "@/app/developer/users/actions";
 
 const initialState = { ok: false as boolean, error: undefined as string | undefined, inviteUrl: undefined as string | undefined };
 
@@ -26,7 +26,7 @@ export function NewUserForm() {
           </div>
         )}
         <div className="admin-actions" style={{ marginTop: 20 }}>
-          <Link href="/admin/developer/users" className="admin-btn admin-btn--primary">Back to Users</Link>
+          <Link href="/developer/users" className="admin-btn admin-btn--primary">Back to Users</Link>
           <button
             type="button"
             className="admin-btn admin-btn--ghost"
@@ -103,7 +103,7 @@ export function NewUserForm() {
         >
           {isPending ? "Sending invitation…" : "Send invitation"}
         </button>
-        <Link href="/admin/developer/users" className="admin-btn admin-btn--ghost">
+        <Link href="/developer/users" className="admin-btn admin-btn--ghost">
           Cancel
         </Link>
       </div>

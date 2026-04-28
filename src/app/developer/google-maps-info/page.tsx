@@ -71,9 +71,9 @@ export default async function GoogleMapsInfoPage() {
       <div className="admin-page-nav">
         <span className="admin-page-nav-current">Google Maps Info</span>
         <span className="admin-page-nav-sep">/</span>
-        <Link href="/admin/developer/categories">Categories &amp; Templates</Link>
+        <Link href="/developer/categories">Categories &amp; Templates</Link>
         <span className="admin-page-nav-sep">/</span>
-        <Link href="/admin/developer/google-fields">Google Fields</Link>
+        <Link href="/developer/google-fields">Google Fields</Link>
       </div>
 
       {/* Unmapped categories alert */}

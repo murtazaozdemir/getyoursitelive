@@ -129,9 +129,9 @@ export default async function GoogleFieldsPage() {
       </div>
 
       <div className="admin-page-nav">
-        <Link href="/admin/developer/google-maps-info">Google Maps Info</Link>
+        <Link href="/developer/google-maps-info">Google Maps Info</Link>
         <span className="admin-page-nav-sep">/</span>
-        <Link href="/admin/developer/categories">Categories &amp; Templates</Link>
+        <Link href="/developer/categories">Categories &amp; Templates</Link>
         <span className="admin-page-nav-sep">/</span>
         <span className="admin-page-nav-current">Google Fields</span>
       </div>

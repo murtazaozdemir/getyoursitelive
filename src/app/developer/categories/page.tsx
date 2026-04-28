@@ -28,11 +28,11 @@ export default async function CategoriesPage() {
       </div>
 
       <div className="admin-page-nav">
-        <Link href="/admin/developer/google-maps-info">Google Maps Info</Link>
+        <Link href="/developer/google-maps-info">Google Maps Info</Link>
         <span className="admin-page-nav-sep">/</span>
         <span className="admin-page-nav-current">Categories &amp; Templates</span>
         <span className="admin-page-nav-sep">/</span>
-        <Link href="/admin/developer/google-fields">Google Fields</Link>
+        <Link href="/developer/google-fields">Google Fields</Link>
       </div>
 
       <CategoriesView />

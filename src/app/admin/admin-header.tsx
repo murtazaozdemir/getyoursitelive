@@ -108,17 +108,17 @@ export function AdminHeader({ user, isDeveloper }: { user: SessionUser; isDevelo
                   <HelpCircle className="admin-account-dropdown-icon" /> Help &amp; Guide
                 </Link>
                 {isDeveloper && (
-                  <Link href="/admin/developer/help" className="admin-account-dropdown-item">
+                  <Link href="/developer/help" className="admin-account-dropdown-item">
                     <HelpCircle className="admin-account-dropdown-icon" /> Developer Only Help
                   </Link>
                 )}
                 {isDeveloper && (
                   <>
                     <div className="admin-account-dropdown-divider" />
-                    <Link href="/admin/developer/users" className="admin-account-dropdown-item">
+                    <Link href="/developer/users" className="admin-account-dropdown-item">
                       <Users className="admin-account-dropdown-icon" /> Users
                     </Link>
-                    <Link href="/admin/developer/visits" className="admin-account-dropdown-item">
+                    <Link href="/developer/visits" className="admin-account-dropdown-item">
                       <Footprints className="admin-account-dropdown-icon" /> Lead Visits
                     </Link>
                     <Link href="/admin/audit" className="admin-account-dropdown-item">
@@ -127,16 +127,16 @@ export function AdminHeader({ user, isDeveloper }: { user: SessionUser; isDevelo
                     <Link href="/admin/setup" className="admin-account-dropdown-item">
                       <Wrench className="admin-account-dropdown-icon" /> Setup
                     </Link>
-                    <Link href="/admin/developer/google-maps-info" className="admin-account-dropdown-item">
+                    <Link href="/developer/google-maps-info" className="admin-account-dropdown-item">
                       <MapPin className="admin-account-dropdown-icon" /> Google Maps Info
                     </Link>
                     <Link href="/admin/leads/search" className="admin-account-dropdown-item">
                       <Search className="admin-account-dropdown-icon" /> Zip Search
                     </Link>
-                    <Link href="/admin/developer/domains" className="admin-account-dropdown-item">
+                    <Link href="/developer/domains" className="admin-account-dropdown-item">
                       <Globe className="admin-account-dropdown-icon" /> Domain Generator
                     </Link>
-                    <Link href="/admin/developer/duplicates" className="admin-account-dropdown-item">
+                    <Link href="/developer/duplicates" className="admin-account-dropdown-item">
                       <Copy className="admin-account-dropdown-icon" /> Duplicate Cleaner
                     </Link>
                     <a href="/api/admin/backup" className="admin-account-dropdown-item" download>
