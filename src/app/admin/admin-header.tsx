@@ -82,7 +82,7 @@ export function AdminHeader({ user, isDeveloper }: { user: SessionUser; isDevelo
                 : null;
               if (!version && !dateStr) return null;
               return (
-                <span className="admin-header-build">
+                <span className="admin-header-build" suppressHydrationWarning>
                   {version}{dateStr ? ` (${dateStr})` : ""}
                 </span>
               );
