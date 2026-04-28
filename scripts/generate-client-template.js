@@ -112,7 +112,7 @@ function main() {
   const clientContent = platformToClientTemplate(platformBusiness);
 
   // 3. Source = client-template static files
-  const templateSource = path.resolve(__dirname, "../../client-template");
+  const templateSource = path.resolve(__dirname, "../../client-template-autorepair");
   if (!fs.existsSync(templateSource)) {
     console.error(`ERROR: Client template source not found at ${templateSource}`);
     process.exit(1);
