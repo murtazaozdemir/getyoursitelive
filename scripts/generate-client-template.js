@@ -3,7 +3,7 @@
  * Generate Client Template
  *
  * Produces a standalone client template package from the master template repo
- * (client-template-autorepair) + platform template data. Single source of truth —
+ * (client-template) + platform template data. Single source of truth —
  * shared JS/CSS comes from the master, content comes from platform templates.
  *
  * Usage:
@@ -240,10 +240,10 @@ function main() {
   console.log(`  Output: ${outputDir}\n`);
 
   // Source = master template repo
-  const templateSource = path.resolve(__dirname, "../../client-template-autorepair");
+  const templateSource = path.resolve(__dirname, "../../client-template");
   if (!fs.existsSync(templateSource)) {
     console.error(`ERROR: Master template not found at ${templateSource}`);
-    console.error("The client-template-autorepair repo must be a sibling of the CarMechanic project.");
+    console.error("The client-template repo must be a sibling of the CarMechanic project.");
     process.exit(1);
   }
 

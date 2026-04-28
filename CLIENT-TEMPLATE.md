@@ -41,7 +41,7 @@ The client owns the domain and site forever.
 | Folder | Purpose |
 |--------|---------|
 | `/Users/Shared/CarMechanic/` | Main platform. Generation script at `scripts/generate-client-template.js` |
-| `/Users/Shared/client-template-autorepair/` | Source repo for site files. Contains shared CSS/JS/Worker + vertical subfolders |
+| `/Users/Shared/client-template/` | Source repo for site files. Contains shared CSS/JS/Worker + vertical subfolders |
 | `/Users/Shared/client-template-barber/` | Standalone generated output for barber (from generation script) |
 
 ## Live URLs (demo site)
@@ -182,7 +182,7 @@ node scripts/generate-client-template.js \
 
 Arguments: name, phone, address, output-dir, worker-url (optional), vertical (default: `auto-repair`).
 
-This copies source files from `client-template-autorepair/`, generates `config.js`, `_headers`, and `sample-content.json`.
+This copies source files from `client-template/`, generates `config.js`, `_headers`, and `sample-content.json`.
 
 ### Step 2: Create Cloudflare resources
 
@@ -361,7 +361,7 @@ Full details: `docs/client-template-security/SECURITY.md`
 - Worker: `?site=` param on content GET/POST, `ALLOWED_SITES` allowlist
 - JS redirects changed from absolute to relative paths
 - Generation script reads from platform TypeScript templates via `extract-template.ts`
-- Local folder renamed: `client-template` → `client-template-autorepair`
+- Local folder renamed: `client-template` → `client-template`
 - seedreply.com fully deployed and verified
 - Full deployment guide written
 
