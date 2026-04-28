@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
+import { findUserById } from "@/lib/users";
 import { ProfileForm, ChangeEmailForm, ChangePasswordForm } from "./account-actions";
 
 export const metadata = {
@@ -8,8 +9,14 @@ export const metadata = {
 };
 
 export default async function AccountPage() {
-  const user = await getCurrentUser();
-  if (!user) redirect("/admin/login");
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser) redirect("/admin/login");
+
+  // Fetch the full user record from DB (session JWT only has id/email/role/name)
+  const fullUser = await findUserById(sessionUser.id);
+  const user = fullUser
+    ? { ...sessionUser, firstName: fullUser.firstName, lastName: fullUser.lastName, phone: fullUser.phone, street: fullUser.street, city: fullUser.city, state: fullUser.state, zip: fullUser.zip }
+    : sessionUser;
 
   return (
     <div className="admin-page">
