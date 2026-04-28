@@ -70,7 +70,7 @@ export function ProposalContent({
               <th>Found on Google</th>
               <th>Yours to keep</th>
               <th>No monthly cost</th>
-              <th>Takes bookings</th>
+              <th>Your own .com</th>
             </tr>
           </thead>
           <tbody>
@@ -87,7 +87,7 @@ export function ProposalContent({
             <tr>
               <td>Wix / Squarespace</td>
               <td className="yes">&#x2713;</td><td className="no">&#x2717;</td>
-              <td className="no">&#x2717;</td><td className="yes">&#x2713;</td>
+              <td className="no">&#x2717;</td><td className="no">&#x2717;</td>
             </tr>
             <tr className="proposal-table-highlight">
               <td><strong>Your own site</strong></td>
