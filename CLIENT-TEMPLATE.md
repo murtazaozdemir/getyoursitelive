@@ -300,7 +300,7 @@ All 19 audit findings + 5 Red Team simulation findings resolved. Key hardening:
 - Path traversal prevention on image endpoint
 - `CF-Connecting-IP` only for rate limiting (not spoofable `X-Forwarded-For`)
 
-Full details: `SECURITY.md` in the template repo.
+Full details: `docs/client-template-security/SECURITY.md`
 
 ---
 

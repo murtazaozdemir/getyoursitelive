@@ -160,7 +160,7 @@ const API_BASE = "${apiBase}";
   fs.writeFileSync(contentPath, JSON.stringify(clientContent, null, 2) + "\n");
 
   // 7. Copy supporting files
-  for (const file of [".gitignore", "CLAUDE.md", "SECURITY.md", "AUDIT.md"]) {
+  for (const file of [".gitignore", "CLAUDE.md"]) {
     const src = path.join(templateSource, file);
     if (fs.existsSync(src)) {
       fs.copyFileSync(src, path.join(outputDir, file));
