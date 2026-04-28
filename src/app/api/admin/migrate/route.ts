@@ -408,41 +408,46 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     let updated = 0;
     let skipped = 0;
 
-    // Photo URL replacements: old → new
-    const replacements: [string, string][] = [
-      // Hero: barbershop scene → barber cutting hair mirror reflection
-      ["pexels-photo-1813272.jpeg", "pexels-photo-1860567.jpeg"],
-      ["photos/1813272/", "photos/1860567/"],
-      // About primary: old shop → barbershop with clients
-      ["pexels-photo-1319460.jpeg", "pexels-photo-7697329.jpeg"],
-      ["photos/1319460/", "photos/7697329/"],
-      // About secondary: man in hat → beard trim close-up
-      ["pexels-photo-3998429.jpeg", "pexels-photo-3998421.jpeg"],
-      ["photos/3998429/", "photos/3998421/"],
-      // Gallery: old fade → razor fade
-      ["pexels-photo-1570807.jpeg", "pexels-photo-2809652.jpeg"],
-      ["photos/1570807/", "photos/2809652/"],
-      // Gallery: old hot towel → towel on face
-      ["pexels-photo-3993449.jpeg", "pexels-photo-8867553.jpeg"],
-      ["photos/3993449/", "photos/8867553/"],
-      // Gallery: old styled → man in chair
-      ["pexels-photo-3992874.jpeg", "pexels-photo-4625644.jpeg"],
-      ["photos/3992874/", "photos/4625644/"],
+    // Photo ID replacements: old Pexels ID → new Pexels ID
+    const idReplacements: [string, string][] = [
+      ["1813272", "1860567"],   // Hero → barber mirror reflection
+      ["1319460", "7697329"],   // About primary → barbershop with clients
+      ["3998429", "3998421"],   // About secondary → beard trim close-up
+      ["1570807", "2809652"],   // Gallery fade → razor fade
+      ["3993449", "8867553"],   // Gallery hot towel → towel on face
+      ["3992874", "4625644"],   // Gallery styled → man in chair
     ];
 
+    // Search broadly — category might be "Barber shop", "barber shop", "Hair salon", etc.
     const { results } = await db
-      .prepare("SELECT slug, content FROM businesses WHERE category = 'Barber shop'")
+      .prepare("SELECT slug, content FROM businesses WHERE LOWER(category) LIKE '%barber%' OR LOWER(category) LIKE '%hair salon%'")
       .all<{ slug: string; content: string }>();
 
-    log.push(`Found ${results.length} barber businesses`);
+    log.push(`Found ${results.length} barber/salon businesses`);
 
     for (const row of results) {
+      if (!row.content) {
+        log.push(`${row.slug}: no content, skipped`);
+        skipped++;
+        continue;
+      }
+
       let content = row.content;
       let changed = false;
 
-      for (const [oldStr, newStr] of replacements) {
-        if (content.includes(oldStr)) {
-          content = content.replaceAll(oldStr, newStr);
+      for (const [oldId, newId] of idReplacements) {
+        // Replace both "pexels-photo-OLDID" and "photos/OLDID/"
+        const oldPhoto = `pexels-photo-${oldId}`;
+        const newPhoto = `pexels-photo-${newId}`;
+        const oldPath = `photos/${oldId}/`;
+        const newPath = `photos/${newId}/`;
+
+        while (content.indexOf(oldPhoto) !== -1) {
+          content = content.split(oldPhoto).join(newPhoto);
+          changed = true;
+        }
+        while (content.indexOf(oldPath) !== -1) {
+          content = content.split(oldPath).join(newPath);
           changed = true;
         }
       }
