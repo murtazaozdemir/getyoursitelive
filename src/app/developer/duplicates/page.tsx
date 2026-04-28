@@ -11,7 +11,7 @@ export const metadata = {
 
 interface DupeGroup {
   key: string;
-  type: "place_id" | "phone" | "address";
+  type: "place_id" | "phone" | "name_address";
   prospects: {
     slug: string;
     shortId: number | null;
@@ -161,8 +161,9 @@ export default async function DuplicatesPage() {
     });
   }
 
-  // 3. Same address (catches "Pete" vs "Pete LLC" vs "Pete's Service Center" at same location)
-  const { results: addrDupes } = await db
+  // 3. Same name + address (catches "Pete" vs "Pete LLC" at the same location)
+  // Group by address first, then cluster by similar names within each address
+  const { results: addrGroups } = await db
     .prepare(
       `SELECT LOWER(TRIM(address)) AS norm_addr, COUNT(*) as cnt
        FROM prospects
@@ -176,7 +177,17 @@ export default async function DuplicatesPage() {
     )
     .all<{ norm_addr: string; cnt: number }>();
 
-  for (const row of addrDupes) {
+  /** Strip LLC, Inc, Corp, etc. and punctuation for fuzzy name comparison */
+  function normalizeName(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/\b(llc|inc|corp|ltd|co|company|the|and|&)\b/g, "")
+      .replace(/[''.,\-]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  for (const row of addrGroups) {
     const { results: prospects } = await db
       .prepare(
         `SELECT slug, short_id, name, phone, address, google_place_id,
@@ -202,31 +213,53 @@ export default async function DuplicatesPage() {
         updated_at: string;
       }>();
 
-    // Skip if already covered by any earlier group
-    const slugs = prospects.map((p) => p.slug);
-    const alreadyCovered = groups.some(
-      (g) => g.prospects.some((p) => slugs.includes(p.slug)),
-    );
-    if (alreadyCovered) continue;
+    // Cluster prospects by normalized name — only group those with similar names
+    const clusters = new Map<string, typeof prospects>();
+    for (const p of prospects) {
+      const norm = normalizeName(p.name);
+      // Find an existing cluster whose key is a substring of this name or vice versa
+      let matched = false;
+      for (const [key, cluster] of clusters) {
+        if (norm.includes(key) || key.includes(norm)) {
+          cluster.push(p);
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        clusters.set(norm, [p]);
+      }
+    }
 
-    groups.push({
-      key: row.norm_addr,
-      type: "address",
-      prospects: prospects.map((p) => ({
-        slug: p.slug,
-        shortId: p.short_id,
-        name: p.name,
-        phone: p.phone,
-        address: p.address,
-        googlePlaceId: p.google_place_id,
-        googleCategory: p.google_category,
-        googleRating: p.google_rating,
-        googleReviewCount: p.google_review_count,
-        status: p.status,
-        createdAt: p.created_at,
-        updatedAt: p.updated_at,
-      })),
-    });
+    // Only keep clusters with 2+ records (actual duplicates)
+    for (const [, cluster] of clusters) {
+      if (cluster.length < 2) continue;
+
+      const slugs = cluster.map((p) => p.slug);
+      const alreadyCovered = groups.some(
+        (g) => g.prospects.some((p) => slugs.includes(p.slug)),
+      );
+      if (alreadyCovered) continue;
+
+      groups.push({
+        key: `${cluster[0].name} @ ${cluster[0].address}`,
+        type: "name_address",
+        prospects: cluster.map((p) => ({
+          slug: p.slug,
+          shortId: p.short_id,
+          name: p.name,
+          phone: p.phone,
+          address: p.address,
+          googlePlaceId: p.google_place_id,
+          googleCategory: p.google_category,
+          googleRating: p.google_rating,
+          googleReviewCount: p.google_review_count,
+          status: p.status,
+          createdAt: p.created_at,
+          updatedAt: p.updated_at,
+        })),
+      });
+    }
   }
 
   return (
@@ -236,7 +269,7 @@ export default async function DuplicatesPage() {
           <p className="admin-eyebrow">Developer</p>
           <h1 className="admin-h1">Duplicate Cleaner</h1>
           <p className="admin-lede">
-            Prospects that share a Google Place ID, phone number, or name + address. Review and delete duplicates.
+            Prospects that share a Google Place ID, phone number, or similar name at the same address. Review and delete duplicates.
           </p>
         </div>
       </div>
@@ -266,9 +299,9 @@ export default async function DuplicatesPage() {
         </div>
         <div className="admin-stat-card">
           <span className="admin-stat-value">
-            {groups.filter((g) => g.type === "address").length}
+            {groups.filter((g) => g.type === "name_address").length}
           </span>
-          <span className="admin-stat-label">Same address</span>
+          <span className="admin-stat-label">Same name + address</span>
         </div>
       </div>
 
