@@ -93,38 +93,56 @@ export default async function FounderHelpPage() {
 
         <h3>Part 3 — Cloudflare Account</h3>
         <Step n={4}>
-          <strong>Create a Cloudflare account.</strong> Go to <code>dash.cloudflare.com</code> and
-          sign up with the Tuta email. When asked for account type, select <strong>Personal</strong>.
+          <strong>Create a Cloudflare account.</strong> Go to <code>dash.cloudflare.com/sign-up</code>.
+          Enter the Protonmail email and a password. When it asks &ldquo;What type of account
+          are you creating?&rdquo; select <strong>Personal</strong>. You&apos;ll land on the
+          Cloudflare dashboard.
         </Step>
         <Step n={5}>
-          <strong>Add the domain to Cloudflare.</strong> Click <strong>Add a site or application</strong> &rarr;
-          enter the domain name &rarr; select the <strong>Free</strong> plan &rarr;
-          click <strong>Continue</strong>.
+          <strong>Add the domain to Cloudflare.</strong> On the dashboard home, click
+          <strong> Add a site or application</strong> (blue button, top right). On the next screen:
+          <ul>
+            <li>Type the domain name (e.g., <code>clientdomain.com</code>) — no <code>www</code>, just the root</li>
+            <li>Click <strong>Continue</strong></li>
+            <li>It shows plan options — scroll down and select <strong>Free</strong> ($0/month)</li>
+            <li>Click <strong>Continue</strong> again</li>
+          </ul>
+          Cloudflare will scan existing DNS records. You can skip/continue through this —
+          the domain is new so there are no records to import.
         </Step>
         <Step n={6}>
-          <strong>Update nameservers at the registrar.</strong> Cloudflare shows two nameservers
-          (e.g., <code>alice.ns.cloudflare.com</code>). Go to IONOS (or your registrar) &rarr;
-          domain settings &rarr; <strong>Use custom nameservers</strong> &rarr; paste both Cloudflare
-          nameservers &rarr; save.
+          <strong>Copy the Cloudflare nameservers.</strong> Cloudflare now shows two nameserver
+          addresses (e.g., <code>alice.ns.cloudflare.com</code> and <code>bob.ns.cloudflare.com</code>).
+          Copy both of them.
         </Step>
         <Step n={7}>
-          <strong>Confirm in Cloudflare.</strong> Back in Cloudflare, click <strong>&ldquo;I&apos;ve updated
-          my nameservers&rdquo;</strong> &rarr; then <strong>Check nameservers</strong>. It can take up
-          to 24 hours but usually completes in minutes.
+          <strong>Update nameservers at IONOS.</strong> Open IONOS in another tab &rarr; log in &rarr;
+          go to <strong>Domains &amp; SSL</strong> &rarr; click the domain &rarr;
+          <strong>DNS Settings</strong> or <strong>Nameservers</strong> &rarr;
+          select <strong>Use custom nameservers</strong> &rarr; paste both Cloudflare nameservers
+          (one per field) &rarr; <strong>Save</strong>.
+        </Step>
+        <Step n={8}>
+          <strong>Confirm in Cloudflare.</strong> Go back to the Cloudflare tab. At the bottom of the
+          nameserver page, click <strong>&ldquo;I&apos;ve updated my nameservers, check now&rdquo;</strong>.
+          Cloudflare will check — it can take a few minutes up to 24 hours, but usually
+          activates within 5-10 minutes. You&apos;ll see the domain status change
+          to <strong>Active</strong> with a green checkmark.
         </Step>
         <Tip>
-          Wait until Cloudflare shows the domain as <strong>Active</strong> before proceeding
-          to deployment. You can continue with GitHub setup in the meantime.
+          You don&apos;t need to wait for nameserver activation to continue. Do the GitHub and
+          Worker setup while it propagates. Just come back to verify it&apos;s <strong>Active</strong> before
+          adding the custom domain to Pages (Part 8).
         </Tip>
 
         <h3>Part 4 — GitHub Account &amp; Repository</h3>
-        <Step n={8}>
-          <strong>Create a GitHub account.</strong> Go to <code>github.com</code> and sign up with
-          the same Tuta email.
-        </Step>
         <Step n={9}>
+          <strong>Create a GitHub account.</strong> Go to <code>github.com</code> and sign up with
+          the same Protonmail email. Choose the free plan. Verify the email.
+        </Step>
+        <Step n={10}>
           <strong>Generate the client template locally.</strong> From the CarMechanic
-          project root, run:
+          project root (<code>/Users/Shared/CarMechanic</code>), run:
           <pre className="help-code">
 {`node scripts/generate-client-template.js \\
   "Business Name" \\
@@ -135,71 +153,112 @@ export default async function FounderHelpPage() {
   auto-repair`}
           </pre>
           Leave the worker URL empty for now — you&apos;ll set it after deploying the Worker.
+          The last argument is the vertical: <code>auto-repair</code> or <code>barber</code>.
         </Step>
-        <Step n={10}>
-          <strong>Create a GitHub repo and push.</strong> In the generated output directory:
+        <Step n={11}>
+          <strong>Create a GitHub repo and push.</strong> On GitHub, click <strong>+ New repository</strong>.
+          Name it something like <code>client-site</code>. Keep it <strong>Private</strong>. Don&apos;t
+          add a README. Then in your terminal:
           <pre className="help-code">
 {`cd /Users/Shared/client-template-OUTPUT
 git init
 git add -A
 git commit -m "Initial client site"
-# Create repo on GitHub, then:
 git remote add origin https://github.com/ACCOUNT/REPO.git
 git push -u origin main`}
           </pre>
         </Step>
 
         <h3>Part 5 — Cloudflare Workers &amp; KV</h3>
-        <Step n={11}>
-          <strong>Authenticate wrangler.</strong> Run <code>npx wrangler login</code> and sign in
-          with the client&apos;s Cloudflare account.
-        </Step>
         <Step n={12}>
-          <strong>Create KV namespaces.</strong>
+          <strong>Authenticate wrangler to the client&apos;s account.</strong> In your terminal, run
+          <code>npx wrangler login</code>. A browser window opens — sign in with the
+          client&apos;s Cloudflare credentials (the Protonmail account from step 4). Once
+          authenticated, wrangler commands will target their account.
+        </Step>
+        <Step n={13}>
+          <strong>Create KV namespaces.</strong> These are the key-value stores for site content
+          and rate limiting:
           <pre className="help-code">
 {`npx wrangler kv namespace create CONTENT
 npx wrangler kv namespace create RATE_LIMIT`}
           </pre>
-          Copy both IDs — you&apos;ll need them for <code>wrangler.toml</code>.
-        </Step>
-        <Step n={13}>
-          <strong>Create R2 bucket.</strong> In the Cloudflare dashboard, go to
-          R2 &rarr; <strong>Create bucket</strong> &rarr; name it <code>site-uploads</code>.
+          Each command prints an <code>id</code> — copy both. You&apos;ll paste them
+          into <code>wrangler.toml</code> in step 15.
         </Step>
         <Step n={14}>
-          <strong>Update wrangler.toml.</strong> Edit <code>worker/wrangler.toml</code> — paste the
-          KV namespace IDs and R2 bucket name.
+          <strong>Create R2 bucket for image uploads.</strong> In the Cloudflare dashboard &rarr;
+          sidebar &rarr; <strong>R2 Object Storage</strong> &rarr; <strong>Create bucket</strong>.
+          Name it <code>site-uploads</code>. Default settings are fine.
         </Step>
         <Step n={15}>
+          <strong>Update wrangler.toml.</strong> Open <code>worker/wrangler.toml</code> in the
+          generated output. Replace the placeholder IDs:
+          <pre className="help-code">
+{`[[kv_namespaces]]
+binding = "CONTENT"
+id = "paste-content-kv-id-here"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "paste-rate-limit-kv-id-here"
+
+[[r2_buckets]]
+binding = "UPLOADS"
+bucket_name = "site-uploads"`}
+          </pre>
+        </Step>
+        <Step n={16}>
           <strong>Deploy the Worker.</strong>
           <pre className="help-code">
 {`cd worker
 npx wrangler deploy`}
           </pre>
-          Note the Worker URL printed (e.g., <code>https://site-api.account.workers.dev</code>).
+          The output prints the Worker URL (e.g.,
+          <code>https://site-api.username.workers.dev</code>). Copy this — you need it
+          for config.js and ALLOWED_ORIGIN.
         </Step>
-        <Step n={16}>
-          <strong>Set Worker secrets.</strong>
+        <Step n={17}>
+          <strong>Set Worker secrets.</strong> These are encrypted environment variables — never
+          visible in code or dashboard:
           <pre className="help-code">
 {`npx wrangler secret put PASSWORD
-# Enter the admin password for the site editor
+# Type the admin password the client will use to log in
 
 npx wrangler secret put TOKEN_SECRET
-# Enter a random 32+ character string
+# Type a random 32+ character string (used for signing auth tokens)
+# e.g.: client-site-secret-2026-randomchars
 
 npx wrangler secret put ALLOWED_ORIGIN
-# Enter the site URL, e.g.: https://clientdomain.com`}
+# Type the site URL, e.g.: https://clientdomain.com
+# For multiple: https://clientdomain.com,https://www.clientdomain.com`}
           </pre>
         </Step>
+        <Tip>
+          Keep a record of the PASSWORD you set — you&apos;ll give it to the client at handover.
+          TOKEN_SECRET is internal, the client never sees it.
+        </Tip>
 
         <h3>Part 6 — Update Config &amp; Seed Content</h3>
-        <Step n={17}>
-          <strong>Update config.js with Worker URL.</strong> Edit the site&apos;s <code>config.js</code> and
-          set <code>API_BASE</code> to the Worker URL from step 15 (e.g.,
-          <code>https://site-api.account.workers.dev/api</code>).
-        </Step>
         <Step n={18}>
-          <strong>Seed content to KV.</strong>
+          <strong>Update config.js with Worker URL.</strong> Open the site&apos;s <code>config.js</code> file
+          (in the subfolder, e.g., <code>site/autorepair/config.js</code>). Set <code>API_BASE</code> to
+          the Worker URL from step 16 with <code>/api</code> appended:
+          <pre className="help-code">
+{`const API_BASE = "https://site-api.username.workers.dev/api";`}
+          </pre>
+        </Step>
+        <Step n={19}>
+          <strong>Commit and push the config change.</strong>
+          <pre className="help-code">
+{`git add -A
+git commit -m "Set Worker API URL"
+git push`}
+          </pre>
+        </Step>
+        <Step n={20}>
+          <strong>Seed content to KV.</strong> This loads the sample business data into the Worker&apos;s
+          key-value store:
           <pre className="help-code">
 {`cd worker
 npx wrangler kv key put "business" \\
@@ -208,63 +267,87 @@ npx wrangler kv key put "business" \\
           </pre>
         </Step>
         <Tip>
-          The KV key MUST be <code>&ldquo;business&rdquo;</code> — that&apos;s what the Worker reads.
-          Using <code>&ldquo;content&rdquo;</code> or any other key name will show
+          The KV key MUST be <code>&ldquo;business&rdquo;</code> — that&apos;s the key name the Worker
+          reads from. Using <code>&ldquo;content&rdquo;</code> or any other name will show
           &ldquo;Site loading... Content not yet configured.&rdquo;
         </Tip>
 
         <h3>Part 7 — Deploy to Cloudflare Pages</h3>
-        <Step n={19}>
-          <strong>Connect GitHub to Cloudflare Pages.</strong> In the Cloudflare dashboard &rarr;
-          <strong>Workers &amp; Pages</strong> &rarr; <strong>Create</strong> &rarr;
-          <strong>Pages</strong> &rarr; <strong>Connect to Git</strong>.
+        <Step n={21}>
+          <strong>Go to Cloudflare Pages.</strong> In the Cloudflare dashboard sidebar &rarr;
+          <strong>Workers &amp; Pages</strong>. At the top it may say
+          &ldquo;Looking to deploy Pages? Get started.&rdquo; — click that, or click
+          <strong>Create</strong> &rarr; <strong>Pages</strong> &rarr; <strong>Connect to Git</strong>.
         </Step>
-        <Step n={20}>
-          <strong>Select the repo</strong> you pushed in step 10. Set these build settings:
+        <Step n={22}>
+          <strong>Connect GitHub.</strong> Authorize Cloudflare to access the GitHub account.
+          Select the repository you pushed in step 11.
+        </Step>
+        <Step n={23}>
+          <strong>Configure build settings:</strong>
           <ul>
             <li>Framework preset: <strong>None</strong></li>
-            <li>Build command: <em>(leave empty)</em></li>
+            <li>Build command: <em>(leave empty — the site is static, no build needed)</em></li>
             <li>Build output directory: <code>site</code></li>
+            <li>Production branch: <code>main</code></li>
           </ul>
         </Step>
-        <Step n={21}>
-          <strong>Set production branch</strong> to <code>main</code> and click <strong>Save and Deploy</strong>.
+        <Step n={24}>
+          <strong>Add environment variables (if needed).</strong> Under
+          <strong>Environment variables</strong>, add:
+          <ul>
+            <li><code>NODE_VERSION</code> = <code>20</code></li>
+          </ul>
+          Then click <strong>Save and Deploy</strong>. Wait for the first deploy to complete —
+          you&apos;ll see a green &ldquo;Success&rdquo; status and a <code>.pages.dev</code> URL.
         </Step>
 
         <h3>Part 8 — Custom Domain</h3>
-        <Step n={22}>
-          <strong>Add custom domain.</strong> In the Pages project &rarr;
-          <strong>Custom domains</strong> &rarr; add the client&apos;s domain
-          (e.g., <code>clientdomain.com</code>). Also add <code>www.clientdomain.com</code>.
+        <Step n={25}>
+          <strong>Add custom domain to Pages.</strong> In the Pages project &rarr;
+          <strong>Custom domains</strong> tab &rarr; <strong>Set up a custom domain</strong>.
+          Enter <code>clientdomain.com</code>, click <strong>Continue</strong> &rarr;
+          <strong>Activate domain</strong>. Repeat for <code>www.clientdomain.com</code>.
+          Cloudflare automatically creates the DNS records since the domain is already
+          on this account.
         </Step>
-        <Step n={23}>
-          <strong>Update ALLOWED_ORIGIN.</strong> If you set the Pages URL earlier, update it to
-          include the custom domain:
+        <Step n={26}>
+          <strong>Update ALLOWED_ORIGIN to include the custom domain.</strong> The Worker
+          needs to know which origins are allowed to call it:
           <pre className="help-code">
 {`npx wrangler secret put ALLOWED_ORIGIN
 # Enter: https://clientdomain.com,https://www.clientdomain.com`}
           </pre>
         </Step>
+        <Tip>
+          SSL certificates are provisioned automatically by Cloudflare. The site should be
+          accessible via HTTPS within a few minutes of adding the custom domain.
+        </Tip>
 
-        <h3>Part 9 — Verify</h3>
-        <Step n={24}>
-          <strong>Check the public site.</strong> Visit the domain — all sections should render
-          with the client&apos;s content.
-        </Step>
-        <Step n={25}>
-          <strong>Check the browser console.</strong> No CSP, CORS, or fetch errors.
-        </Step>
-        <Step n={26}>
-          <strong>Test the editor.</strong> Go to <code>/mysite/login.html</code> &rarr; sign in
-          with the password from step 16 &rarr; edit content &rarr; verify it saves and
-          persists on reload.
-        </Step>
+        <h3>Part 9 — Verify &amp; Handover</h3>
         <Step n={27}>
-          <strong>Hand over credentials.</strong> Give the client:
+          <strong>Check the public site.</strong> Visit the custom domain in a browser — all
+          sections should render with the client&apos;s business name, phone, and address.
+        </Step>
+        <Step n={28}>
+          <strong>Check the browser console.</strong> Open DevTools (F12) &rarr; Console tab.
+          There should be no errors — specifically no CSP, CORS, or fetch errors. If you
+          see CORS errors, the ALLOWED_ORIGIN secret doesn&apos;t match the site URL.
+        </Step>
+        <Step n={29}>
+          <strong>Test the editor.</strong> Go to <code>clientdomain.com/mysite/login.html</code>
+          (or <code>/autorepair/mysite/login.html</code> for subfolder setups). Sign in with the
+          PASSWORD from step 17. Edit some text, upload an image, toggle a section &mdash; verify
+          changes save and persist on page reload.
+        </Step>
+        <Step n={30}>
+          <strong>Hand over to the client.</strong> Give them:
           <ul>
-            <li>Their site URL</li>
+            <li>Their site URL (e.g., <code>https://clientdomain.com</code>)</li>
+            <li>The editor URL (e.g., <code>https://clientdomain.com/mysite/login.html</code>)</li>
             <li>The admin password</li>
-            <li>Quick walkthrough of the editor (click to edit, drag to reorder)</li>
+            <li>A quick walkthrough: click any text to edit, hover images to replace,
+                toggle sections on/off, changes save automatically</li>
           </ul>
         </Step>
         <Tip>
