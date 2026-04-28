@@ -70,7 +70,7 @@ export function ProposalContent({
               <th>Found on Google</th>
               <th>Yours to keep</th>
               <th>No monthly cost</th>
-              <th>Your own .com</th>
+              <th>Your own .com <span style={{ fontWeight: 400, fontSize: "0.85em" }}>(not a subdomain)</span></th>
             </tr>
           </thead>
           <tbody>
