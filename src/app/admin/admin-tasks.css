@@ -284,8 +284,8 @@
 }
 
 .task-item-notes {
-  width: 200px;
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 200px;
 }
 .task-item-notes-input {
   width: 100%;
