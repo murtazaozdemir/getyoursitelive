@@ -104,12 +104,12 @@ export function DuplicatesView({ groups: initialGroups }: { groups: DupeGroup[] 
     }
   }
 
-  const typeLabel = (type: string) => {
-    switch (type) {
-      case "place_id": return "Same Google Place ID";
-      case "phone": return "Same phone number";
-      case "address": return "Same address";
-      default: return type;
+  const matchReason = (group: DupeGroup) => {
+    switch (group.type) {
+      case "place_id": return <>Same Google Place ID: <strong>{group.key}</strong></>;
+      case "phone": return <>Same phone: <strong>{group.prospects[0]?.phone || group.key}</strong></>;
+      case "address": return <>Same address: <strong>{group.prospects[0]?.address || group.key}</strong></>;
+      default: return group.type;
     }
   };
 
@@ -144,7 +144,7 @@ export function DuplicatesView({ groups: initialGroups }: { groups: DupeGroup[] 
       {groups.map((group) => (
         <div key={group.key} className="dupe-group">
           <div className="dupe-group-header">
-            <span className="dupe-group-type">{typeLabel(group.type)}</span>
+            <span className="dupe-group-reason">{matchReason(group)}</span>
             <span className="dupe-group-count">{group.prospects.length} records</span>
           </div>
 

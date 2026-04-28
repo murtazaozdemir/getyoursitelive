@@ -1189,6 +1189,11 @@
   font-weight: 600;
   color: var(--admin-text, #1a1a1a);
 }
+.dupe-group-reason {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--admin-text, #1a1a1a);
+}
 .dupe-group-count {
   color: var(--admin-text-muted, #999);
 }
