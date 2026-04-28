@@ -55,8 +55,8 @@ export function ProposalContent({
           link to see exactly how it looks on your phone.
         </p>
         <p>
-          Everything you see can be changed. If you&rsquo;re interested,
-          I&rsquo;d love to walk you through it.
+          Everything you see can be changed. No commitment &mdash;
+          just take a look and let me know what you think.
         </p>
       </section>
 
@@ -240,7 +240,7 @@ export function ProposalContent({
             <div className="proposal-next-step">
               <p>
                 If you like what you see, I can make this live for you
-                in a few days. It takes about 20 minutes to set up.
+                this week. It takes about 20 minutes to set up.
               </p>
               <p style={{ marginTop: "0.5rem" }}>
                 Call or text me and I&rsquo;ll handle everything &mdash;
