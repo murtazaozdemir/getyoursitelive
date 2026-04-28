@@ -87,7 +87,6 @@ export default async function BulkProposalPage({
             <ProposalContent
               name={name}
               address={address}
-              category={biz?.category ?? ""}
               domains={domains}
               shortUrl={shortUrl}
               qrImageUrl={qrImageUrl}

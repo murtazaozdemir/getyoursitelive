@@ -6,7 +6,6 @@
 export interface ProposalContentProps {
   name: string;
   address: string;
-  category: string;
   domains: string[];
   shortUrl: string | null;
   qrImageUrl: string;
@@ -17,26 +16,9 @@ export interface ProposalContentProps {
   sellerAddress: string | null;
 }
 
-/** Map DB category to customer-friendly terms used in proposal copy */
-function categoryTerms(category: string): { searchTerm: string; placeLabel: string; domainExample: string } {
-  const c = category.toLowerCase();
-  if (c.includes("barber") || c.includes("hair"))
-    return { searchTerm: "a barber", placeLabel: "shop", domainExample: "yourbarber.com" };
-  if (c.includes("restaurant") || c.includes("food") || c.includes("dining"))
-    return { searchTerm: "a restaurant", placeLabel: "restaurant", domainExample: "yourrestaurant.com" };
-  if (c.includes("plumb"))
-    return { searchTerm: "a plumber", placeLabel: "business", domainExample: "yourplumbing.com" };
-  if (c.includes("auto body") || c.includes("collision") || c.includes("detail"))
-    return { searchTerm: "an auto body shop", placeLabel: "shop", domainExample: "yourbodyshop.com" };
-  if (c.includes("auto") || c.includes("repair") || c.includes("mechanic") || c.includes("car"))
-    return { searchTerm: "a mechanic", placeLabel: "shop", domainExample: "yourautorepair.com" };
-  return { searchTerm: "a local business like yours", placeLabel: "business", domainExample: "yourbusiness.com" };
-}
-
 export function ProposalContent({
   name,
   address,
-  category,
   domains,
   shortUrl,
   qrImageUrl,
@@ -46,7 +28,6 @@ export function ProposalContent({
   sellerPhone,
   sellerAddress,
 }: ProposalContentProps) {
-  const terms = categoryTerms(category);
   return (
     <div className="proposal">
 
@@ -148,10 +129,10 @@ export function ProposalContent({
         <h2 className="proposal-section-title">What this gets you</h2>
         <ul className="proposal-checklist proposal-checklist--single">
           {[
-            `People searching for ${terms.searchTerm} nearby can actually find you`,
+            "People searching nearby can actually find your business",
             "You stop losing calls to competitors who show up first",
             "Customers can call you in one tap from their phone",
-            `Your ${terms.placeLabel} looks professional \u2014 not like a side hustle`,
+            "Your business looks professional \u2014 not like a side hustle",
             "You control everything: prices, hours, photos, services",
           ].map(item => (
             <li key={item}><span className="proposal-check">&#x2713;</span>{item}</li>
@@ -164,7 +145,7 @@ export function ProposalContent({
         <h2 className="proposal-section-title">What&rsquo;s included</h2>
         <ul className="proposal-checklist">
           {[
-            `Your own domain name (e.g. ${domains[0] ?? terms.domainExample}) \u2014 registered in your name`,
+            `Your own domain name (e.g. ${domains[0] ?? "yourbusiness.com"}) \u2014 registered in your name`,
             "Full website with your services, pricing, hours, and location",
             "Appointment request form that works 24/7",
             "Click-to-call button on every page",
