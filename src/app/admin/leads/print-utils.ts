@@ -338,6 +338,7 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
     display: flex;
     align-items: center;
     justify-content: center;
+    transform: rotate(180deg);
   }
   .env-back-content {
     text-align: center;
