@@ -461,8 +461,8 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
 
   .env2-back-content {
     position: absolute !important;
-    top: 0.2in !important;
-    bottom: auto !important;
+    bottom: 0 !important;
+    top: auto !important;
     left: 0.5in !important;
     right: 0.5in !important;
     width: auto !important;
