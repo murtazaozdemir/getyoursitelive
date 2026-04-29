@@ -344,14 +344,14 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   }
   .env-back-content {
     position: absolute !important;
-    bottom: 0.25in !important;
+    bottom: 0 !important;
     top: auto !important;
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
     text-align: center !important;
     transform: rotate(180deg) !important;
-    transform-origin: center center !important;
+    transform-origin: center bottom !important;
   }
   .env-back-body {
     font-size: 13pt;
