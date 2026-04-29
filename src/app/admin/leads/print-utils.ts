@@ -344,7 +344,6 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
     text-align: center;
     max-width: 7in;
     margin: 0 auto;
-    padding-top: 1in;
   }
   .env-back-body {
     font-size: 10pt;
