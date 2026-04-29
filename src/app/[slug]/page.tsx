@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { getBusinessBySlug } from "@/lib/db";
-import { BusinessProvider } from "@/lib/business-context";
-import { HomePage } from "@/components/site/home-page";
+import { renderSiteHTML } from "@/lib/site-renderer";
 import { logProspectVisit } from "@/lib/prospect-visits";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
@@ -171,9 +170,19 @@ export default async function BusinessPage({
   }
 
   const jsonLd = buildJsonLd(business);
+  const siteHTML = renderSiteHTML(business);
+
+  // Serialize only what the client-side interactions need
+  const clientData = JSON.stringify({
+    testimonials: business.testimonials,
+    services: business.services,
+    photos: business.photos,
+    hoursSchedule: business.hoursSchedule,
+  });
 
   return (
-    <BusinessProvider business={business}>
+    <>
+      {/* Structured data */}
       {jsonLd.map((schema, i) => (
         <script
           key={i}
@@ -182,7 +191,28 @@ export default async function BusinessPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
       ))}
-      <HomePage />
-    </BusinessProvider>
+
+      {/* Client template CSS */}
+      <link rel="stylesheet" href="/site-assets/css/styles.css" />
+      <link rel="stylesheet" href="/site-assets/css/themes.css" />
+
+      {/* Server-rendered site — same HTML as the delivered client template */}
+      <div
+        id="site-root"
+        data-theme={business.theme}
+        className="site-container"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: server-rendered from site-renderer.ts
+        dangerouslySetInnerHTML={{ __html: siteHTML }}
+      />
+
+      {/* Pass business data to client-side interactions */}
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: serialized business data
+        dangerouslySetInnerHTML={{
+          __html: `window.__BUSINESS=${clientData};`,
+        }}
+      />
+      <script src="/site-assets/js/interactions.js" defer />
+    </>
   );
 }
