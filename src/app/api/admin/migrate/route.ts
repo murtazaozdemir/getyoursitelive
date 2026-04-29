@@ -487,6 +487,41 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
 
     return { updated, skipped: 0, log };
   },
+
+  "disable-booking-form": async () => {
+    const db = await getD1();
+    const log: string[] = [];
+    let updated = 0;
+    let skipped = 0;
+
+    const { results } = await db
+      .prepare("SELECT slug, content FROM businesses WHERE content IS NOT NULL")
+      .all<{ slug: string; content: string }>();
+
+    for (const row of results) {
+      if (!row.content) { skipped++; continue; }
+
+      try {
+        const data = JSON.parse(row.content);
+        if (data.visibility && data.visibility.showBooking === true) {
+          data.visibility.showBooking = false;
+          await db
+            .prepare("UPDATE businesses SET content = ? WHERE slug = ?")
+            .bind(JSON.stringify(data), row.slug)
+            .run();
+          log.push(`${row.slug}: showBooking → false`);
+          updated++;
+        } else {
+          skipped++;
+        }
+      } catch {
+        log.push(`${row.slug}: failed to parse content`);
+        skipped++;
+      }
+    }
+
+    return { updated, skipped, log };
+  },
 };
 
 export async function GET(req: Request) {

@@ -178,7 +178,7 @@ function prospectBusiness(slug, name, phone, address) {
       showHeroImage: true, showHeroCard: true, showAbout: true, showAboutWhyUs: true,
       showStats: true, showServices: true, showDeals: true, showPricing: true,
       showTeam: true, showTestimonials: true, showFaq: true, showEmergencyBanner: false,
-      showBooking: true, showContactInfo: true, showMap: true, showHours: true,
+      showBooking: false, showContactInfo: true, showMap: true, showHours: true,
     },
   };
 }
