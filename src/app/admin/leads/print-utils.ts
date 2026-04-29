@@ -336,9 +336,8 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   /* ── BACK SIDE ── */
   .env-back {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
-    padding-top: 1.5in;
   }
   .env-back-content {
     text-align: center;
