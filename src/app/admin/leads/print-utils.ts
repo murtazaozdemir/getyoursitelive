@@ -252,7 +252,7 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
           <div class="env-back-body">
             <p class="env-back-lead">We have already built a website preview for <strong>${esc(p.name)}</strong>.</p>
             <p>Today, customers search online to verify your reputation before they call.</p>
-            <p class="env-back-url">View it now: <strong>getyoursitelive.com/${esc(p.slug)}</strong></p>
+            <p class="env-back-url">View it now: <strong>www.getyoursitelive.com/${esc(p.slug)}</strong></p>
             <p class="env-back-scan">&hellip;or scan the QR code inside this envelope.</p>
           </div>
         </div>
