@@ -499,7 +499,9 @@ function renderEmergency(b: Business, v: BusinessVisibility): string {
 }
 
 function renderContact(b: Business, v: BusinessVisibility): string {
-  if (v.showBooking === false) return "";
+  // Show contact section if any sub-section is visible (map, contact info, hours).
+  // showBooking only controls the booking form (removed in current design).
+  if (v.showContactInfo === false && v.showMap === false && v.showHours === false) return "";
   const c = b.contact || {} as Business["contact"];
   const info = b.businessInfo;
   const email = info.email || "info@example.com";

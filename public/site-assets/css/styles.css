@@ -28,6 +28,8 @@ ul, ol { list-style: none; }
 
 .site-container {
   min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
 }
 
 [data-theme="modern"] .site-container {
