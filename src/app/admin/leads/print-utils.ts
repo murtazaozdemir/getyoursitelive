@@ -380,6 +380,113 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   setTimeout(() => win.print(), 300);
 }
 
+export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderInfo) {
+  if (prospects.length === 0) return;
+
+  const esc = escapeHtml;
+
+  const pagesHtml = prospects
+    .map(
+      (p) => `
+      <!-- PAGE 1: FRONT -->
+      <div class="envelope-page">
+        <div class="env2-front-return">
+          <strong>${esc(sender.company)}</strong><br>
+          ${esc(sender.address).replace(/,\s*/, "<br>")}
+        </div>
+        <div class="env2-front-recipient">
+          <strong>${esc(p.name)}</strong><br>
+          Owner<br>
+          ${esc(p.address).replace(/,\s*/, "<br>")}
+        </div>
+      </div>
+
+      <!-- PAGE 2: BACK -->
+      <div class="envelope-page env2-back">
+        <div class="env2-back-content">
+          <p>We have already built a website preview for <strong>${esc(p.name)}</strong>.</p>
+          <p>Today, customers search online to verify your reputation before they call.</p>
+          <p>View it at: <strong>www.getyoursitelive.com/${esc(p.slug)}</strong></p>
+          <p style="font-size: 9pt; color: #666;">&hellip;or scan the QR code inside this envelope.</p>
+        </div>
+      </div>`,
+    )
+    .join("");
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<title>Print Envelopes 2</title>
+<style>
+  @page {
+    size: 9.5in 4.125in;
+    margin: 0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  .envelope-page {
+    width: 9.5in;
+    height: 4.125in;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* FRONT PAGE: Recipient & Return Address */
+  .env2-front-return {
+    position: absolute;
+    top: 0.25in;
+    left: 0.25in;
+    font-size: 10pt;
+    text-transform: uppercase;
+    line-height: 1.5;
+  }
+
+  .env2-front-recipient {
+    position: absolute;
+    top: 2.2in;
+    left: 4in;
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+
+  /* BACK PAGE: The Flap Content */
+  .env2-back {
+    position: relative;
+    width: 9.5in;
+    height: 4.125in;
+    background: #fff;
+  }
+
+  .env2-back-content {
+    position: absolute;
+    top: 0.2in;
+    left: 0.5in;
+    right: 0.5in;
+    transform: rotate(180deg);
+    transform-origin: center center;
+    text-align: center;
+    font-size: 11pt;
+    color: #333;
+    line-height: 1.7;
+  }
+
+  .env2-back-content p {
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+<body>${pagesHtml}</body>
+</html>`;
+
+  const win = window.open("", "_blank");
+  if (!win) return;
+  win.document.write(html);
+  win.document.close();
+  setTimeout(() => win.print(), 300);
+}
+
 export function printTaskList(prospects: PrintableProspect[]) {
   if (prospects.length === 0) return;
 
