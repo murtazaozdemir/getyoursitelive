@@ -351,7 +351,7 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
     width: 100% !important;
     text-align: center !important;
     transform: rotate(180deg) !important;
-    transform-origin: center bottom !important;
+    transform-origin: center center !important;
   }
   .env-back-body {
     font-size: 13pt;
