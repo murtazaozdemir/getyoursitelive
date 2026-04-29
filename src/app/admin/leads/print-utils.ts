@@ -334,19 +334,23 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
 
   /* ── BACK SIDE ── */
   .env-back {
-    position: relative;
-    height: 6in;
-    width: 9in;
-    padding: 0;
+    position: relative !important;
+    height: 6in !important;
+    width: 9in !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    overflow: hidden;
   }
   .env-back-content {
-    position: absolute;
-    bottom: 0.1in;
-    top: auto;
-    left: 0;
-    right: 0;
-    text-align: center;
-    transform: rotate(180deg);
+    position: absolute !important;
+    top: 0.2in !important;
+    bottom: auto !important;
+    left: 0.6in !important;
+    right: 0.6in !important;
+    transform: rotate(180deg) !important;
+    transform-origin: center center !important;
+    text-align: center !important;
   }
   .env-back-body {
     font-size: 13pt;
