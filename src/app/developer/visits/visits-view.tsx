@@ -163,6 +163,7 @@ export function VisitsView({
   adminIPs?: AdminIPEntry[];
 }) {
   const [tab, setTab] = useState<"all" | "summary">("all");
+  const [hideBots, setHideBots] = useState(true);
   // Exclude all admins with IPs by default
   const [excluded, setExcluded] = useState<Set<string>>(() => new Set(adminIPs.map((a) => a.name)));
 
@@ -177,14 +178,16 @@ export function VisitsView({
     });
   };
 
-  const filteredVisits = excludeIPs.size > 0 ? visits.filter((v) => !excludeIPs.has(v.ip)) : visits;
-  const filteredCounts = excludeIPs.size > 0
+  const afterIPFilter = excludeIPs.size > 0 ? visits.filter((v) => !excludeIPs.has(v.ip)) : visits;
+  const filteredVisits = hideBots ? afterIPFilter.filter((v) => classifyVisit(v.userAgent) !== "bot") : afterIPFilter;
+  const filteredCounts = (excludeIPs.size > 0 || hideBots)
     ? counts.map((c) => {
-        const cVisits = visits.filter((v) => v.slug === c.slug && !excludeIPs.has(v.ip));
+        const cVisits = visits.filter((v) => v.slug === c.slug && !excludeIPs.has(v.ip) && (!hideBots || classifyVisit(v.userAgent) !== "bot"));
         return { ...c, count: cVisits.length, lastVisit: cVisits[0]?.visitedAt ?? c.lastVisit };
       }).filter((c) => c.count > 0)
     : counts;
 
+  const totalBots = afterIPFilter.filter((v) => classifyVisit(v.userAgent) === "bot").length;
   const botCount = filteredVisits.filter((v) => classifyVisit(v.userAgent) === "bot").length;
   const leadCount = filteredVisits.length - botCount;
 
@@ -211,51 +214,70 @@ export function VisitsView({
 
   return (
     <>
-      {/* Exclude admin IPs — only shown if any admin has IPs configured */}
-      {adminIPs.length > 0 && (
-        <div style={{ marginBottom: 20, padding: "12px 16px", background: "var(--admin-bg-card, #fff)", borderRadius: 8, border: "1px solid var(--admin-border, #e5e5e5)" }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, color: "var(--admin-text-soft)" }}>Exclude admin IPs</div>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            {adminIPs.map((admin) => {
-              const active = excluded.has(admin.name);
-              const ipParts: string[] = [];
-              if (admin.wifiIp) ipParts.push(`WiFi: ${admin.wifiIp}`);
-              if (admin.mobileIp) ipParts.push(`Mobile: ${admin.mobileIp}`);
-              return (
-                <button
-                  key={admin.name}
-                  type="button"
-                  onClick={() => toggleExclude(admin.name)}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "6px 12px",
-                    borderRadius: 6,
-                    border: `1px solid ${active ? "var(--admin-accent, #1a7a6d)" : "var(--admin-border, #e5e5e5)"}`,
-                    background: active ? "color-mix(in srgb, var(--admin-accent, #1a7a6d) 10%, transparent)" : "transparent",
-                    color: active ? "var(--admin-accent, #1a7a6d)" : "var(--admin-text-soft)",
-                    fontSize: 13,
-                    fontWeight: 500,
-                    cursor: "pointer",
-                  }}
-                >
-                  <span style={{ fontSize: 14 }}>{active ? "\u2715" : "\u25CB"}</span>
-                  {admin.name}
-                  <span style={{ fontSize: 11, color: "inherit", opacity: 0.7 }}>
-                    {ipParts.join(", ")}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          {excludeIPs.size > 0 && (
-            <div style={{ fontSize: 12, color: "var(--admin-text-soft)", marginTop: 6 }}>
-              Filtering out {visits.length - filteredVisits.length} visit{visits.length - filteredVisits.length !== 1 ? "s" : ""} from admin IPs
-            </div>
-          )}
+      {/* Exclude filters */}
+      <div style={{ marginBottom: 20, padding: "12px 16px", background: "var(--admin-bg-card, #fff)", borderRadius: 8, border: "1px solid var(--admin-border, #e5e5e5)" }}>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, color: "var(--admin-text-soft)" }}>Exclude</div>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <button
+            type="button"
+            onClick={() => setHideBots((p) => !p)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              borderRadius: 6,
+              border: `1px solid ${hideBots ? "var(--admin-accent, #1a7a6d)" : "var(--admin-border, #e5e5e5)"}`,
+              background: hideBots ? "color-mix(in srgb, var(--admin-accent, #1a7a6d) 10%, transparent)" : "transparent",
+              color: hideBots ? "var(--admin-accent, #1a7a6d)" : "var(--admin-text-soft)",
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: "pointer",
+            }}
+          >
+            <span style={{ fontSize: 14 }}>{hideBots ? "\u2715" : "\u25CB"}</span>
+            Bots
+            <span style={{ fontSize: 11, color: "inherit", opacity: 0.7 }}>{totalBots} visits</span>
+          </button>
+          {adminIPs.map((admin) => {
+            const active = excluded.has(admin.name);
+            const ipParts: string[] = [];
+            if (admin.wifiIp) ipParts.push(`WiFi: ${admin.wifiIp}`);
+            if (admin.mobileIp) ipParts.push(`Mobile: ${admin.mobileIp}`);
+            return (
+              <button
+                key={admin.name}
+                type="button"
+                onClick={() => toggleExclude(admin.name)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "6px 12px",
+                  borderRadius: 6,
+                  border: `1px solid ${active ? "var(--admin-accent, #1a7a6d)" : "var(--admin-border, #e5e5e5)"}`,
+                  background: active ? "color-mix(in srgb, var(--admin-accent, #1a7a6d) 10%, transparent)" : "transparent",
+                  color: active ? "var(--admin-accent, #1a7a6d)" : "var(--admin-text-soft)",
+                  fontSize: 13,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                }}
+              >
+                <span style={{ fontSize: 14 }}>{active ? "\u2715" : "\u25CB"}</span>
+                {admin.name}
+                <span style={{ fontSize: 11, color: "inherit", opacity: 0.7 }}>
+                  {ipParts.join(", ")}
+                </span>
+              </button>
+            );
+          })}
         </div>
-      )}
+        {visits.length !== filteredVisits.length && (
+          <div style={{ fontSize: 12, color: "var(--admin-text-soft)", marginTop: 6 }}>
+            Showing {filteredVisits.length} of {visits.length} visits (hiding {visits.length - filteredVisits.length})
+          </div>
+        )}
+      </div>
 
       <div className="admin-stats-row" style={{ display: "flex", gap: 16, marginBottom: 20 }}>
         <div className="admin-stat-card" style={{ flex: 1, padding: "12px 16px", background: "var(--admin-bg-card, #fff)", borderRadius: 8, border: "1px solid var(--admin-border, #e5e5e5)" }}>
