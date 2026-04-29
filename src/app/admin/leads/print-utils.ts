@@ -251,7 +251,7 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
         <div class="env-back-content">
           <div class="env-back-body">
             <p class="env-back-lead">We have already built a website preview for <strong>${esc(p.name)}</strong>.</p>
-            <p>Today, customers search online to verify your reputation before they call. We created this digital business card to ensure your business looks as professional as the work you do.</p>
+            <p>Today, customers search online to verify your reputation before they call.</p>
             <p class="env-back-url">View it now: <strong>getyoursitelive.com/${esc(p.slug)}</strong></p>
             <p class="env-back-scan">&hellip;or scan the QR code inside this envelope.</p>
           </div>
@@ -286,12 +286,12 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
     position: absolute;
     top: 0.4in;
     left: 0.5in;
-    font-size: 9pt;
+    font-size: 11pt;
     line-height: 1.5;
   }
   .env-return-company {
     font-weight: 700;
-    font-size: 9.5pt;
+    font-size: 12pt;
   }
 
   .env-corner-note {
@@ -302,14 +302,14 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   .env-corner-box {
     border: 1.5px solid #333;
     padding: 6px 10px;
-    font-size: 8pt;
+    font-size: 10pt;
     line-height: 1.5;
     text-align: right;
     font-family: Arial, Helvetica, sans-serif;
   }
   .env-corner-title {
     font-weight: 700;
-    font-size: 8.5pt;
+    font-size: 10.5pt;
     letter-spacing: 0.03em;
   }
 
@@ -317,12 +317,12 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
     position: absolute;
     top: 2.2in;
     left: 3.2in;
-    font-size: 12pt;
+    font-size: 14pt;
     line-height: 1.6;
   }
   .env-recipient-name {
     font-weight: 700;
-    font-size: 13pt;
+    font-size: 15pt;
   }
 
   .env-barcode-zone {
@@ -346,25 +346,25 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
     margin: 0 auto;
   }
   .env-back-body {
-    font-size: 10pt;
+    font-size: 13pt;
     line-height: 1.7;
     text-align: center;
   }
   .env-back-body p {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
   .env-back-lead {
-    font-size: 11pt;
+    font-size: 15pt;
   }
   .env-back-url {
-    font-size: 10.5pt;
-    margin-top: 14px;
+    font-size: 14pt;
+    margin-top: 16px;
   }
   .env-back-scan {
-    font-size: 9pt;
+    font-size: 11pt;
     font-style: italic;
     color: #555;
-    margin-top: 2px;
+    margin-top: 4px;
   }
 </style>
 </head>
