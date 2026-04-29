@@ -250,14 +250,12 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
       <div class="env-page env-back">
         <div class="env-back-content">
           <div class="env-back-rule"></div>
-          <p class="env-back-headline">SOMEONE IS SEARCHING FOR YOUR SERVICE<br/>RIGHT NOW.</p>
-          <p class="env-back-subhead">WILL THEY FIND YOU &mdash;<br/>OR YOUR COMPETITOR?</p>
+          <p class="env-back-headline">SOMEONE IS SEARCHING FOR YOUR SERVICE RIGHT NOW.<br/>WILL THEY FIND YOU &mdash; OR YOUR COMPETITOR?</p>
           <div class="env-back-rule"></div>
           <div class="env-back-body">
-            <p>85% of customers check online before they call any local business. If you don&rsquo;t show up, you don&rsquo;t exist to them.</p>
-            <p>A website isn&rsquo;t a luxury anymore &mdash; it&rsquo;s your digital business card. It tells people you&rsquo;re real, you&rsquo;re professional, and you&rsquo;re open.</p>
-            <p>We already built a free preview for your business. Open this envelope to see how it looks on your phone.</p>
-            <p class="env-back-cta">No monthly fees. No obligation.<br/>Just take a look.</p>
+            <p>85% of customers look online before calling a local business. If you don&rsquo;t show up, you don&rsquo;t exist to them.</p>
+            <p>A website is no longer a luxury &mdash; it&rsquo;s your digital business card.</p>
+            <p>We&rsquo;ve already built a free preview for your business. Inside this envelope you&rsquo;ll find a QR code &mdash; scan it to see your site on your phone.</p>
           </div>
           <div class="env-back-footer">
             <div class="env-back-company">${esc(sender.company)}</div>
@@ -350,58 +348,45 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   }
   .env-back-content {
     text-align: center;
-    max-width: 6.5in;
+    max-width: 7in;
     margin: 0 auto;
-    padding-top: 0.3in;
+    padding-top: 0.6in;
   }
   .env-back-rule {
     width: 100%;
     height: 0;
     border-top: 1px solid #555;
-    margin: 14px 0;
+    margin: 10px 0;
   }
   .env-back-headline {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 13pt;
+    font-size: 11pt;
     font-weight: 700;
     letter-spacing: 0.04em;
     line-height: 1.5;
     text-transform: uppercase;
-    margin: 12px 0 6px;
-  }
-  .env-back-subhead {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 11pt;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    line-height: 1.5;
-    text-transform: uppercase;
-    margin-bottom: 8px;
+    margin: 8px 0;
   }
   .env-back-body {
-    font-size: 10pt;
-    line-height: 1.7;
+    font-size: 9.5pt;
+    line-height: 1.6;
     text-align: center;
-    margin-top: 10px;
+    margin-top: 8px;
   }
   .env-back-body p {
-    margin-bottom: 8px;
-  }
-  .env-back-cta {
-    font-weight: 600;
-    margin-top: 4px;
+    margin-bottom: 6px;
   }
   .env-back-footer {
-    margin-top: 18px;
+    margin-top: 14px;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 8.5pt;
-    line-height: 1.6;
+    font-size: 8pt;
+    line-height: 1.5;
     color: #555;
   }
   .env-back-company {
     font-weight: 700;
     color: #222;
-    font-size: 9pt;
+    font-size: 8.5pt;
   }
 </style>
 </head>
