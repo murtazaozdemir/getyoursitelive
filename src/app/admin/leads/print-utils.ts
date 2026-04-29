@@ -338,7 +338,7 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   }
   .env-back-content {
     position: absolute;
-    bottom: 0.4in;
+    top: 0.4in;
     left: 0.6in;
     right: 0.6in;
     text-align: center;
