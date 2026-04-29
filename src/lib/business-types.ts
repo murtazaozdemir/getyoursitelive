@@ -24,6 +24,7 @@ import type {
 } from "@/types/site";
 
 export interface BusinessVisibility {
+  showTopbar: boolean;           // address + phone banner above the header
   showHeroEyebrow: boolean;    // "Family-owned since …" pill at top of hero
   showHeroHeadline: boolean;   // the big headline
   showHeroLead: boolean;       // the sub-headline paragraph

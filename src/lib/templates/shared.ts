@@ -67,6 +67,7 @@ export function defaultSectionTitles(overrides?: Partial<SectionTitles>): Sectio
 
 export function prospectVisibility(): BusinessVisibility {
   return {
+    showTopbar: false,
     showHeroEyebrow: true,
     showHeroCtas: true,
     showHeroHeadline: true,
@@ -93,6 +94,7 @@ export function prospectVisibility(): BusinessVisibility {
 
 export function blankVisibility(): BusinessVisibility {
   return {
+    showTopbar: false,
     showHeroEyebrow: true,
     showHeroCtas: true,
     showHeroHeadline: true,
@@ -119,6 +121,7 @@ export function blankVisibility(): BusinessVisibility {
 
 export function minimalProspectVisibility(): BusinessVisibility {
   return {
+    showTopbar: false,
     showHeroEyebrow: true,
     showHeroCtas: true,
     showHeroHeadline: true,

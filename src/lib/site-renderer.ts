@@ -139,7 +139,8 @@ function getOpenStatus(schedule: HoursSchedule): OpenStatusResult | null {
 
 // ─── Section Renderers ──────────────────────────────────────────────
 
-function renderTopbar(b: Business): string {
+function renderTopbar(b: Business, v: BusinessVisibility): string {
+  if (v.showTopbar === false) return "";
   const info = b.businessInfo;
   const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(info.address)}`;
   return `
@@ -590,7 +591,7 @@ export function renderSiteHTML(business: Business): string {
   const v = business.visibility || {} as BusinessVisibility;
 
   let html = "";
-  html += renderTopbar(business);
+  html += renderTopbar(business, v);
   html += renderHeader(business);
   html += renderHero(business, v);
   html += renderAbout(business, v);
