@@ -31,6 +31,7 @@ export interface User {
   state?: string | null;
   wifiIp?: string | null;
   mobileIp?: string | null;
+  company?: string | null;
   createdAt: string;
 }
 
@@ -50,6 +51,7 @@ export interface SessionUser {
   state?: string | null;
   wifiIp?: string | null;
   mobileIp?: string | null;
+  company?: string | null;
   createdAt?: string;
 }
 
@@ -73,6 +75,7 @@ interface UserRow {
   state: string | null;
   wifi_ip: string | null;
   mobile_ip: string | null;
+  company: string | null;
   created_at: string;
 }
 
@@ -93,6 +96,7 @@ function rowToUser(row: UserRow): User {
     state: row.state,
     wifiIp: row.wifi_ip,
     mobileIp: row.mobile_ip,
+    company: row.company,
     createdAt: row.created_at,
   };
 }
@@ -282,6 +286,7 @@ export async function updateUserProfile(
     state?: string;
     wifiIp?: string;
     mobileIp?: string;
+    company?: string;
   },
 ): Promise<void> {
   const db = await getD1();
@@ -294,7 +299,7 @@ export async function updateUserProfile(
       `UPDATE users SET
         first_name = ?, last_name = ?, name = ?,
         phone = ?, street = ?, city = ?, zip = ?, state = ?,
-        wifi_ip = ?, mobile_ip = ?
+        wifi_ip = ?, mobile_ip = ?, company = ?
        WHERE id = ?`,
     )
     .bind(
@@ -308,6 +313,7 @@ export async function updateUserProfile(
       fields.state?.trim() || null,
       fields.wifiIp?.trim() || null,
       fields.mobileIp?.trim() || null,
+      fields.company?.trim() || null,
       id,
     )
     .run();
@@ -400,6 +406,7 @@ function toSessionUser(u: User): SessionUser {
     state: u.state ?? null,
     wifiIp: u.wifiIp ?? null,
     mobileIp: u.mobileIp ?? null,
+    company: u.company ?? null,
     createdAt: u.createdAt,
   };
 }

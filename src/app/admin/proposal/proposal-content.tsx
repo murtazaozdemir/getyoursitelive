@@ -14,6 +14,7 @@ export interface ProposalContentProps {
   sellerEmail: string;
   sellerPhone: string | null;
   sellerAddress: string | null;
+  sellerCompany: string | null;
 }
 
 export function ProposalContent({
@@ -27,6 +28,7 @@ export function ProposalContent({
   sellerEmail,
   sellerPhone,
   sellerAddress,
+  sellerCompany,
 }: ProposalContentProps) {
   return (
     <div className="proposal">
@@ -34,6 +36,7 @@ export function ProposalContent({
       {/* ── HEADER ─────────────────────────────────────────────── */}
       <header className="proposal-header">
         <div className="proposal-header-from">
+          {sellerCompany && <strong>{sellerCompany}</strong>}
           <strong>Get Your Site Live</strong>
           <span>getyoursitelive.com</span>
           <span>Proposal</span>
@@ -257,6 +260,7 @@ export function ProposalContent({
 
         <footer className="proposal-footer">
           <div className="proposal-contact">
+            {sellerCompany && <strong className="proposal-contact-name">{sellerCompany}</strong>}
             <strong className="proposal-contact-name">{sellerName}</strong>
             {sellerAddress && <span>{sellerAddress}</span>}
             <span>{sellerEmail}</span>

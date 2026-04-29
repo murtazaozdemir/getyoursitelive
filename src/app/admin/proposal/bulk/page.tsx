@@ -95,6 +95,7 @@ export default async function BulkProposalPage({
               sellerEmail={seller.sellerEmail}
               sellerPhone={seller.sellerPhone}
               sellerAddress={seller.sellerAddress}
+              sellerCompany={seller.sellerCompany}
             />
           </div>
         );

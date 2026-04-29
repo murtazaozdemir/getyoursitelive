@@ -508,6 +508,20 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped: 0, log };
   },
 
+  "add-user-company-column": async () => {
+    const db = await getD1();
+    const log: string[] = [];
+    let updated = 0;
+
+    try {
+      await db.prepare("ALTER TABLE users ADD COLUMN company TEXT").run();
+      log.push("Added company column");
+      updated++;
+    } catch { log.push("company column already exists"); }
+
+    return { updated, skipped: 0, log };
+  },
+
   "disable-booking-form": async () => {
     const db = await getD1();
     const log: string[] = [];

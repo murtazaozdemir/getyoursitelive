@@ -24,12 +24,14 @@ export interface SellerInfo {
   sellerEmail: string;
   sellerPhone: string | null;
   sellerAddress: string | null;
+  sellerCompany: string | null;
 }
 
 export function buildSellerInfo(user: Record<string, unknown>, sessionEmail: string): SellerInfo {
   const sellerName = (user.name as string) ?? "";
   const sellerEmail = ("email" in user) ? (user.email as string) : sessionEmail;
   const sellerPhone = ("phone" in user && user.phone) ? (user.phone as string) : null;
+  const sellerCompany = ("company" in user && user.company) ? (user.company as string) : null;
   const sellerAddressParts = [
     ("street" in user && user.street) ? user.street : null,
     ("city" in user && user.city) ? user.city : null,
@@ -38,5 +40,5 @@ export function buildSellerInfo(user: Record<string, unknown>, sessionEmail: str
   ].filter(Boolean) as string[];
   const sellerAddress = sellerAddressParts.length > 0 ? sellerAddressParts.join(", ") : null;
 
-  return { sellerName, sellerEmail, sellerPhone, sellerAddress };
+  return { sellerName, sellerEmail, sellerPhone, sellerAddress, sellerCompany };
 }

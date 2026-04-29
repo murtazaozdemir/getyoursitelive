@@ -93,6 +93,7 @@ export default async function ProposalPage({
         sellerEmail={seller.sellerEmail}
         sellerPhone={seller.sellerPhone}
         sellerAddress={seller.sellerAddress}
+        sellerCompany={seller.sellerCompany}
       />
     </>
   );

@@ -38,7 +38,7 @@ const US_STATES = [
 ];
 
 export function ProfileForm({ user }: {
-  user: { email: string; name: string; firstName?: string | null; lastName?: string | null; phone?: string | null; street?: string | null; city?: string | null; zip?: string | null; state?: string | null; wifiIp?: string | null; mobileIp?: string | null };
+  user: { email: string; name: string; firstName?: string | null; lastName?: string | null; phone?: string | null; street?: string | null; city?: string | null; zip?: string | null; state?: string | null; wifiIp?: string | null; mobileIp?: string | null; company?: string | null };
 }) {
   // Derive firstName/lastName from legacy name if not yet split
   const defaultFirst = user.firstName ?? user.name.split(" ")[0] ?? "";
@@ -51,6 +51,7 @@ export function ProfileForm({ user }: {
   const [city, setCity] = useState(user.city ?? "");
   const [zip, setZip] = useState(user.zip ?? "");
   const [state, setState] = useState(user.state ?? "");
+  const [company, setCompany] = useState(user.company ?? "");
   const [wifiIp, setWifiIp] = useState(user.wifiIp ?? "");
   const [mobileIp, setMobileIp] = useState(user.mobileIp ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +63,7 @@ export function ProfileForm({ user }: {
     setError(null);
     setSuccess(false);
     startTransition(async () => {
-      const result = await updateProfileAction({ firstName, lastName, phone, street, city, zip, state, wifiIp, mobileIp });
+      const result = await updateProfileAction({ firstName, lastName, phone, street, city, zip, state, wifiIp, mobileIp, company });
       if (!result.ok) { setError(result.error ?? "Failed to update."); return; }
       setSuccess(true);
     });
@@ -73,6 +74,10 @@ export function ProfileForm({ user }: {
       <h2 className="admin-section-title">Profile</h2>
 
       <div className="admin-grid">
+        <label className="admin-field" style={{ gridColumn: "1 / -1" }}>
+          <span className="admin-field-label">Company</span>
+          <input type="text" className="admin-input" value={company} onChange={(e) => setCompany(e.target.value)} disabled={isPending} placeholder="e.g. SALESFORCE HUB LLC" />
+        </label>
         <label className="admin-field">
           <span className="admin-field-label">First name</span>
           <input type="text" required className="admin-input" value={firstName} onChange={(e) => setFirstName(e.target.value)} disabled={isPending} />
