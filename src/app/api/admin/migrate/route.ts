@@ -530,44 +530,48 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
 };
 
 export async function GET(req: Request) {
-  console.log("[migrate:GET] Route handler entered — build c60c868");
-  console.log("[migrate:GET] Total migrations registered:", Object.keys(MIGRATIONS).length);
-  console.log("[migrate:GET] Migration keys:", JSON.stringify(Object.keys(MIGRATIONS)));
-
-  const user = await getCurrentUser();
-  console.log("[migrate:GET] User:", user?.email ?? "null");
-  if (!user || !canManageBusinesses(user)) {
-    console.log("[migrate:GET] Unauthorized — returning 401");
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const url = new URL(req.url);
-  const migration = url.searchParams.get("run");
-  console.log("[migrate:GET] Requested migration:", migration ?? "(list)");
-
-  if (!migration) {
-    const keys = Object.keys(MIGRATIONS);
-    console.log("[migrate:GET] Returning list:", JSON.stringify(keys));
-    return NextResponse.json({ available: keys, _build: "c60c868", _count: keys.length });
-  }
-
-  const fn = MIGRATIONS[migration];
-  if (!fn) {
-    console.log("[migrate:GET] Migration not found:", migration);
-    return NextResponse.json(
-      { error: `Unknown migration: "${migration}". Available: ${Object.keys(MIGRATIONS).join(", ")}` },
-      { status: 404 },
-    );
-  }
-
   try {
-    console.log("[migrate:GET] Running migration:", migration);
+    console.log("[migrate:GET] Route handler entered — build d714ce9b");
+
+    let user;
+    try {
+      user = await getCurrentUser();
+      console.log("[migrate:GET] User:", user?.email ?? "null");
+    } catch (authErr) {
+      console.error("[migrate:GET] Auth error:", authErr);
+      return NextResponse.json({ error: "Auth failed", detail: String(authErr) }, { status: 500 });
+    }
+
+    if (!user || !canManageBusinesses(user)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const url = new URL(req.url);
+    const migration = url.searchParams.get("run");
+    console.log("[migrate:GET] Migration:", migration ?? "(list)");
+
+    if (!migration) {
+      const keys = Object.keys(MIGRATIONS);
+      return NextResponse.json({ available: keys, _build: "d714ce9b", _count: keys.length });
+    }
+
+    const fn = MIGRATIONS[migration];
+    if (!fn) {
+      return NextResponse.json(
+        { error: `Unknown migration: "${migration}". Available: ${Object.keys(MIGRATIONS).join(", ")}` },
+        { status: 404 },
+      );
+    }
+
+    console.log("[migrate:GET] Running:", migration);
     const result = await fn();
-    console.log("[migrate:GET] Migration complete:", JSON.stringify({ updated: result.updated, skipped: result.skipped }));
+    console.log("[migrate:GET] Done:", JSON.stringify({ updated: result.updated, skipped: result.skipped }));
     return NextResponse.json({ migration, ...result });
   } catch (err) {
-    console.error(`[migrate:GET] ${migration} failed:`, err);
-    return NextResponse.json({ error: "Migration failed. Check server logs." }, { status: 500 });
+    console.error("[migrate:GET] Top-level error:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? err.stack : undefined;
+    return NextResponse.json({ error: msg, stack }, { status: 500 });
   }
 }
 
