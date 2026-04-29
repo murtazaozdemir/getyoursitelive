@@ -140,7 +140,7 @@ function getOpenStatus(schedule: HoursSchedule): OpenStatusResult | null {
 // ─── Section Renderers ──────────────────────────────────────────────
 
 function renderTopbar(b: Business, v: BusinessVisibility): string {
-  if (v.showTopbar === false) return "";
+  if (v.showTopbar !== true) return "";
   const info = b.businessInfo;
   const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(info.address)}`;
   return `
