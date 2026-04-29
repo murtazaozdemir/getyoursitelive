@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { LandingPageClient } from "@/components/landing-page-client";
-import pkg from "../../package.json";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://getyoursitelive.com";
 
@@ -26,12 +25,9 @@ export const metadata: Metadata = {
 export const dynamic = "force-static";
 
 export default function LandingPage() {
-  const buildTime = new Date().toISOString();
   return (
     <LandingPageClient
       year={new Date().getFullYear()}
-      version={pkg.version}
-      buildTime={buildTime}
     />
   );
 }

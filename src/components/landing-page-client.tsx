@@ -14,15 +14,6 @@ function resolveTheme(pref: ThemePref): ResolvedTheme {
   return h >= 7 && h < 20 ? "light" : "dark";
 }
 
-function formatBuildTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleString("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-    hour: "numeric", minute: "2-digit", hour12: true,
-    timeZone: "UTC", timeZoneName: "short",
-  });
-}
-
 // ── Data ────────────────────────────────────────────────────────────────
 
 const FEATURES = [
@@ -119,12 +110,8 @@ function ThemeSwitcher({
 
 export function LandingPageClient({
   year,
-  version,
-  buildTime,
 }: {
   year: number;
-  version: string;
-  buildTime: string;
 }) {
   const [pref, setPref] = useState<ThemePref>("light");
 
@@ -333,16 +320,15 @@ export function LandingPageClient({
       {/* ── FOOTER ── */}
       <footer className="border-t border-slate-100 px-6 py-5">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#E85D29]" aria-hidden />
-            <span className="lp-mono text-[11px] uppercase tracking-[0.18em] text-slate-400">
-              Get Your Site Live
-            </span>
-            <span className="lp-mono text-[11px] text-slate-300">
-              v{version}
-            </span>
-            <span className="lp-mono text-[11px] text-slate-300">
-              ({formatBuildTime(buildTime)})
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#E85D29]" aria-hidden />
+              <span className="lp-mono text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                SALESFORCE HUB LLC — Get Your Site Live
+              </span>
+            </div>
+            <span className="lp-mono text-[11px] text-slate-300 ml-3.5">
+              225 Arlington Ave, Clifton, NJ 07011 · <a href="mailto:info@getyoursitelive.com" className="hover:text-slate-400 transition-colors">info@getyoursitelive.com</a>
             </span>
           </div>
           <div className="flex items-center gap-4">
