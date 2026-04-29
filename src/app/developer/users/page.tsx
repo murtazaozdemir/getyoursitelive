@@ -48,7 +48,7 @@ export default async function UsersPage() {
           </p>
         </div>
         <div className="admin-page-header-actions">
-          <Link href="/admin/users/new" className="admin-btn admin-btn--primary">
+          <Link href="/developer/users/new" className="admin-btn admin-btn--primary">
             + Invite user
           </Link>
         </div>

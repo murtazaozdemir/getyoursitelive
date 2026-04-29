@@ -30,7 +30,7 @@ export function NewUserForm() {
           <button
             type="button"
             className="admin-btn admin-btn--ghost"
-            onClick={() => { window.location.href = "/admin/users/new"; }}
+            onClick={() => { window.location.href = "/developer/users/new"; }}
           >
             Invite another
           </button>
