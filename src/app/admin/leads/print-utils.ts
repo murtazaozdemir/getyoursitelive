@@ -334,6 +334,9 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   }
 
   /* ── BACK SIDE ── */
+  .env-back {
+    transform: rotate(180deg);
+  }
   .env-back-content {
     position: absolute;
     top: 50%;
