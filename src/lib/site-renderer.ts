@@ -571,7 +571,7 @@ function renderFooter(b: Business): string {
         <div><span class="footer-brand" ${E("businessInfo.name")}>${esc(info.name)}</span> \u2014 <span ${E("businessInfo.tagline")} style="color:var(--text-secondary)">${esc(info.tagline || "")}</span></div>
         <div class="footer-details">
           Serving ${esc(extractCity(info.address))} and surrounding areas
-          \u00B7 <strong ${E("footer.phoneLabel")}>${esc(f.phoneLabel || "Phone")}</strong>: <a href="tel:${esc(info.phone)}"><span ${E("businessInfo.phone")}>${esc(info.phone)}</span></a>
+          \u00B7 <span style="white-space:nowrap"><strong ${E("footer.phoneLabel")}>${esc(f.phoneLabel || "Phone")}</strong>: <a href="tel:${esc(info.phone)}"><span ${E("businessInfo.phone")}>${esc(info.phone)}</span></a></span>
         </div>
       </div>
       <div class="footer-copyright">\u00A9 ${year} ${esc(info.name)}. <span ${E("footer.copyrightSuffix")}>${esc(f.copyrightSuffix || "All rights reserved.")}</span></div>
