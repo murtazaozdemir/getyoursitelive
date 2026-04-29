@@ -460,16 +460,16 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
   }
 
   .env2-back-content {
-    position: absolute;
-    top: 0.2in;
-    left: 0.5in;
-    right: 0.5in;
-    transform: rotate(180deg);
-    transform-origin: center center;
-    text-align: center;
-    font-size: 11pt;
-    color: #333;
-    line-height: 1.7;
+    position: absolute !important;
+    bottom: 0.2in !important;
+    top: auto !important;
+    left: 0.5in !important;
+    right: 0.5in !important;
+    transform: rotate(180deg) !important;
+    transform-origin: center center !important;
+    text-align: center !important;
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
   }
 
   .env2-back-content p {
