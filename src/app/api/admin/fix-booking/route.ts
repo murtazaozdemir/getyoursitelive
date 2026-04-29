@@ -3,7 +3,6 @@ import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 /**
