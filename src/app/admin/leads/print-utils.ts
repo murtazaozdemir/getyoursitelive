@@ -230,8 +230,7 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
       <div class="env-page env-front">
         <div class="env-return">
           <div class="env-return-company">${esc(sender.company)}</div>
-          <div>Web Site Development Division</div>
-          <div>${esc(sender.address)}</div>
+          <div>${esc(sender.address).replace(/,\s*/, "<br>")}</div>
         </div>
         <div class="env-corner-note">
           <div class="env-corner-box">
@@ -242,8 +241,8 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
         </div>
         <div class="env-recipient">
           <div class="env-recipient-name">${esc(p.name)}</div>
-          <div>Current Owner</div>
-          <div>${esc(p.address)}</div>
+          <div>Owner</div>
+          <div>${esc(p.address).replace(/,\s*/, "<br>")}</div>
         </div>
         <div class="env-barcode-zone"></div>
       </div>
