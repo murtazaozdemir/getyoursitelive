@@ -5,6 +5,18 @@ import { useRouter } from "next/navigation";
 import { changeEmailAction, changePasswordAction, updateProfileAction } from "./actions";
 import { PasswordInput } from "@/components/ui/password-input";
 
+/** Strip to digits, format as (XXX) XXX-XXXX for display. */
+function formatPhone(raw: string): string {
+  const d = raw.replace(/\D/g, "");
+  if (d.length <= 3) return d;
+  if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 10)}`;
+}
+
+function stripPhone(formatted: string): string {
+  return formatted.replace(/\D/g, "").slice(0, 10);
+}
+
 const US_STATES = [
   { code: "AL", name: "Alabama" }, { code: "AK", name: "Alaska" }, { code: "AZ", name: "Arizona" },
   { code: "AR", name: "Arkansas" }, { code: "CA", name: "California" }, { code: "CO", name: "Colorado" },
@@ -76,7 +88,7 @@ export function ProfileForm({ user }: {
         </label>
         <label className="admin-field">
           <span className="admin-field-label">Phone</span>
-          <input type="tel" className="admin-input" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isPending} placeholder="(555) 000-0000" />
+          <input type="tel" className="admin-input" value={formatPhone(phone)} onChange={(e) => setPhone(stripPhone(e.target.value))} disabled={isPending} placeholder="(555) 000-0000" />
         </label>
         <label className="admin-field">
           <span className="admin-field-label">Street address</span>
