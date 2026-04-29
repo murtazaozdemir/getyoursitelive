@@ -404,11 +404,15 @@ export function showLeadsMap(prospects: PrintableProspect[], userHome: UserHome)
 <body>
 <div id="map"></div>
 <div id="toolbar">
-  <button class="toolbar-btn toolbar-btn--print" onclick="window.print()">Print</button>
+  <div style="display:flex;align-items:center;gap:6px">
+    <input id="reroute-zip" type="text" placeholder="Zip code" maxlength="5" style="width:70px;padding:6px 8px;border:1px solid #ccc;border-radius:4px;font-size:13px;font-family:monospace" />
+    <button class="toolbar-btn" onclick="rerouteFromZip()" style="white-space:nowrap">Re-route</button>
+  </div>
+  <button class="toolbar-btn toolbar-btn--csv" onclick="exportCsv()">Export CSV</button>
   <button class="toolbar-btn toolbar-btn--pdf" onclick="window.print()">Export PDF</button>
 </div>
 <div id="route-panel">
-  <h3>Optimal Route <button class="toolbar-btn toolbar-btn--csv" onclick="exportCsv()">Export CSV</button></h3>
+  <h3>Optimal Route</h3>
   <div id="route-list" class="route-loading"><span class="route-loading-spinner"></span> Please wait\u2026 Preparing map</div>
 </div>
 <script>
@@ -567,6 +571,127 @@ export function showLeadsMap(prospects: PrintableProspect[], userHome: UserHome)
   }
 
   }); // end resolveStops().then()
+
+  async function rerouteFromZip() {
+    var zip = document.getElementById('reroute-zip').value.trim();
+    if (!zip || !/^\\d{5}$/.test(zip)) {
+      alert('Enter a valid 5-digit zip code.');
+      return;
+    }
+    document.getElementById('route-list').innerHTML = '<div class="route-loading"><span class="route-loading-spinner"></span> Please wait\u2026 Geocoding zip ' + zip + '</div>';
+
+    var geo = await geocodeAddress(zip + ', USA');
+    if (!geo) {
+      document.getElementById('route-list').innerHTML = '<div class="route-loading">Could not find location for zip ' + zip + '.</div>';
+      return;
+    }
+
+    // Update home origin
+    home.lat = geo.lat;
+    home.lng = geo.lng;
+    home.address = 'Zip ' + zip;
+
+    // Clear all map layers except the tile layer
+    map.eachLayer(function(layer) {
+      if (!(layer instanceof L.TileLayer)) map.removeLayer(layer);
+    });
+    map.setView([home.lat, home.lng], 11);
+
+    // Re-resolve and re-route with new origin
+    var stops = await resolveStops();
+    if (stops.length === 0) {
+      document.getElementById('route-list').innerHTML = '<div class="route-loading">No geocodable stops.</div>';
+      return;
+    }
+
+    var coords = home.lng + ',' + home.lat;
+    stops.forEach(function(s) { coords += ';' + s.lng + ',' + s.lat; });
+    var url = 'https://router.project-osrm.org/trip/v1/driving/' + coords
+      + '?source=first&roundtrip=false&geometries=geojson&overview=full';
+
+    try {
+      var r = await fetch(url);
+      var data = await r.json();
+      if (data.code !== 'Ok' || !data.trips || !data.trips[0]) {
+        rerouteFallback(stops);
+        return;
+      }
+      var trip = data.trips[0];
+      var waypoints = data.waypoints;
+      var ordered = [];
+      for (var i = 1; i < waypoints.length; i++) {
+        ordered.push({ stop: stops[i - 1], tripIndex: waypoints[i].waypoint_index });
+      }
+      ordered.sort(function(a, b) { return a.tripIndex - b.tripIndex; });
+
+      var routeCoords = trip.geometry.coordinates.map(function(c) { return [c[1], c[0]]; });
+      L.polyline(routeCoords, { color: '#1a6b50', weight: 4, opacity: 0.7 }).addTo(map);
+
+      L.marker([home.lat, home.lng], { icon: numIcon('H', true) }).addTo(map)
+        .bindTooltip('Start (Zip ' + zip + ')', { direction: 'top', offset: [0, -10] })
+        .bindPopup('<strong>Start: Zip ' + zip + '</strong>');
+
+      var bounds = [[home.lat, home.lng]];
+      var listHtml = '<div class="route-stop"><span class="route-num route-num--home">H</span><div><div class="route-name">Start (Zip ' + zip + ')</div><div class="route-addr">Re-routed origin</div></div></div>';
+
+      ordered.forEach(function(item, idx) {
+        var s = item.stop;
+        var n = idx + 1;
+        L.marker([s.lat, s.lng], { icon: numIcon(n, false) }).addTo(map)
+          .bindTooltip(n + '. ' + s.name, { direction: 'top', offset: [0, -10] })
+          .bindPopup('<strong>' + n + '. ' + s.name + '</strong><br>' + s.address);
+        bounds.push([s.lat, s.lng]);
+        listHtml += '<div class="route-stop"><span class="route-num">' + n + '</span><div><div class="route-name">' + s.name + '</div><div class="route-addr">' + s.address + '</div></div></div>';
+      });
+
+      var distMi = (trip.distance / 1609.34).toFixed(1);
+      var durMin = Math.round(trip.duration / 60);
+      listHtml += '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #ddd;font-size:12px;color:#555"><strong>' + distMi + ' mi</strong> · ~' + durMin + ' min driving</div>';
+
+      document.getElementById('route-list').innerHTML = listHtml;
+      map.fitBounds(bounds, { padding: [40, 40] });
+    } catch(e) {
+      rerouteFallback(stops);
+    }
+  }
+
+  function rerouteFallback(stops) {
+    var remaining = stops.slice();
+    var ordered = [];
+    var current = home;
+    while (remaining.length > 0) {
+      var best = 0, bestDist = Infinity;
+      for (var i = 0; i < remaining.length; i++) {
+        var d = Math.pow(remaining[i].lat - current.lat, 2) + Math.pow(remaining[i].lng - current.lng, 2);
+        if (d < bestDist) { bestDist = d; best = i; }
+      }
+      ordered.push(remaining[best]);
+      current = remaining[best];
+      remaining.splice(best, 1);
+    }
+
+    var zip = document.getElementById('reroute-zip').value.trim();
+    L.marker([home.lat, home.lng], { icon: numIcon('H', true) }).addTo(map)
+      .bindTooltip('Start (Zip ' + zip + ')', { direction: 'top', offset: [0, -10] });
+
+    var bounds = [[home.lat, home.lng]];
+    var pts = [[home.lat, home.lng]];
+    var listHtml = '<div class="route-stop"><span class="route-num route-num--home">H</span><div><div class="route-name">Start (Zip ' + zip + ')</div><div class="route-addr">Re-routed origin</div></div></div>';
+
+    ordered.forEach(function(s, idx) {
+      var n = idx + 1;
+      L.marker([s.lat, s.lng], { icon: numIcon(n, false) }).addTo(map)
+        .bindTooltip(n + '. ' + s.name, { direction: 'top', offset: [0, -10] })
+        .bindPopup('<strong>' + n + '. ' + s.name + '</strong><br>' + s.address);
+      bounds.push([s.lat, s.lng]);
+      pts.push([s.lat, s.lng]);
+      listHtml += '<div class="route-stop"><span class="route-num">' + n + '</span><div><div class="route-name">' + s.name + '</div><div class="route-addr">' + s.address + '</div></div></div>';
+    });
+
+    L.polyline(pts, { color: '#1a6b50', weight: 3, opacity: 0.5, dashArray: '8 6' }).addTo(map);
+    document.getElementById('route-list').innerHTML = listHtml;
+    map.fitBounds(bounds, { padding: [40, 40] });
+  }
 
   function exportCsv() {
     var rows = document.querySelectorAll('.route-stop');
