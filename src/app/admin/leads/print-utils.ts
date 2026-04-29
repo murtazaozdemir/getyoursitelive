@@ -250,7 +250,7 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
       <div class="env-page env-back">
         <div class="env-back-content">
           <div class="env-back-body">
-            <p class="env-back-lead">We have already built a personalized website preview for <strong>${esc(p.name)}</strong>.</p>
+            <p class="env-back-lead">We have already built a website preview for <strong>${esc(p.name)}</strong>.</p>
             <p>Today, customers search online to verify your reputation before they call. We created this digital business card to ensure your business looks as professional as the work you do.</p>
             <p class="env-back-url">View it now: <strong>getyoursitelive.com/${esc(p.slug)}</strong></p>
             <p class="env-back-scan">&hellip;or scan the QR code inside this envelope.</p>
