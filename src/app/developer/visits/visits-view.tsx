@@ -5,6 +5,19 @@ import Link from "next/link";
 import type { ProspectVisit } from "@/lib/prospect-visits";
 import { SortableTable, Column, FilterDef } from "@/components/admin/sortable-table";
 
+import type { AdminIPEntry } from "@/lib/users";
+
+function getAllExcludeIPs(adminIPs: AdminIPEntry[], excluded: Set<string>): Set<string> {
+  const ips = new Set<string>();
+  for (const admin of adminIPs) {
+    if (excluded.has(admin.name)) {
+      if (admin.wifiIp) ips.add(admin.wifiIp);
+      if (admin.mobileIp) ips.add(admin.mobileIp);
+    }
+  }
+  return ips;
+}
+
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
@@ -143,19 +156,40 @@ function classifyVisit(ua: string): "bot" | "admin" | "lead" {
 export function VisitsView({
   visits,
   counts,
-  adminEmails,
+  adminIPs = [],
 }: {
   visits: ProspectVisit[];
   counts: CountRow[];
-  adminEmails?: string[];
+  adminIPs?: AdminIPEntry[];
 }) {
   const [tab, setTab] = useState<"all" | "summary">("all");
+  // Exclude all admins with IPs by default
+  const [excluded, setExcluded] = useState<Set<string>>(() => new Set(adminIPs.map((a) => a.name)));
 
-  const botCount = visits.filter((v) => classifyVisit(v.userAgent) === "bot").length;
-  const leadCount = visits.length - botCount;
+  const excludeIPs = getAllExcludeIPs(adminIPs, excluded);
 
-  const uniqueSlugs = [...new Set(visits.map((v) => v.slug))];
-  const deviceOptions = [...new Set(visits.map((v) => parseDevice(v.userAgent)))].sort();
+  const toggleExclude = (label: string) => {
+    setExcluded((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
+  };
+
+  const filteredVisits = excludeIPs.size > 0 ? visits.filter((v) => !excludeIPs.has(v.ip)) : visits;
+  const filteredCounts = excludeIPs.size > 0
+    ? counts.map((c) => {
+        const cVisits = visits.filter((v) => v.slug === c.slug && !excludeIPs.has(v.ip));
+        return { ...c, count: cVisits.length, lastVisit: cVisits[0]?.visitedAt ?? c.lastVisit };
+      }).filter((c) => c.count > 0)
+    : counts;
+
+  const botCount = filteredVisits.filter((v) => classifyVisit(v.userAgent) === "bot").length;
+  const leadCount = filteredVisits.length - botCount;
+
+  const uniqueSlugs = [...new Set(filteredVisits.map((v) => v.slug))];
+  const deviceOptions = [...new Set(filteredVisits.map((v) => parseDevice(v.userAgent)))].sort();
 
   const allVisitsFilters: FilterDef<ProspectVisit>[] = [
     {
@@ -163,7 +197,7 @@ export function VisitsView({
       label: "Lead",
       options: uniqueSlugs.map((s) => ({
         value: s,
-        label: visits.find((v) => v.slug === s)?.businessName ?? s,
+        label: filteredVisits.find((v) => v.slug === s)?.businessName ?? s,
       })),
       match: (row, value) => row.slug === value,
     },
@@ -177,9 +211,55 @@ export function VisitsView({
 
   return (
     <>
+      {/* Exclude admin IPs — only shown if any admin has IPs configured */}
+      {adminIPs.length > 0 && (
+        <div style={{ marginBottom: 20, padding: "12px 16px", background: "var(--admin-bg-card, #fff)", borderRadius: 8, border: "1px solid var(--admin-border, #e5e5e5)" }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, color: "var(--admin-text-soft)" }}>Exclude admin IPs</div>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            {adminIPs.map((admin) => {
+              const active = excluded.has(admin.name);
+              const ipParts: string[] = [];
+              if (admin.wifiIp) ipParts.push(`WiFi: ${admin.wifiIp}`);
+              if (admin.mobileIp) ipParts.push(`Mobile: ${admin.mobileIp}`);
+              return (
+                <button
+                  key={admin.name}
+                  type="button"
+                  onClick={() => toggleExclude(admin.name)}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "6px 12px",
+                    borderRadius: 6,
+                    border: `1px solid ${active ? "var(--admin-accent, #1a7a6d)" : "var(--admin-border, #e5e5e5)"}`,
+                    background: active ? "color-mix(in srgb, var(--admin-accent, #1a7a6d) 10%, transparent)" : "transparent",
+                    color: active ? "var(--admin-accent, #1a7a6d)" : "var(--admin-text-soft)",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    cursor: "pointer",
+                  }}
+                >
+                  <span style={{ fontSize: 14 }}>{active ? "\u2715" : "\u25CB"}</span>
+                  {admin.name}
+                  <span style={{ fontSize: 11, color: "inherit", opacity: 0.7 }}>
+                    {ipParts.join(", ")}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          {excludeIPs.size > 0 && (
+            <div style={{ fontSize: 12, color: "var(--admin-text-soft)", marginTop: 6 }}>
+              Filtering out {visits.length - filteredVisits.length} visit{visits.length - filteredVisits.length !== 1 ? "s" : ""} from admin IPs
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="admin-stats-row" style={{ display: "flex", gap: 16, marginBottom: 20 }}>
         <div className="admin-stat-card" style={{ flex: 1, padding: "12px 16px", background: "var(--admin-bg-card, #fff)", borderRadius: 8, border: "1px solid var(--admin-border, #e5e5e5)" }}>
-          <div style={{ fontSize: 24, fontWeight: 700 }}>{visits.length}</div>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{filteredVisits.length}</div>
           <div style={{ fontSize: 13, color: "var(--admin-text-soft)" }}>Total visits</div>
         </div>
         <div className="admin-stat-card" style={{ flex: 1, padding: "12px 16px", background: "var(--admin-bg-card, #fff)", borderRadius: 8, border: "1px solid var(--admin-border, #e5e5e5)" }}>
@@ -198,20 +278,20 @@ export function VisitsView({
           className={`admin-tab ${tab === "all" ? "admin-tab--active" : ""}`}
           onClick={() => setTab("all")}
         >
-          All visits ({visits.length})
+          All visits ({filteredVisits.length})
         </button>
         <button
           type="button"
           className={`admin-tab ${tab === "summary" ? "admin-tab--active" : ""}`}
           onClick={() => setTab("summary")}
         >
-          By lead ({counts.length})
+          By lead ({filteredCounts.length})
         </button>
       </div>
 
       {tab === "summary" ? (
         <SortableTable
-          data={counts}
+          data={filteredCounts}
           columns={summaryCols}
           rowKey={(row) => row.slug}
           emptyMessage="No visits recorded yet."
@@ -219,7 +299,7 @@ export function VisitsView({
         />
       ) : (
         <SortableTable
-          data={visits}
+          data={filteredVisits}
           columns={allVisitsCols}
           filters={allVisitsFilters}
           rowKey={(row) => row.id}

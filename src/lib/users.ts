@@ -29,6 +29,8 @@ export interface User {
   city?: string | null;
   zip?: string | null;
   state?: string | null;
+  wifiIp?: string | null;
+  mobileIp?: string | null;
   createdAt: string;
 }
 
@@ -46,6 +48,8 @@ export interface SessionUser {
   city?: string | null;
   zip?: string | null;
   state?: string | null;
+  wifiIp?: string | null;
+  mobileIp?: string | null;
   createdAt?: string;
 }
 
@@ -67,6 +71,8 @@ interface UserRow {
   city: string | null;
   zip: string | null;
   state: string | null;
+  wifi_ip: string | null;
+  mobile_ip: string | null;
   created_at: string;
 }
 
@@ -85,6 +91,8 @@ function rowToUser(row: UserRow): User {
     city: row.city,
     zip: row.zip,
     state: row.state,
+    wifiIp: row.wifi_ip,
+    mobileIp: row.mobile_ip,
     createdAt: row.created_at,
   };
 }
@@ -272,6 +280,8 @@ export async function updateUserProfile(
     city?: string;
     zip?: string;
     state?: string;
+    wifiIp?: string;
+    mobileIp?: string;
   },
 ): Promise<void> {
   const db = await getD1();
@@ -283,7 +293,8 @@ export async function updateUserProfile(
     .prepare(
       `UPDATE users SET
         first_name = ?, last_name = ?, name = ?,
-        phone = ?, street = ?, city = ?, zip = ?, state = ?
+        phone = ?, street = ?, city = ?, zip = ?, state = ?,
+        wifi_ip = ?, mobile_ip = ?
        WHERE id = ?`,
     )
     .bind(
@@ -295,6 +306,8 @@ export async function updateUserProfile(
       fields.city?.trim() || null,
       fields.zip?.trim() || null,
       fields.state?.trim() || null,
+      fields.wifiIp?.trim() || null,
+      fields.mobileIp?.trim() || null,
       id,
     )
     .run();
@@ -308,6 +321,29 @@ export async function deleteUser(id: string): Promise<void> {
     .bind(id)
     .run();
   if (meta.changes === 0) throw new Error(`No user with id ${id}`);
+}
+
+// ---------------------------------------------------------------
+// Admin IP addresses (for visit filtering)
+// ---------------------------------------------------------------
+
+export interface AdminIPEntry {
+  name: string;
+  wifiIp: string | null;
+  mobileIp: string | null;
+}
+
+/** Returns all admin users who have at least one IP address configured. */
+export async function getAdminIPs(): Promise<AdminIPEntry[]> {
+  const db = await getD1();
+  const { results } = await db
+    .prepare("SELECT name, wifi_ip, mobile_ip FROM users WHERE role = 'admin' AND (wifi_ip IS NOT NULL OR mobile_ip IS NOT NULL)")
+    .all<{ name: string; wifi_ip: string | null; mobile_ip: string | null }>();
+  return results.map((r) => ({
+    name: r.name,
+    wifiIp: r.wifi_ip,
+    mobileIp: r.mobile_ip,
+  }));
 }
 
 // ---------------------------------------------------------------
@@ -362,6 +398,8 @@ function toSessionUser(u: User): SessionUser {
     city: u.city ?? null,
     zip: u.zip ?? null,
     state: u.state ?? null,
+    wifiIp: u.wifiIp ?? null,
+    mobileIp: u.mobileIp ?? null,
     createdAt: u.createdAt,
   };
 }

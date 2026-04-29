@@ -26,7 +26,7 @@ const US_STATES = [
 ];
 
 export function ProfileForm({ user }: {
-  user: { email: string; name: string; firstName?: string | null; lastName?: string | null; phone?: string | null; street?: string | null; city?: string | null; zip?: string | null; state?: string | null };
+  user: { email: string; name: string; firstName?: string | null; lastName?: string | null; phone?: string | null; street?: string | null; city?: string | null; zip?: string | null; state?: string | null; wifiIp?: string | null; mobileIp?: string | null };
 }) {
   // Derive firstName/lastName from legacy name if not yet split
   const defaultFirst = user.firstName ?? user.name.split(" ")[0] ?? "";
@@ -39,6 +39,8 @@ export function ProfileForm({ user }: {
   const [city, setCity] = useState(user.city ?? "");
   const [zip, setZip] = useState(user.zip ?? "");
   const [state, setState] = useState(user.state ?? "");
+  const [wifiIp, setWifiIp] = useState(user.wifiIp ?? "");
+  const [mobileIp, setMobileIp] = useState(user.mobileIp ?? "");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -48,7 +50,7 @@ export function ProfileForm({ user }: {
     setError(null);
     setSuccess(false);
     startTransition(async () => {
-      const result = await updateProfileAction({ firstName, lastName, phone, street, city, zip, state });
+      const result = await updateProfileAction({ firstName, lastName, phone, street, city, zip, state, wifiIp, mobileIp });
       if (!result.ok) { setError(result.error ?? "Failed to update."); return; }
       setSuccess(true);
     });
@@ -94,6 +96,18 @@ export function ProfileForm({ user }: {
         <label className="admin-field">
           <span className="admin-field-label">Zip code</span>
           <input type="text" className="admin-input" value={zip} onChange={(e) => setZip(e.target.value)} disabled={isPending} />
+        </label>
+      </div>
+
+      <h3 style={{ fontSize: 14, fontWeight: 600, marginTop: 24, marginBottom: 8, color: "var(--admin-text-soft)" }}>IP Addresses (for visit filtering)</h3>
+      <div className="admin-grid">
+        <label className="admin-field">
+          <span className="admin-field-label">WiFi IP</span>
+          <input type="text" className="admin-input" value={wifiIp} onChange={(e) => setWifiIp(e.target.value)} disabled={isPending} placeholder="e.g. 69.112.211.104" style={{ fontFamily: "monospace" }} />
+        </label>
+        <label className="admin-field">
+          <span className="admin-field-label">Mobile IP</span>
+          <input type="text" className="admin-input" value={mobileIp} onChange={(e) => setMobileIp(e.target.value)} disabled={isPending} placeholder="e.g. 174.200.50.1" style={{ fontFamily: "monospace" }} />
         </label>
       </div>
 

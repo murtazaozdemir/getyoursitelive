@@ -15,7 +15,7 @@ export default async function AccountPage() {
   // Fetch the full user record from DB (session JWT only has id/email/role/name)
   const fullUser = await findUserById(sessionUser.id);
   const user = fullUser
-    ? { ...sessionUser, firstName: fullUser.firstName, lastName: fullUser.lastName, phone: fullUser.phone, street: fullUser.street, city: fullUser.city, state: fullUser.state, zip: fullUser.zip }
+    ? { ...sessionUser, firstName: fullUser.firstName, lastName: fullUser.lastName, phone: fullUser.phone, street: fullUser.street, city: fullUser.city, state: fullUser.state, zip: fullUser.zip, wifiIp: fullUser.wifiIp, mobileIp: fullUser.mobileIp }
     : sessionUser;
 
   return (

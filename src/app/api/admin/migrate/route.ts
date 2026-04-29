@@ -488,6 +488,26 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated, skipped: 0, log };
   },
 
+  "add-user-ip-columns": async () => {
+    const db = await getD1();
+    const log: string[] = [];
+    let updated = 0;
+
+    try {
+      await db.prepare("ALTER TABLE users ADD COLUMN wifi_ip TEXT").run();
+      log.push("Added wifi_ip column");
+      updated++;
+    } catch { log.push("wifi_ip column already exists"); }
+
+    try {
+      await db.prepare("ALTER TABLE users ADD COLUMN mobile_ip TEXT").run();
+      log.push("Added mobile_ip column");
+      updated++;
+    } catch { log.push("mobile_ip column already exists"); }
+
+    return { updated, skipped: 0, log };
+  },
+
   "disable-booking-form": async () => {
     const db = await getD1();
     const log: string[] = [];

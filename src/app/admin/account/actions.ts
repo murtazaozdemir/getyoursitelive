@@ -59,6 +59,8 @@ export async function updateProfileAction(fields: {
   city?: string;
   zip?: string;
   state?: string;
+  wifiIp?: string;
+  mobileIp?: string;
 }): Promise<{ ok: boolean; error?: string }> {
   let user;
   try {

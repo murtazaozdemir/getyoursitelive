@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
-import { isDeveloper } from "@/lib/users";
+import { isDeveloper, getAdminIPs } from "@/lib/users";
 import { getProspectVisits, getVisitCounts } from "@/lib/prospect-visits";
 import { VisitsView } from "./visits-view";
 
@@ -14,9 +14,10 @@ export default async function VisitsPage() {
   if (!user) redirect("/admin/login");
   if (!isDeveloper(user)) redirect("/admin");
 
-  const [visits, counts] = await Promise.all([
+  const [visits, counts, adminIPs] = await Promise.all([
     getProspectVisits(500),
     getVisitCounts(),
+    getAdminIPs(),
   ]);
 
   return (
@@ -31,7 +32,7 @@ export default async function VisitsPage() {
         </div>
       </div>
 
-      <VisitsView visits={visits} counts={counts} />
+      <VisitsView visits={visits} counts={counts} adminIPs={adminIPs} />
     </div>
   );
 }
