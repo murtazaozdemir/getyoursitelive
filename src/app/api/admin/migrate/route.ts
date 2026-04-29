@@ -493,42 +493,38 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     const log: string[] = [];
     let updated = 0;
     let skipped = 0;
-    const CHUNK = 50;
-    let offset = 0;
 
-    for (let chunk = 0; chunk < 100; chunk++) {
-      const { results } = await db
-        .prepare("SELECT slug, content FROM businesses WHERE content IS NOT NULL LIMIT ? OFFSET ?")
-        .bind(CHUNK, offset)
-        .all<{ slug: string; content: string }>();
+    // Use a targeted SQL approach: only fetch slugs that have showBooking:true
+    const { results } = await db
+      .prepare("SELECT slug, content FROM businesses WHERE content LIKE '%\"showBooking\":true%' OR content LIKE '%\"showBooking\": true%'")
+      .all<{ slug: string; content: string }>();
 
-      if (results.length === 0) break;
+    log.push(`Found ${results.length} businesses with showBooking:true`);
 
-      for (const row of results) {
-        if (!row.content) { skipped++; continue; }
-        try {
-          const data = JSON.parse(row.content);
-          if (data.visibility && data.visibility.showBooking === true) {
-            data.visibility.showBooking = false;
-            await db
-              .prepare("UPDATE businesses SET content = ? WHERE slug = ?")
-              .bind(JSON.stringify(data), row.slug)
-              .run();
-            log.push(`${row.slug}: showBooking → false`);
-            updated++;
-          } else {
-            skipped++;
-          }
-        } catch {
-          log.push(`${row.slug}: failed to parse`);
+    for (const row of results) {
+      try {
+        const content = row.content;
+        // Simple string replacement — no need to parse/stringify the whole blob
+        const newContent = content
+          .split('"showBooking":true').join('"showBooking":false')
+          .split('"showBooking": true').join('"showBooking":false');
+
+        if (newContent !== content) {
+          await db
+            .prepare("UPDATE businesses SET content = ? WHERE slug = ?")
+            .bind(newContent, row.slug)
+            .run();
+          updated++;
+        } else {
           skipped++;
         }
+      } catch {
+        log.push(`${row.slug}: failed`);
+        skipped++;
       }
-
-      if (results.length < CHUNK) break;
-      offset += CHUNK;
     }
 
+    log.push(`Done: ${updated} updated, ${skipped} skipped`);
     return { updated, skipped, log };
   },
 };
