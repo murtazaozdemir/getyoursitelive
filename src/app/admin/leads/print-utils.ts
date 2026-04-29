@@ -251,12 +251,8 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
         <div class="env-back-content">
           <div class="env-back-body">
             <p>85% of customers check online before they call any local business. If you don&rsquo;t show up, you don&rsquo;t exist to them.</p>
-            <p>A website isn&rsquo;t a luxury anymore &mdash; it&rsquo;s your digital business card.</p>
+            <p>A website is your digital business card.</p>
             <p>We already built a free preview for your business at <strong>getyoursitelive.com/${esc(p.slug)}</strong>. Open this envelope to see a QR code to scan and see how it looks on your phone.</p>
-          </div>
-          <div class="env-back-footer">
-            <div class="env-back-company">${esc(sender.company)}</div>
-            <div>${esc(sender.email)}</div>
           </div>
         </div>
       </div>`,
@@ -355,18 +351,6 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   }
   .env-back-body p {
     margin-bottom: 10px;
-  }
-  .env-back-footer {
-    margin-top: 14px;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 8pt;
-    line-height: 1.5;
-    color: #555;
-  }
-  .env-back-company {
-    font-weight: 700;
-    color: #222;
-    font-size: 8.5pt;
   }
 </style>
 </head>
