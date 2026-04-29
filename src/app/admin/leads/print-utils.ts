@@ -465,6 +465,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
     top: auto !important;
     left: 0.5in !important;
     right: 0.5in !important;
+    width: auto !important;
     transform: rotate(180deg) !important;
     transform-origin: center center !important;
     text-align: center !important;
