@@ -129,6 +129,10 @@ export default async function LeadsPage({
     ? { lat: userHomeCoords.lat, lng: userHomeCoords.lng, name: fullUser?.name ?? user.name, address: userAddress }
     : null;
 
+  const senderInfo = (fullUser?.company && userAddress)
+    ? { company: fullUser.company, name: fullUser.name, address: userAddress, email: fullUser.email }
+    : null;
+
   // Default sort by distance when admin has a zip code and no explicit sort param
   const sortBy = (params.sortBy ?? (adminHasZip ? "distance" : "createdAt")) as SortKey;
   const sortDir = (params.sortDir ?? (sortBy === "distance" ? "asc" : "desc")) as "asc" | "desc";
@@ -362,6 +366,7 @@ export default async function LeadsPage({
             lng: p.lng,
           }))}
           userHome={userHome}
+          senderInfo={senderInfo}
         />
       )}
     </div>

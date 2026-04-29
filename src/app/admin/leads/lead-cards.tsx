@@ -5,12 +5,14 @@ import Link from "next/link";
 import {
   type LeadCardData,
   type UserHome,
+  type SenderInfo,
   printLabels,
+  printEnvelopes,
   printTaskList,
   showLeadsMap,
 } from "./print-utils";
 
-export function LeadCards({ prospects, userHome }: { prospects: LeadCardData[]; userHome?: UserHome | null }) {
+export function LeadCards({ prospects, userHome, senderInfo }: { prospects: LeadCardData[]; userHome?: UserHome | null; senderInfo?: SenderInfo | null }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const allSelected = prospects.length > 0 && selected.size === prospects.length;
@@ -49,6 +51,15 @@ export function LeadCards({ prospects, userHome }: { prospects: LeadCardData[]; 
   function handlePrint() {
     const picked = prospects.filter((p) => selected.has(p.slug));
     printLabels(picked);
+  }
+
+  function handlePrintEnvelopes() {
+    if (!senderInfo) {
+      alert("Set your Company and Address in Account Settings first.");
+      return;
+    }
+    const picked = prospects.filter((p) => selected.has(p.slug));
+    printEnvelopes(picked, senderInfo);
   }
 
   function handlePrintProposals() {
@@ -137,6 +148,13 @@ export function LeadCards({ prospects, userHome }: { prospects: LeadCardData[]; 
               onClick={handlePrint}
             >
               Print {selected.size} label{selected.size !== 1 ? "s" : ""}
+            </button>
+            <button
+              type="button"
+              className="admin-btn admin-btn--ghost"
+              onClick={handlePrintEnvelopes}
+            >
+              Print {selected.size} envelope{selected.size !== 1 ? "s" : ""}
             </button>
             <button
               type="button"

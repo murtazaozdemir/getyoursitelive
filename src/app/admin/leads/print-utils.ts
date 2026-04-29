@@ -26,6 +26,13 @@ export interface UserHome {
   address: string;
 }
 
+export interface SenderInfo {
+  company: string;
+  name: string;
+  address: string;
+  email: string;
+}
+
 /** Minimal data needed for print/map functions (subset of LeadCardData) */
 export interface PrintableProspect {
   slug: string;
@@ -209,6 +216,203 @@ export function printLabels(prospects: PrintableProspect[]) {
     // Fallback in case events don't fire
     setTimeout(() => win.print(), 5000);
   }
+}
+
+export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInfo) {
+  if (prospects.length === 0) return;
+
+  const esc = escapeHtml;
+
+  // Each prospect gets 2 pages: front (address side) + back (ad side)
+  const pagesHtml = prospects
+    .map(
+      (p) => `
+      <div class="env-page env-front">
+        <div class="env-return">
+          <div class="env-return-company">${esc(sender.company)}</div>
+          <div>Web Site Development Division</div>
+          <div>${esc(sender.address)}</div>
+        </div>
+        <div class="env-corner-note">
+          <div class="env-corner-box">
+            <div class="env-corner-title">LOCAL BUSINESS REVIEW</div>
+            <div>Prepared for current owner</div>
+            <div>Response requested</div>
+          </div>
+        </div>
+        <div class="env-recipient">
+          <div class="env-recipient-name">${esc(p.name)}</div>
+          <div>Current Owner</div>
+          <div>${esc(p.address)}</div>
+        </div>
+        <div class="env-barcode-zone"></div>
+      </div>
+      <div class="env-page env-back">
+        <div class="env-back-content">
+          <div class="env-back-rule"></div>
+          <p class="env-back-headline">SOMEONE IS SEARCHING FOR YOUR SERVICE<br/>RIGHT NOW.</p>
+          <p class="env-back-subhead">WILL THEY FIND YOU &mdash;<br/>OR YOUR COMPETITOR?</p>
+          <div class="env-back-rule"></div>
+          <div class="env-back-body">
+            <p>85% of customers check online before they call any local business. If you don&rsquo;t show up, you don&rsquo;t exist to them.</p>
+            <p>A website isn&rsquo;t a luxury anymore &mdash; it&rsquo;s your digital business card. It tells people you&rsquo;re real, you&rsquo;re professional, and you&rsquo;re open.</p>
+            <p>We already built a free preview for your business. Open this envelope to see how it looks on your phone.</p>
+            <p class="env-back-cta">No monthly fees. No obligation.<br/>Just take a look.</p>
+          </div>
+          <div class="env-back-footer">
+            <div class="env-back-company">${esc(sender.company)}</div>
+            <div>${esc(sender.email)}</div>
+            <div>getyoursitelive.com</div>
+          </div>
+        </div>
+      </div>`,
+    )
+    .join("");
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<title>Print Envelopes</title>
+<style>
+  @page {
+    size: 9in 6in landscape;
+    margin: 0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 9in; }
+  body { font-family: Georgia, 'Times New Roman', serif; color: #222; }
+
+  .env-page {
+    width: 9in;
+    height: 6in;
+    position: relative;
+    page-break-after: always;
+    padding: 0.5in 0.6in;
+  }
+
+  /* ── FRONT SIDE ── */
+  .env-return {
+    position: absolute;
+    top: 0.4in;
+    left: 0.5in;
+    font-size: 9pt;
+    line-height: 1.5;
+  }
+  .env-return-company {
+    font-weight: 700;
+    font-size: 9.5pt;
+  }
+
+  .env-corner-note {
+    position: absolute;
+    top: 0.4in;
+    right: 0.5in;
+  }
+  .env-corner-box {
+    border: 1.5px solid #333;
+    padding: 6px 10px;
+    font-size: 8pt;
+    line-height: 1.5;
+    text-align: right;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .env-corner-title {
+    font-weight: 700;
+    font-size: 8.5pt;
+    letter-spacing: 0.03em;
+  }
+
+  .env-recipient {
+    position: absolute;
+    top: 2.2in;
+    left: 3.2in;
+    font-size: 12pt;
+    line-height: 1.6;
+  }
+  .env-recipient-name {
+    font-weight: 700;
+    font-size: 13pt;
+  }
+
+  .env-barcode-zone {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 0.625in;
+  }
+
+  /* ── BACK SIDE ── */
+  .env-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .env-back-content {
+    text-align: center;
+    max-width: 6.5in;
+    margin: 0 auto;
+    padding-top: 0.3in;
+  }
+  .env-back-rule {
+    width: 100%;
+    height: 0;
+    border-top: 1px solid #555;
+    margin: 14px 0;
+  }
+  .env-back-headline {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13pt;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    margin: 12px 0 6px;
+  }
+  .env-back-subhead {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11pt;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .env-back-body {
+    font-size: 10pt;
+    line-height: 1.7;
+    text-align: center;
+    margin-top: 10px;
+  }
+  .env-back-body p {
+    margin-bottom: 8px;
+  }
+  .env-back-cta {
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .env-back-footer {
+    margin-top: 18px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8.5pt;
+    line-height: 1.6;
+    color: #555;
+  }
+  .env-back-company {
+    font-weight: 700;
+    color: #222;
+    font-size: 9pt;
+  }
+</style>
+</head>
+<body>${pagesHtml}</body>
+</html>`;
+
+  const win = window.open("", "_blank");
+  if (!win) return;
+  win.document.write(html);
+  win.document.close();
+  setTimeout(() => win.print(), 300);
 }
 
 export function printTaskList(prospects: PrintableProspect[]) {
