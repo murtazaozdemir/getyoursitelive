@@ -217,7 +217,7 @@ export const autoRepairTemplate: VerticalTemplate = {
           role: "Senior Technician",
           experience: "10+ years",
           specialty: "Diagnostics and brake systems",
-          image: "https://images.pexels.com/photos/4489730/pexels-photo-4489730.jpeg?auto=compress&cs=tinysrgb&w=800",
+          image: "https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=800",
         },
       ],
       testimonials: [
