@@ -150,8 +150,9 @@ export function LandingPageClient({
             <span className="text-sm font-semibold tracking-tight">Get Your Site Live</span>
           </div>
           <nav className="hidden items-center gap-7 text-sm text-slate-500 md:flex">
-            <a href="#features" className="transition-colors hover:text-slate-900">Features</a>
-            <a href="#process" className="transition-colors hover:text-slate-900">How it works</a>
+            <a href="/#features" className="transition-colors hover:text-slate-900">Features</a>
+            <a href="/#process" className="transition-colors hover:text-slate-900">How it works</a>
+            <a href="/about" className="transition-colors hover:text-slate-900">About Us</a>
           </nav>
           <div className="flex items-center gap-3">
             <ContactModal
