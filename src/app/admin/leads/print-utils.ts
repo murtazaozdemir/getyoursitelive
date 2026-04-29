@@ -333,12 +333,16 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   }
 
   /* ── BACK SIDE ── */
+  .env-back {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 0.6in 0.3in;
+  }
   .env-back-content {
-    position: absolute;
-    bottom: 0.3in;
-    left: 0.6in;
-    right: 0.6in;
     text-align: center;
+    max-width: 7in;
+    margin: 0 auto;
     transform: rotate(180deg);
   }
   .env-back-body {
