@@ -250,9 +250,10 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
       <div class="env-page env-back">
         <div class="env-back-content">
           <div class="env-back-body">
-            <p>85% of customers check online before they call any local business. If you don&rsquo;t show up, you don&rsquo;t exist to them.</p>
-            <p>A website is your digital business card.</p>
-            <p>We already built a free preview for your business at <strong>getyoursitelive.com/${esc(p.slug)}</strong>. Open this envelope to see a QR code to scan and see how it looks on your phone.</p>
+            <p class="env-back-lead">We have already built a custom website preview for <strong>${esc(p.name)}</strong>.</p>
+            <p>Today, customers search online to verify your reputation before they call. We created this digital business card to ensure your business looks as professional as the work you do.</p>
+            <p class="env-back-url">View it now: <strong>getyoursitelive.com/${esc(p.slug)}</strong></p>
+            <p class="env-back-scan">&hellip;or scan the QR code inside this envelope.</p>
           </div>
         </div>
       </div>`,
@@ -351,6 +352,19 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   }
   .env-back-body p {
     margin-bottom: 10px;
+  }
+  .env-back-lead {
+    font-size: 11pt;
+  }
+  .env-back-url {
+    font-size: 10.5pt;
+    margin-top: 14px;
+  }
+  .env-back-scan {
+    font-size: 9pt;
+    font-style: italic;
+    color: #555;
+    margin-top: 2px;
   }
 </style>
 </head>
