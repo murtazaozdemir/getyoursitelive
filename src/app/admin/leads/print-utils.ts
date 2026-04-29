@@ -401,16 +401,13 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
         </div>
       </div>
 
-      <!-- PAGE 2: SAME AS FRONT -->
-      <div class="envelope-page">
-        <div class="env2-front-return">
-          <strong>${esc(sender.company)}</strong><br>
-          ${esc(sender.address).replace(/,\s*/, "<br>")}
-        </div>
-        <div class="env2-front-recipient">
-          <strong>${esc(p.name)}</strong><br>
-          Owner<br>
-          ${esc(p.address).replace(/,\s*/, "<br>")}
+      <!-- PAGE 2: BACK -->
+      <div class="envelope-page env2-back">
+        <div class="env2-back-content">
+          <p>We have already built a website preview for <strong>${esc(p.name)}</strong>.</p>
+          <p>Today, customers search online to verify your reputation before they call.</p>
+          <p>View it at: <strong>www.getyoursitelive.com/${esc(p.slug)}</strong></p>
+          <p style="font-size: 9pt; color: #666;">&hellip;or scan the QR code inside this envelope.</p>
         </div>
       </div>`,
     )
@@ -464,8 +461,8 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
 
   .env2-back-content {
     position: absolute !important;
-    bottom: 0.2in !important;
-    top: auto !important;
+    top: 0.2in !important;
+    bottom: auto !important;
     left: 0.5in !important;
     right: 0.5in !important;
     width: auto !important;
