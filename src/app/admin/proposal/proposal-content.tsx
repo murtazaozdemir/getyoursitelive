@@ -116,8 +116,8 @@ export function ProposalContent({
           These are suggestions — availability can change. When you&rsquo;re
           ready, I&rsquo;ll confirm which ones are still open. If none work,
           we&rsquo;ll find one you like. First year of registration is
-          included; after that it renews for about $15/year directly with
-          the registrar.
+          included; after that you only pay the yearly domain renewal cost
+          directly with the registrar.
         </p>
       </section>
 
