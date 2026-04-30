@@ -396,6 +396,7 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
     flex-direction: column;
     align-items: center;
     gap: 6px;
+    background: red !important;
   }
 
   .env-back-headline {
