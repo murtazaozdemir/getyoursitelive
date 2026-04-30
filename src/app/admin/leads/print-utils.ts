@@ -420,7 +420,7 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
     font-size: 10pt;
     font-weight: bold;
     color: #111;
-    margin-top: -8px;
+    margin-top: -4px;
   }
 
   @media print {
