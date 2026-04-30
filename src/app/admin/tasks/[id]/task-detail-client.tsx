@@ -443,6 +443,11 @@ function TaskItemRow({
         {item.prospectPhone && (
           <p className="task-item-phone">{highlightText(item.prospectPhone, q)}</p>
         )}
+        {item.prospectContactMethod && (
+          <p className="task-item-phone" style={{ fontStyle: "italic" }}>
+            Via {item.prospectContactMethod.charAt(0).toUpperCase() + item.prospectContactMethod.slice(1)}
+          </p>
+        )}
       </div>
 
       <div className="task-item-notes">

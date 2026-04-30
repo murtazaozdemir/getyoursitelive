@@ -38,6 +38,7 @@ export interface TaskItemWithProspect extends TaskItem {
   prospectAddress: string;
   prospectLat?: number | null;
   prospectLng?: number | null;
+  prospectContactMethod?: string;
 }
 
 // ---------------------------------------------------------------
@@ -75,6 +76,7 @@ interface TaskItemWithProspectRow extends TaskItemRow {
   prospect_address: string;
   prospect_lat: number | null;
   prospect_lng: number | null;
+  prospect_contact_method: string | null;
 }
 
 // ---------------------------------------------------------------
@@ -121,6 +123,7 @@ function rowToTaskItemWithProspect(row: TaskItemWithProspectRow): TaskItemWithPr
     prospectAddress: row.prospect_address ?? "",
     prospectLat: row.prospect_lat,
     prospectLng: row.prospect_lng,
+    prospectContactMethod: row.prospect_contact_method ?? undefined,
   };
 }
 
@@ -168,7 +171,8 @@ export async function getTaskItems(taskId: string): Promise<TaskItemWithProspect
   const { results } = await db
     .prepare(
       `SELECT ti.*, p.name as prospect_name, p.phone as prospect_phone,
-              p.address as prospect_address, p.lat as prospect_lat, p.lng as prospect_lng
+              p.address as prospect_address, p.lat as prospect_lat, p.lng as prospect_lng,
+              p.contact_method as prospect_contact_method
        FROM task_items ti
        LEFT JOIN prospects p ON p.slug = ti.prospect_slug
        WHERE ti.task_id = ?
