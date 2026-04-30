@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses, findUserById, isDeveloper } from "@/lib/users";
 import { FilterSortBar } from "@/app/admin/filter-bar";
 import { LeadCards } from "./lead-cards";
+import { ViewToggle } from "./view-toggle";
 import type { LeadCardData } from "./print-utils";
 import { parseAddress, unique } from "@/lib/address-utils";
 import { zipCoords } from "@/lib/geo";
@@ -239,20 +240,7 @@ export default async function LeadsPage({
           <p className="admin-eyebrow">Platform admin</p>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <h1 className="admin-h1" style={{ margin: 0 }}>Leads</h1>
-            <div className="admin-view-toggle">
-              <Link
-                href={`/admin/leads?view=pipeline`}
-                className={`admin-view-toggle-btn${view === "pipeline" ? " admin-view-toggle-btn--active" : ""}`}
-              >
-                Pipeline
-              </Link>
-              <Link
-                href={`/admin/leads?view=cards`}
-                className={`admin-view-toggle-btn${view === "cards" ? " admin-view-toggle-btn--active" : ""}`}
-              >
-                Cards
-              </Link>
-            </div>
+            <ViewToggle view={view} />
           </div>
           <p className="admin-lede">
             {prospects.length} of {active.length} active lead{active.length !== 1 ? "s" : ""}.
