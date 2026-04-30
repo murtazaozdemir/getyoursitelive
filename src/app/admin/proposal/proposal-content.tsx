@@ -63,8 +63,6 @@ export function ProposalContent({
           I put together a website preview for {name}. It&rsquo;s
           already live — you can scan the QR code below or type the
           link to see exactly how it looks on your phone.
-        </p>
-        <p>
           Everything you see can be changed. No commitment &mdash;
           just take a look and let me know what you think.
         </p>
