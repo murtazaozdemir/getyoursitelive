@@ -111,7 +111,7 @@ export async function createProspectAction(
   redirect(`/admin/leads/${slug}`);
 }
 
-export async function updateProspectStatusAction(slug: string, status: ProspectStatus, opts?: { revertMistake?: boolean }): Promise<{ ok: boolean; locked?: boolean }> {
+export async function updateProspectStatusAction(slug: string, status: ProspectStatus, opts?: { revertMistake?: boolean; contactMethod?: string }): Promise<{ ok: boolean; locked?: boolean }> {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) return { ok: false };
 
@@ -131,6 +131,9 @@ export async function updateProspectStatusAction(slug: string, status: ProspectS
     patch.contactedBy = user.email;
     patch.contactedByName = user.name;
     patch.contactedAt = new Date().toISOString();
+    if (opts?.contactMethod) {
+      patch.contactMethod = opts.contactMethod;
+    }
   }
 
   // Reverting to "found" clears the contact lock so any admin can pick it up
@@ -138,6 +141,7 @@ export async function updateProspectStatusAction(slug: string, status: ProspectS
     patch.contactedBy = undefined;
     patch.contactedByName = undefined;
     patch.contactedAt = undefined;
+    patch.contactMethod = undefined;
   }
 
   await updateProspect(slug, patch);
@@ -165,6 +169,7 @@ export async function removeContactLockAction(slug: string): Promise<{ ok: boole
     contactedBy: undefined,
     contactedByName: undefined,
     contactedAt: undefined,
+    contactMethod: undefined,
   });
   await logAudit({
     userEmail: user.email,

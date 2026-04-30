@@ -35,6 +35,7 @@ export interface Prospect {
   contactedBy?: string;
   contactedByName?: string;
   contactedAt?: string;
+  contactMethod?: string;
   website?: string;
   googlePlaceId?: string;
   googleRating?: number;
@@ -79,6 +80,7 @@ interface ProspectRow {
   contacted_by: string | null;
   contacted_by_name: string | null;
   contacted_at: string | null;
+  contact_method: string | null;
   website: string | null;
   google_place_id: string | null;
   google_rating: number | null;
@@ -119,6 +121,7 @@ function rowToProspect(row: ProspectRow): Prospect {
     contactedBy: row.contacted_by ?? undefined,
     contactedByName: row.contacted_by_name ?? undefined,
     contactedAt: row.contacted_at ?? undefined,
+    contactMethod: row.contact_method ?? undefined,
     website: row.website ?? undefined,
     googlePlaceId: row.google_place_id ?? undefined,
     googleRating: row.google_rating ?? undefined,
@@ -312,6 +315,7 @@ export async function updateProspect(slug: string, patch: Partial<Prospect>): Pr
     contactedBy: "contacted_by",
     contactedByName: "contacted_by_name",
     contactedAt: "contacted_at",
+    contactMethod: "contact_method",
   };
 
   for (const [key, col] of Object.entries(fieldMap)) {

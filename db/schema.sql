@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS prospects (
   contacted_by      TEXT,
   contacted_by_name TEXT,
   contacted_at      TEXT,
+  contact_method    TEXT,  -- visit, mail, phone, email
   google_business_status TEXT,
   google_price_level    TEXT,
   google_editorial_summary TEXT,

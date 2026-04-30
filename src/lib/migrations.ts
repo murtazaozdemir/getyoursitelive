@@ -596,6 +596,26 @@ export const MIGRATIONS: Record<string, { description: string; fn: () => Promise
       return { updated, skipped, log };
     },
   },
+
+  "add-contact-method-column": {
+    description: "Add contact_method column to prospects table (visit, mail, phone, email)",
+    fn: async () => {
+      const db = await getD1();
+      const log: string[] = [];
+      try {
+        await db.prepare("ALTER TABLE prospects ADD COLUMN contact_method TEXT").run();
+        log.push("Added contact_method column to prospects table");
+        return { updated: 1, skipped: 0, log };
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (msg.includes("duplicate column") || msg.includes("already exists")) {
+          log.push("contact_method column already exists, skipped");
+          return { updated: 0, skipped: 1, log };
+        }
+        throw e;
+      }
+    },
+  },
 };
 
 /** Get list of migration names + descriptions for the UI */

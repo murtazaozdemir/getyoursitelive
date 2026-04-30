@@ -24,6 +24,13 @@ const STAGE_LABELS: Record<ProspectStatus, string> = {
   delivered: "Delivered",
 };
 
+const CONTACT_METHODS = [
+  { value: "visit", label: "Visit" },
+  { value: "mail", label: "Mail" },
+  { value: "phone", label: "Phone Call" },
+  { value: "email", label: "Email" },
+];
+
 export function PipelineStageSelector({
   slug,
   currentStatus,
@@ -34,7 +41,7 @@ export function PipelineStageSelector({
   locked: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{ type: "skip" | "revert"; message: string; targetStatus: ProspectStatus } | null>(null);
+  const [toast, setToast] = useState<{ type: "skip" | "revert" | "contact-method"; message: string; targetStatus: ProspectStatus } | null>(null);
   const currentIdx = STAGE_ORDER.indexOf(currentStatus);
 
   function dismissToast() {
@@ -69,6 +76,16 @@ export function PipelineStageSelector({
       return;
     }
 
+    // When moving to "contacted", ask how they were contacted
+    if (targetStatus === "contacted" && currentStatus === "found") {
+      setToast({
+        type: "contact-method",
+        message: "How did you contact them?",
+        targetStatus,
+      });
+      return;
+    }
+
     // Normal forward move (next stage)
     dismissToast();
     startTransition(async () => {
@@ -82,6 +99,13 @@ export function PipelineStageSelector({
     dismissToast();
     startTransition(async () => {
       await updateProspectStatusAction(slug, target, { revertMistake: true });
+    });
+  }
+
+  function selectContactMethod(method: string) {
+    dismissToast();
+    startTransition(async () => {
+      await updateProspectStatusAction(slug, "contacted", { contactMethod: method });
     });
   }
 
@@ -111,7 +135,27 @@ export function PipelineStageSelector({
         );
       })}
       </div>
-      {toast && (
+      {toast && toast.type === "contact-method" && (
+        <div className="stage-toast stage-toast--contact-method">
+          <span className="stage-toast-msg">{toast.message}</span>
+          <div className="stage-toast-actions">
+            {CONTACT_METHODS.map((m) => (
+              <button
+                key={m.value}
+                type="button"
+                className="stage-toast-btn stage-toast-btn--confirm"
+                onClick={() => selectContactMethod(m.value)}
+              >
+                {m.label}
+              </button>
+            ))}
+            <button type="button" className="stage-toast-btn stage-toast-btn--dismiss" onClick={dismissToast}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      {toast && toast.type !== "contact-method" && (
         <div className={`stage-toast stage-toast--${toast.type}`}>
           <span className="stage-toast-msg">{toast.message}</span>
           <div className="stage-toast-actions">

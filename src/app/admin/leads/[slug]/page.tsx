@@ -229,6 +229,7 @@ export default async function ProspectDetailPage({
                 {prospect.contactedAt && (
                   <p style={{ fontSize: 12, color: "var(--admin-text-soft)", marginTop: 4 }}>
                     Contacted {formatDate(prospect.contactedAt)}
+                    {prospect.contactMethod && ` via ${prospect.contactMethod}`}
                   </p>
                 )}
               </div>
