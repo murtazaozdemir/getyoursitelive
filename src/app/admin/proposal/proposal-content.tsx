@@ -48,10 +48,9 @@ export function ProposalContent({
           <span>getyoursitelive.com</span>
         </div>
         <div className="proposal-header-to">
-          <span className="proposal-header-label">Prepared for</span>
+          <span className="proposal-header-label">Prepared on {today} for</span>
           <strong className="proposal-header-shopname">{name}</strong>
           <span>{address}</span>
-          <span>{today}</span>
         </div>
       </header>
 
