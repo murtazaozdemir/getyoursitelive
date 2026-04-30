@@ -646,6 +646,45 @@ export const MIGRATIONS: Record<string, { description: string; fn: () => Promise
       return { updated, skipped: 0, log };
     },
   },
+
+  "backfill-contacted-attribution": {
+    description: "Set contacted_by, contacted_by_name, and contact_method for contacted leads missing attribution",
+    fn: async () => {
+      const db = await getD1();
+      const { results } = await db
+        .prepare(
+          `SELECT slug, name FROM prospects
+           WHERE status IN ('contacted','interested','paid','delivered')
+             AND contacted_by IS NULL`,
+        )
+        .all<{ slug: string; name: string }>();
+
+      if (results.length === 0) {
+        return { updated: 0, skipped: 0, log: ["All contacted leads already have attribution"] };
+      }
+
+      const log: string[] = [];
+      let updated = 0;
+      const now = new Date().toISOString();
+      for (const row of results) {
+        await db
+          .prepare(
+            `UPDATE prospects
+             SET contacted_by = 'info@getyoursitelive.com',
+                 contacted_by_name = 'Murtaza Ozdemir',
+                 contact_method = 'visit',
+                 contacted_at = ?
+             WHERE slug = ?`,
+          )
+          .bind(now, row.slug)
+          .run();
+        log.push(`Set attribution for ${row.name}`);
+        updated++;
+      }
+
+      return { updated, skipped: 0, log };
+    },
+  },
 };
 
 /** Get list of migration names + descriptions for the UI */
