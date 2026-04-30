@@ -15,7 +15,9 @@ import {
   removeTaskItem,
   searchProspectsForTask,
   deleteTask,
+  getTaskItemSlug,
 } from "@/lib/tasks";
+import { updateProspect } from "@/lib/prospects";
 
 export async function createTaskAction(slugs: string[]): Promise<string> {
   const user = await getCurrentUser();
@@ -85,6 +87,19 @@ export async function toggleItemDroppedOffAction(itemId: string, droppedOff: boo
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
   await updateTaskItemStatus(itemId, droppedOff ? "dropped_off" : "pending");
+
+  // When marked as dropped off, move the prospect to "contacted" status
+  if (droppedOff) {
+    const slug = await getTaskItemSlug(itemId);
+    if (slug) {
+      await updateProspect(slug, {
+        status: "contacted",
+        contactedBy: user.email,
+        contactedByName: user.name,
+        contactedAt: new Date().toISOString(),
+      });
+    }
+  }
 }
 
 export async function saveItemNotesAction(itemId: string, notes: string) {

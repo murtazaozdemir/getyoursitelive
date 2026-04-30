@@ -235,6 +235,15 @@ export async function updateTaskItemStatus(itemId: string, status: TaskItemStatu
     .run();
 }
 
+export async function getTaskItemSlug(itemId: string): Promise<string | null> {
+  const db = await getD1();
+  const row = await db
+    .prepare("SELECT prospect_slug FROM task_items WHERE id = ?")
+    .bind(itemId)
+    .first<{ prospect_slug: string }>();
+  return row?.prospect_slug ?? null;
+}
+
 export async function updateTaskItemNotes(itemId: string, notes: string): Promise<void> {
   const db = await getD1();
   await db
