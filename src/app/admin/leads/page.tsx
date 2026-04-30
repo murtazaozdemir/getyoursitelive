@@ -8,7 +8,6 @@ import { canManageBusinesses, findUserById, isDeveloper } from "@/lib/users";
 import { FilterSortBar } from "@/app/admin/filter-bar";
 import { LeadCards } from "./lead-cards";
 import { ViewToggle } from "./view-toggle";
-import { BackfillButton } from "./backfill-button";
 import type { LeadCardData } from "./print-utils";
 import { parseAddress, unique } from "@/lib/address-utils";
 import { zipCoords } from "@/lib/geo";
@@ -231,7 +230,6 @@ export default async function LeadsPage({
 
   return (
     <div className="admin-page">
-      <BackfillButton />
       {!adminHasZip && (
         <div className="admin-banner admin-banner--warn">
           Add your zip code in <Link href="/admin/account" className="admin-link">My Account</Link> to sort leads by distance.

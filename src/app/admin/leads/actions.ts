@@ -20,37 +20,6 @@ import { getTemplateForCategory } from "@/lib/templates/registry";
 import { generateUniqueSlug } from "@/lib/slugify";
 import { generateVerifiedDomains } from "@/lib/domains";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { getD1 } from "@/lib/db-d1";
-
-export async function backfillDroppedOffAction(): Promise<{ updated: number; slugs: string[] }> {
-  const user = await getCurrentUser();
-  if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
-
-  const db = await getD1();
-  const now = new Date().toISOString();
-
-  const { results } = await db
-    .prepare(
-      `SELECT ti.prospect_slug FROM task_items ti
-       JOIN prospects p ON p.slug = ti.prospect_slug
-       WHERE ti.status = 'dropped_off' AND p.status = 'found'`,
-    )
-    .all<{ prospect_slug: string }>();
-
-  const updated: string[] = [];
-  for (const row of results) {
-    await db
-      .prepare(
-        `UPDATE prospects SET status = 'contacted', contacted_by = ?, contacted_by_name = ?, contacted_at = ?, updated_at = ? WHERE slug = ?`,
-      )
-      .bind(user.email, user.name, now, now, row.prospect_slug)
-      .run();
-    updated.push(row.prospect_slug);
-  }
-
-  revalidatePath("/admin/leads");
-  return { updated: updated.length, slugs: updated };
-}
 
 export async function createProspectAction(
   _prevState: unknown,

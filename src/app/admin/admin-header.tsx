@@ -15,6 +15,7 @@ import {
   Download,
   Copy,
   Globe,
+  Database,
   LogOut,
 } from "lucide-react";
 import type { SessionUser } from "@/lib/users";
@@ -146,6 +147,9 @@ export function AdminHeader({ user, isDeveloper }: { user: SessionUser; isDevelo
                     </Link>
                     <Link href="/developer/duplicates" className="admin-account-dropdown-item">
                       <Copy className="admin-account-dropdown-icon" /> Duplicate Cleaner
+                    </Link>
+                    <Link href="/developer/migrations" className="admin-account-dropdown-item">
+                      <Database className="admin-account-dropdown-icon" /> Migrations
                     </Link>
                     <a href="/api/admin/backup" className="admin-account-dropdown-item" download>
                       <Download className="admin-account-dropdown-icon" /> Download Backup
