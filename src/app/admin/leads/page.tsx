@@ -320,6 +320,11 @@ export default async function LeadsPage({
                             Contacted by {p.contactedByName}
                           </p>
                         )}
+                        {p.contactMethod && (
+                          <p className="prospect-card-meta" style={{ fontSize: 12, fontStyle: "italic" }}>
+                            Via {p.contactMethod.charAt(0).toUpperCase() + p.contactMethod.slice(1)}
+                          </p>
+                        )}
                         {p.notes.length > 0 && (
                           <p className="prospect-card-notes">
                             {p.notes.length} note{p.notes.length !== 1 ? "s" : ""}
@@ -347,6 +352,7 @@ export default async function LeadsPage({
             distance: p._distance,
             chips: dataChips(p),
             contactedByName: p.contactedByName,
+            contactMethod: p.contactMethod,
             notesCount: p.notes.length,
             lat: p.lat,
             lng: p.lng,

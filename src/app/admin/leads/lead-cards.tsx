@@ -235,6 +235,11 @@ export function LeadCards({ prospects, userHome, senderInfo }: { prospects: Lead
                       Contacted by {p.contactedByName}
                     </p>
                   )}
+                  {p.contactMethod && (
+                    <p className="admin-biz-card-meta" style={{ fontSize: 12, fontStyle: "italic" }}>
+                      Via {p.contactMethod.charAt(0).toUpperCase() + p.contactMethod.slice(1)}
+                    </p>
+                  )}
                 </div>
                 <div className="admin-biz-card-actions">
                   <Link href={`/admin/leads/${p.slug}`} className="admin-btn admin-btn--primary">

@@ -14,6 +14,7 @@ export interface LeadCardData {
   distance?: number;
   chips: { label: string; cls: string }[];
   contactedByName?: string;
+  contactMethod?: string;
   notesCount: number;
   lat?: number | null;
   lng?: number | null;
