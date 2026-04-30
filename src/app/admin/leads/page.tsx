@@ -10,6 +10,7 @@ import { ViewToggle } from "./view-toggle";
 import type { LeadCardData } from "./print-utils";
 import { parseAddress, unique } from "@/lib/address-utils";
 import { zipCoords } from "@/lib/geo";
+import { getVisibleStates } from "@/lib/state-visibility";
 
 /** Haversine distance in miles between two lat/lng points */
 function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -177,7 +178,9 @@ export default async function LeadsPage({
     return true;
   };
   const allCities = unique(enriched.filter((p) => geoMatch(p, "city")).map((p) => p._city).filter(Boolean));
-  const allStates = unique(enriched.filter((p) => geoMatch(p, "state")).map((p) => p._state).filter(Boolean));
+  const visibleStateSet = await getVisibleStates();
+  const allStates = unique(enriched.filter((p) => geoMatch(p, "state")).map((p) => p._state).filter(Boolean))
+    .filter((s) => visibleStateSet.size === 0 || visibleStateSet.has(s.toUpperCase()));
   const allZips = unique(enriched.filter((p) => geoMatch(p, "zip")).map((p) => p._zip).filter(Boolean));
   const allCategories = unique(enriched.map((p) => p._category).filter(Boolean));
 

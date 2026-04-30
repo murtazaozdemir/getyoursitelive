@@ -1410,3 +1410,39 @@
   font-size: 13px;
   color: var(--admin-text-muted, #999);
 }
+
+/* State visibility grid */
+.states-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 6px;
+}
+.state-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s, border-color 0.15s;
+  user-select: none;
+}
+.state-toggle:hover {
+  background: var(--admin-surface-2);
+}
+.state-toggle--on {
+  border-color: var(--admin-accent);
+  background: color-mix(in srgb, var(--admin-accent) 6%, transparent);
+}
+.state-toggle input[type="checkbox"] {
+  accent-color: var(--admin-accent);
+}
+.state-toggle-abbr {
+  font-weight: 700;
+  min-width: 24px;
+}
+.state-toggle-name {
+  color: var(--admin-text-soft);
+}

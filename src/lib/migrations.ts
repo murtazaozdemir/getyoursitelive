@@ -729,6 +729,55 @@ export const MIGRATIONS: Record<string, { description: string; fn: () => Promise
       return { updated, skipped: results.length - updated, log };
     },
   },
+  "create-state-visibility": {
+    description: "Create state_visibility table and seed NJ, CO, DC as visible",
+    fn: async () => {
+      const db = await getD1();
+      const log: string[] = [];
+      let updated = 0;
+
+      try {
+        await db.prepare(`
+          CREATE TABLE IF NOT EXISTS state_visibility (
+            state TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            visible INTEGER NOT NULL DEFAULT 0
+          )
+        `).run();
+        log.push("Created state_visibility table");
+        updated++;
+      } catch { log.push("state_visibility table already exists"); }
+
+      // Seed all 51 entries (50 states + DC)
+      const states = [
+        ["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],
+        ["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DC","District of Columbia"],
+        ["DE","Delaware"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],
+        ["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],
+        ["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],
+        ["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MN","Minnesota"],
+        ["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],
+        ["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],
+        ["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],
+        ["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],
+        ["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],
+        ["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],
+        ["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"],
+      ];
+      const VISIBLE = new Set(["NJ", "CO", "DC"]);
+      for (const [abbr, name] of states) {
+        try {
+          await db.prepare(
+            "INSERT OR IGNORE INTO state_visibility (state, name, visible) VALUES (?, ?, ?)"
+          ).bind(abbr, name, VISIBLE.has(abbr) ? 1 : 0).run();
+        } catch { /* already exists */ }
+      }
+      log.push(`Seeded ${states.length} states (NJ, CO, DC visible)`);
+      updated++;
+
+      return { updated, skipped: 0, log };
+    },
+  },
 };
 
 /** Get list of migration names + descriptions for the UI */
