@@ -313,19 +313,19 @@ export function TaskDetailClient({
               <button type="button" className="admin-btn admin-btn--ghost" onClick={handleShowMap} disabled={isPending}>
                 Show map
               </button>
+              <select
+                className="task-bulk-method"
+                value=""
+                onChange={(e) => handleBulkContactMethod(e.target.value)}
+                disabled={isPending}
+              >
+                <option value="">Set all contact method...</option>
+                {CONTACT_METHODS.map((m) => (
+                  <option key={m.value} value={m.value}>{m.label}</option>
+                ))}
+              </select>
             </>
           )}
-          <select
-            className="task-bulk-method"
-            value=""
-            onChange={(e) => handleBulkContactMethod(e.target.value)}
-            disabled={isPending || items.length === 0}
-          >
-            <option value="">Set all contact method...</option>
-            {CONTACT_METHODS.map((m) => (
-              <option key={m.value} value={m.value}>{m.label}</option>
-            ))}
-          </select>
         </div>
       )}
 
