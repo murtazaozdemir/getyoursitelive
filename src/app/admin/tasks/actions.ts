@@ -97,6 +97,7 @@ export async function toggleItemDroppedOffAction(itemId: string, droppedOff: boo
         contactedBy: user.email,
         contactedByName: user.name,
         contactedAt: new Date().toISOString(),
+        contactMethod: "visit",
       });
     }
   }
