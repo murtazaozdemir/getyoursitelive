@@ -8,7 +8,6 @@ import {
   type SenderInfo,
   printLabels,
   printEnvelopes,
-  printEnvelopes2,
   printTaskList,
   showLeadsMap,
 } from "./print-utils";
@@ -61,15 +60,6 @@ export function LeadCards({ prospects, userHome, senderInfo }: { prospects: Lead
     }
     const picked = prospects.filter((p) => selected.has(p.slug));
     printEnvelopes(picked, senderInfo);
-  }
-
-  function handlePrintEnvelopes2() {
-    if (!senderInfo) {
-      alert("Set your Company and Address in Account Settings first.");
-      return;
-    }
-    const picked = prospects.filter((p) => selected.has(p.slug));
-    printEnvelopes2(picked, senderInfo);
   }
 
   function handlePrintProposals() {
@@ -165,13 +155,6 @@ export function LeadCards({ prospects, userHome, senderInfo }: { prospects: Lead
               onClick={handlePrintEnvelopes}
             >
               Print {selected.size} envelope{selected.size !== 1 ? "s" : ""}
-            </button>
-            <button
-              type="button"
-              className="admin-btn admin-btn--ghost"
-              onClick={handlePrintEnvelopes2}
-            >
-              Envelope2 {selected.size}
             </button>
             <button
               type="button"
