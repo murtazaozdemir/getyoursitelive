@@ -2,7 +2,6 @@ import type React from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { listProspects, PIPELINE_STAGES, type Prospect } from "@/lib/prospects";
-import { listBusinesses } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses, findUserById, isDeveloper } from "@/lib/users";
 import { FilterSortBar } from "@/app/admin/filter-bar";
@@ -138,8 +137,7 @@ export default async function LeadsPage({
   const sortBy = (params.sortBy ?? (adminHasZip ? "distance" : "createdAt")) as SortKey;
   const sortDir = (params.sortDir ?? (sortBy === "distance" ? "asc" : "desc")) as "asc" | "desc";
 
-  const [allProspects, allBiz] = await Promise.all([listProspects(), listBusinesses()]);
-  const bizBySlug = Object.fromEntries(allBiz.map((b) => [b.slug, b]));
+  const allProspects = await listProspects();
 
   // "Found" leads are shared — all admins see them.
   // Once a lead moves past "found", only the admin who contacted them sees it
@@ -162,7 +160,7 @@ export default async function LeadsPage({
     const city = p.city || parsed.city;
     const state = p.state || parsed.state;
     const zip = p.zip || parsed.zip;
-    const category = bizBySlug[p.slug]?.category ?? "Car repair and maintenance service";
+    const category = p.googleCategory ?? "Car repair and maintenance service";
     let dist: number | undefined;
     if (origin && p.lat != null && p.lng != null) {
       dist = haversine(origin.lat, origin.lng, p.lat, p.lng);
