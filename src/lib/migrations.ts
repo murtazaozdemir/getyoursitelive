@@ -685,6 +685,50 @@ export const MIGRATIONS: Record<string, { description: string; fn: () => Promise
       return { updated, skipped: 0, log };
     },
   },
+
+  "clean-invalid-state-values": {
+    description: "Fix prospects where state column has city names instead of 2-letter state codes",
+    fn: async () => {
+      const VALID_STATES = new Set([
+        "AL","AK","AZ","AR","CA","CO","CT","DC","DE","FL","GA","HI","ID","IL","IN",
+        "IA","KS","KY","LA","MA","MD","ME","MI","MN","MS","MO","MT","NE","NV","NH",
+        "NJ","NM","NY","NC","ND","OH","OK","OR","PA","PR","RI","SC","SD","TN","TX",
+        "UT","VT","VA","WA","WV","WI","WY",
+      ]);
+      const db = await getD1();
+      const { results } = await db
+        .prepare("SELECT slug, name, state, city FROM prospects WHERE state IS NOT NULL AND state != ''")
+        .all<{ slug: string; name: string; state: string; city: string | null }>();
+
+      const log: string[] = [];
+      let updated = 0;
+      for (const row of results) {
+        const st = row.state.trim().toUpperCase();
+        if (VALID_STATES.has(st)) continue;
+
+        // Invalid state value — move to city if city is empty, then clear state
+        if (!row.city || row.city.trim() === "") {
+          await db
+            .prepare("UPDATE prospects SET city = ?, state = NULL WHERE slug = ?")
+            .bind(row.state.trim(), row.slug)
+            .run();
+          log.push(`${row.name}: moved "${row.state}" to city, cleared state`);
+        } else {
+          await db
+            .prepare("UPDATE prospects SET state = NULL WHERE slug = ?")
+            .bind(row.slug)
+            .run();
+          log.push(`${row.name}: cleared invalid state "${row.state}" (city already: ${row.city})`);
+        }
+        updated++;
+      }
+
+      if (updated === 0) {
+        log.push("All state values are valid 2-letter codes");
+      }
+      return { updated, skipped: results.length - updated, log };
+    },
+  },
 };
 
 /** Get list of migration names + descriptions for the UI */
