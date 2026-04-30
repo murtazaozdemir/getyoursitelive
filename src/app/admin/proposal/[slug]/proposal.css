@@ -44,7 +44,7 @@
 .proposal {
   max-width: 760px;
   margin: 0 auto;
-  padding: 2rem 2.5rem 2rem;
+  padding: 3rem 2.5rem 4rem;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 11pt;
   color: #111;
@@ -125,7 +125,7 @@
   font-family: system-ui, -apple-system, sans-serif;
   font-size: 10.5pt;
   font-weight: 600;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.4rem;
   color: #111;
 }
 
@@ -148,7 +148,7 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #1a6b50;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.5rem;
 }
 
 .proposal-body {
@@ -247,8 +247,8 @@
 }
 
 .proposal-no-fees {
-  margin-top: 0.75rem;
-  padding: 0.6rem 0.875rem;
+  margin-top: 0.4rem;
+  padding: 0.4rem 0.875rem;
   background: #f5f5f5;
   border-left: 3px solid #1a6b50;
   font-size: 9.5pt;
@@ -395,7 +395,7 @@
 }
 
 .proposal-qa-item {
-  padding: 0.75rem 0;
+  padding: 0.4rem 0;
   border-bottom: 1px solid #eee;
 }
 
@@ -473,7 +473,7 @@
 }
 
 .proposal-next-step {
-  padding: 0.65rem 0;
+  padding: 0.35rem 0;
   border-bottom: 1px solid #eee;
 }
 
@@ -512,12 +512,12 @@
   body { margin: 0; background: #fff; }
 
   @page {
-    margin: 0.6in 0.65in 0.5in 0.65in;
+    margin: 0.9in 0.75in 0.75in 0.75in;
   }
 
   .proposal {
     max-width: 100%;
-    padding: 0;
+    padding: 0.9in 0.75in 0.75in 0.75in;
     margin: 0;
   }
 
