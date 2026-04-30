@@ -143,7 +143,7 @@ export function ProposalContent({
             "You stop losing calls to competitors who show up first",
             "Customers can call you in one tap from their phone",
             "Your business looks professional \u2014 not like a side hustle",
-            "You control everything: prices, hours, photos, services",
+            "You can modify everything at any time yourself: prices, hours, photos, services",
           ].map(item => (
             <li key={item}><span className="proposal-check">&#x2713;</span>{item}</li>
           ))}
