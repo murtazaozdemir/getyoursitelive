@@ -639,9 +639,4 @@
     print-color-adjust: exact;
   }
 
-  /* Footer always starts fresh if near page bottom */
-  .proposal-footer {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
 }
