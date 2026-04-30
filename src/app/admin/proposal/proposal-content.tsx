@@ -272,7 +272,7 @@ export function ProposalContent({
             {sellerPhone && <span>Phone: {formatPhone(sellerPhone)}</span>}
             <span>Email: {sellerEmail}</span>
             {sellerAddress && <span>Address: {sellerAddress}</span>}
-            <span className="proposal-contact-demo">getyoursitelive.com</span>
+            <span className="proposal-contact-demo">Web: www.getyoursitelive.com</span>
           </div>
         </footer>
       </div>
