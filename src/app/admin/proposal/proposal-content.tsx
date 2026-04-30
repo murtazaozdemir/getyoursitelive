@@ -51,9 +51,8 @@ export function ProposalContent({
           <strong className="proposal-header-shopname">{name}</strong>
           <span>{address}</span>
         </div>
+        <h1 className="proposal-title">Proposal</h1>
       </header>
-
-      <h1 className="proposal-title">Proposal</h1>
 
       {/* ── OPENING LETTER ─────────────────────────────────────── */}
       <section className="proposal-letter">
