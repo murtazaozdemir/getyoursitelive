@@ -61,7 +61,7 @@ export function PipelineStageSelector({
         .join(", ");
       setToast({
         type: "skip",
-        message: `Complete ${missing} first.`,
+        message: `Please complete ${missing} first.`,
         targetStatus,
       });
       return;

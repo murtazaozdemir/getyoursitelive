@@ -154,7 +154,7 @@ export function TaskDetailClient({
 
   function handlePrintEnvelopes() {
     if (!senderInfo) {
-      alert("Set your Company and Address in Account Settings first.");
+      alert("Please set your company and address in Account Settings first.");
       return;
     }
     printEnvelopes(
@@ -194,7 +194,7 @@ export function TaskDetailClient({
 
   function handleShowMap() {
     if (!userHome) {
-      alert("Set your address in Account Settings first.");
+      alert("Please set your address in Account Settings first.");
       return;
     }
     if (pendingItems.length === 0) {
@@ -309,7 +309,7 @@ export function TaskDetailClient({
           />
           {searching && <p className="task-add-leads-status">Searching...</p>}
           {!searching && searchQuery.length >= 2 && searchResults.length === 0 && (
-            <p className="task-add-leads-status">No leads found</p>
+            <p className="task-add-leads-status">No leads found.</p>
           )}
           {searchResults.length > 0 && (
             <div className="task-add-leads-results">
@@ -390,7 +390,7 @@ export function TaskDetailClient({
       <div className="task-detail-actions">
         {task.status === "active" ? (
           <button type="button" className="admin-btn admin-btn--primary" onClick={handleComplete} disabled={isPending}>
-            Mark task complete
+            Mark as complete
           </button>
         ) : (
           <button type="button" className="admin-btn admin-btn--ghost" onClick={handleReopen} disabled={isPending}>

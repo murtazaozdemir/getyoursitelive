@@ -45,7 +45,7 @@ export async function createProspectAction(
   try {
     slug = await generateUniqueSlug(name, city, state);
   } catch {
-    return { ok: false, error: "Could not generate a valid slug from that name." };
+    return { ok: false, error: "Couldn't create a URL from that name. Try a different name or add a city." };
   }
 
   // Block duplicate phone number
@@ -276,10 +276,10 @@ export async function createOwnerLoginAction(
   const { name, email, password } = data;
   if (!name.trim()) return { ok: false, error: "Name is required." };
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: "A valid email is required." };
-  if (password.length < 8) return { ok: false, error: "Password must be at least 8 characters." };
+  if (password.length < 8) return { ok: false, error: "Password must be at least 8 characters long." };
 
   const biz = await getBusinessBySlug(slug);
-  if (!biz) return { ok: false, error: `No business found with slug "${slug}".` };
+  if (!biz) return { ok: false, error: "No business found for this site." };
 
   try {
     await createUser({ name: name.trim(), email: email.trim(), password, role: "owner", ownedSlug: slug });
