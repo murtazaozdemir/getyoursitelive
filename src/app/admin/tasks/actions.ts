@@ -16,14 +16,18 @@ import {
   searchProspectsForTask,
   deleteTask,
   getTaskItemSlug,
+  filterUncontactedSlugs,
 } from "@/lib/tasks";
 import { updateProspect } from "@/lib/prospects";
 
-export async function createTaskAction(slugs: string[]): Promise<string> {
+export async function createTaskAction(allSlugs: string[]): Promise<string> {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
-  if (slugs.length === 0) throw new Error("No leads selected");
+  if (allSlugs.length === 0) throw new Error("No leads selected");
+
+  const slugs = await filterUncontactedSlugs(allSlugs);
+  if (slugs.length === 0) throw new Error("All selected leads have already been contacted");
 
   const id = crypto.randomUUID();
   const today = new Date().toLocaleDateString("en-US", {
@@ -135,7 +139,7 @@ export async function bulkUpdateContactMethodAction(itemIds: string[], contactMe
 export async function searchProspectsAction(
   taskId: string,
   query: string,
-): Promise<{ slug: string; name: string; address: string }[]> {
+): Promise<{ slug: string; name: string; address: string; contacted: boolean }[]> {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
   if (query.trim().length < 2) return [];
@@ -143,9 +147,12 @@ export async function searchProspectsAction(
   return searchProspectsForTask(taskId, query.trim());
 }
 
-export async function addItemsAction(taskId: string, slugs: string[]) {
+export async function addItemsAction(taskId: string, allSlugs: string[]) {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
+  if (allSlugs.length === 0) return;
+
+  const slugs = await filterUncontactedSlugs(allSlugs);
   if (slugs.length === 0) return;
 
   await addTaskItems(taskId, slugs);

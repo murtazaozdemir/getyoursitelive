@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
-import { createTask } from "@/lib/tasks";
+import { createTask, filterUncontactedSlugs } from "@/lib/tasks";
 import { logAudit } from "@/lib/audit-log";
 
 export async function POST(req: Request) {
@@ -16,9 +16,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No slugs" }, { status: 400 });
   }
 
-  const slugs = slugsRaw.split(",").filter(Boolean);
-  if (slugs.length === 0) {
+  const allSlugs = slugsRaw.split(",").filter(Boolean);
+  if (allSlugs.length === 0) {
     return NextResponse.json({ error: "No leads selected" }, { status: 400 });
+  }
+
+  // Only include leads that haven't been contacted yet
+  const slugs = await filterUncontactedSlugs(allSlugs);
+  if (slugs.length === 0) {
+    return NextResponse.json({ error: "All selected leads have already been contacted" }, { status: 400 });
   }
 
   const id = crypto.randomUUID();
@@ -28,7 +34,7 @@ export async function POST(req: Request) {
   const name = `Task - ${today}`;
 
   await createTask(
-    { id, name, createdBy: user.email, createdByName: user.name },
+    { id, name, createdBy: user.id, createdByName: user.name },
     slugs,
   );
 

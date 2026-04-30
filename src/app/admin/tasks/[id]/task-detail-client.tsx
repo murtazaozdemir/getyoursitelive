@@ -44,7 +44,7 @@ export function TaskDetailClient({
   const [isPending, startTransition] = useTransition();
   const [showAddLeads, setShowAddLeads] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<{ slug: string; name: string; address: string }[]>([]);
+  const [searchResults, setSearchResults] = useState<{ slug: string; name: string; address: string; contacted: boolean }[]>([]);
   const [searching, setSearching] = useState(false);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -352,13 +352,17 @@ export function TaskDetailClient({
                     <strong>{r.name}</strong>
                     {r.address && <span className="task-add-leads-address"> — {r.address}</span>}
                   </div>
-                  <button
-                    type="button"
-                    className="admin-btn admin-btn--ghost"
-                    onClick={() => handleAddLead(r.slug)}
-                  >
-                    Add
-                  </button>
+                  {r.contacted ? (
+                    <span className="task-add-leads-contacted">Already contacted</span>
+                  ) : (
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn--ghost"
+                      onClick={() => handleAddLead(r.slug)}
+                    >
+                      Add
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

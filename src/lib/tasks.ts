@@ -302,11 +302,11 @@ export async function removeTaskItem(itemId: string): Promise<void> {
 export async function searchProspectsForTask(
   taskId: string,
   query: string,
-): Promise<{ slug: string; name: string; address: string }[]> {
+): Promise<{ slug: string; name: string; address: string; contacted: boolean }[]> {
   const db = await getD1();
   const { results } = await db
     .prepare(
-      `SELECT p.slug, p.name, p.address
+      `SELECT p.slug, p.name, p.address, p.status
        FROM prospects p
        WHERE p.name LIKE ?
          AND p.slug NOT IN (SELECT prospect_slug FROM task_items WHERE task_id = ?)
@@ -314,8 +314,30 @@ export async function searchProspectsForTask(
        LIMIT 20`,
     )
     .bind(`%${query}%`, taskId)
-    .all<{ slug: string; name: string; address: string }>();
-  return results;
+    .all<{ slug: string; name: string; address: string; status: string | null }>();
+  return results.map((r) => ({
+    slug: r.slug,
+    name: r.name,
+    address: r.address,
+    contacted: r.status != null && r.status !== "found",
+  }));
+}
+
+/** Filter slugs to only those with status NULL or 'found' (not yet contacted) */
+export async function filterUncontactedSlugs(slugs: string[]): Promise<string[]> {
+  if (slugs.length === 0) return [];
+  const db = await getD1();
+  const placeholders = slugs.map(() => "?").join(",");
+  const { results } = await db
+    .prepare(
+      `SELECT slug FROM prospects
+       WHERE slug IN (${placeholders})
+         AND (status IS NULL OR status = 'found')`,
+    )
+    .bind(...slugs)
+    .all<{ slug: string }>();
+  const allowed = new Set(results.map((r) => r.slug));
+  return slugs.filter((s) => allowed.has(s));
 }
 
 export async function deleteTask(id: string): Promise<void> {
