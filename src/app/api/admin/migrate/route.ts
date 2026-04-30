@@ -23,6 +23,34 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
     return { updated: 0, skipped: 0, log: ["Migration system working — commit 08150c3"] };
   },
 
+  "backfill-dropped-off-to-contacted": async () => {
+    const db = await getD1();
+    const { results } = await db
+      .prepare(
+        `SELECT ti.prospect_slug FROM task_items ti
+         JOIN prospects p ON p.slug = ti.prospect_slug
+         WHERE ti.status = 'dropped_off' AND p.status = 'found'`,
+      )
+      .all<{ prospect_slug: string }>();
+
+    const log: string[] = [];
+    let updated = 0;
+    const now = new Date().toISOString();
+
+    for (const row of results) {
+      await db
+        .prepare(
+          `UPDATE prospects SET status = 'contacted', contacted_at = ?, updated_at = ? WHERE slug = ?`,
+        )
+        .bind(now, now, row.prospect_slug)
+        .run();
+      log.push(`${row.prospect_slug} → contacted`);
+      updated++;
+    }
+
+    return { updated, skipped: results.length - updated, log };
+  },
+
   "add-google-fields-to-prospects": async () => {
     const db = await getD1();
     const cols = [
