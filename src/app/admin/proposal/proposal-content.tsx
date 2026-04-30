@@ -104,6 +104,23 @@ export function ProposalContent({
         </table>
       </section>
 
+      {/* ── DOMAIN SUGGESTIONS ─────────────────────────────────── */}
+      <section className="proposal-section">
+        <h2 className="proposal-section-title">Domain options for {name}</h2>
+        <div className="proposal-domains">
+          {domains.map(d => (
+            <div key={d} className="proposal-domain-chip">{d}</div>
+          ))}
+        </div>
+        <p className="proposal-body proposal-body--small">
+          These are suggestions — availability can change. When you&rsquo;re
+          ready, I&rsquo;ll confirm which ones are still open. If none work,
+          we&rsquo;ll find one you like. First year of registration is
+          included; after that it renews for about $15/year directly with
+          the registrar.
+        </p>
+      </section>
+
       {/* ── DEMO ────────────────────────────────────────────────── */}
       <section className="proposal-section proposal-section--demo">
         <h2 className="proposal-section-title">Your site is already built</h2>
@@ -144,23 +161,6 @@ export function ProposalContent({
             <li key={item}><span className="proposal-check">&#x2713;</span>{item}</li>
           ))}
         </ul>
-      </section>
-
-      {/* ── DOMAIN SUGGESTIONS ─────────────────────────────────── */}
-      <section className="proposal-section">
-        <h2 className="proposal-section-title">Domain options for {name}</h2>
-        <div className="proposal-domains">
-          {domains.map(d => (
-            <div key={d} className="proposal-domain-chip">{d}</div>
-          ))}
-        </div>
-        <p className="proposal-body proposal-body--small">
-          These are suggestions — availability can change. When you&rsquo;re
-          ready, I&rsquo;ll confirm which ones are still open. If none work,
-          we&rsquo;ll find one you like. First year of registration is
-          included; after that it renews for about $15/year directly with
-          the registrar.
-        </p>
       </section>
 
       {/* ── HOW IT WORKS ───────────────────────────────────────── */}
