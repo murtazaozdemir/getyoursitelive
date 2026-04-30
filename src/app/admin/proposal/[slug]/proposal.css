@@ -527,7 +527,7 @@
   body { margin: 0; background: #fff; }
 
   @page {
-    margin: 1in 0.75in 0.75in 0.75in;
+    margin: 1in 0.75in 0.5in 0.75in;
   }
 
   .proposal {
