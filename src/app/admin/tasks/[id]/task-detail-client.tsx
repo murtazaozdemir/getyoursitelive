@@ -6,7 +6,9 @@ import { useRouter } from "next/navigation";
 import type { Task, TaskItemWithProspect } from "@/lib/tasks";
 import {
   type UserHome,
+  type SenderInfo,
   printLabels,
+  printEnvelopes,
   printTaskList,
   showLeadsMap,
 } from "../../leads/print-utils";
@@ -30,6 +32,7 @@ export function TaskDetailClient({
   task: Task;
   items: TaskItemWithProspect[];
   userHome: UserHome | null;
+  senderInfo: SenderInfo | null;
 }) {
   const router = useRouter();
   const [items, setItems] = useState(() => initialItems.filter((i) => i.prospectName));
@@ -148,6 +151,21 @@ export function TaskDetailClient({
     });
   }
 
+  function handlePrintEnvelopes() {
+    if (!senderInfo) {
+      alert("Set your Company and Address in Account Settings first.");
+      return;
+    }
+    printEnvelopes(
+      pendingItems.map((i) => ({
+        slug: i.prospectSlug,
+        name: i.prospectName,
+        address: i.prospectAddress,
+      })),
+      senderInfo,
+    );
+  }
+
   function handlePrintLabels() {
     printLabels(
       pendingItems.map((i) => ({
@@ -262,6 +280,9 @@ export function TaskDetailClient({
               </button>
               <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintLabels} disabled={isPending}>
                 Print labels ({pendingItems.length})
+              </button>
+              <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintEnvelopes} disabled={isPending}>
+                Print envelopes ({pendingItems.length})
               </button>
               <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintTaskList} disabled={isPending}>
                 Print task list

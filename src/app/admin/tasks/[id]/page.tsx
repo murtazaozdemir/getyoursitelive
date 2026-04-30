@@ -28,11 +28,16 @@ export default async function TaskDetailPage({
     ? { lat: userHomeCoords.lat, lng: userHomeCoords.lng, name: fullUser?.name ?? user.name, address: userAddress }
     : null;
 
+  const senderInfo = (fullUser?.company && userAddress)
+    ? { company: fullUser.company, name: fullUser.name, address: userAddress, email: fullUser.email }
+    : null;
+
   return (
     <TaskDetailClient
       task={task}
       items={items}
       userHome={userHome}
+      senderInfo={senderInfo}
     />
   );
 }
