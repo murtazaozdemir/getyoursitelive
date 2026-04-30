@@ -82,13 +82,13 @@ export async function reopenTaskAction(taskId: string) {
   revalidatePath("/admin/tasks");
 }
 
-export async function toggleItemDroppedOffAction(itemId: string, droppedOff: boolean) {
+export async function toggleItemDroppedOffAction(itemId: string, droppedOff: boolean, contactMethod?: string) {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
   await updateTaskItemStatus(itemId, droppedOff ? "dropped_off" : "pending");
 
-  // When marked as dropped off, move the prospect to "contacted" status
+  // When marked as reached, move the prospect to "contacted" status
   if (droppedOff) {
     const slug = await getTaskItemSlug(itemId);
     if (slug) {
@@ -97,7 +97,7 @@ export async function toggleItemDroppedOffAction(itemId: string, droppedOff: boo
         contactedBy: user.email,
         contactedByName: user.name,
         contactedAt: new Date().toISOString(),
-        contactMethod: "visit",
+        contactMethod: contactMethod || "visit",
       });
     }
   }

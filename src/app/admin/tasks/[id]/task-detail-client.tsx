@@ -64,9 +64,10 @@ export function TaskDetailClient({
   }, [sortedItems, filterQuery]);
 
   const pendingItems = filteredItems.filter((i) => i.status === "pending");
-  const droppedOffItems = filteredItems.filter((i) => i.status === "dropped_off");
+  const reachedItems = filteredItems.filter((i) => i.status === "dropped_off");
   const totalCount = items.length;
   const remainingCount = items.filter((i) => i.status === "pending").length;
+  const [contactMethodPrompt, setContactMethodPrompt] = useState<string | null>(null);
 
   function handleRename() {
     if (!taskName.trim()) return;
@@ -77,12 +78,27 @@ export function TaskDetailClient({
   }
 
   function handleToggleItem(itemId: string, currentStatus: string) {
-    const newStatus = currentStatus === "pending" ? "dropped_off" : "pending";
+    if (currentStatus === "pending") {
+      // Show contact method picker before marking as reached
+      setContactMethodPrompt(itemId);
+    } else {
+      // Undo: move back to pending
+      setItems((prev) =>
+        prev.map((i) => (i.id === itemId ? { ...i, status: "pending" as const } : i))
+      );
+      startTransition(() => {
+        toggleItemDroppedOffAction(itemId, false);
+      });
+    }
+  }
+
+  function handleReachWithMethod(itemId: string, method: string) {
+    setContactMethodPrompt(null);
     setItems((prev) =>
-      prev.map((i) => (i.id === itemId ? { ...i, status: newStatus as "pending" | "dropped_off" } : i))
+      prev.map((i) => (i.id === itemId ? { ...i, status: "dropped_off" as const, prospectContactMethod: method } : i))
     );
     startTransition(() => {
-      toggleItemDroppedOffAction(itemId, newStatus === "dropped_off");
+      toggleItemDroppedOffAction(itemId, true, method);
     });
   }
 
@@ -255,15 +271,15 @@ export function TaskDetailClient({
 
         <div className="task-detail-progress-text">
           <strong>{remainingCount}</strong> of {totalCount} remaining
-          {droppedOffItems.length > 0 && (
-            <> &middot; <strong>{droppedOffItems.length}</strong> dropped off</>
+          {reachedItems.length > 0 && (
+            <> &middot; <strong>{reachedItems.length}</strong> reached</>
           )}
         </div>
 
         <div className="task-progress-bar task-progress-bar--detail">
           <div
             className="task-progress-fill"
-            style={{ width: totalCount > 0 ? `${(droppedOffItems.length / totalCount) * 100}%` : "0%" }}
+            style={{ width: totalCount > 0 ? `${(reachedItems.length / totalCount) * 100}%` : "0%" }}
           />
         </div>
       </div>
@@ -364,15 +380,18 @@ export function TaskDetailClient({
                 onToggle={() => handleToggleItem(item.id, item.status)}
                 onNotesBlur={(notes) => handleNotesBlur(item.id, notes)}
                 onRemove={task.status === "active" ? () => handleRemoveItem(item.id, item.prospectName) : undefined}
+                showMethodPicker={contactMethodPrompt === item.id}
+                onSelectMethod={(method) => handleReachWithMethod(item.id, method)}
+                onCancelMethod={() => setContactMethodPrompt(null)}
               />
             ))}
           </div>
         )}
 
-        {droppedOffItems.length > 0 && (
+        {reachedItems.length > 0 && (
           <div className="task-checklist-section">
-            <h3 className="task-checklist-divider">Dropped off ({droppedOffItems.length})</h3>
-            {droppedOffItems.map((item) => (
+            <h3 className="task-checklist-divider">Reached ({reachedItems.length})</h3>
+            {reachedItems.map((item) => (
               <TaskItemRow
                 key={item.id}
                 item={item}
@@ -418,6 +437,13 @@ function highlightText(text: string, query: string) {
   );
 }
 
+const CONTACT_METHODS = [
+  { value: "visit", label: "Visit" },
+  { value: "mail", label: "Mail" },
+  { value: "phone", label: "Phone Call" },
+  { value: "email", label: "Email" },
+];
+
 function TaskItemRow({
   item,
   index,
@@ -425,6 +451,9 @@ function TaskItemRow({
   onToggle,
   onNotesBlur,
   onRemove,
+  showMethodPicker,
+  onSelectMethod,
+  onCancelMethod,
 }: {
   item: TaskItemWithProspect;
   index?: number;
@@ -432,20 +461,23 @@ function TaskItemRow({
   onToggle: () => void;
   onNotesBlur: (notes: string) => void;
   onRemove?: () => void;
+  showMethodPicker?: boolean;
+  onSelectMethod?: (method: string) => void;
+  onCancelMethod?: () => void;
 }) {
   const [notes, setNotes] = useState(item.notes);
-  const isDroppedOff = item.status === "dropped_off";
+  const isReached = item.status === "dropped_off";
   const q = highlight || "";
 
   return (
-    <div className={`task-item${isDroppedOff ? " task-item--done" : ""}`}>
+    <div className={`task-item${isReached ? " task-item--done" : ""}`}>
       <button
         type="button"
-        className={`task-item-check${isDroppedOff ? " task-item-check--checked" : ""}`}
+        className={`task-item-check${isReached ? " task-item-check--checked" : ""}`}
         onClick={onToggle}
-        aria-label={isDroppedOff ? "Mark as pending" : "Mark as dropped off"}
+        aria-label={isReached ? "Mark as pending" : "Mark as reached"}
       >
-        {isDroppedOff && (
+        {isReached && (
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M2 7l3.5 3.5L12 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -471,6 +503,31 @@ function TaskItemRow({
           </p>
         )}
       </div>
+
+      {showMethodPicker && (
+        <div className="task-method-picker">
+          <span className="task-method-picker-label">How did you reach them?</span>
+          <div className="task-method-picker-buttons">
+            {CONTACT_METHODS.map((m) => (
+              <button
+                key={m.value}
+                type="button"
+                className="admin-btn admin-btn--ghost task-method-btn"
+                onClick={() => onSelectMethod?.(m.value)}
+              >
+                {m.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              className="admin-btn admin-btn--ghost task-method-btn task-method-btn--cancel"
+              onClick={onCancelMethod}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="task-item-notes">
         <textarea

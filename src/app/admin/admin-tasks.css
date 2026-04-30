@@ -397,3 +397,28 @@
   color: var(--admin-text-muted);
   margin-top: 8px;
 }
+
+/* Contact method picker (shown when marking as reached) */
+.task-method-picker {
+  grid-column: 1 / -1;
+  padding: 10px 0 6px;
+}
+.task-method-picker-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--admin-text);
+}
+.task-method-picker-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.task-method-btn {
+  font-size: 13px !important;
+  padding: 5px 12px !important;
+}
+.task-method-btn--cancel {
+  color: var(--admin-text-muted) !important;
+}
