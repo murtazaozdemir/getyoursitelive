@@ -261,7 +261,7 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
         <div class="env-back-content">
           <div class="env-back-headline">We built a website for <strong>${esc(p.name)}.</strong></div>
           <div class="env-back-subheadline">It&rsquo;s live. It&rsquo;s yours. Take a look.</div>
-          <div class="env-back-cta">Scan to see it instantly &mdash;</div>
+          <div class="env-back-cta">Scan the QR code below to see it instantly &mdash;</div>
           <div class="env-back-qr"><img src="${qrUrl}" width="96" height="96" alt="QR code" /></div>
           <div class="env-back-cta">&mdash; or type this address:</div>
           <div class="env-back-url">www.getyoursitelive.com/${esc(p.slug)}</div>
