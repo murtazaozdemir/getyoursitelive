@@ -579,8 +579,8 @@
     page-break-inside: avoid;
   }
 
-  /* Next step + footer: keep together on same page */
-  .proposal-closing {
+  /* Footer: keep together */
+  .proposal-footer {
     break-inside: avoid;
     page-break-inside: avoid;
   }
