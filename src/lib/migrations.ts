@@ -616,6 +616,36 @@ export const MIGRATIONS: Record<string, { description: string; fn: () => Promise
       }
     },
   },
+
+  "backfill-contact-method-visit": {
+    description: "Set contact_method to 'visit' for all already-contacted leads that are missing it",
+    fn: async () => {
+      const db = await getD1();
+      const { results } = await db
+        .prepare(
+          `SELECT slug, name FROM prospects
+           WHERE contacted_by IS NOT NULL AND (contact_method IS NULL OR contact_method = '')`,
+        )
+        .all<{ slug: string; name: string }>();
+
+      if (results.length === 0) {
+        return { updated: 0, skipped: 0, log: ["No contacted leads missing contact_method"] };
+      }
+
+      const log: string[] = [];
+      let updated = 0;
+      for (const row of results) {
+        await db
+          .prepare("UPDATE prospects SET contact_method = 'visit' WHERE slug = ?")
+          .bind(row.slug)
+          .run();
+        log.push(`Set contact_method=visit for ${row.name}`);
+        updated++;
+      }
+
+      return { updated, skipped: 0, log };
+    },
+  },
 };
 
 /** Get list of migration names + descriptions for the UI */
