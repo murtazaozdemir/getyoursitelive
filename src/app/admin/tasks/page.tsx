@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
-import { canManageBusinesses } from "@/lib/users";
+import { canManageBusinesses, isDeveloper } from "@/lib/users";
 import { listTasks } from "@/lib/tasks";
 
 export default async function TasksPage() {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) redirect("/admin/login");
 
-  const tasks = await listTasks(user.id);
+  // Developers see all tasks; regular admins see only their own
+  const tasks = await listTasks(isDeveloper(user) ? undefined : user.id);
 
   return (
     <>
