@@ -46,7 +46,6 @@ export function ProposalContent({
           {sellerCompany && <strong>{sellerCompany}</strong>}
           <strong>Get Your Site Live</strong>
           <span>getyoursitelive.com</span>
-          <span>Proposal</span>
         </div>
         <div className="proposal-header-to">
           <span className="proposal-header-label">Prepared for</span>
@@ -55,6 +54,8 @@ export function ProposalContent({
           <span>{today}</span>
         </div>
       </header>
+
+      <h1 className="proposal-title">Proposal</h1>
 
       {/* ── OPENING LETTER ─────────────────────────────────────── */}
       <section className="proposal-letter">
