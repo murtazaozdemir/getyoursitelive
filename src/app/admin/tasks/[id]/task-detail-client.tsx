@@ -19,6 +19,7 @@ import {
   toggleItemDroppedOffAction,
   saveItemNotesAction,
   updateContactMethodAction,
+  bulkUpdateContactMethodAction,
   searchProspectsAction,
   addItemsAction,
   removeItemAction,
@@ -93,6 +94,17 @@ export function TaskDetailClient({
     );
     startTransition(() => {
       updateContactMethodAction(itemId, method);
+    });
+  }
+
+  function handleBulkContactMethod(method: string) {
+    if (!method) return;
+    setItems((prev) =>
+      prev.map((i) => ({ ...i, prospectContactMethod: method }))
+    );
+    const allItemIds = items.map((i) => i.id);
+    startTransition(() => {
+      bulkUpdateContactMethodAction(allItemIds, method);
     });
   }
 
@@ -303,6 +315,17 @@ export function TaskDetailClient({
               </button>
             </>
           )}
+          <select
+            className="task-bulk-method"
+            value=""
+            onChange={(e) => handleBulkContactMethod(e.target.value)}
+            disabled={isPending || items.length === 0}
+          >
+            <option value="">Set all contact method...</option>
+            {CONTACT_METHODS.map((m) => (
+              <option key={m.value} value={m.value}>{m.label}</option>
+            ))}
+          </select>
         </div>
       )}
 

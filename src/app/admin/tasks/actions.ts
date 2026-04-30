@@ -120,6 +120,18 @@ export async function updateContactMethodAction(itemId: string, contactMethod: s
   }
 }
 
+export async function bulkUpdateContactMethodAction(itemIds: string[], contactMethod: string) {
+  const user = await getCurrentUser();
+  if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
+
+  for (const itemId of itemIds) {
+    const slug = await getTaskItemSlug(itemId);
+    if (slug) {
+      await updateProspect(slug, { contactMethod });
+    }
+  }
+}
+
 export async function searchProspectsAction(
   taskId: string,
   query: string,
