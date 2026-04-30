@@ -15,13 +15,18 @@ export async function listStateVisibility(): Promise<StateVisibility[]> {
   return results.map((r) => ({ state: r.state, name: r.name, visible: r.visible === 1 }));
 }
 
-/** Get only the visible state abbreviations */
+/** Get only the visible state abbreviations. Returns empty set if table doesn't exist yet. */
 export async function getVisibleStates(): Promise<Set<string>> {
-  const db = await getD1();
-  const { results } = await db
-    .prepare("SELECT state FROM state_visibility WHERE visible = 1")
-    .all<{ state: string }>();
-  return new Set(results.map((r) => r.state));
+  try {
+    const db = await getD1();
+    const { results } = await db
+      .prepare("SELECT state FROM state_visibility WHERE visible = 1")
+      .all<{ state: string }>();
+    return new Set(results.map((r) => r.state));
+  } catch {
+    // Table doesn't exist yet — show all states
+    return new Set();
+  }
 }
 
 /** Toggle a state's visibility */
