@@ -44,7 +44,7 @@ const MIGRATIONS: Record<string, () => Promise<{ updated: number; skipped: numbe
         )
         .bind(now, now, row.prospect_slug)
         .run();
-      log.push(`${row.prospect_slug} → contacted`);
+      log.push(`${row.prospect_slug} moved to contacted`);
       updated++;
     }
 
