@@ -18,6 +18,7 @@ import {
   reopenTaskAction,
   toggleItemDroppedOffAction,
   saveItemNotesAction,
+  updateContactMethodAction,
   searchProspectsAction,
   addItemsAction,
   removeItemAction,
@@ -67,7 +68,6 @@ export function TaskDetailClient({
   const reachedItems = filteredItems.filter((i) => i.status === "dropped_off");
   const totalCount = items.length;
   const remainingCount = items.filter((i) => i.status === "pending").length;
-  const [contactMethodPrompt, setContactMethodPrompt] = useState<string | null>(null);
 
   function handleRename() {
     if (!taskName.trim()) return;
@@ -78,27 +78,21 @@ export function TaskDetailClient({
   }
 
   function handleToggleItem(itemId: string, currentStatus: string) {
-    if (currentStatus === "pending") {
-      // Show contact method picker before marking as reached
-      setContactMethodPrompt(itemId);
-    } else {
-      // Undo: move back to pending
-      setItems((prev) =>
-        prev.map((i) => (i.id === itemId ? { ...i, status: "pending" as const } : i))
-      );
-      startTransition(() => {
-        toggleItemDroppedOffAction(itemId, false);
-      });
-    }
-  }
-
-  function handleReachWithMethod(itemId: string, method: string) {
-    setContactMethodPrompt(null);
+    const newStatus = currentStatus === "pending" ? "dropped_off" : "pending";
     setItems((prev) =>
-      prev.map((i) => (i.id === itemId ? { ...i, status: "dropped_off" as const, prospectContactMethod: method } : i))
+      prev.map((i) => (i.id === itemId ? { ...i, status: newStatus as "pending" | "dropped_off" } : i))
     );
     startTransition(() => {
-      toggleItemDroppedOffAction(itemId, true, method);
+      toggleItemDroppedOffAction(itemId, newStatus === "dropped_off");
+    });
+  }
+
+  function handleContactMethodChange(itemId: string, method: string) {
+    setItems((prev) =>
+      prev.map((i) => (i.id === itemId ? { ...i, prospectContactMethod: method } : i))
+    );
+    startTransition(() => {
+      updateContactMethodAction(itemId, method);
     });
   }
 
@@ -379,10 +373,8 @@ export function TaskDetailClient({
                 highlight={filterQuery}
                 onToggle={() => handleToggleItem(item.id, item.status)}
                 onNotesBlur={(notes) => handleNotesBlur(item.id, notes)}
+                onContactMethodChange={(method) => handleContactMethodChange(item.id, method)}
                 onRemove={task.status === "active" ? () => handleRemoveItem(item.id, item.prospectName) : undefined}
-                showMethodPicker={contactMethodPrompt === item.id}
-                onSelectMethod={(method) => handleReachWithMethod(item.id, method)}
-                onCancelMethod={() => setContactMethodPrompt(null)}
               />
             ))}
           </div>
@@ -398,6 +390,7 @@ export function TaskDetailClient({
                 highlight={filterQuery}
                 onToggle={() => handleToggleItem(item.id, item.status)}
                 onNotesBlur={(notes) => handleNotesBlur(item.id, notes)}
+                onContactMethodChange={(method) => handleContactMethodChange(item.id, method)}
                 onRemove={task.status === "active" ? () => handleRemoveItem(item.id, item.prospectName) : undefined}
               />
             ))}
@@ -450,20 +443,16 @@ function TaskItemRow({
   highlight,
   onToggle,
   onNotesBlur,
+  onContactMethodChange,
   onRemove,
-  showMethodPicker,
-  onSelectMethod,
-  onCancelMethod,
 }: {
   item: TaskItemWithProspect;
   index?: number;
   highlight?: string;
   onToggle: () => void;
   onNotesBlur: (notes: string) => void;
+  onContactMethodChange?: (method: string) => void;
   onRemove?: () => void;
-  showMethodPicker?: boolean;
-  onSelectMethod?: (method: string) => void;
-  onCancelMethod?: () => void;
 }) {
   const [notes, setNotes] = useState(item.notes);
   const isReached = item.status === "dropped_off";
@@ -497,37 +486,17 @@ function TaskItemRow({
         {item.prospectPhone && (
           <p className="task-item-phone">{highlightText(item.prospectPhone, q)}</p>
         )}
-        {item.prospectContactMethod && (
-          <p className="task-item-phone" style={{ fontStyle: "italic" }}>
-            Via {item.prospectContactMethod.charAt(0).toUpperCase() + item.prospectContactMethod.slice(1)}
-          </p>
-        )}
+        <select
+          className="task-item-method"
+          value={item.prospectContactMethod || ""}
+          onChange={(e) => onContactMethodChange?.(e.target.value)}
+        >
+          <option value="">Contact method...</option>
+          {CONTACT_METHODS.map((m) => (
+            <option key={m.value} value={m.value}>{m.label}</option>
+          ))}
+        </select>
       </div>
-
-      {showMethodPicker && (
-        <div className="task-method-picker">
-          <span className="task-method-picker-label">How did you reach them?</span>
-          <div className="task-method-picker-buttons">
-            {CONTACT_METHODS.map((m) => (
-              <button
-                key={m.value}
-                type="button"
-                className="admin-btn admin-btn--ghost task-method-btn"
-                onClick={() => onSelectMethod?.(m.value)}
-              >
-                {m.label}
-              </button>
-            ))}
-            <button
-              type="button"
-              className="admin-btn admin-btn--ghost task-method-btn task-method-btn--cancel"
-              onClick={onCancelMethod}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="task-item-notes">
         <textarea

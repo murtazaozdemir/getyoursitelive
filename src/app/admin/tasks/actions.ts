@@ -110,6 +110,16 @@ export async function saveItemNotesAction(itemId: string, notes: string) {
   await updateTaskItemNotes(itemId, notes);
 }
 
+export async function updateContactMethodAction(itemId: string, contactMethod: string) {
+  const user = await getCurrentUser();
+  if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
+
+  const slug = await getTaskItemSlug(itemId);
+  if (slug) {
+    await updateProspect(slug, { contactMethod });
+  }
+}
+
 export async function searchProspectsAction(
   taskId: string,
   query: string,
