@@ -44,11 +44,11 @@
 .proposal {
   max-width: 760px;
   margin: 0 auto;
-  padding: 3rem 2.5rem 4rem;
+  padding: 2rem 2.5rem 2rem;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 11pt;
   color: #111;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 /* ── Header ─────────────────────────────────────────────────────────── */
@@ -57,9 +57,9 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding-bottom: 1.5rem;
+  padding-bottom: 1rem;
   border-bottom: 2px solid #111;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
   font-family: system-ui, -apple-system, sans-serif;
   font-size: 9pt;
 }
@@ -90,7 +90,7 @@
 /* ── Hero ────────────────────────────────────────────────────────────── */
 
 .proposal-hero {
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .proposal-hero-headline {
@@ -116,8 +116,8 @@
 /* ── Opening letter ─────────────────────────────────────────────────── */
 
 .proposal-letter {
-  margin-bottom: 2rem;
-  padding-bottom: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid #ddd;
 }
 
@@ -132,8 +132,8 @@
 /* ── Sections ────────────────────────────────────────────────────────── */
 
 .proposal-section {
-  margin-bottom: 2rem;
-  padding-bottom: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid #ddd;
 }
 
@@ -433,8 +433,8 @@
 /* ── Footer / contact ────────────────────────────────────────────────── */
 
 .proposal-footer {
-  margin-top: 2.5rem;
-  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
   border-top: 2px solid #111;
 }
 
@@ -512,12 +512,12 @@
   body { margin: 0; background: #fff; }
 
   @page {
-    margin: 0.9in 0.75in 0.75in 0.75in;
+    margin: 0.6in 0.65in 0.5in 0.65in;
   }
 
   .proposal {
     max-width: 100%;
-    padding: 0.9in 0.75in 0.75in 0.75in;
+    padding: 0;
     margin: 0;
   }
 
