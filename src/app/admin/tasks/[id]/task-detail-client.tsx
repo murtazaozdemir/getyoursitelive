@@ -28,6 +28,7 @@ export function TaskDetailClient({
   task,
   items: initialItems,
   userHome,
+  senderInfo,
 }: {
   task: Task;
   items: TaskItemWithProspect[];
