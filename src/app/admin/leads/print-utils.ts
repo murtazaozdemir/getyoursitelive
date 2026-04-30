@@ -545,7 +545,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
      After rotation, it appears at the visual top when printed. */
   .env-back-content {
     position: absolute;
-    bottom: 1.4in;
+    bottom: 0.75in;
     left: 0.6in;
     right: 0.6in;
     text-align: center;
