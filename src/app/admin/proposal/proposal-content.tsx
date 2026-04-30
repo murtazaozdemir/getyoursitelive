@@ -150,28 +150,6 @@ export function ProposalContent({
         </ul>
       </section>
 
-      {/* ── WHAT'S INCLUDED ───────────────────────────────────── */}
-      <section className="proposal-section">
-        <h2 className="proposal-section-title">What&rsquo;s included</h2>
-        <ul className="proposal-checklist">
-          {[
-            `Your own domain name (e.g. ${domains[0] ?? "yourbusiness.com"}) \u2014 registered in your name`,
-            "Full website with your services, pricing, hours, and location",
-            "Appointment request form that works 24/7",
-            "Click-to-call button on every page",
-            "Google Maps showing your address",
-            "Customer reviews section",
-            "Works on phones, tablets, and computers",
-            "Admin panel \u2014 change any text, photo, or price yourself",
-          ].map(item => (
-            <li key={item}><span className="proposal-check">&#x2713;</span>{item}</li>
-          ))}
-        </ul>
-        <div className="proposal-no-fees">
-          All of the above for a one-time $500 — no monthly fees, no subscriptions, no surprises.
-        </div>
-      </section>
-
       {/* ── DOMAIN SUGGESTIONS ─────────────────────────────────── */}
       <section className="proposal-section">
         <h2 className="proposal-section-title">Domain options for {name}</h2>
@@ -206,6 +184,28 @@ export function ProposalContent({
             <strong>It goes live.</strong> Your domain, your site, done.
           </li>
         </ol>
+      </section>
+
+      {/* ── WHAT'S INCLUDED ───────────────────────────────────── */}
+      <section className="proposal-section">
+        <h2 className="proposal-section-title">What&rsquo;s included</h2>
+        <ul className="proposal-checklist">
+          {[
+            `Your own domain name (e.g. ${domains[0] ?? "yourbusiness.com"}) \u2014 registered in your name`,
+            "Full website with your services, pricing, hours, and location",
+            "Appointment request form that works 24/7",
+            "Click-to-call button on every page",
+            "Google Maps showing your address",
+            "Customer reviews section",
+            "Works on phones, tablets, and computers",
+            "Admin panel \u2014 change any text, photo, or price yourself",
+          ].map(item => (
+            <li key={item}><span className="proposal-check">&#x2713;</span>{item}</li>
+          ))}
+        </ul>
+        <div className="proposal-no-fees">
+          All of the above for a one-time $500 — no monthly fees, no subscriptions, no surprises.
+        </div>
       </section>
 
       {/* ── Q&A ──────────────────────────────────────────────────── */}
