@@ -136,6 +136,15 @@ export async function bulkUpdateContactMethodAction(itemIds: string[], contactMe
   }
 }
 
+export async function bulkUpdateNotesAction(itemIds: string[], notes: string) {
+  const user = await getCurrentUser();
+  if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
+
+  for (const itemId of itemIds) {
+    await updateTaskItemNotes(itemId, notes);
+  }
+}
+
 export async function searchProspectsAction(
   taskId: string,
   query: string,

@@ -20,6 +20,7 @@ import {
   saveItemNotesAction,
   updateContactMethodAction,
   bulkUpdateContactMethodAction,
+  bulkUpdateNotesAction,
   searchProspectsAction,
   addItemsAction,
   removeItemAction,
@@ -48,6 +49,7 @@ export function TaskDetailClient({
   const [searching, setSearching] = useState(false);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [bulkNotes, setBulkNotes] = useState("");
   const [filterQuery, setFilterQuery] = useState("");
 
   const sortedItems = useMemo(() =>
@@ -105,6 +107,17 @@ export function TaskDetailClient({
     const allItemIds = items.map((i) => i.id);
     startTransition(() => {
       bulkUpdateContactMethodAction(allItemIds, method);
+    });
+  }
+
+  function handleBulkNotes() {
+    if (!bulkNotes.trim()) return;
+    setItems((prev) =>
+      prev.map((i) => ({ ...i, notes: bulkNotes }))
+    );
+    const allItemIds = items.map((i) => i.id);
+    startTransition(() => {
+      bulkUpdateNotesAction(allItemIds, bulkNotes);
     });
   }
 
@@ -326,6 +339,25 @@ export function TaskDetailClient({
               </select>
             </>
           )}
+          <div className="task-bulk-notes">
+            <input
+              type="text"
+              className="task-bulk-notes-input"
+              placeholder="Set all notes..."
+              value={bulkNotes}
+              onChange={(e) => setBulkNotes(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleBulkNotes(); }}
+              disabled={isPending || items.length === 0}
+            />
+            <button
+              type="button"
+              className="admin-btn admin-btn--ghost"
+              onClick={handleBulkNotes}
+              disabled={isPending || !bulkNotes.trim() || items.length === 0}
+            >
+              Apply
+            </button>
+          </div>
         </div>
       )}
 

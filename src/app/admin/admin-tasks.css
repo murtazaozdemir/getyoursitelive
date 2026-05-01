@@ -420,6 +420,31 @@
   cursor: not-allowed;
 }
 
+/* Bulk notes input in toolbar */
+.task-bulk-notes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+.task-bulk-notes-input {
+  font-size: 13px;
+  padding: 6px 10px;
+  border: 1px solid var(--admin-border, #ddd);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-bg, #fff);
+  color: var(--admin-text);
+  width: 200px;
+  font-family: inherit;
+}
+.task-bulk-notes-input:focus {
+  outline: none;
+  border-color: var(--admin-accent);
+}
+.task-bulk-notes-input:disabled {
+  opacity: 0.5;
+}
+
 /* Contact method dropdown on each task item */
 .task-item-method {
   font-size: 12px;
