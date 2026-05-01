@@ -466,47 +466,54 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
 
   const esc = escapeHtml;
   const siteUrl = "https://getyoursitelive.com";
+  const screenshotBase = "https://gysl-screenshots.fly.dev/screenshot";
 
   const pagesHtml = prospects
     .map(
       (p) => {
         const previewUrl = `${siteUrl}/${p.slug}`;
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=96x96&data=${encodeURIComponent(previewUrl)}`;
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(previewUrl)}`;
+        const screenshotUrl = `${screenshotBase}?url=${encodeURIComponent(previewUrl)}&width=800&height=600`;
         return `
       <!-- FRONT -->
-      <div class="env-page">
-        <div class="env-return">
-          <div class="env-return-company">${esc(sender.company)}</div>
+      <div class="env2-page">
+        <div class="env2-return">
+          <div class="env2-return-company">${esc(sender.company)}</div>
           <div>${esc(sender.address).replace(/,\s*/, "<br>")}</div>
         </div>
 
-        <div class="env-postage">PLACE<br>STAMP<br>HERE</div>
+        <div class="env2-postage">PLACE<br>STAMP<br>HERE</div>
 
-        <div class="env-notice">
-          <div class="env-notice-title">LOCAL BUSINESS REVIEW</div>
+        <div class="env2-notice">
+          <div class="env2-notice-title">LOCAL BUSINESS REVIEW</div>
           <div>Prepared for current owner</div>
           <div>Response requested</div>
         </div>
 
-        <div class="env-recipient">
-          <div class="env-recipient-name">${esc(p.name)}</div>
+        <div class="env2-recipient">
+          <div class="env2-recipient-name">${esc(p.name)}</div>
           <div>Owner</div>
           <div>${esc(p.address).replace(/,\s*/, "<br>")}</div>
         </div>
 
-        <div class="barcode-zone"></div>
+        <div class="env2-barcode-zone"></div>
       </div>
 
       <!-- BACK -->
-      <div class="env-page">
-        <div class="env-back-note">For delivery address see other side</div>
+      <div class="env2-page">
+        <div class="env2-back-note">For delivery address see other side</div>
 
-        <div class="env-back-content">
-          <div class="env-back-headline">We built a website for <strong>${esc(p.name)}.</strong></div>
-          <div class="env-back-subheadline">See your business online. Take a look.</div>
-          <div class="env-back-cta">Scan the QR code below to see it instantly:</div>
-          <div class="env-back-qr"><img src="${qrUrl}" width="96" height="96" alt="QR code" /></div>
-          <div class="env-back-cta">&mdash; or type this address: <strong>www.getyoursitelive.com/${esc(p.slug)}</strong></div>
+        <div class="env2-back-split">
+          <div class="env2-back-left">
+            <img class="env2-back-screenshot" src="${screenshotUrl}" alt="Website preview for ${esc(p.name)}" />
+          </div>
+          <div class="env2-back-right">
+            <div class="env2-back-headline">We built a website for <strong>${esc(p.name)}.</strong></div>
+            <div class="env2-back-subheadline">See your business online.</div>
+            <div class="env2-back-cta">Scan to see it instantly:</div>
+            <div class="env2-back-qr"><img src="${qrUrl}" width="80" height="80" alt="QR code" /></div>
+            <div class="env2-back-cta"><strong>getyoursitelive.com/${esc(p.slug)}</strong></div>
+          </div>
         </div>
       </div>`;
       },
@@ -516,7 +523,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
   const html = `<!DOCTYPE html>
 <html>
 <head>
-<title>Print Envelopes</title>
+<title>Print Envelopes v2</title>
 <style>
   @page {
     size: 9in 6in;
@@ -525,7 +532,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: Arial, Helvetica, sans-serif; color: #222; }
 
-  .env-page {
+  .env2-page {
     width: 9in;
     height: 6in;
     position: relative;
@@ -534,7 +541,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
   }
 
   /* ── FRONT: Return address ── */
-  .env-return {
+  .env2-return {
     position: absolute;
     top: 0.3in;
     left: 0.35in;
@@ -542,13 +549,13 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
     line-height: 1.55;
     color: #111;
   }
-  .env-return-company {
+  .env2-return-company {
     font-weight: bold;
     font-size: 10pt;
   }
 
   /* ── FRONT: Postage (upper-right) ── */
-  .env-postage {
+  .env2-postage {
     position: absolute;
     top: 0.25in;
     right: 0.35in;
@@ -565,7 +572,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
   }
 
   /* ── FRONT: Notice box (upper-center) ── */
-  .env-notice {
+  .env2-notice {
     position: absolute;
     top: 0.28in;
     left: 3.0in;
@@ -577,14 +584,14 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
     line-height: 1.55;
     color: #111;
   }
-  .env-notice-title {
+  .env2-notice-title {
     font-weight: bold;
     font-size: 8.5pt;
     letter-spacing: 0.04em;
   }
 
   /* ── FRONT: Recipient — INSIDE USPS OCR READ ZONE ── */
-  .env-recipient {
+  .env2-recipient {
     position: absolute;
     top: 3.35in;
     left: 2.6in;
@@ -592,13 +599,13 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
     line-height: 1.7;
     color: #111;
   }
-  .env-recipient-name {
+  .env2-recipient-name {
     font-weight: bold;
     font-size: 12pt;
   }
 
   /* ── FRONT: Barcode clear zone ── */
-  .barcode-zone {
+  .env2-barcode-zone {
     position: absolute;
     bottom: 0;
     right: 0;
@@ -607,7 +614,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
   }
 
   /* ── BACK: Compliance note (right-side up) ── */
-  .env-back-note {
+  .env2-back-note {
     position: absolute;
     top: 0.3in;
     left: 0;
@@ -619,55 +626,69 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
     text-transform: uppercase;
   }
 
-  /* ── BACK: Marketing content ──
-     rotate(180deg) on content ONLY, NOT on the page.
-     bottom: 0.75in anchors it to the bottom.
-     After rotation, it appears at the visual top when printed. */
-  .env-back-content {
+  /* ── BACK: Split layout — screenshot left, text+QR right ── */
+  .env2-back-split {
     position: absolute;
-    bottom: 0.75in;
-    left: 0.6in;
-    right: 0.6in;
-    text-align: center;
+    bottom: 0.5in;
+    left: 0.4in;
+    right: 0.4in;
+    top: 0.6in;
+    display: flex;
+    gap: 0.25in;
     transform: rotate(180deg);
     transform-origin: center center;
-    font-size: 10pt;
-    line-height: 1.8;
-    color: #222;
+  }
+
+  .env2-back-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f9f9f9;
+  }
+  .env2-back-screenshot {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  .env2-back-right {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    text-align: center;
+    gap: 4px;
   }
 
-  .env-back-headline {
-    font-size: 13pt;
+  .env2-back-headline {
+    font-size: 12pt;
     font-weight: bold;
+    line-height: 1.4;
   }
-  .env-back-subheadline {
-    font-size: 11pt;
+  .env2-back-subheadline {
+    font-size: 10pt;
     color: #333;
   }
-  .env-back-cta {
-    font-size: 9.5pt;
+  .env2-back-cta {
+    font-size: 8.5pt;
     color: #555;
-    margin-top: 4px;
+    margin-top: 2px;
   }
-  .env-back-qr {
+  .env2-back-qr {
     display: flex;
     justify-content: center;
     margin: 4px 0;
   }
-  .env-back-url {
-    font-size: 10pt;
-    font-weight: bold;
-    color: #111;
-    margin-top: -4px;
-  }
 
   @media print {
-    .barcode-zone { display: none; }
-    .env-page {
+    .env2-barcode-zone { display: none; }
+    .env2-page {
       box-shadow: none;
       margin: 0;
     }
@@ -681,7 +702,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
   if (!win) return;
   win.document.write(html);
   win.document.close();
-  // Wait for QR images to load before printing
+  // Wait for screenshot + QR images to load before printing
   const images = win.document.querySelectorAll("img");
   if (images.length === 0) {
     setTimeout(() => win.print(), 300);
@@ -699,7 +720,8 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
         img.addEventListener("error", onReady);
       }
     });
-    setTimeout(() => win.print(), 5000);
+    // Screenshots take longer to load — give extra time
+    setTimeout(() => win.print(), 15000);
   }
 }
 
