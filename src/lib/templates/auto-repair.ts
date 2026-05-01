@@ -90,7 +90,7 @@ export const autoRepairTemplate: VerticalTemplate = {
       },
       hoursSchedule: defaultHoursSchedule(),
       hero: {
-        eyebrowPrefix: `Family-owned since ${founded}`,
+        eyebrowPrefix: "Honest Repairs, Fair Prices",
         headline: "Expert Auto Repair You Can Trust.",
         lead: "ASE-certified technicians. Same-day service on most repairs. Clear pricing before we start.",
         primaryCta: "See Our Services",
@@ -307,7 +307,7 @@ export const autoRepairTemplate: VerticalTemplate = {
       },
       hoursSchedule: defaultHoursScheduleWeekdayOnly(),
       hero: {
-        eyebrowPrefix: "Family-owned since",
+        eyebrowPrefix: "Honest Repairs, Fair Prices",
         headline: "Expert care for your vehicle.",
         lead: "Same-day service, clear communication, and repairs performed by ASE-certified technicians.",
         primaryCta: "Explore Services",
