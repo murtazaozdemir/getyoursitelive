@@ -461,6 +461,248 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   }
 }
 
+export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderInfo) {
+  if (prospects.length === 0) return;
+
+  const esc = escapeHtml;
+  const siteUrl = "https://getyoursitelive.com";
+
+  const pagesHtml = prospects
+    .map(
+      (p) => {
+        const previewUrl = `${siteUrl}/${p.slug}`;
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=96x96&data=${encodeURIComponent(previewUrl)}`;
+        return `
+      <!-- FRONT -->
+      <div class="env-page">
+        <div class="env-return">
+          <div class="env-return-company">${esc(sender.company)}</div>
+          <div>${esc(sender.address).replace(/,\s*/, "<br>")}</div>
+        </div>
+
+        <div class="env-postage">PLACE<br>STAMP<br>HERE</div>
+
+        <div class="env-notice">
+          <div class="env-notice-title">LOCAL BUSINESS REVIEW</div>
+          <div>Prepared for current owner</div>
+          <div>Response requested</div>
+        </div>
+
+        <div class="env-recipient">
+          <div class="env-recipient-name">${esc(p.name)}</div>
+          <div>Owner</div>
+          <div>${esc(p.address).replace(/,\s*/, "<br>")}</div>
+        </div>
+
+        <div class="barcode-zone"></div>
+      </div>
+
+      <!-- BACK -->
+      <div class="env-page">
+        <div class="env-back-note">For delivery address see other side</div>
+
+        <div class="env-back-content">
+          <div class="env-back-headline">We built a website for <strong>${esc(p.name)}.</strong></div>
+          <div class="env-back-subheadline">See your business online. Take a look.</div>
+          <div class="env-back-cta">Scan the QR code below to see it instantly:</div>
+          <div class="env-back-qr"><img src="${qrUrl}" width="96" height="96" alt="QR code" /></div>
+          <div class="env-back-cta">&mdash; or type this address: <strong>www.getyoursitelive.com/${esc(p.slug)}</strong></div>
+        </div>
+      </div>`;
+      },
+    )
+    .join("");
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<title>Print Envelopes</title>
+<style>
+  @page {
+    size: 9in 6in;
+    margin: 0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #222; }
+
+  .env-page {
+    width: 9in;
+    height: 6in;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+  }
+
+  /* ── FRONT: Return address ── */
+  .env-return {
+    position: absolute;
+    top: 0.3in;
+    left: 0.35in;
+    font-size: 9pt;
+    line-height: 1.55;
+    color: #111;
+  }
+  .env-return-company {
+    font-weight: bold;
+    font-size: 10pt;
+  }
+
+  /* ── FRONT: Postage (upper-right) ── */
+  .env-postage {
+    position: absolute;
+    top: 0.25in;
+    right: 0.35in;
+    width: 1.2in;
+    height: 0.85in;
+    border: 1px solid #bbb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7pt;
+    color: #bbb;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* ── FRONT: Notice box (upper-center) ── */
+  .env-notice {
+    position: absolute;
+    top: 0.28in;
+    left: 3.0in;
+    width: 2.8in;
+    border: 1.5px solid #111;
+    padding: 0.07in 0.14in;
+    text-align: center;
+    font-size: 8pt;
+    line-height: 1.55;
+    color: #111;
+  }
+  .env-notice-title {
+    font-weight: bold;
+    font-size: 8.5pt;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── FRONT: Recipient — INSIDE USPS OCR READ ZONE ── */
+  .env-recipient {
+    position: absolute;
+    top: 3.35in;
+    left: 2.6in;
+    font-size: 11pt;
+    line-height: 1.7;
+    color: #111;
+  }
+  .env-recipient-name {
+    font-weight: bold;
+    font-size: 12pt;
+  }
+
+  /* ── FRONT: Barcode clear zone ── */
+  .barcode-zone {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 4.75in;
+    height: 0.625in;
+  }
+
+  /* ── BACK: Compliance note (right-side up) ── */
+  .env-back-note {
+    position: absolute;
+    top: 0.3in;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 7pt;
+    color: #aaa;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ── BACK: Marketing content ──
+     rotate(180deg) on content ONLY, NOT on the page.
+     bottom: 0.75in anchors it to the bottom.
+     After rotation, it appears at the visual top when printed. */
+  .env-back-content {
+    position: absolute;
+    bottom: 0.75in;
+    left: 0.6in;
+    right: 0.6in;
+    text-align: center;
+    transform: rotate(180deg);
+    transform-origin: center center;
+    font-size: 10pt;
+    line-height: 1.8;
+    color: #222;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .env-back-headline {
+    font-size: 13pt;
+    font-weight: bold;
+  }
+  .env-back-subheadline {
+    font-size: 11pt;
+    color: #333;
+  }
+  .env-back-cta {
+    font-size: 9.5pt;
+    color: #555;
+    margin-top: 4px;
+  }
+  .env-back-qr {
+    display: flex;
+    justify-content: center;
+    margin: 4px 0;
+  }
+  .env-back-url {
+    font-size: 10pt;
+    font-weight: bold;
+    color: #111;
+    margin-top: -4px;
+  }
+
+  @media print {
+    .barcode-zone { display: none; }
+    .env-page {
+      box-shadow: none;
+      margin: 0;
+    }
+  }
+</style>
+</head>
+<body>${pagesHtml}</body>
+</html>`;
+
+  const win = window.open("", "_blank");
+  if (!win) return;
+  win.document.write(html);
+  win.document.close();
+  // Wait for QR images to load before printing
+  const images = win.document.querySelectorAll("img");
+  if (images.length === 0) {
+    setTimeout(() => win.print(), 300);
+  } else {
+    let loaded = 0;
+    const onReady = () => {
+      loaded++;
+      if (loaded >= images.length) win.print();
+    };
+    images.forEach((img) => {
+      if (img.complete) {
+        onReady();
+      } else {
+        img.addEventListener("load", onReady);
+        img.addEventListener("error", onReady);
+      }
+    });
+    setTimeout(() => win.print(), 5000);
+  }
+}
+
 export function printTaskList(prospects: PrintableProspect[]) {
   if (prospects.length === 0) return;
 
