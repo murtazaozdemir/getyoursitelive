@@ -466,7 +466,7 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
 
   const esc = escapeHtml;
   const siteUrl = "https://getyoursitelive.com";
-  const screenshotBase = "/api/admin/screenshot";
+  const screenshotBase = "https://gysl-screenshots.fly.dev/screenshot";
 
   // Open window immediately (must be in click handler context to avoid popup block)
   const win = window.open("", "_blank");
