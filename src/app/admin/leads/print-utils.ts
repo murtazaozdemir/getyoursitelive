@@ -512,7 +512,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
             <div class="env2-back-subheadline">See your business online.</div>
             <div class="env2-back-cta">Scan to see it instantly:</div>
             <div class="env2-back-qr"><img src="${qrUrl}" width="80" height="80" alt="QR code" /></div>
-            <div class="env2-back-cta"><strong>getyoursitelive.com/${esc(p.slug)}</strong></div>
+            <div class="env2-back-url"><strong>getyoursitelive.com/${esc(p.slug)}</strong></div>
           </div>
         </div>
       </div>`;
@@ -684,6 +684,12 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
     display: flex;
     justify-content: center;
     margin: 4px 0;
+  }
+  .env2-back-url {
+    font-size: 6pt;
+    color: #333;
+    white-space: nowrap;
+    margin-top: 2px;
   }
 
   @media print {
