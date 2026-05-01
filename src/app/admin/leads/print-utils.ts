@@ -653,7 +653,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
     width: 100%;
     height: 100%;
     object-fit: contain;
-    object-position: top center;
+    object-position: bottom center;
   }
 
   .env2-back-right {
