@@ -19,33 +19,39 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  const { slug } = (await req.json()) as { slug: string };
-  if (!slug) {
-    return NextResponse.json({ ok: false, error: "slug is required" });
+  try {
+    const { slug } = (await req.json()) as { slug: string };
+    if (!slug) {
+      return NextResponse.json({ ok: false, error: "slug is required" });
+    }
+
+    const prospect = await getProspect(slug);
+    if (!prospect) {
+      return NextResponse.json({ ok: false, error: "Prospect not found" });
+    }
+
+    // Skip if domains already exist
+    if (prospect.domain1 && prospect.domain2 && prospect.domain3) {
+      return NextResponse.json({ ok: true, skipped: true });
+    }
+
+    const state = prospect.address?.match(/\b([A-Z]{2})\s+\d{5}/)?.[1] || "NJ";
+    const domains = await generateVerifiedDomains(prospect.name, state);
+
+    if (domains.length === 0) {
+      return NextResponse.json({ ok: true, domains: [] });
+    }
+
+    await updateProspect(slug, {
+      domain1: prospect.domain1 || domains[0] || undefined,
+      domain2: prospect.domain2 || domains[1] || undefined,
+      domain3: prospect.domain3 || domains[2] || undefined,
+    });
+
+    return NextResponse.json({ ok: true, domains });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[generate-domains] error:", message);
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
-
-  const prospect = await getProspect(slug);
-  if (!prospect) {
-    return NextResponse.json({ ok: false, error: "Prospect not found" });
-  }
-
-  // Skip if domains already exist
-  if (prospect.domain1 && prospect.domain2 && prospect.domain3) {
-    return NextResponse.json({ ok: true, skipped: true });
-  }
-
-  const state = prospect.address?.match(/\b([A-Z]{2})\s+\d{5}/)?.[1] || "NJ";
-  const domains = await generateVerifiedDomains(prospect.name, state);
-
-  if (domains.length === 0) {
-    return NextResponse.json({ ok: true, domains: [] });
-  }
-
-  await updateProspect(slug, {
-    domain1: prospect.domain1 || domains[0] || undefined,
-    domain2: prospect.domain2 || domains[1] || undefined,
-    domain3: prospect.domain3 || domains[2] || undefined,
-  });
-
-  return NextResponse.json({ ok: true, domains });
 }
