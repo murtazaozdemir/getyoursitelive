@@ -8,11 +8,20 @@ export interface StateVisibility {
 
 /** Get all states with their visibility status */
 export async function listStateVisibility(): Promise<StateVisibility[]> {
-  const db = await getD1();
-  const { results } = await db
-    .prepare("SELECT state, name, visible FROM state_visibility ORDER BY name")
-    .all<{ state: string; name: string; visible: number }>();
-  return results.map((r) => ({ state: r.state, name: r.name, visible: r.visible === 1 }));
+  try {
+    const db = await getD1();
+    const { results } = await db
+      .prepare("SELECT state, name, visible FROM state_visibility ORDER BY name")
+      .all<{ state: string; name: string; visible: number }>();
+    if (results.length > 0) {
+      return results.map((r) => ({ state: r.state, name: r.name, visible: r.visible === 1 }));
+    }
+  } catch {
+    // Table doesn't exist yet
+  }
+  // Fallback: return all US states from the static list, all hidden
+  const { US_STATES } = await import("./us-states");
+  return US_STATES.map((s) => ({ state: s.abbr, name: s.name, visible: false }));
 }
 
 /** Get only the visible state abbreviations. Returns empty set if table doesn't exist yet. */
