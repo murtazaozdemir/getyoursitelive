@@ -640,7 +640,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
   }
 
   .env2-back-left {
-    flex: 3;
+    flex: 2;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -652,7 +652,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
   .env2-back-screenshot {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     object-position: top center;
   }
 
