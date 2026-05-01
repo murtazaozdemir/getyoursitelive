@@ -679,17 +679,16 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
   .env2-back-left {
     flex: 2;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     overflow: hidden;
     border: 1px solid #ddd;
     border-radius: 4px;
-    background: #f9f9f9;
+    background: #fff;
   }
   .env2-back-screenshot {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     object-position: bottom center;
   }
 
