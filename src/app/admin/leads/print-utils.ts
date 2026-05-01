@@ -471,13 +471,14 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
   // Open window immediately (must be in click handler context to avoid popup block)
   const win = window.open("", "_blank");
   if (!win) return;
-  win.document.write(`<!DOCTYPE html><html><head><title>Preparing Envelopes...</title></head><body style="font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;flex-direction:column;gap:12px"><div id="msg" style="font-size:20px;color:#333">Capturing screenshots... 0 of ${prospects.length}</div><div style="font-size:13px;color:#999">Please wait</div></body></html>`);
+  win.document.write(`<!DOCTYPE html><html><head><title>Preparing Envelopes...</title></head><body style="font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;flex-direction:column;gap:12px"><div id="msg" style="font-size:20px;color:#333">Capturing screenshots... 0 of ${prospects.length}</div><div style="font-size:13px;color:#999">Each takes ~10 seconds — please wait</div></body></html>`);
   win.document.close();
 
-  // Pre-fetch all screenshots as base64 data URLs
+  // Pre-fetch all screenshots as base64 data URLs (3 at a time)
   const screenshotDataUrls: Map<string, string> = new Map();
   let done = 0;
-  for (const p of prospects) {
+
+  async function fetchOne(p: PrintableProspect) {
     const previewUrl = `${siteUrl}/${p.slug}`;
     const screenshotUrl = `${screenshotBase}?url=${encodeURIComponent(previewUrl)}&width=1400&height=700`;
     try {
@@ -493,8 +494,14 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
       }
     } catch { /* skip failed screenshots */ }
     done++;
-    const msgEl = win.document.getElementById("msg");
+    const msgEl = win?.document.getElementById("msg");
     if (msgEl) msgEl.textContent = `Capturing screenshots... ${done} of ${prospects.length}`;
+  }
+
+  // Process in batches of 3
+  for (let i = 0; i < prospects.length; i += 3) {
+    const batch = prospects.slice(i, i + 3);
+    await Promise.all(batch.map(fetchOne));
   }
 
   const pagesHtml = prospects
