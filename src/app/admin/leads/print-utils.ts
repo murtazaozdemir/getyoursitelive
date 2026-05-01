@@ -461,19 +461,51 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   }
 }
 
-export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderInfo) {
+export async function printEnvelopes2(prospects: PrintableProspect[], sender: SenderInfo) {
   if (prospects.length === 0) return;
 
   const esc = escapeHtml;
   const siteUrl = "https://getyoursitelive.com";
   const screenshotBase = "https://gysl-screenshots.fly.dev/screenshot";
 
+  // Show loading overlay while screenshots are being captured
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:99999;flex-direction:column;gap:12px";
+  const msg = document.createElement("div");
+  msg.style.cssText = "color:#fff;font-size:18px;font-family:Arial,sans-serif";
+  msg.textContent = `Capturing screenshots... 0 of ${prospects.length}`;
+  overlay.appendChild(msg);
+  document.body.appendChild(overlay);
+
+  // Pre-fetch all screenshots as base64 data URLs
+  const screenshotDataUrls: Map<string, string> = new Map();
+  let done = 0;
+  for (const p of prospects) {
+    const previewUrl = `${siteUrl}/${p.slug}`;
+    const screenshotUrl = `${screenshotBase}?url=${encodeURIComponent(previewUrl)}&width=1400&height=700`;
+    try {
+      const res = await fetch(screenshotUrl);
+      if (res.ok) {
+        const blob = await res.blob();
+        const dataUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(blob);
+        });
+        screenshotDataUrls.set(p.slug, dataUrl);
+      }
+    } catch { /* skip failed screenshots */ }
+    done++;
+    msg.textContent = `Capturing screenshots... ${done} of ${prospects.length}`;
+  }
+  overlay.remove();
+
   const pagesHtml = prospects
     .map(
       (p) => {
         const previewUrl = `${siteUrl}/${p.slug}`;
         const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(previewUrl)}`;
-        const screenshotUrl = `${screenshotBase}?url=${encodeURIComponent(previewUrl)}&width=1400&height=700`;
+        const imgSrc = screenshotDataUrls.get(p.slug) || "";
         return `
       <!-- FRONT -->
       <div class="env2-page">
@@ -505,7 +537,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
 
         <div class="env2-back-split">
           <div class="env2-back-left">
-            <img class="env2-back-screenshot" src="${screenshotUrl}" alt="Website preview for ${esc(p.name)}" />
+            ${imgSrc ? `<img class="env2-back-screenshot" src="${imgSrc}" alt="Website preview for ${esc(p.name)}" />` : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:10pt">Screenshot unavailable</div>`}
           </div>
           <div class="env2-back-right">
             <div class="env2-back-headline">We built a website for</div>
@@ -733,8 +765,8 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
         img.addEventListener("error", onReady);
       }
     });
-    // Screenshots take longer to load — give extra time
-    setTimeout(() => win.print(), 15000);
+    // Screenshots are pre-fetched as data URLs, QR codes are small
+    setTimeout(() => win.print(), 5000);
   }
 }
 
