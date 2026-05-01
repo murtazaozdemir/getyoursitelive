@@ -654,15 +654,15 @@ export function showLeadsMap(prospects: PrintableProspect[], userHome: UserHome)
 <body>
 <div id="map"></div>
 <div id="toolbar">
-  <div style="display:flex;align-items:center;gap:6px">
-    <input id="reroute-zip" type="text" placeholder="Zip code" maxlength="5" style="width:70px;padding:6px 8px;border:1px solid #ccc;border-radius:4px;font-size:13px;font-family:monospace" />
-    <button class="toolbar-btn" onclick="rerouteFromZip()" style="white-space:nowrap">Re-route</button>
-  </div>
   <button class="toolbar-btn toolbar-btn--csv" onclick="exportCsv()">Export CSV</button>
   <button class="toolbar-btn toolbar-btn--pdf" onclick="window.print()">Export PDF</button>
 </div>
 <div id="route-panel">
   <h3>Optimal Route</h3>
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+    <input id="reroute-zip" type="text" placeholder="Zip code" maxlength="5" style="width:70px;padding:6px 8px;border:1px solid #ccc;border-radius:4px;font-size:13px;font-family:monospace" />
+    <button class="toolbar-btn" onclick="rerouteFromZip()" style="white-space:nowrap">Re-route</button>
+  </div>
   <div id="route-list" class="route-loading"><span class="route-loading-spinner"></span> Please wait\u2026 Preparing map</div>
 </div>
 <script>
