@@ -473,7 +473,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
       (p) => {
         const previewUrl = `${siteUrl}/${p.slug}`;
         const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(previewUrl)}`;
-        const screenshotUrl = `${screenshotBase}?url=${encodeURIComponent(previewUrl)}&width=1280&height=900`;
+        const screenshotUrl = `${screenshotBase}?url=${encodeURIComponent(previewUrl)}&width=800&height=800`;
         return `
       <!-- FRONT -->
       <div class="env2-page">
@@ -652,7 +652,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
   .env2-back-screenshot {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     object-position: top center;
   }
 
