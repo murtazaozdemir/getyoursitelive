@@ -657,7 +657,7 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
   }
 
   .env2-back-right {
-    flex: 2;
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -667,16 +667,16 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
   }
 
   .env2-back-headline {
-    font-size: 12pt;
+    font-size: 10pt;
     font-weight: bold;
-    line-height: 1.4;
+    line-height: 1.3;
   }
   .env2-back-subheadline {
-    font-size: 10pt;
+    font-size: 8.5pt;
     color: #333;
   }
   .env2-back-cta {
-    font-size: 8.5pt;
+    font-size: 7.5pt;
     color: #555;
     margin-top: 2px;
   }
