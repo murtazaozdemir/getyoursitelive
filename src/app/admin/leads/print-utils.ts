@@ -689,7 +689,7 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
   .env2-back-screenshot {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     object-position: bottom center;
   }
 
