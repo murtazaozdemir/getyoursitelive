@@ -468,14 +468,11 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
   const siteUrl = "https://getyoursitelive.com";
   const screenshotBase = "https://gysl-screenshots.fly.dev/screenshot";
 
-  // Show loading overlay while screenshots are being captured
-  const overlay = document.createElement("div");
-  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:99999;flex-direction:column;gap:12px";
-  const msg = document.createElement("div");
-  msg.style.cssText = "color:#fff;font-size:18px;font-family:Arial,sans-serif";
-  msg.textContent = `Capturing screenshots... 0 of ${prospects.length}`;
-  overlay.appendChild(msg);
-  document.body.appendChild(overlay);
+  // Open window immediately (must be in click handler context to avoid popup block)
+  const win = window.open("", "_blank");
+  if (!win) return;
+  win.document.write(`<!DOCTYPE html><html><head><title>Preparing Envelopes...</title></head><body style="font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;flex-direction:column;gap:12px"><div id="msg" style="font-size:20px;color:#333">Capturing screenshots... 0 of ${prospects.length}</div><div style="font-size:13px;color:#999">Please wait</div></body></html>`);
+  win.document.close();
 
   // Pre-fetch all screenshots as base64 data URLs
   const screenshotDataUrls: Map<string, string> = new Map();
@@ -496,9 +493,9 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
       }
     } catch { /* skip failed screenshots */ }
     done++;
-    msg.textContent = `Capturing screenshots... ${done} of ${prospects.length}`;
+    const msgEl = win.document.getElementById("msg");
+    if (msgEl) msgEl.textContent = `Capturing screenshots... ${done} of ${prospects.length}`;
   }
-  overlay.remove();
 
   const pagesHtml = prospects
     .map(
@@ -743,11 +740,11 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
 <body>${pagesHtml}</body>
 </html>`;
 
-  const win = window.open("", "_blank");
-  if (!win) return;
+  // Write final envelope HTML into the already-open window
+  win.document.open();
   win.document.write(html);
   win.document.close();
-  // Wait for screenshot + QR images to load before printing
+  // Wait for QR images to load before printing
   const images = win.document.querySelectorAll("img");
   if (images.length === 0) {
     setTimeout(() => win.print(), 300);
