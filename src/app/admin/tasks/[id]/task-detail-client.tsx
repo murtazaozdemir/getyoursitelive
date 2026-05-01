@@ -9,6 +9,7 @@ import {
   type SenderInfo,
   printLabels,
   printEnvelopes,
+  printEnvelopes2,
   printTaskList,
   showLeadsMap,
 } from "../../leads/print-utils";
@@ -202,6 +203,21 @@ export function TaskDetailClient({
     );
   }
 
+  function handlePrintEnvelopes2() {
+    if (!senderInfo) {
+      alert("Please set your company and address in Account Settings first.");
+      return;
+    }
+    printEnvelopes2(
+      pendingItems.map((i) => ({
+        slug: i.prospectSlug,
+        name: i.prospectName,
+        address: i.prospectAddress,
+      })),
+      senderInfo,
+    );
+  }
+
   function handlePrintLabels() {
     printLabels(
       pendingItems.map((i) => ({
@@ -319,6 +335,9 @@ export function TaskDetailClient({
               </button>
               <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintEnvelopes} disabled={isPending}>
                 Print envelopes ({pendingItems.length})
+              </button>
+              <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintEnvelopes2} disabled={isPending}>
+                Envelope 2 ({pendingItems.length})
               </button>
               <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintTaskList} disabled={isPending}>
                 Print task list
