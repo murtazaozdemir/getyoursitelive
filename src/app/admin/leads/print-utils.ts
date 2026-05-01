@@ -508,7 +508,8 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
             <img class="env2-back-screenshot" src="${screenshotUrl}" alt="Website preview for ${esc(p.name)}" />
           </div>
           <div class="env2-back-right">
-            <div class="env2-back-headline">We built a website for <strong>${esc(p.name)}.</strong></div>
+            <div class="env2-back-headline">We built a website for</div>
+            <div class="env2-back-shopname">${esc(p.name)}</div>
             <div class="env2-back-subheadline">See your business online.</div>
             <div class="env2-back-cta">Scan to see it instantly:</div>
             <div class="env2-back-qr"><img src="${qrUrl}" width="80" height="80" alt="QR code" /></div>
@@ -667,9 +668,15 @@ export function printEnvelopes2(prospects: PrintableProspect[], sender: SenderIn
   }
 
   .env2-back-headline {
-    font-size: 10pt;
+    font-size: 8pt;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+  .env2-back-shopname {
+    font-size: 9pt;
     font-weight: bold;
     line-height: 1.3;
+    white-space: nowrap;
   }
   .env2-back-subheadline {
     font-size: 8.5pt;
