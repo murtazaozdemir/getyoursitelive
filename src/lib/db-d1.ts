@@ -10,6 +10,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
  * load time.
  */
 export async function getD1(): Promise<D1Database> {
+  console.log("[db-d1] getD1: retrieving D1 binding");
   const { env } = await getCloudflareContext({ async: true });
   return env.DB as D1Database;
 }

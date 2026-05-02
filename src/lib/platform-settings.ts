@@ -12,14 +12,16 @@ export async function getSetting(key: string): Promise<string | null> {
       .prepare("SELECT value FROM platform_settings WHERE key = ?")
       .bind(key)
       .first<{ value: string }>();
+    console.log(`[platform-settings] getSetting: key=${key}, found=${!!row}`);
     return row?.value ?? null;
-  } catch {
-    // Table may not exist yet — return null, caller uses defaults
+  } catch (e) {
+    console.error(`[platform-settings] getSetting: key=${key}, error=${e instanceof Error ? e.message : String(e)}`);
     return null;
   }
 }
 
 export async function setSetting(key: string, value: string): Promise<void> {
+  console.log(`[platform-settings] setSetting: key=${key}`);
   const db = await getD1();
   // Create table if first write
   try {
@@ -30,8 +32,8 @@ export async function setSetting(key: string, value: string): Promise<void> {
          updated_at TEXT NOT NULL DEFAULT ''
        )`
     ).run();
-  } catch {
-    // Already exists
+  } catch (e) {
+    console.error(`[platform-settings] setSetting: table creation error=${e instanceof Error ? e.message : String(e)}`);
   }
   await db
     .prepare(

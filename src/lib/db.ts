@@ -132,6 +132,7 @@ export async function getBusinessBySlug(slug: string): Promise<Business | null> 
     .prepare("SELECT * FROM businesses WHERE slug = ?")
     .bind(slug)
     .first<BusinessRow>();
+  console.log(`[db] getBusinessBySlug: slug=${slug}, found=${!!row}`);
   return row ? rowToBusiness(row) : null;
 }
 
@@ -147,6 +148,7 @@ export async function listBusinesses(): Promise<
     .prepare("SELECT slug, name, category, content FROM businesses ORDER BY name")
     .all<{ slug: string; name: string; category: string; content: string }>();
 
+  console.log(`[db] listBusinesses: count=${results.length}`);
   return results.map((row) => {
     const biz = JSON.parse(row.content) as Business;
     return {
@@ -174,6 +176,7 @@ export async function getAllSlugs(): Promise<string[]> {
 // ---------------------------------------------------------------
 
 export async function saveBusiness(business: Business): Promise<void> {
+  console.log(`[db] saveBusiness: slug=${business.slug}`);
   const db = await getD1();
   const now = new Date().toISOString();
   await db
@@ -200,6 +203,7 @@ export async function saveBusiness(business: Business): Promise<void> {
 }
 
 export async function deleteBusiness(slug: string): Promise<void> {
+  console.log(`[db] deleteBusiness: slug=${slug}`);
   const db = await getD1();
   await db.prepare("DELETE FROM businesses WHERE slug = ?").bind(slug).run();
 }

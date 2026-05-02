@@ -112,6 +112,7 @@ export async function findUserByEmail(email: string): Promise<User | null> {
     .prepare("SELECT * FROM users WHERE LOWER(email) = ? LIMIT 1")
     .bind(normalized)
     .first<UserRow>();
+  console.log(`[users] findUserByEmail: email=${normalized}, found=${!!row}`);
   return row ? rowToUser(row) : null;
 }
 
@@ -163,8 +164,12 @@ export async function verifyCredentials(
   }
 
   const ok = await bcrypt.compare(password, user.passwordHash);
-  if (!ok) return null;
+  if (!ok) {
+    console.log(`[users] verifyCredentials: failed for email=${email}`);
+    return null;
+  }
 
+  console.log(`[users] verifyCredentials: success for email=${email}`);
   return toSessionUser(user);
 }
 
@@ -187,6 +192,7 @@ export async function createUser(input: {
   const db = await getD1();
   const normalized = input.email.trim().toLowerCase();
 
+  console.log(`[users] createUser: email=${normalized}, role=${input.role}`);
   const existing = await db
     .prepare("SELECT id FROM users WHERE LOWER(email) = ? LIMIT 1")
     .bind(normalized)
@@ -248,6 +254,7 @@ export async function createUser(input: {
 }
 
 export async function updateUserPassword(id: string, newPassword: string): Promise<void> {
+  console.log(`[users] updateUserPassword: id=${id}`);
   const db = await getD1();
   const passwordHash = await bcrypt.hash(newPassword, 10);
   const { meta } = await db
@@ -258,6 +265,7 @@ export async function updateUserPassword(id: string, newPassword: string): Promi
 }
 
 export async function updateUserEmail(id: string, newEmail: string): Promise<void> {
+  console.log(`[users] updateUserEmail: id=${id}`);
   const db = await getD1();
   const normalized = newEmail.trim().toLowerCase();
 
@@ -289,6 +297,7 @@ export async function updateUserProfile(
     company?: string;
   },
 ): Promise<void> {
+  console.log(`[users] updateUserProfile: id=${id}`);
   const db = await getD1();
   const firstName = fields.firstName.trim();
   const lastName = fields.lastName.trim();
@@ -321,6 +330,7 @@ export async function updateUserProfile(
 }
 
 export async function deleteUser(id: string): Promise<void> {
+  console.log(`[users] deleteUser: id=${id}`);
   const db = await getD1();
   const { meta } = await db
     .prepare("DELETE FROM users WHERE id = ?")

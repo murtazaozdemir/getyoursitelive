@@ -83,6 +83,7 @@ export async function verifySessionToken(token: string): Promise<SessionUser | n
 // ---------------------------------------------------------------
 
 export async function setSessionCookie(token: string, ttlSeconds?: number): Promise<void> {
+  console.log("[session] setSessionCookie: setting session cookie, token=set");
   const store = await cookies();
   store.set(COOKIE_NAME, token, {
     httpOnly: true,
@@ -95,6 +96,7 @@ export async function setSessionCookie(token: string, ttlSeconds?: number): Prom
 }
 
 export async function clearSessionCookie(): Promise<void> {
+  console.log("[session] clearSessionCookie: clearing session");
   const store = await cookies();
   store.delete(COOKIE_NAME);
 }
@@ -106,8 +108,17 @@ export async function clearSessionCookie(): Promise<void> {
 export async function getCurrentUser(): Promise<SessionUser | null> {
   const store = await cookies();
   const token = store.get(COOKIE_NAME)?.value;
-  if (!token) return null;
-  return verifySessionToken(token);
+  if (!token) {
+    console.log("[session] getCurrentUser: no session cookie found");
+    return null;
+  }
+  const user = await verifySessionToken(token);
+  if (user) {
+    console.log(`[session] getCurrentUser: verified, email=${user.email}, role=${user.role}`);
+  } else {
+    console.log("[session] getCurrentUser: JWT verify failed");
+  }
+  return user;
 }
 
 /**
@@ -140,6 +151,7 @@ export async function refreshSessionIfNeeded(): Promise<void> {
     const ageSeconds = Math.floor(Date.now() / 1000) - iat;
     if (ageSeconds < SESSION_TTL_SECONDS / 2) return;
 
+    console.log(`[session] refreshSessionIfNeeded: refreshing token, age=${ageSeconds}s`);
     // Token is past halfway — reissue
     const user: SessionUser = {
       id: payload.sub as string,

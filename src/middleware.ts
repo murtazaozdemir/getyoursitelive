@@ -59,9 +59,13 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get(COOKIE_NAME)?.value;
   const authed = await isValidToken(token);
 
+  console.log(`[middleware] path=${pathname}, cookie=${token ? "set" : "none"}, authed=${authed}`);
+
   if (isLoginPath(pathname)) {
     if (authed) {
-      return NextResponse.redirect(new URL(defaultDestinationForAuthedUser(pathname), req.url));
+      const dest = defaultDestinationForAuthedUser(pathname);
+      console.log(`[middleware] login page, already authed, redirecting to ${dest}`);
+      return NextResponse.redirect(new URL(dest, req.url));
     }
     return NextResponse.next();
   }
@@ -69,6 +73,7 @@ export async function middleware(req: NextRequest) {
   if (!authed) {
     const loginUrl = new URL(loginPathFor(pathname), req.url);
     loginUrl.searchParams.set("next", pathname);
+    console.log(`[middleware] not authed, redirecting to ${loginUrl.pathname}`);
     return NextResponse.redirect(loginUrl);
   }
 
