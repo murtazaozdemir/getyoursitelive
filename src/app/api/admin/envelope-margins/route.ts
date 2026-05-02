@@ -8,7 +8,7 @@ const ENVELOPE1_DEFAULTS = {
   postageTop: "0.25", postageRight: "0.35",
   noticeTop: "0.28", noticeLeft: "3.0",
   recipientTop: "3.35", recipientLeft: "2.6",
-  backContentTop: "0.75", backContentBottom: "0.75",
+  backContentTop: "1.6", backContentBottom: "0.75",
   backContentLeft: "0.6", backContentRight: "0.6",
 };
 
@@ -17,7 +17,7 @@ const ENVELOPE2_DEFAULTS = {
   postageTop: "0.25", postageRight: "0.35",
   noticeTop: "0.28", noticeLeft: "3.0",
   recipientTop: "3.35", recipientLeft: "2.6",
-  backContentTop: "0.15", backContentBottom: "0.15",
+  backContentTop: "1.6", backContentBottom: "0.15",
   backContentLeft: "0.15", backContentRight: "0.15",
 };
 
