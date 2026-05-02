@@ -166,7 +166,7 @@ export function LandingPageClient({
 
       {/* ── HERO ── */}
       <section className="lp-surface px-6 pb-16 pt-20 md:pb-20 md:pt-28">
-        <div className="mx-auto max-w-4xl text-center">
+        <div className="mx-auto max-w-4xl">
 
           {/* Mock browser bar */}
           <div className="lp-surface-bar mx-auto mb-10 flex max-w-xs items-center gap-3 rounded-full border px-4 py-2.5">
@@ -183,17 +183,26 @@ export function LandingPageClient({
             </div>
           </div>
 
-          <h1 className="lp-display-heading text-[clamp(2.75rem,7.5vw,6.5rem)] leading-[0.88] tracking-[-0.025em]">
-            Your own .com.<br />
-            <span className="lp-surface-muted">Not a Facebook page.</span>
+          <h1 className="lp-display-heading text-center text-[clamp(2.75rem,7.5vw,6.5rem)] leading-[0.88] tracking-[-0.025em]">
+            Website Design Services
           </h1>
 
-          <p className="lp-surface-muted mx-auto mt-7 max-w-lg text-base leading-relaxed md:text-lg">
-            A professional website on a domain you own —
-            fully customizable, no monthly fees. Ever.
-          </p>
+          <div className="mx-auto mt-10 max-w-2xl space-y-5">
+            <p className="text-base leading-relaxed md:text-lg" style={{ color: "var(--lp-hero-fg)" }}>
+              Welcome to Get Your Site Live — we build professional websites for local businesses
+              that bring in real customers. Whether you run an auto shop, barbershop, restaurant,
+              or any service-based business, we create a site that makes you look as good online
+              as you are in person.
+            </p>
+            <p className="lp-surface-muted text-base leading-relaxed md:text-lg">
+              Our team handles everything: your own .com domain, mobile-ready design,
+              contact forms, service listings, customer testimonials, and a built-in editor
+              so you can update anything yourself — from your phone, whenever you want.
+              No subscriptions, no hidden fees. Pay once and the site is yours forever.
+            </p>
+          </div>
 
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <ContactModal
               label="Get your site live →"
               className="rounded-full bg-[#E85D29] px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#cf4e20]"
