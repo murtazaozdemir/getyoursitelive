@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses } from "@/lib/users";
-import { getEnvelopeMargins } from "@/lib/platform-settings";
+import {
+  getEnvelopeMargins,
+  ENVELOPE1_DEFAULTS,
+  ENVELOPE2_DEFAULTS,
+} from "@/lib/platform-settings";
 
 export const runtime = "edge";
 
@@ -16,6 +20,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "type must be envelope1 or envelope2" }, { status: 400 });
   }
 
-  const margins = await getEnvelopeMargins(envelope);
-  return NextResponse.json(margins);
+  try {
+    const margins = await getEnvelopeMargins(envelope);
+    return NextResponse.json(margins);
+  } catch {
+    // Fallback to defaults if DB access fails
+    const defaults = envelope === "envelope1" ? ENVELOPE1_DEFAULTS : ENVELOPE2_DEFAULTS;
+    return NextResponse.json(defaults);
+  }
 }

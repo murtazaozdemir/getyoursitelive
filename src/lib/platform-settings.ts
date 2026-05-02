@@ -5,32 +5,34 @@ import { getD1 } from "@/lib/db-d1";
  * Table auto-created if missing.
  */
 
-async function ensureTable() {
-  const db = await getD1();
-  await db
-    .prepare(
-      `CREATE TABLE IF NOT EXISTS platform_settings (
-         key TEXT PRIMARY KEY,
-         value TEXT NOT NULL,
-         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-       )`
-    )
-    .run();
-}
-
 export async function getSetting(key: string): Promise<string | null> {
-  await ensureTable();
-  const db = await getD1();
-  const row = await db
-    .prepare("SELECT value FROM platform_settings WHERE key = ?")
-    .bind(key)
-    .first<{ value: string }>();
-  return row?.value ?? null;
+  try {
+    const db = await getD1();
+    const row = await db
+      .prepare("SELECT value FROM platform_settings WHERE key = ?")
+      .bind(key)
+      .first<{ value: string }>();
+    return row?.value ?? null;
+  } catch {
+    // Table may not exist yet — return null, caller uses defaults
+    return null;
+  }
 }
 
 export async function setSetting(key: string, value: string): Promise<void> {
-  await ensureTable();
   const db = await getD1();
+  // Create table if first write
+  try {
+    await db.prepare(
+      `CREATE TABLE IF NOT EXISTS platform_settings (
+         key TEXT PRIMARY KEY,
+         value TEXT NOT NULL,
+         updated_at TEXT NOT NULL DEFAULT ''
+       )`
+    ).run();
+  } catch {
+    // Already exists
+  }
   await db
     .prepare(
       `INSERT INTO platform_settings (key, value, updated_at)

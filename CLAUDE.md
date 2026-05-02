@@ -168,6 +168,9 @@ Next.js 16 renamed the middleware convention from `middleware.ts` → `proxy.ts`
 **5. Local dev uses `--experimental-edge` flag**
 Run dev with `npx wrangler pages dev` or ensure the dev server wires up miniflare. Plain `next dev` won't have D1 bindings.
 
+**6. Never use `db.exec()` for D1 queries — use `db.prepare().run()`**
+D1's `exec()` method is unreliable on the Cloudflare Pages edge runtime and causes silent 500s. Always use `db.prepare("...").run()` for DDL and write operations, and `db.prepare("...").bind(...).first()` / `.all()` for reads. This applies to `CREATE TABLE`, `INSERT`, `UPDATE`, and all other SQL statements. Wrap DDL in try-catch since `CREATE TABLE IF NOT EXISTS` can still throw on some edge deployments.
+
 ## Convention notes
 
 - **No inline `style={{...}}` props in components.** All visual decisions live
