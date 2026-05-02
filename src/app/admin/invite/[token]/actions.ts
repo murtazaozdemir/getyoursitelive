@@ -22,6 +22,7 @@ export async function acceptInviteAction(
   const password = (formData.get("password") as string) ?? "";
   const confirmPassword = (formData.get("confirmPassword") as string) ?? "";
 
+  console.log("[accept-invite] entry");
   if (!token) return { ok: false, error: "Invalid invitation." };
   if (!firstName) return { ok: false, error: "First name is required." };
   if (!lastName) return { ok: false, error: "Last name is required." };
@@ -31,12 +32,15 @@ export async function acceptInviteAction(
 
   const invite = await consumeInvitation(token);
   if (!invite) {
+    console.log("[accept-invite] invalid or expired token");
     return { ok: false, error: "This invitation has expired or already been used." };
   }
+  console.log(`[accept-invite] token consumed email=${invite.email} role=${invite.role}`);
 
   // Guard against race condition — token was valid but email already taken
   const existing = await findUserByEmail(invite.email);
   if (existing) {
+    console.log(`[accept-invite] email already exists email=${invite.email}`);
     return { ok: false, error: "An account with this email already exists." };
   }
 
@@ -55,7 +59,9 @@ export async function acceptInviteAction(
       zip,
       state,
     });
+    console.log(`[accept-invite] user created email=${invite.email} role=${invite.role}`);
   } catch (err) {
+    console.error(`[accept-invite] user creation failed email=${invite.email}`, err instanceof Error ? err.message : err);
     const msg = err instanceof Error ? err.message : "Failed to create account.";
     return { ok: false, error: msg };
   }
@@ -68,6 +74,7 @@ export async function acceptInviteAction(
     loginUrl,
     role: invite.role,
   });
+  console.log(`[accept-invite] welcome email sent email=${invite.email}`);
 
   await logAudit({
     userEmail: invite.email,
@@ -76,5 +83,6 @@ export async function acceptInviteAction(
     detail: `role=${invite.role} phone=${phone}`,
   });
 
+  console.log(`[accept-invite] success email=${invite.email}`);
   return { ok: true };
 }

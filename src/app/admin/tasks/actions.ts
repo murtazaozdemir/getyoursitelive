@@ -21,6 +21,7 @@ import {
 import { updateProspect } from "@/lib/prospects";
 
 export async function createTaskAction(allSlugs: string[]): Promise<string> {
+  console.log(`[create-task] entry slugCount=${allSlugs.length}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
@@ -48,19 +49,23 @@ export async function createTaskAction(allSlugs: string[]): Promise<string> {
   });
 
   revalidatePath("/admin/tasks");
+  console.log(`[create-task] success taskId=${id} slugCount=${slugs.length} user=${user.email}`);
   return id;
 }
 
 export async function renameTaskAction(taskId: string, name: string) {
+  console.log(`[rename-task] entry taskId=${taskId}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
   await updateTaskName(taskId, name.trim());
   revalidatePath(`/admin/tasks/${taskId}`);
   revalidatePath("/admin/tasks");
+  console.log(`[rename-task] success taskId=${taskId} user=${user.email}`);
 }
 
 export async function completeTaskAction(taskId: string) {
+  console.log(`[complete-task] entry taskId=${taskId}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
@@ -75,18 +80,22 @@ export async function completeTaskAction(taskId: string) {
 
   revalidatePath(`/admin/tasks/${taskId}`);
   revalidatePath("/admin/tasks");
+  console.log(`[complete-task] success taskId=${taskId} user=${user.email}`);
 }
 
 export async function reopenTaskAction(taskId: string) {
+  console.log(`[reopen-task] entry taskId=${taskId}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
   await updateTaskStatus(taskId, "active");
   revalidatePath(`/admin/tasks/${taskId}`);
   revalidatePath("/admin/tasks");
+  console.log(`[reopen-task] success taskId=${taskId}`);
 }
 
 export async function toggleItemDroppedOffAction(itemId: string, droppedOff: boolean, contactMethod?: string) {
+  console.log(`[toggle-item-dropped-off] entry itemId=${itemId} droppedOff=${droppedOff}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
@@ -108,23 +117,28 @@ export async function toggleItemDroppedOffAction(itemId: string, droppedOff: boo
 }
 
 export async function saveItemNotesAction(itemId: string, notes: string) {
+  console.log(`[save-item-notes] entry itemId=${itemId}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
   await updateTaskItemNotes(itemId, notes);
+  console.log(`[save-item-notes] success itemId=${itemId}`);
 }
 
 export async function updateContactMethodAction(itemId: string, contactMethod: string) {
+  console.log(`[update-contact-method] entry itemId=${itemId} method=${contactMethod}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
   const slug = await getTaskItemSlug(itemId);
   if (slug) {
     await updateProspect(slug, { contactMethod });
+    console.log(`[update-contact-method] success slug=${slug}`);
   }
 }
 
 export async function bulkUpdateContactMethodAction(itemIds: string[], contactMethod: string) {
+  console.log(`[bulk-update-contact-method] entry count=${itemIds.length} method=${contactMethod}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
@@ -134,29 +148,36 @@ export async function bulkUpdateContactMethodAction(itemIds: string[], contactMe
       await updateProspect(slug, { contactMethod });
     }
   }
+  console.log(`[bulk-update-contact-method] success count=${itemIds.length}`);
 }
 
 export async function bulkUpdateNotesAction(itemIds: string[], notes: string) {
+  console.log(`[bulk-update-notes] entry count=${itemIds.length}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
   for (const itemId of itemIds) {
     await updateTaskItemNotes(itemId, notes);
   }
+  console.log(`[bulk-update-notes] success count=${itemIds.length}`);
 }
 
 export async function searchProspectsAction(
   taskId: string,
   query: string,
 ): Promise<{ slug: string; name: string; address: string; contacted: boolean }[]> {
+  console.log(`[search-prospects] entry taskId=${taskId} query=${query.trim()}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
   if (query.trim().length < 2) return [];
 
-  return searchProspectsForTask(taskId, query.trim());
+  const results = await searchProspectsForTask(taskId, query.trim());
+  console.log(`[search-prospects] found=${results.length}`);
+  return results;
 }
 
 export async function addItemsAction(taskId: string, allSlugs: string[]) {
+  console.log(`[add-items] entry taskId=${taskId} slugCount=${allSlugs.length}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
   if (allSlugs.length === 0) return;
@@ -167,18 +188,22 @@ export async function addItemsAction(taskId: string, allSlugs: string[]) {
   await addTaskItems(taskId, slugs);
   revalidatePath(`/admin/tasks/${taskId}`);
   revalidatePath("/admin/tasks");
+  console.log(`[add-items] success taskId=${taskId} added=${slugs.length}`);
 }
 
 export async function removeItemAction(taskId: string, itemId: string) {
+  console.log(`[remove-item] entry taskId=${taskId} itemId=${itemId}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
   await removeTaskItem(itemId);
   revalidatePath(`/admin/tasks/${taskId}`);
   revalidatePath("/admin/tasks");
+  console.log(`[remove-item] success taskId=${taskId} itemId=${itemId}`);
 }
 
 export async function deleteTaskAction(taskId: string) {
+  console.log(`[delete-task] entry taskId=${taskId}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) throw new Error("UNAUTHORIZED");
 
@@ -191,6 +216,7 @@ export async function deleteTaskAction(taskId: string) {
     detail: `Deleted task ${taskId}`,
   });
 
+  console.log(`[delete-task] success taskId=${taskId} user=${user.email}`);
   revalidatePath("/admin/tasks");
   redirect("/admin/tasks");
 }

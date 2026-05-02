@@ -25,10 +25,13 @@ export async function createProspectAction(
   _prevState: unknown,
   formData: FormData,
 ): Promise<{ ok: boolean; error?: string; slug?: string }> {
+  console.log("[create-prospect] entry");
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) {
+    console.log("[create-prospect] unauthorized");
     return { ok: false, error: "Unauthorized" };
   }
+  console.log(`[create-prospect] user=${user.email}`);
 
   const name = (formData.get("name") as string)?.trim();
   const phone = (formData.get("phone") as string)?.trim() ?? "";
@@ -44,7 +47,9 @@ export async function createProspectAction(
   let slug: string;
   try {
     slug = await generateUniqueSlug(name, city, state);
+    console.log(`[create-prospect] slug generated slug=${slug} name=${name}`);
   } catch {
+    console.log(`[create-prospect] slug generation failed name=${name}`);
     return { ok: false, error: "Couldn't create a URL from that name. Try a different name or add a city." };
   }
 
@@ -80,11 +85,13 @@ export async function createProspectAction(
     });
   } catch (err) {
     // Rollback: remove the business we just created so data stays consistent
+    console.error(`[create-prospect] prospect insert failed slug=${slug}, rolling back business`, err instanceof Error ? err.message : err);
     await deleteBusiness(slug).catch(() => {});
     throw err;
   }
 
   await logAudit({ userEmail: user.email, userName: user.name, action: "create_prospect", slug, detail: name });
+  console.log(`[create-prospect] success slug=${slug} name=${name}`);
 
   // Generate verified domains in the background via waitUntil
   // (redirect() throws and kills the worker — waitUntil keeps the promise alive)
@@ -112,14 +119,19 @@ export async function createProspectAction(
 }
 
 export async function updateProspectStatusAction(slug: string, status: ProspectStatus, opts?: { revertMistake?: boolean; contactMethod?: string }): Promise<{ ok: boolean; locked?: boolean }> {
+  console.log(`[update-prospect-status] entry slug=${slug} status=${status}`);
   const user = await getCurrentUser();
-  if (!user || !canManageBusinesses(user)) return { ok: false };
+  if (!user || !canManageBusinesses(user)) {
+    console.log("[update-prospect-status] unauthorized");
+    return { ok: false };
+  }
 
   const existing = await getProspect(slug);
 
   // Once a lead is contacted, it's locked to that reseller.
   // Only the reseller who contacted it (or the Developer) can advance the stage.
   if (existing?.contactedBy && existing.contactedBy !== user.email && !isDeveloper(user)) {
+    console.log(`[update-prospect-status] locked slug=${slug} contactedBy=${existing.contactedBy} user=${user.email}`);
     return { ok: false, locked: true };
   }
 
@@ -151,18 +163,26 @@ export async function updateProspectStatusAction(slug: string, status: ProspectS
   await logAudit({ userEmail: user.email, userName: user.name, action: "prospect_status", slug, detail });
   revalidatePath("/admin/leads");
   revalidatePath(`/admin/leads/${slug}`);
+  console.log(`[update-prospect-status] success slug=${slug} status=${status} user=${user.email}`);
   return { ok: true };
 }
 
 export async function removeContactLockAction(slug: string): Promise<{ ok: boolean }> {
+  console.log(`[remove-contact-lock] entry slug=${slug}`);
   const user = await getCurrentUser();
-  if (!user || !canManageBusinesses(user)) return { ok: false };
+  if (!user || !canManageBusinesses(user)) {
+    console.log("[remove-contact-lock] unauthorized");
+    return { ok: false };
+  }
 
   const existing = await getProspect(slug);
   if (!existing?.contactedBy) return { ok: true };
 
   // Only the person who contacted the lead or the Developer can remove the lock
-  if (existing.contactedBy !== user.email && !isDeveloper(user)) return { ok: false };
+  if (existing.contactedBy !== user.email && !isDeveloper(user)) {
+    console.log(`[remove-contact-lock] forbidden slug=${slug} user=${user.email}`);
+    return { ok: false };
+  }
 
   await updateProspect(slug, {
     status: "found",
@@ -180,6 +200,7 @@ export async function removeContactLockAction(slug: string): Promise<{ ok: boole
   });
   revalidatePath("/admin/leads");
   revalidatePath(`/admin/leads/${slug}`);
+  console.log(`[remove-contact-lock] success slug=${slug} user=${user.email}`);
   return { ok: true };
 }
 
@@ -187,8 +208,12 @@ export async function updateProspectInfoAction(
   slug: string,
   data: { name: string; phone: string; street: string; city: string; state: string; zip: string; category: string },
 ): Promise<{ ok: boolean; error?: string }> {
+  console.log(`[update-prospect-info] entry slug=${slug}`);
   const user = await getCurrentUser();
-  if (!user || !canManageBusinesses(user)) return { ok: false, error: "Unauthorized" };
+  if (!user || !canManageBusinesses(user)) {
+    console.log("[update-prospect-info] unauthorized");
+    return { ok: false, error: "Unauthorized" };
+  }
 
   const { name, phone, street, city, state, zip, category } = data;
   if (!name.trim()) return { ok: false, error: "Name is required." };
@@ -233,10 +258,12 @@ export async function updateProspectInfoAction(
   revalidatePath("/admin/leads");
   revalidatePath(`/admin/leads/${slug}`);
   revalidatePath(`/${slug}`);
+  console.log(`[update-prospect-info] success slug=${slug} user=${user.email}`);
   return { ok: true };
 }
 
 export async function addProspectNoteAction(slug: string, text: string): Promise<{ ok: boolean }> {
+  console.log(`[add-prospect-note] entry slug=${slug}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) return { ok: false };
 
@@ -246,6 +273,7 @@ export async function addProspectNoteAction(slug: string, text: string): Promise
   const note = { id: `n-${Date.now()}`, text, createdAt: new Date().toISOString() };
   await updateProspect(slug, { notes: [note, ...prospect.notes] });
   revalidatePath(`/admin/leads/${slug}`);
+  console.log(`[add-prospect-note] success slug=${slug} noteId=${note.id}`);
   return { ok: true };
 }
 
@@ -253,6 +281,7 @@ export async function updateProspectDomainsAction(
   slug: string,
   data: { domain1: string; domain2: string; domain3: string },
 ): Promise<{ ok: boolean; error?: string }> {
+  console.log(`[update-prospect-domains] entry slug=${slug}`);
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) return { ok: false, error: "Unauthorized" };
 
@@ -263,6 +292,7 @@ export async function updateProspectDomainsAction(
   });
 
   revalidatePath(`/admin/leads/${slug}`);
+  console.log(`[update-prospect-domains] success slug=${slug}`);
   return { ok: true };
 }
 
@@ -270,8 +300,12 @@ export async function createOwnerLoginAction(
   slug: string,
   data: { name: string; email: string; password: string },
 ): Promise<{ ok: boolean; error?: string }> {
+  console.log(`[create-owner-login] entry slug=${slug} email=${data.email}`);
   const user = await getCurrentUser();
-  if (!user || !canManageBusinesses(user)) return { ok: false, error: "Unauthorized" };
+  if (!user || !canManageBusinesses(user)) {
+    console.log("[create-owner-login] unauthorized");
+    return { ok: false, error: "Unauthorized" };
+  }
 
   const { name, email, password } = data;
   if (!name.trim()) return { ok: false, error: "Name is required." };
@@ -283,7 +317,9 @@ export async function createOwnerLoginAction(
 
   try {
     await createUser({ name: name.trim(), email: email.trim(), password, role: "owner", ownedSlug: slug });
+    console.log(`[create-owner-login] user created email=${email.trim()} slug=${slug}`);
   } catch (err) {
+    console.error(`[create-owner-login] failed email=${email.trim()} slug=${slug}`, err instanceof Error ? err.message : err);
     return { ok: false, error: err instanceof Error ? err.message : "Failed to create user." };
   }
 
@@ -296,16 +332,22 @@ export async function createOwnerLoginAction(
   });
   revalidatePath(`/admin/leads/${slug}`);
   revalidatePath("/developer/users");
+  console.log(`[create-owner-login] success slug=${slug} email=${email.trim()}`);
   return { ok: true };
 }
 
 export async function deleteProspectAction(slug: string): Promise<{ ok: boolean }> {
+  console.log(`[delete-prospect] entry slug=${slug}`);
   const user = await getCurrentUser();
-  if (!user || !canManageBusinesses(user)) return { ok: false };
+  if (!user || !canManageBusinesses(user)) {
+    console.log("[delete-prospect] unauthorized");
+    return { ok: false };
+  }
 
   await logAudit({ userEmail: user.email, userName: user.name, action: "delete_prospect", slug });
   await deleteProspect(slug);
   await deleteBusiness(slug);
+  console.log(`[delete-prospect] success slug=${slug} user=${user.email}`);
 
   revalidatePath("/admin/leads");
   redirect("/admin/leads");
