@@ -5,6 +5,7 @@ import { canManageBusinesses } from "@/lib/users";
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) {
+    console.log("[places/city-zips] unauthorized");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -12,8 +13,11 @@ export async function GET(req: NextRequest) {
   const city = req.nextUrl.searchParams.get("city")?.trim().toLowerCase();
 
   if (!state || !city) {
+    console.log("[places/city-zips] missing state or city");
     return NextResponse.json({ error: "State and city required." }, { status: 400 });
   }
+
+  console.log(`[places/city-zips] GET state=${state} city=${city}`);
 
   // Use free zippopotam.us API — no key needed
   const res = await fetch(
@@ -21,6 +25,7 @@ export async function GET(req: NextRequest) {
   );
 
   if (!res.ok) {
+    console.log(`[places/city-zips] zippopotam returned ${res.status} for state=${state} city=${city}`);
     return NextResponse.json({ zips: [] });
   }
 
@@ -29,6 +34,7 @@ export async function GET(req: NextRequest) {
   };
 
   const zips = (data.places ?? []).map((p) => p["post code"]).sort();
+  console.log(`[places/city-zips] found ${zips.length} zips for state=${state} city=${city}`);
 
   return NextResponse.json({ zips });
 }

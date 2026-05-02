@@ -12,5 +12,6 @@ const CITIES: Record<string, string[]> = {
 export async function GET(req: NextRequest) {
   const state = req.nextUrl.searchParams.get("state")?.trim().toUpperCase() ?? "";
   const cities = CITIES[state] ?? [];
+  console.log(`[places/state-cities] GET state=${state} count=${cities.length}`);
   return NextResponse.json({ cities });
 }

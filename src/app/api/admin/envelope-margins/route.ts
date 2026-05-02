@@ -25,14 +25,17 @@ export async function GET(req: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user || !canManageBusinesses(user)) {
+      console.log("[admin/envelope-margins] unauthorized");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const envelope = req.nextUrl.searchParams.get("type") as "envelope1" | "envelope2" | null;
     if (!envelope || !["envelope1", "envelope2"].includes(envelope)) {
+      console.log("[admin/envelope-margins] invalid type param");
       return NextResponse.json({ error: "type must be envelope1 or envelope2" }, { status: 400 });
     }
 
+    console.log(`[admin/envelope-margins] GET type=${envelope}`);
     const defaults = envelope === "envelope1" ? ENVELOPE1_DEFAULTS : ENVELOPE2_DEFAULTS;
 
     try {
@@ -42,14 +45,17 @@ export async function GET(req: NextRequest) {
         .bind(`${envelope}_margins`)
         .first<{ value: string }>();
       if (row?.value) {
+        console.log(`[admin/envelope-margins] found saved margins type=${envelope}`);
         return NextResponse.json({ ...defaults, ...JSON.parse(row.value) });
       }
     } catch {
       // Table doesn't exist yet — return defaults
     }
 
+    console.log(`[admin/envelope-margins] returning defaults type=${envelope}`);
     return NextResponse.json(defaults);
-  } catch {
+  } catch (err) {
+    console.error(`[admin/envelope-margins] catch-all error=${err instanceof Error ? err.message : String(err)}`);
     // Catch-all: return envelope1 defaults
     return NextResponse.json(ENVELOPE1_DEFAULTS);
   }

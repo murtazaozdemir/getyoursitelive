@@ -13,14 +13,18 @@ export async function GET(req: Request) {
   try {
     const user = await getCurrentUser();
     if (!user || !canManageBusinesses(user)) {
+      console.log("[admin/debug-biz] unauthorized");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const url = new URL(req.url);
     const slug = url.searchParams.get("slug");
     if (!slug) {
+      console.log("[admin/debug-biz] missing slug param");
       return NextResponse.json({ error: "Missing ?slug= param" }, { status: 400 });
     }
+
+    console.log(`[admin/debug-biz] GET slug=${slug} user=${user.email}`);
 
     const db = await getD1();
     const row = await db
@@ -29,9 +33,11 @@ export async function GET(req: Request) {
       .first<{ slug: string; name: string; category: string; content: string }>();
 
     if (!row) {
+      console.log(`[admin/debug-biz] not found slug=${slug}`);
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
+    console.log(`[admin/debug-biz] found slug=${slug} name=${row.name}`);
     const parsed = JSON.parse(row.content);
     return NextResponse.json({
       slug: row.slug,
@@ -47,6 +53,7 @@ export async function GET(req: Request) {
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[admin/debug-biz] error=${msg}`);
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

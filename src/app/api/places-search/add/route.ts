@@ -19,8 +19,10 @@ function nameToSlug(name: string): string {
 }
 
 export async function POST(req: NextRequest) {
+  console.log("[places/add] POST add prospect");
   const user = await getCurrentUser();
   if (!user || !canManageBusinesses(user)) {
+    console.log("[places/add] unauthorized");
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
@@ -51,13 +53,17 @@ export async function POST(req: NextRequest) {
   const googleAddressComponents = (formData.get("googleAddressComponents") as string)?.trim() ?? "";
 
   if (!name) {
+    console.log("[places/add] missing name");
     return NextResponse.json({ ok: false, error: "Name is required." });
   }
 
   const slug = nameToSlug(name);
   if (!slug) {
+    console.log(`[places/add] could not generate slug for name=${name}`);
     return NextResponse.json({ ok: false, error: "Could not generate slug." });
   }
+
+  console.log(`[places/add] name=${name} city=${city} state=${state} placeId=${googlePlaceId || "none"} user=${user.email}`);
 
   const googleData = {
     city: city || undefined,
@@ -85,6 +91,7 @@ export async function POST(req: NextRequest) {
   if (googlePlaceId) {
     const placeIdMatch = await findProspectByPlaceId(googlePlaceId);
     if (placeIdMatch) {
+      console.log(`[places/add] existing placeId match slug=${placeIdMatch.slug}`);
       try {
         await updateProspectGoogleData(placeIdMatch.slug, googleData);
       } catch { /* ignore if columns don't exist yet */ }
@@ -100,6 +107,7 @@ export async function POST(req: NextRequest) {
 
   if (existingBiz || existingProspect) {
     const targetSlug = existingProspect?.slug ?? slug;
+    console.log(`[places/add] existing slug match slug=${targetSlug}`);
     try {
       await updateProspectGoogleData(targetSlug, googleData);
     } catch { /* ignore if columns don't exist yet */ }
@@ -153,12 +161,14 @@ export async function POST(req: NextRequest) {
       updatedAt: now,
     });
   } catch (err) {
+    const msg = err instanceof Error ? err.message : "Failed to create prospect.";
+    console.error(`[places/add] prospect creation failed slug=${uniqueSlug} error=${msg}`);
     // Rollback
     const { deleteBusiness } = await import("@/lib/db");
     await deleteBusiness(uniqueSlug).catch(() => {});
     return NextResponse.json({
       ok: false,
-      error: err instanceof Error ? err.message : "Failed to create prospect.",
+      error: msg,
     });
   }
 
@@ -201,5 +211,6 @@ export async function POST(req: NextRequest) {
   }
 
   revalidatePath("/admin/leads");
+  console.log(`[places/add] success slug=${uniqueSlug} name=${name}`);
   return NextResponse.json({ ok: true, slug: uniqueSlug });
 }

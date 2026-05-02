@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
  * Endpoint kept as a stub to avoid 404s from any cached requests.
  */
 export async function POST() {
+  console.log("[admin/seed-storage] POST called — endpoint is deprecated (410)");
   return NextResponse.json(
     { error: "seed-storage is no longer needed — data lives in D1. Use the Setup page to seed D1 from JSON." },
     { status: 410 },
