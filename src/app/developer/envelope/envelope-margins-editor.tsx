@@ -414,12 +414,14 @@ export function EnvelopeMarginsEditor({
         /* Envelope 2 back: screenshot + text */
         .em-back-screenshot-box {
           flex:1;
-          border-bottom:1px dashed #ccc;
+          border:2px dashed #2563eb;
+          border-radius:4px;
+          margin:8px 8px 4px;
           display:flex;
           flex-direction:column;
           align-items:center;
           justify-content:center;
-          background:rgba(0,0,0,0.02);
+          background:rgba(37,99,235,0.04);
           min-height:60px;
         }
         .em-back-img-icon { opacity:0.5; }
@@ -428,11 +430,15 @@ export function EnvelopeMarginsEditor({
 
         .em-back-text-block {
           padding:8px 12px;
+          margin:4px 8px 8px;
           text-align:center;
           display:flex;
           flex-direction:column;
           align-items:center;
           gap:2px;
+          border:2px dashed #f59e0b;
+          border-radius:4px;
+          background:rgba(245,158,11,0.04);
         }
 
         .em-back-row {
@@ -471,7 +477,11 @@ export function EnvelopeMarginsEditor({
           justify-content:center;
           gap:6px;
           padding:16px;
+          margin:8px;
           text-align:center;
+          border:2px dashed #f59e0b;
+          border-radius:4px;
+          background:rgba(245,158,11,0.04);
         }
 
         /* ── Flap indicators ── */
