@@ -133,9 +133,16 @@ Star Auto Repair Center seeds with `modern` (the primary/only demo business).
 
 **Live site:** `https://getyoursitelive.com` (and `www.`)
 
-**Platform:** Cloudflare Pages — connected to GitHub, auto-deploys on push to `main`.
+**Platform:** Cloudflare Workers (via OpenNext). The DNS points to a Worker, NOT Pages Functions.
 
-**Build command:** `npx @opennextjs/cloudflare build` (builds Next.js then processes output into `.open-next/cloudflare/`).
+**CRITICAL: How to deploy:**
+```bash
+npx @opennextjs/cloudflare build   # builds Next.js → .open-next/
+npx wrangler deploy                # deploys worker + assets to Cloudflare
+```
+**Git push alone does NOT deploy the worker.** The Cloudflare Pages GitHub integration only deploys static assets. New/changed server-side routes (pages, API routes, server actions) require `wrangler deploy` to take effect. If a new route returns 500 after push, run `wrangler deploy` — don't chase code bugs.
+
+**Build command:** `npx @opennextjs/cloudflare build` (builds Next.js then processes output into `.open-next/`).
 
 **Bindings (wrangler.toml):**
 - `DB` → Cloudflare D1 database `getyoursitelive-d1`
