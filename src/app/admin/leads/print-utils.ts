@@ -219,11 +219,36 @@ export function printLabels(prospects: PrintableProspect[]) {
   }
 }
 
-export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInfo) {
+interface EnvelopeMargins {
+  returnTop: string; returnLeft: string;
+  postageTop: string; postageRight: string;
+  noticeTop: string; noticeLeft: string;
+  recipientTop: string; recipientLeft: string;
+  backContentTop: string; backContentBottom: string;
+  backContentLeft: string; backContentRight: string;
+}
+
+async function fetchMargins(type: "envelope1" | "envelope2"): Promise<EnvelopeMargins | null> {
+  try {
+    const res = await fetch(`/api/admin/envelope-margins?type=${type}`);
+    if (res.ok) return (await res.json()) as EnvelopeMargins;
+  } catch { /* use defaults */ }
+  return null;
+}
+
+export async function printEnvelopes(prospects: PrintableProspect[], sender: SenderInfo) {
   if (prospects.length === 0) return;
 
   const esc = escapeHtml;
   const siteUrl = "https://getyoursitelive.com";
+  const m = (await fetchMargins("envelope1")) || {
+    returnTop: "0.3", returnLeft: "0.35",
+    postageTop: "0.25", postageRight: "0.35",
+    noticeTop: "0.28", noticeLeft: "3.0",
+    recipientTop: "3.35", recipientLeft: "2.6",
+    backContentTop: "0.75", backContentBottom: "0.75",
+    backContentLeft: "0.6", backContentRight: "0.6",
+  };
 
   const pagesHtml = prospects
     .map(
@@ -294,8 +319,8 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   /* ── FRONT: Return address ── */
   .env-return {
     position: absolute;
-    top: 0.3in;
-    left: 0.35in;
+    top: ${m.returnTop}in;
+    left: ${m.returnLeft}in;
     font-size: 9pt;
     line-height: 1.55;
     color: #111;
@@ -308,8 +333,8 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   /* ── FRONT: Postage (upper-right) ── */
   .env-postage {
     position: absolute;
-    top: 0.25in;
-    right: 0.35in;
+    top: ${m.postageTop}in;
+    right: ${m.postageRight}in;
     width: 1.2in;
     height: 0.85in;
     border: 1px solid #bbb;
@@ -325,8 +350,8 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   /* ── FRONT: Notice box (upper-center) ── */
   .env-notice {
     position: absolute;
-    top: 0.28in;
-    left: 3.0in;
+    top: ${m.noticeTop}in;
+    left: ${m.noticeLeft}in;
     width: 2.8in;
     border: 1.5px solid #111;
     padding: 0.07in 0.14in;
@@ -344,8 +369,8 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
   /* ── FRONT: Recipient — INSIDE USPS OCR READ ZONE ── */
   .env-recipient {
     position: absolute;
-    top: 3.35in;
-    left: 2.6in;
+    top: ${m.recipientTop}in;
+    left: ${m.recipientLeft}in;
     font-size: 11pt;
     line-height: 1.7;
     color: #111;
@@ -383,9 +408,9 @@ export function printEnvelopes(prospects: PrintableProspect[], sender: SenderInf
      After rotation, it appears at the visual top when printed. */
   .env-back-content {
     position: absolute;
-    bottom: 0.75in;
-    left: 0.6in;
-    right: 0.6in;
+    bottom: ${m.backContentBottom}in;
+    left: ${m.backContentLeft}in;
+    right: ${m.backContentRight}in;
     text-align: center;
     transform: rotate(180deg);
     transform-origin: center center;
@@ -467,6 +492,14 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
   const esc = escapeHtml;
   const siteUrl = "https://getyoursitelive.com";
   const screenshotBase = "https://gysl-screenshots.fly.dev/screenshot";
+  const m = (await fetchMargins("envelope2")) || {
+    returnTop: "0.3", returnLeft: "0.35",
+    postageTop: "0.25", postageRight: "0.35",
+    noticeTop: "0.28", noticeLeft: "3.0",
+    recipientTop: "3.35", recipientLeft: "2.6",
+    backContentTop: "0.15", backContentBottom: "0.15",
+    backContentLeft: "0.15", backContentRight: "0.15",
+  };
 
   // Open window immediately (must be in click handler context to avoid popup block)
   const win = window.open("", "_blank");
@@ -580,8 +613,8 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
   /* ── FRONT: Return address ── */
   .env2-return {
     position: absolute;
-    top: 0.3in;
-    left: 0.35in;
+    top: ${m.returnTop}in;
+    left: ${m.returnLeft}in;
     font-size: 9pt;
     line-height: 1.55;
     color: #111;
@@ -594,8 +627,8 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
   /* ── FRONT: Postage (upper-right) ── */
   .env2-postage {
     position: absolute;
-    top: 0.25in;
-    right: 0.35in;
+    top: ${m.postageTop}in;
+    right: ${m.postageRight}in;
     width: 1.2in;
     height: 0.85in;
     border: 1px solid #bbb;
@@ -611,8 +644,8 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
   /* ── FRONT: Notice box (upper-center) ── */
   .env2-notice {
     position: absolute;
-    top: 0.28in;
-    left: 3.0in;
+    top: ${m.noticeTop}in;
+    left: ${m.noticeLeft}in;
     width: 2.8in;
     border: 1.5px solid #111;
     padding: 0.07in 0.14in;
@@ -630,8 +663,8 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
   /* ── FRONT: Recipient — INSIDE USPS OCR READ ZONE ── */
   .env2-recipient {
     position: absolute;
-    top: 3.35in;
-    left: 2.6in;
+    top: ${m.recipientTop}in;
+    left: ${m.recipientLeft}in;
     font-size: 11pt;
     line-height: 1.7;
     color: #111;
@@ -666,10 +699,10 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
   /* ── BACK: Stacked layout — text+QR top, screenshot bottom ── */
   .env2-back-split {
     position: absolute;
-    bottom: 0.15in;
-    left: 0.15in;
-    right: 0.15in;
-    top: 0.15in;
+    bottom: ${m.backContentBottom}in;
+    left: ${m.backContentLeft}in;
+    right: ${m.backContentRight}in;
+    top: ${m.backContentTop}in;
     display: flex;
     flex-direction: column;
     gap: 0.15in;
