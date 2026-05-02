@@ -150,10 +150,7 @@ export function AdminHeader({ user, isDeveloper }: { user: SessionUser; isDevelo
                       <Map className="admin-account-dropdown-icon" /> State Visibility
                     </Link>
                     <Link href="/developer/envelope" className="admin-account-dropdown-item">
-                      <Mail className="admin-account-dropdown-icon" /> Envelope 1 Margins
-                    </Link>
-                    <Link href="/developer/envelope2" className="admin-account-dropdown-item">
-                      <Mail className="admin-account-dropdown-icon" /> Envelope 2 Margins
+                      <Mail className="admin-account-dropdown-icon" /> Envelopes
                     </Link>
                     <Link href="/developer/migrations" className="admin-account-dropdown-item">
                       <Database className="admin-account-dropdown-icon" /> Migrations

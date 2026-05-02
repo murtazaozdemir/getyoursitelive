@@ -164,14 +164,14 @@ export function LeadCards({ prospects, userHome, senderInfo }: { prospects: Lead
               className="admin-btn admin-btn--ghost"
               onClick={handlePrintEnvelopes}
             >
-              Envelope 1 ({selected.size})
+              Envelope A ({selected.size})
             </button>
             <button
               type="button"
               className="admin-btn admin-btn--ghost"
               onClick={handlePrintEnvelopes2}
             >
-              Envelope 2 ({selected.size})
+              Envelope B ({selected.size})
             </button>
             <button
               type="button"

@@ -15,9 +15,9 @@ export default async function Envelope2SettingsPage() {
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
-          <h1 className="admin-h1">Envelope 2 — Margins</h1>
+          <h1 className="admin-h1">Envelope B — Margins</h1>
           <p className="admin-lede">
-            Adjust positioning of elements on Envelope 2 (with screenshot). All values in inches.
+            Adjust positioning of elements on Envelope B (with screenshot). All values in inches.
           </p>
         </div>
       </div>

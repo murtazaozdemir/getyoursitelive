@@ -339,10 +339,10 @@ export function TaskDetailClient({
                 Print labels ({pendingItems.length})
               </button>
               <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintEnvelopes} disabled={isPending}>
-                Envelope 1 ({pendingItems.length})
+                Envelope A ({pendingItems.length})
               </button>
               <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintEnvelopes2} disabled={isPending}>
-                Envelope 2 ({pendingItems.length})
+                Envelope B ({pendingItems.length})
               </button>
               <button type="button" className="admin-btn admin-btn--ghost" onClick={handlePrintTaskList} disabled={isPending}>
                 Print task list

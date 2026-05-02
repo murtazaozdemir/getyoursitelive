@@ -85,7 +85,7 @@ export function EnvelopeMarginsEditor({
       </div>
 
       <div className="em-scroll">
-        <div className="em-size">9 in &times; 6 in (#10 envelope) &mdash; {isV2 ? "Envelope 2 (with screenshot)" : "Envelope 1 (text only)"}</div>
+        <div className="em-size">9 in &times; 6 in (#10 envelope) &mdash; {isV2 ? "Envelope B (with screenshot)" : "Envelope A (text only)"}</div>
 
         <div className="em-env" style={{ width: W, height: H }}>
           {tab === "front" ? (
