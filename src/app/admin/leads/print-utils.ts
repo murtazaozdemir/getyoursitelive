@@ -305,7 +305,7 @@ export async function printEnvelopes(prospects: PrintableProspect[], sender: Sen
     margin: 0;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, Helvetica, sans-serif; color: #222; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #000; }
 
   .env-page {
     width: 9in;
@@ -322,7 +322,7 @@ export async function printEnvelopes(prospects: PrintableProspect[], sender: Sen
     left: ${m.returnLeft}in;
     font-size: 9pt;
     line-height: 1.55;
-    color: #111;
+    color: #000;
   }
   .env-return-company {
     font-weight: bold;
@@ -352,12 +352,12 @@ export async function printEnvelopes(prospects: PrintableProspect[], sender: Sen
     top: ${m.noticeTop}in;
     left: ${m.noticeLeft}in;
     width: 2.8in;
-    border: 1.5px solid #111;
+    border: 1.5px solid #000;
     padding: 0.07in 0.14in;
     text-align: center;
     font-size: 8pt;
     line-height: 1.55;
-    color: #111;
+    color: #000;
   }
   .env-notice-title {
     font-weight: bold;
@@ -372,7 +372,7 @@ export async function printEnvelopes(prospects: PrintableProspect[], sender: Sen
     left: ${m.recipientLeft}in;
     font-size: 11pt;
     line-height: 1.7;
-    color: #111;
+    color: #000;
   }
   .env-recipient-name {
     font-weight: bold;
@@ -402,7 +402,7 @@ export async function printEnvelopes(prospects: PrintableProspect[], sender: Sen
     transform-origin: center center;
     font-size: 10pt;
     line-height: 1.8;
-    color: #222;
+    color: #000;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -415,11 +415,11 @@ export async function printEnvelopes(prospects: PrintableProspect[], sender: Sen
   }
   .env-back-subheadline {
     font-size: 11pt;
-    color: #333;
+    color: #000;
   }
   .env-back-cta {
     font-size: 9.5pt;
-    color: #555;
+    color: #000;
     margin-top: 4px;
   }
   .env-back-qr {
@@ -430,7 +430,7 @@ export async function printEnvelopes(prospects: PrintableProspect[], sender: Sen
   .env-back-url {
     font-size: 10pt;
     font-weight: bold;
-    color: #111;
+    color: #000;
     margin-top: -4px;
   }
 
@@ -585,7 +585,7 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
     margin: 0;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, Helvetica, sans-serif; color: #222; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #000; }
 
   .env2-page {
     width: 9in;
@@ -602,7 +602,7 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
     left: ${m.returnLeft}in;
     font-size: 9pt;
     line-height: 1.55;
-    color: #111;
+    color: #000;
   }
   .env2-return-company {
     font-weight: bold;
@@ -632,12 +632,12 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
     top: ${m.noticeTop}in;
     left: ${m.noticeLeft}in;
     width: 2.8in;
-    border: 1.5px solid #111;
+    border: 1.5px solid #000;
     padding: 0.07in 0.14in;
     text-align: center;
     font-size: 8pt;
     line-height: 1.55;
-    color: #111;
+    color: #000;
   }
   .env2-notice-title {
     font-weight: bold;
@@ -652,7 +652,7 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
     left: ${m.recipientLeft}in;
     font-size: 11pt;
     line-height: 1.7;
-    color: #111;
+    color: #000;
   }
   .env2-recipient-name {
     font-weight: bold;
@@ -718,11 +718,11 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
   }
   .env2-back-subheadline {
     font-size: 8.5pt;
-    color: #333;
+    color: #000;
   }
   .env2-back-cta {
     font-size: 7.5pt;
-    color: #555;
+    color: #000;
     margin-top: 2px;
   }
   .env2-back-qr {
@@ -732,7 +732,7 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
   }
   .env2-back-url {
     font-size: 6pt;
-    color: #333;
+    color: #000;
     white-space: nowrap;
     margin-top: 2px;
   }
