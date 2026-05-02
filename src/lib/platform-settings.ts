@@ -7,13 +7,15 @@ import { getD1 } from "@/lib/db-d1";
 
 async function ensureTable() {
   const db = await getD1();
-  await db.exec(
-    `CREATE TABLE IF NOT EXISTS platform_settings (
-       key TEXT PRIMARY KEY,
-       value TEXT NOT NULL,
-       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-     )`
-  );
+  await db
+    .prepare(
+      `CREATE TABLE IF NOT EXISTS platform_settings (
+         key TEXT PRIMARY KEY,
+         value TEXT NOT NULL,
+         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+       )`
+    )
+    .run();
 }
 
 export async function getSetting(key: string): Promise<string | null> {
