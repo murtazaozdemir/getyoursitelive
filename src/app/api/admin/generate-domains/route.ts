@@ -11,7 +11,11 @@ const NOISE_WORDS = new Set([
   "care", "tire", "tires", "motorsport", "inc", "llc", "corp", "co",
   "incorporated", "the", "and", "of", "specialist", "specialists",
   "express", "mobile", "complete", "quality", "advanced", "custom",
-  "reliable", "professional", "certified", "expert",
+  "reliable", "professional", "certified", "expert", "new", "used",
+  "discount", "muffler", "mufflers", "brake", "brakes", "transmission",
+  "transmissions", "electric", "electrical", "lube", "oil", "wash",
+  "detailing", "collision", "towing", "welding", "paint", "painting",
+  "group", "gold", "century", "machine", "racing",
 ]);
 
 const RDAP_URL = "https://rdap.verisign.com/com/v1/domain";
@@ -44,9 +48,21 @@ async function isDomainAvailable(domain: string): Promise<boolean> {
 }
 
 function generateCandidates(name: string, state: string): string[] {
-  const core = coreFromName(name);
+  const fullCore = coreFromName(name);
   const st = state.toLowerCase();
-  if (!core) return [];
+  if (!fullCore) return [];
+
+  // Try full core, then truncated to 14 chars, then first word only
+  const cores = [fullCore];
+  if (fullCore.length > 14) cores.push(fullCore.slice(0, 14));
+  if (fullCore.length > 10) cores.push(fullCore.slice(0, 10));
+  // Also try just the first meaningful word
+  const clean = name.replace(/\s*\(.*?\)\s*/g, " ").trim();
+  const firstWord = clean.toLowerCase().split(/\s+/)
+    .map((w) => w.replace(/[^a-z0-9]/g, ""))
+    .find((w) => w && w.length >= 3 && !NOISE_WORDS.has(w));
+  if (firstWord && !cores.includes(firstWord)) cores.push(firstWord);
+
   const suffixes = [
     "", st, "auto", "fix", "pro", "hub", "crew", "spot", "zone",
     "works", "car", "mech", "ride", "shop", "serv", "cars",
@@ -54,9 +70,11 @@ function generateCandidates(name: string, state: string): string[] {
     `shop${st}`, `ride${st}`, `mech${st}`, "autofix", "autopro",
   ];
   const candidates: string[] = [];
-  for (const s of suffixes) {
-    const d = `${core}${s}.com`;
-    if (d.length <= 24 && !d.includes("-")) candidates.push(d);
+  for (const core of cores) {
+    for (const s of suffixes) {
+      const d = `${core}${s}.com`;
+      if (d.length <= 24 && !d.includes("-")) candidates.push(d);
+    }
   }
   return [...new Set(candidates)];
 }
