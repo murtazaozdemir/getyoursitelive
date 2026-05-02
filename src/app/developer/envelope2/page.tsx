@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { isDeveloper } from "@/lib/users";
+import { getEnvelopeMargins, ENVELOPE2_DEFAULTS } from "@/lib/platform-settings";
+import { EnvelopeMarginsEditor } from "../envelope/envelope-margins-editor";
 
 export const runtime = "edge";
 
@@ -9,15 +11,23 @@ export default async function Envelope2SettingsPage() {
   if (!user) redirect("/admin/login");
   if (!isDeveloper(user)) redirect("/admin");
 
+  const margins = await getEnvelopeMargins("envelope2");
+
   return (
     <div className="admin-page">
       <div className="admin-page-header">
         <div>
           <h1 className="admin-h1">Envelope 2 — Margins</h1>
-          <p className="admin-lede">Page loading test — no DB calls.</p>
+          <p className="admin-lede">
+            Adjust positioning of elements on Envelope 2 (with screenshot). All values in inches.
+          </p>
         </div>
       </div>
-      <p>If you see this, the page works. The issue is in the editor component or DB calls.</p>
+      <EnvelopeMarginsEditor
+        envelope="envelope2"
+        initial={margins}
+        defaults={ENVELOPE2_DEFAULTS}
+      />
     </div>
   );
 }
