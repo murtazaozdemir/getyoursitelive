@@ -3,6 +3,13 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+const US_STATES = new Set([
+  "AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN",
+  "IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH",
+  "NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT",
+  "VT","VA","WA","WV","WI","WY",
+]);
+
 export interface GeoTuple {
   city: string;
   state: string;
@@ -149,7 +156,7 @@ export function FilterSortBar(config: FilterBarConfig) {
     const zpSet = new Set<string>();
 
     for (const t of tuples) {
-      if (t.state) stSet.add(t.state);
+      if (t.state && US_STATES.has(t.state.toUpperCase())) stSet.add(t.state.toUpperCase());
 
       if (!curState || t.state.toUpperCase() === curState.toUpperCase()) {
         if (t.city) ciSet.add(t.city);
