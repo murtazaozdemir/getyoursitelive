@@ -4,8 +4,6 @@ import { isDeveloper } from "@/lib/users";
 import { getEnvelopeMargins, ENVELOPE2_DEFAULTS } from "@/lib/platform-settings";
 import { EnvelopeMarginsEditor } from "../envelope/envelope-margins-editor";
 
-export const runtime = "edge";
-
 export default async function Envelope2SettingsPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/admin/login");

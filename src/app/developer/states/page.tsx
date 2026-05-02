@@ -4,8 +4,6 @@ import { isDeveloper } from "@/lib/users";
 import { listStateVisibility } from "@/lib/state-visibility";
 import { StatesView } from "./states-view";
 
-export const runtime = "edge";
-
 export const metadata = {
   title: "State Visibility · Developer",
   robots: { index: false, follow: false },
