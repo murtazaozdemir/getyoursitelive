@@ -9,7 +9,6 @@ import {
   Users,
   Footprints,
   ClipboardList,
-  Wrench,
   MapPin,
   Search,
   Download,
@@ -134,9 +133,6 @@ export function AdminHeader({ user, isDeveloper }: { user: SessionUser; isDevelo
                     </Link>
                     <Link href="/admin/audit" className="admin-account-dropdown-item">
                       <ClipboardList className="admin-account-dropdown-icon" /> Audit Log
-                    </Link>
-                    <Link href="/admin/setup" className="admin-account-dropdown-item">
-                      <Wrench className="admin-account-dropdown-icon" /> Setup
                     </Link>
                     <Link href="/developer/google-maps-info" className="admin-account-dropdown-item">
                       <MapPin className="admin-account-dropdown-icon" /> Google Maps Info

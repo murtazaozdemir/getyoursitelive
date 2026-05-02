@@ -184,9 +184,11 @@ export default async function LeadsPage({
   const allZips = unique(enriched.filter((p) => geoMatch(p, "zip")).map((p) => p._zip).filter(Boolean));
   const allCategories = unique(enriched.map((p) => p._category).filter(Boolean));
 
-  // Build geo tuples for cascading client-side filter logic
+  // Build geo tuples for cascading client-side filter logic (only visible states)
   const geoTuplesMap = new Map<string, { city: string; state: string; zip: string }>();
   for (const p of enriched) {
+    // Skip states not in the visible set (unless no visibility config exists yet)
+    if (visibleStateSet.size > 0 && p._state && !visibleStateSet.has(p._state.toUpperCase())) continue;
     const key = `${p._city}|${p._state}|${p._zip}`;
     if (!geoTuplesMap.has(key) && (p._city || p._state || p._zip)) {
       geoTuplesMap.set(key, { city: p._city, state: p._state, zip: p._zip });
