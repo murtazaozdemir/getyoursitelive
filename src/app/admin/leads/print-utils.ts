@@ -666,11 +666,12 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
   /* ── BACK: Split layout — screenshot left, text+QR right ── */
   .env2-back-split {
     position: absolute;
-    bottom: 0.5in;
-    left: 0.4in;
-    right: 0.4in;
-    top: 0.6in;
+    bottom: 0.15in;
+    left: 0.25in;
+    right: 0.25in;
+    top: 0.15in;
     display: flex;
+    align-items: flex-start;
     gap: 0.25in;
     transform: rotate(180deg);
     transform-origin: center center;
@@ -682,7 +683,6 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
     border: 1px solid #ddd;
     border-radius: 4px;
     background: #fff;
-    align-self: center;
     aspect-ratio: 2 / 1;
   }
   .env2-back-screenshot {
