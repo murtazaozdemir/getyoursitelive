@@ -9,7 +9,9 @@ const NOISE_WORDS = new Set([
   "auto", "repair", "center", "shop", "garage", "service", "services",
   "automotive", "motors", "motor", "car", "cars", "mechanic", "body",
   "care", "tire", "tires", "motorsport", "inc", "llc", "corp", "co",
-  "incorporated", "the", "and", "of",
+  "incorporated", "the", "and", "of", "specialist", "specialists",
+  "express", "mobile", "complete", "quality", "advanced", "custom",
+  "reliable", "professional", "certified", "expert",
 ]);
 
 const RDAP_URL = "https://rdap.verisign.com/com/v1/domain";
@@ -20,9 +22,14 @@ function domainSlugify(name: string): string {
 }
 
 function coreFromName(name: string): string {
-  const words = name.toLowerCase().split(/\s+/);
-  const core = words.map((w) => w.replace(/[^a-z0-9]/g, "")).filter((w) => w && !NOISE_WORDS.has(w)).join("");
-  return core || domainSlugify(name);
+  // Strip parenthetical content first — e.g. "Car Care Specialists (Richard's Cars...)"
+  const clean = name.replace(/\s*\(.*?\)\s*/g, " ").trim();
+  const words = clean.toLowerCase().split(/\s+/);
+  const filtered = words.map((w) => w.replace(/[^a-z0-9]/g, "")).filter((w) => w && !NOISE_WORDS.has(w));
+  if (filtered.length > 0) return filtered.join("");
+  // All words were noise — use the slugified clean name (without parens)
+  const slug = domainSlugify(clean);
+  return slug || domainSlugify(name);
 }
 
 async function isDomainAvailable(domain: string): Promise<boolean> {
@@ -41,15 +48,15 @@ function generateCandidates(name: string, state: string): string[] {
   const st = state.toLowerCase();
   if (!core) return [];
   const suffixes = [
-    "auto", "fix", "pro", `auto${st}`, st, "works", "car", "mech",
-    "ride", "shop", "serv", `${st}auto`, "autofix", "autopro",
-    `car${st}`, `fix${st}`, `pro${st}`, "hub", "crew", "spot",
-    `shop${st}`, "zone", "cars", `ride${st}`, `mech${st}`,
+    "", st, "auto", "fix", "pro", "hub", "crew", "spot", "zone",
+    "works", "car", "mech", "ride", "shop", "serv", "cars",
+    `${st}auto`, `auto${st}`, `fix${st}`, `pro${st}`, `car${st}`,
+    `shop${st}`, `ride${st}`, `mech${st}`, "autofix", "autopro",
   ];
   const candidates: string[] = [];
   for (const s of suffixes) {
     const d = `${core}${s}.com`;
-    if (d.length <= 17 && !d.includes("-")) candidates.push(d);
+    if (d.length <= 24 && !d.includes("-")) candidates.push(d);
   }
   return [...new Set(candidates)];
 }

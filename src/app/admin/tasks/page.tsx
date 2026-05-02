@@ -33,19 +33,20 @@ export default async function TasksPage() {
               task.totalItems > 0
                 ? Math.round((task.droppedOffCount / task.totalItems) * 100)
                 : 0;
+            const effectiveStatus = (task.totalItems > 0 && remaining === 0) ? "completed" : task.status;
             return (
               <Link
                 key={task.id}
                 href={`/admin/tasks/${task.id}`}
-                className={`task-card${task.status === "completed" ? " task-card--completed" : ""}`}
+                className={`task-card${effectiveStatus === "completed" ? " task-card--completed" : ""}`}
               >
                 <div className="task-card-main">
                   <div className="task-card-name">
                     {task.name}
                     <span
-                      className={`task-status-badge task-status-badge--${task.status}`}
+                      className={`task-status-badge task-status-badge--${effectiveStatus}`}
                     >
-                      {task.status === "active" ? "Active" : "Completed"}
+                      {effectiveStatus === "active" ? "Active" : "Completed ✓"}
                     </span>
                   </div>
                   <div className="task-card-meta">
