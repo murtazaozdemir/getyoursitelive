@@ -135,8 +135,8 @@
   color: var(--admin-accent);
 }
 .task-status-badge--completed {
-  background: #e8e8e8;
-  color: #666;
+  background: #16a34a;
+  color: #fff;
 }
 
 .task-detail-meta {

@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { isDeveloper } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
-import { getVisibleStates } from "@/lib/state-visibility";
 import { DomainsView } from "./domains-view";
 
 export const metadata = {
@@ -73,13 +72,9 @@ export default async function DomainsPage() {
     domain3: r.domain3,
   }));
 
-  // Build filter options (respect state visibility settings)
-  const visibleStateSet = await getVisibleStates();
-  const filteredProspects = visibleStateSet.size > 0
-    ? prospects.filter((p) => !p.state || visibleStateSet.has(p.state.toUpperCase()))
-    : prospects;
-  const states = [...new Set(filteredProspects.map((p) => p.state).filter(Boolean))].sort();
-  const cities = [...new Set(filteredProspects.map((p) => p.city).filter(Boolean))].sort();
+  // Build filter options from all prospects (no state visibility filtering — this is a developer tool)
+  const states = [...new Set(prospects.map((p) => p.state).filter(Boolean))].sort();
+  const cities = [...new Set(prospects.map((p) => p.city).filter(Boolean))].sort();
 
   // Count total prospects for context
   const totalRow = await db
@@ -102,11 +97,11 @@ export default async function DomainsPage() {
 
       <div className="admin-stats-row" style={{ marginBottom: "1.5rem" }}>
         <div className="admin-stat-card">
-          <span className="admin-stat-value">{filteredProspects.length}</span>
+          <span className="admin-stat-value">{prospects.length}</span>
           <span className="admin-stat-label">Missing domains</span>
         </div>
         <div className="admin-stat-card">
-          <span className="admin-stat-value">{totalProspects - filteredProspects.length}</span>
+          <span className="admin-stat-value">{totalProspects - prospects.length}</span>
           <span className="admin-stat-label">Have domains</span>
         </div>
         <div className="admin-stat-card">
@@ -120,7 +115,7 @@ export default async function DomainsPage() {
       </div>
 
       <DomainsView
-        prospects={filteredProspects}
+        prospects={prospects}
         states={states}
         cities={cities}
       />
