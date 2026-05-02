@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
 import { isDeveloper } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
+import { getVisibleStates } from "@/lib/state-visibility";
 import { isCategoryMapped } from "@/lib/templates/registry";
 
 export const metadata = {
@@ -16,9 +17,17 @@ export default async function GoogleMapsInfoPage() {
   if (!isDeveloper(user)) redirect("/admin");
 
   const db = await getD1();
+  const visibleStateSet = await getVisibleStates();
+
+  // Build state filter
+  let stateFilter = "";
+  if (visibleStateSet.size > 0) {
+    const states = [...visibleStateSet].map((s) => `'${s}'`).join(",");
+    stateFilter = ` AND UPPER(state) IN (${states})`;
+  }
 
   const { results: totalRows } = await db
-    .prepare("SELECT COUNT(*) as total FROM prospects")
+    .prepare(`SELECT COUNT(*) as total FROM prospects WHERE 1=1${stateFilter}`)
     .all<{ total: number }>();
   const totalProspects = totalRows[0]?.total ?? 0;
 
@@ -26,7 +35,7 @@ export default async function GoogleMapsInfoPage() {
     .prepare(
       `SELECT google_category, COUNT(*) as count
        FROM prospects
-       WHERE google_category IS NOT NULL AND google_category != ''
+       WHERE google_category IS NOT NULL AND google_category != ''${stateFilter}
        GROUP BY google_category
        ORDER BY count DESC`
     )

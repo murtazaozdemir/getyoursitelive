@@ -4,6 +4,7 @@ import { listBusinesses } from "@/lib/db";
 import { listProspects } from "@/lib/prospects";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses, findUserById } from "@/lib/users";
+import { getVisibleStates } from "@/lib/state-visibility";
 import { FilterSortBar } from "@/app/admin/filter-bar";
 import { parseAddress, unique } from "@/lib/address-utils";
 import { zipCoords } from "@/lib/geo";
@@ -140,12 +141,20 @@ export default async function ClientsPage({
   const sortDir = (params.sortDir ?? (sortBy === "distance" ? "asc" : "asc")) as "asc" | "desc";
 
   const [all, prospects] = await Promise.all([listBusinesses(), listProspects()]);
+  const visibleStateSet = await getVisibleStates();
   const prospectBySlug = Object.fromEntries(prospects.map((p) => [p.slug, p]));
 
   // Only businesses that are paying clients (paid/delivered) or have no prospect record
+  // Also filter by visible states
   const clients = all.filter((b) => {
     const p = prospectBySlug[b.slug];
-    return !p || p.status === "paid" || p.status === "delivered";
+    if (!(!p || p.status === "paid" || p.status === "delivered")) return false;
+    // Apply state visibility filter
+    if (visibleStateSet.size > 0) {
+      const { state } = parseAddress(b.address);
+      if (!state || !visibleStateSet.has(state.toUpperCase())) return false;
+    }
+    return true;
   });
 
   // Enrich with parsed address parts + distance

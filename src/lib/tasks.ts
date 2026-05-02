@@ -1,4 +1,5 @@
 import { getD1 } from "@/lib/db-d1";
+import { getVisibleStates } from "@/lib/state-visibility";
 
 // ---------------------------------------------------------------
 // Types
@@ -304,16 +305,27 @@ export async function searchProspectsForTask(
   query: string,
 ): Promise<{ slug: string; name: string; address: string; contacted: boolean }[]> {
   const db = await getD1();
+  const visibleStateSet = await getVisibleStates();
+
+  // Build state filter clause
+  let stateClause = "";
+  const binds: string[] = [`%${query}%`, taskId];
+  if (visibleStateSet.size > 0) {
+    const placeholders = [...visibleStateSet].map(() => "?").join(",");
+    stateClause = ` AND UPPER(p.state) IN (${placeholders})`;
+    binds.push(...visibleStateSet);
+  }
+
   const { results } = await db
     .prepare(
       `SELECT p.slug, p.name, p.address, p.status
        FROM prospects p
        WHERE p.name LIKE ?
-         AND p.slug NOT IN (SELECT prospect_slug FROM task_items WHERE task_id = ?)
+         AND p.slug NOT IN (SELECT prospect_slug FROM task_items WHERE task_id = ?)${stateClause}
        ORDER BY p.name ASC
        LIMIT 20`,
     )
-    .bind(`%${query}%`, taskId)
+    .bind(...binds)
     .all<{ slug: string; name: string; address: string; status: string | null }>();
   return results.map((r) => ({
     slug: r.slug,

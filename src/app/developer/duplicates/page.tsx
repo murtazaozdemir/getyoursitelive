@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { isDeveloper } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
+import { getVisibleStates } from "@/lib/state-visibility";
+import { parseAddress } from "@/lib/address-utils";
 import { DuplicatesView } from "./duplicates-view";
 
 export const metadata = {
@@ -262,6 +264,18 @@ export default async function DuplicatesPage() {
     }
   }
 
+  // Filter groups by visible states
+  const visibleStateSet = await getVisibleStates();
+  const filteredGroups = visibleStateSet.size === 0 ? groups : groups
+    .map((g) => ({
+      ...g,
+      prospects: g.prospects.filter((p) => {
+        const { state } = parseAddress(p.address);
+        return state && visibleStateSet.has(state.toUpperCase());
+      }),
+    }))
+    .filter((g) => g.prospects.length >= 2);
+
   return (
     <div className="admin-page">
       <div className="admin-page-header">
@@ -276,41 +290,41 @@ export default async function DuplicatesPage() {
 
       <div className="admin-stats-row" style={{ marginBottom: "1.5rem" }}>
         <div className="admin-stat-card">
-          <span className="admin-stat-value">{groups.length}</span>
+          <span className="admin-stat-value">{filteredGroups.length}</span>
           <span className="admin-stat-label">Duplicate groups</span>
         </div>
         <div className="admin-stat-card">
           <span className="admin-stat-value">
-            {groups.reduce((sum, g) => sum + g.prospects.length - 1, 0)}
+            {filteredGroups.reduce((sum, g) => sum + g.prospects.length - 1, 0)}
           </span>
           <span className="admin-stat-label">Extra records to clean</span>
         </div>
         <div className="admin-stat-card">
           <span className="admin-stat-value">
-            {groups.filter((g) => g.type === "place_id").length}
+            {filteredGroups.filter((g) => g.type === "place_id").length}
           </span>
           <span className="admin-stat-label">Same Place ID</span>
         </div>
         <div className="admin-stat-card">
           <span className="admin-stat-value">
-            {groups.filter((g) => g.type === "phone").length}
+            {filteredGroups.filter((g) => g.type === "phone").length}
           </span>
           <span className="admin-stat-label">Same phone</span>
         </div>
         <div className="admin-stat-card">
           <span className="admin-stat-value">
-            {groups.filter((g) => g.type === "name_address").length}
+            {filteredGroups.filter((g) => g.type === "name_address").length}
           </span>
           <span className="admin-stat-label">Same name + address</span>
         </div>
       </div>
 
-      {groups.length === 0 ? (
+      {filteredGroups.length === 0 ? (
         <div className="admin-empty" style={{ marginTop: "2rem" }}>
           <p>No duplicates found. Database is clean.</p>
         </div>
       ) : (
-        <DuplicatesView groups={groups} />
+        <DuplicatesView groups={filteredGroups} />
       )}
     </div>
   );

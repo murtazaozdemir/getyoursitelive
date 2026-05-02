@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
 import { isDeveloper } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
+import { getVisibleStates } from "@/lib/state-visibility";
 
 export const metadata = {
   title: "Google Fields · Admin",
@@ -44,9 +45,15 @@ export default async function GoogleFieldsPage() {
   if (!isDeveloper(user)) redirect("/admin");
 
   const db = await getD1();
+  const visibleStateSet = await getVisibleStates();
+  let stateFilter = "";
+  if (visibleStateSet.size > 0) {
+    const states = [...visibleStateSet].map((s) => `'${s}'`).join(",");
+    stateFilter = ` WHERE UPPER(state) IN (${states})`;
+  }
 
   const { results: totalRows } = await db
-    .prepare("SELECT COUNT(*) as total FROM prospects")
+    .prepare(`SELECT COUNT(*) as total FROM prospects${stateFilter}`)
     .all<{ total: number }>();
   const totalProspects = totalRows[0]?.total ?? 0;
 
@@ -54,19 +61,20 @@ export default async function GoogleFieldsPage() {
   const fieldStats: FieldStat[] = [];
   for (const f of GOOGLE_FIELDS) {
     const isText = f.type.startsWith("TEXT");
+    const whereClause = stateFilter || "";
     const query = isText
       ? `SELECT
            COUNT(CASE WHEN ${f.dbColumn} IS NOT NULL AND ${f.dbColumn} != '' THEN 1 END) as filled,
            COUNT(CASE WHEN ${f.dbColumn} IS NULL OR ${f.dbColumn} = '' THEN 1 END) as empty,
            CAST(AVG(CASE WHEN ${f.dbColumn} IS NOT NULL AND ${f.dbColumn} != '' THEN LENGTH(${f.dbColumn}) END) AS INTEGER) as avg_len,
            MAX(LENGTH(${f.dbColumn})) as max_len
-         FROM prospects`
+         FROM prospects${whereClause}`
       : `SELECT
            COUNT(CASE WHEN ${f.dbColumn} IS NOT NULL THEN 1 END) as filled,
            COUNT(CASE WHEN ${f.dbColumn} IS NULL THEN 1 END) as empty,
            NULL as avg_len,
            NULL as max_len
-         FROM prospects`;
+         FROM prospects${whereClause}`;
 
     const { results } = await db.prepare(query).all<{
       filled: number;
@@ -91,7 +99,7 @@ export default async function GoogleFieldsPage() {
     .map((f) => `COALESCE(SUM(LENGTH(${f.dbColumn})), 0)`)
     .join(" + ");
   const { results: sizeRows } = await db
-    .prepare(`SELECT (${sizeQuery}) as total_bytes FROM prospects`)
+    .prepare(`SELECT (${sizeQuery}) as total_bytes FROM prospects${stateFilter}`)
     .all<{ total_bytes: number }>();
   const totalGoogleBytes = sizeRows[0]?.total_bytes ?? 0;
 
