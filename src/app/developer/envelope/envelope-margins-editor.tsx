@@ -90,7 +90,7 @@ export function EnvelopeMarginsEditor({
         <div className="em-env" style={{ width: W, height: H }}>
           {tab === "front" ? (
             <>
-              {/* ═══ FLAP OPENING (front: slit at top) ═══ */}
+              {/* ═══ FLAP OPENING (front: slit on right short edge) ═══ */}
               <div className="em-flap-front">
                 <span className="em-flap-label">opening slit</span>
               </div>
@@ -204,12 +204,12 @@ export function EnvelopeMarginsEditor({
           ) : (
             /* ═══════ BACK SIDE ═══════ */
             <>
-              {/* ═══ FLAP (back: triangular fold at top) ═══ */}
+              {/* ═══ FLAP (back: triangular fold on right short edge) ═══ */}
               <div className="em-flap-back">
-                <svg width={W} height="50" viewBox={`0 0 ${W} 50`} preserveAspectRatio="none">
-                  <path d={`M 0 0 L ${W} 0 L ${W / 2} 46`} fill="rgba(0,0,0,0.04)" stroke="#bbb" strokeWidth="1" />
+                <svg width="50" height={H} viewBox={`0 0 50 ${H}`} preserveAspectRatio="none">
+                  <path d={`M 50 0 L 50 ${H} L 4 ${H / 2}`} fill="rgba(0,0,0,0.04)" stroke="#bbb" strokeWidth="1" />
                 </svg>
-                <span className="em-flap-label-back">flap (folds down to seal)</span>
+                <span className="em-flap-label-back">flap (folds left to seal)</span>
               </div>
 
               {/* Content boundary box */}
@@ -335,7 +335,7 @@ export function EnvelopeMarginsEditor({
         .em-tab:hover { color:#444; }
         .em-tab--on { color:#1a6b50; border-bottom-color:#1a6b50; }
 
-        .em-scroll { overflow-x:auto; padding:16px 0; padding-top:60px; }
+        .em-scroll { overflow-x:auto; padding:16px 60px 16px 0; }
         .em-size { font-size:12px; color:#999; margin-bottom:8px; font-family:monospace; }
 
         .em-env {
@@ -476,24 +476,25 @@ export function EnvelopeMarginsEditor({
           background:rgba(245,158,11,0.04);
         }
 
-        /* ── Flap indicators ── */
+        /* ── Flap indicators (on the RIGHT / short edge) ── */
         .em-flap-front {
-          position:absolute; top:0; left:0; right:0; height:6px;
-          border-bottom:2px dashed #bbb;
-          background:repeating-linear-gradient(90deg, transparent, transparent 6px, rgba(0,0,0,0.03) 6px, rgba(0,0,0,0.03) 12px);
+          position:absolute; top:0; right:0; bottom:0; width:6px;
+          border-left:2px dashed #bbb;
+          background:repeating-linear-gradient(0deg, transparent, transparent 6px, rgba(0,0,0,0.03) 6px, rgba(0,0,0,0.03) 12px);
           z-index:5;
         }
         .em-flap-label {
-          position:absolute; top:8px; right:12px;
+          position:absolute; top:50%; right:12px;
+          transform:translateY(-50%) rotate(-90deg);
           font-size:9px; color:#aaa; font-style:italic;
-          letter-spacing:0.03em;
+          letter-spacing:0.03em; white-space:nowrap;
         }
         .em-flap-back {
-          position:absolute; top:-50px; left:0; right:0; height:50px;
+          position:absolute; top:0; right:-50px; bottom:0; width:50px;
           pointer-events:none; z-index:5;
         }
         .em-flap-label-back {
-          position:absolute; top:8px; left:50%; transform:translateX(-50%);
+          position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-90deg);
           font-size:9px; color:#aaa; font-style:italic;
           letter-spacing:0.03em; white-space:nowrap;
         }
