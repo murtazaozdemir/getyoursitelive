@@ -6,22 +6,56 @@ export interface StateVisibility {
   visible: boolean;
 }
 
+/** Ensure the state_visibility table exists and is seeded with all US states */
+async function ensureTable(): Promise<void> {
+  const db = await getD1();
+  try {
+    // Check if table has data
+    const check = await db
+      .prepare("SELECT COUNT(*) as cnt FROM state_visibility")
+      .first<{ cnt: number }>();
+    if (check && check.cnt > 0) return; // Already seeded
+  } catch {
+    // Table doesn't exist — create it
+    console.log("[state-visibility] creating state_visibility table");
+    await db
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS state_visibility (
+           state TEXT PRIMARY KEY,
+           name TEXT NOT NULL,
+           visible INTEGER NOT NULL DEFAULT 0
+         )`
+      )
+      .run();
+  }
+
+  // Seed with all US states (all hidden by default)
+  console.log("[state-visibility] seeding state_visibility with US states");
+  const { US_STATES } = await import("./us-states");
+  for (const s of US_STATES) {
+    await db
+      .prepare(
+        `INSERT OR IGNORE INTO state_visibility (state, name, visible) VALUES (?, ?, 0)`
+      )
+      .bind(s.abbr, s.name)
+      .run();
+  }
+}
+
 /** Get all states with their visibility status */
 export async function listStateVisibility(): Promise<StateVisibility[]> {
   try {
+    await ensureTable();
     const db = await getD1();
     const { results } = await db
       .prepare("SELECT state, name, visible FROM state_visibility ORDER BY name")
       .all<{ state: string; name: string; visible: number }>();
-    if (results.length > 0) {
-      return results.map((r) => ({ state: r.state, name: r.name, visible: r.visible === 1 }));
-    }
-  } catch {
-    // Table doesn't exist yet
+    return results.map((r) => ({ state: r.state, name: r.name, visible: r.visible === 1 }));
+  } catch (e) {
+    console.error(`[state-visibility] listStateVisibility error=${e instanceof Error ? e.message : String(e)}`);
+    const { US_STATES } = await import("./us-states");
+    return US_STATES.map((s) => ({ state: s.abbr, name: s.name, visible: false }));
   }
-  // Fallback: return all US states from the static list, all hidden
-  const { US_STATES } = await import("./us-states");
-  return US_STATES.map((s) => ({ state: s.abbr, name: s.name, visible: false }));
 }
 
 /** Get only the visible state abbreviations. Returns empty set if table doesn't exist yet. */
@@ -33,16 +67,20 @@ export async function getVisibleStates(): Promise<Set<string>> {
       .all<{ state: string }>();
     return new Set(results.map((r) => r.state));
   } catch {
-    // Table doesn't exist yet — show all states
     return new Set();
   }
 }
 
 /** Toggle a state's visibility */
 export async function setStateVisible(state: string, visible: boolean): Promise<void> {
+  await ensureTable();
   const db = await getD1();
+  console.log(`[state-visibility] setStateVisible state=${state} visible=${visible}`);
   await db
-    .prepare("UPDATE state_visibility SET visible = ? WHERE state = ?")
-    .bind(visible ? 1 : 0, state)
+    .prepare(
+      `INSERT INTO state_visibility (state, name, visible) VALUES (?, ?, ?)
+       ON CONFLICT(state) DO UPDATE SET visible = excluded.visible`
+    )
+    .bind(state, state, visible ? 1 : 0)
     .run();
 }
