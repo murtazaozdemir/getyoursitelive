@@ -212,9 +212,6 @@ export function EnvelopeMarginsEditor({
                 <span className="em-flap-label-back">flap (folds down to seal)</span>
               </div>
 
-              {/* Small note at top */}
-              <div className="em-back-note">For delivery address see other side</div>
-
               {/* Content boundary box */}
               <div
                 className="em-back-boundary"
@@ -396,11 +393,6 @@ export function EnvelopeMarginsEditor({
         .em-svg { position:absolute; overflow:visible; pointer-events:none; }
 
         /* ── Back side ── */
-        .em-back-note {
-          position:absolute; top:14px; left:0; right:0;
-          text-align:center; font-size:8px; color:#bbb;
-          letter-spacing:0.06em; text-transform:uppercase;
-        }
         .em-back-boundary {
           position:absolute;
           border:2px dashed #1a6b50;

@@ -282,7 +282,6 @@ export async function printEnvelopes(prospects: PrintableProspect[], sender: Sen
 
       <!-- BACK -->
       <div class="env-page">
-        <div class="env-back-note">For delivery address see other side</div>
 
         <div class="env-back-content">
           <div class="env-back-headline">We built a website for <strong>${esc(p.name)}.</strong></div>
@@ -387,19 +386,6 @@ export async function printEnvelopes(prospects: PrintableProspect[], sender: Sen
     right: 0;
     width: 4.75in;
     height: 0.625in;
-  }
-
-  /* ── BACK: Compliance note (right-side up) ── */
-  .env-back-note {
-    position: absolute;
-    top: 0.3in;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 7pt;
-    color: #aaa;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
 
   /* ── BACK: Marketing content ──
@@ -570,7 +556,6 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
 
       <!-- BACK -->
       <div class="env2-page">
-        <div class="env2-back-note">For delivery address see other side</div>
 
         <div class="env2-back-split">
           <div class="env2-back-left">
@@ -681,19 +666,6 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
     right: 0;
     width: 4.75in;
     height: 0.625in;
-  }
-
-  /* ── BACK: Compliance note (right-side up) ── */
-  .env2-back-note {
-    position: absolute;
-    top: 0.3in;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 7pt;
-    color: #aaa;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
 
   /* ── BACK: Stacked layout — text+QR top, screenshot bottom ── */
