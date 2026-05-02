@@ -42,19 +42,43 @@ async function ensureTable(): Promise<void> {
   }
 }
 
-/** Get all states with their visibility status */
+/** Get states that actually have leads in the DB */
+async function getStatesWithLeads(): Promise<Set<string>> {
+  try {
+    const db = await getD1();
+    const { results } = await db
+      .prepare("SELECT address FROM businesses WHERE address IS NOT NULL AND address != ''")
+      .all<{ address: string }>();
+    const { parseAddress } = await import("./address-utils");
+    const states = new Set<string>();
+    for (const r of results) {
+      const { state } = parseAddress(r.address);
+      if (state) states.add(state.toUpperCase());
+    }
+    console.log(`[state-visibility] found ${states.size} states with leads`);
+    return states;
+  } catch (e) {
+    console.error(`[state-visibility] getStatesWithLeads error=${e instanceof Error ? e.message : String(e)}`);
+    return new Set();
+  }
+}
+
+/** Get all states that have leads, with their visibility status */
 export async function listStateVisibility(): Promise<StateVisibility[]> {
   try {
     await ensureTable();
     const db = await getD1();
+    const statesWithLeads = await getStatesWithLeads();
     const { results } = await db
       .prepare("SELECT state, name, visible FROM state_visibility ORDER BY name")
       .all<{ state: string; name: string; visible: number }>();
-    return results.map((r) => ({ state: r.state, name: r.name, visible: r.visible === 1 }));
+    // Only show states that have actual leads data
+    return results
+      .filter((r) => statesWithLeads.has(r.state))
+      .map((r) => ({ state: r.state, name: r.name, visible: r.visible === 1 }));
   } catch (e) {
     console.error(`[state-visibility] listStateVisibility error=${e instanceof Error ? e.message : String(e)}`);
-    const { US_STATES } = await import("./us-states");
-    return US_STATES.map((s) => ({ state: s.abbr, name: s.name, visible: false }));
+    return [];
   }
 }
 
