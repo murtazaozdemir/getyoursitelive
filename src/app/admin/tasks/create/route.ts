@@ -28,10 +28,11 @@ export async function POST(req: Request) {
   }
 
   const id = crypto.randomUUID();
+  const customName = (formData.get("name") as string)?.trim();
   const today = new Date().toLocaleDateString("en-US", {
     month: "short", day: "numeric", year: "numeric",
   });
-  const name = `Task - ${today}`;
+  const name = customName || `Task - ${today}`;
 
   await createTask(
     { id, name, createdBy: user.id, createdByName: user.name },

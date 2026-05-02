@@ -112,6 +112,12 @@ export function LeadCards({ prospects, userHome, senderInfo }: { prospects: Lead
 
 
   function handleCreateTask() {
+    const today = new Date().toLocaleDateString("en-US", {
+      month: "short", day: "numeric", year: "numeric",
+    });
+    const defaultName = `Task - ${today}`;
+    const name = prompt("Task name:", defaultName);
+    if (!name) return; // cancelled
     const slugs = prospects
       .filter((p) => selected.has(p.slug))
       .map((p) => p.slug)
@@ -119,11 +125,16 @@ export function LeadCards({ prospects, userHome, senderInfo }: { prospects: Lead
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/admin/tasks/create";
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = "slugs";
-    input.value = slugs;
-    form.appendChild(input);
+    const slugInput = document.createElement("input");
+    slugInput.type = "hidden";
+    slugInput.name = "slugs";
+    slugInput.value = slugs;
+    form.appendChild(slugInput);
+    const nameInput = document.createElement("input");
+    nameInput.type = "hidden";
+    nameInput.name = "name";
+    nameInput.value = name.trim();
+    form.appendChild(nameInput);
     document.body.appendChild(form);
     form.submit();
   }

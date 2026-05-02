@@ -312,8 +312,8 @@ export function TaskDetailClient({
           ) : (
             <h1
               className="task-detail-name"
-              onClick={() => effectiveStatus === "active" && setEditingName(true)}
-              title={effectiveStatus === "active" ? "Click to rename" : undefined}
+              onClick={() => setEditingName(true)}
+              title="Click to rename"
             >
               {taskName}
             </h1>
