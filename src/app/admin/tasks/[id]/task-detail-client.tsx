@@ -583,8 +583,10 @@ function TaskItemRow({
   onRemove?: () => void;
 }) {
   const [notes, setNotes] = useState(item.notes);
-  // Sync local notes when parent bulk-updates item.notes
+  const [contactMethod, setContactMethod] = useState(item.prospectContactMethod || "");
+  // Sync local state when parent bulk-updates
   useEffect(() => { setNotes(item.notes); }, [item.notes]);
+  useEffect(() => { setContactMethod(item.prospectContactMethod || ""); }, [item.prospectContactMethod]);
   const isReached = item.status === "dropped_off";
   const q = highlight || "";
 
@@ -618,8 +620,8 @@ function TaskItemRow({
         )}
         <select
           className="task-item-method"
-          value={item.prospectContactMethod || ""}
-          onChange={(e) => onContactMethodChange?.(e.target.value)}
+          value={contactMethod}
+          onChange={(e) => { setContactMethod(e.target.value); onContactMethodChange?.(e.target.value); }}
         >
           <option value="">Contact method...</option>
           {CONTACT_METHODS.map((m) => (
