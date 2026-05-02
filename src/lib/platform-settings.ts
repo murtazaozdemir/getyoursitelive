@@ -73,10 +73,10 @@ export const ENVELOPE1_DEFAULTS: EnvelopeMargins = {
   noticeLeft: "3.0",
   recipientTop: "3.35",
   recipientLeft: "2.6",
-  backContentTop: "1.6",
+  backContentTop: "0.75",
   backContentBottom: "0.75",
   backContentLeft: "0.6",
-  backContentRight: "0.6",
+  backContentRight: "1.6",
 };
 
 export const ENVELOPE2_DEFAULTS: EnvelopeMargins = {
@@ -88,10 +88,10 @@ export const ENVELOPE2_DEFAULTS: EnvelopeMargins = {
   noticeLeft: "3.0",
   recipientTop: "3.35",
   recipientLeft: "2.6",
-  backContentTop: "1.6",
+  backContentTop: "0.15",
   backContentBottom: "0.15",
   backContentLeft: "0.15",
-  backContentRight: "0.15",
+  backContentRight: "1.6",
 };
 
 export async function getEnvelopeMargins(envelope: "envelope1" | "envelope2"): Promise<EnvelopeMargins> {
