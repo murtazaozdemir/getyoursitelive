@@ -88,11 +88,12 @@ export function TaskDetailClient({
   function handleToggleItem(itemId: string, currentStatus: string) {
     const newStatus = currentStatus === "pending" ? "dropped_off" : "pending";
     if (newStatus === "pending") setWasReopened(false);
+    const item = items.find((i) => i.id === itemId);
     setItems((prev) =>
       prev.map((i) => (i.id === itemId ? { ...i, status: newStatus as "pending" | "dropped_off" } : i))
     );
     startTransition(() => {
-      toggleItemDroppedOffAction(itemId, newStatus === "dropped_off");
+      toggleItemDroppedOffAction(itemId, newStatus === "dropped_off", item?.prospectContactMethod || undefined);
     });
   }
 
@@ -110,7 +111,7 @@ export function TaskDetailClient({
       const pending = items.filter((i) => i.status === "pending");
       setItems((prev) => prev.map((i) => ({ ...i, status: "dropped_off" as const })));
       pending.forEach((i) => {
-        startTransition(() => { toggleItemDroppedOffAction(i.id, true); });
+        startTransition(() => { toggleItemDroppedOffAction(i.id, true, i.prospectContactMethod || undefined); });
       });
     }
   }

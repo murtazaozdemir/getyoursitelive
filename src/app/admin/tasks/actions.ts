@@ -105,13 +105,17 @@ export async function toggleItemDroppedOffAction(itemId: string, droppedOff: boo
   if (droppedOff) {
     const slug = await getTaskItemSlug(itemId);
     if (slug) {
-      await updateProspect(slug, {
+      const patch: Record<string, string> = {
         status: "contacted",
         contactedBy: user.email,
         contactedByName: user.name,
         contactedAt: new Date().toISOString(),
-        contactMethod: contactMethod || "visit",
-      });
+      };
+      // Only set contact method if provided; preserve whatever was already saved
+      if (contactMethod) {
+        patch.contactMethod = contactMethod;
+      }
+      await updateProspect(slug, patch);
     }
   }
 }
