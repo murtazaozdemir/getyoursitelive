@@ -129,6 +129,7 @@
   letter-spacing: 0.04em;
   padding: 3px 10px;
   border-radius: 999px;
+  margin-left: 10px;
 }
 .task-status-badge--active {
   background: color-mix(in srgb, var(--admin-accent) 12%, transparent);
