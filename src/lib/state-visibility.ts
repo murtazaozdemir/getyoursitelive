@@ -47,14 +47,9 @@ async function getStatesWithLeads(): Promise<Set<string>> {
   try {
     const db = await getD1();
     const { results } = await db
-      .prepare("SELECT address FROM businesses WHERE address IS NOT NULL AND address != ''")
-      .all<{ address: string }>();
-    const { parseAddress } = await import("./address-utils");
-    const states = new Set<string>();
-    for (const r of results) {
-      const { state } = parseAddress(r.address);
-      if (state) states.add(state.toUpperCase());
-    }
+      .prepare("SELECT DISTINCT UPPER(state) as state FROM prospects WHERE state IS NOT NULL AND state != ''")
+      .all<{ state: string }>();
+    const states = new Set<string>(results.map((r) => r.state));
     console.log(`[state-visibility] found ${states.size} states with leads`);
     return states;
   } catch (e) {
