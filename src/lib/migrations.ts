@@ -778,6 +778,29 @@ export const MIGRATIONS: Record<string, { description: string; fn: () => Promise
       return { updated, skipped: 0, log };
     },
   },
+
+  "create-platform-settings": {
+    description: "Create platform_settings table for envelope margins and other settings",
+    fn: async () => {
+      const db = await getD1();
+      const log: string[] = [];
+      let updated = 0;
+
+      try {
+        await db.prepare(`
+          CREATE TABLE IF NOT EXISTS platform_settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL,
+            updated_at TEXT NOT NULL DEFAULT ''
+          )
+        `).run();
+        log.push("Created platform_settings table");
+        updated++;
+      } catch { log.push("platform_settings table already exists"); }
+
+      return { updated, skipped: 0, log };
+    },
+  },
 };
 
 /** Get list of migration names + descriptions for the UI */
