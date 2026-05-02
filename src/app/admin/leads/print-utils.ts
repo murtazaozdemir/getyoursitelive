@@ -663,27 +663,26 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
     text-transform: uppercase;
   }
 
-  /* ── BACK: Split layout — screenshot left, text+QR right ── */
+  /* ── BACK: Stacked layout — text+QR top, screenshot bottom ── */
   .env2-back-split {
     position: absolute;
     bottom: 0.15in;
-    left: 0.25in;
-    right: 0.25in;
+    left: 0.15in;
+    right: 0.15in;
     top: 0.15in;
     display: flex;
-    align-items: flex-start;
-    gap: 0.25in;
+    flex-direction: column;
+    gap: 0.15in;
     transform: rotate(180deg);
     transform-origin: center center;
   }
 
   .env2-back-left {
-    flex: 2;
+    flex: 1;
     overflow: hidden;
     border: 1px solid #ddd;
     border-radius: 4px;
     background: #fff;
-    aspect-ratio: 2 / 1;
   }
   .env2-back-screenshot {
     width: 100%;
@@ -693,13 +692,12 @@ export async function printEnvelopes2(prospects: PrintableProspect[], sender: Se
   }
 
   .env2-back-right {
-    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     text-align: center;
-    gap: 4px;
+    gap: 3px;
+    padding: 0.05in 0;
   }
 
   .env2-back-headline {
