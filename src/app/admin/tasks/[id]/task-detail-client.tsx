@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useTransition, useMemo } from "react";
+import { useState, useRef, useTransition, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Task, TaskItemWithProspect } from "@/lib/tasks";
@@ -533,6 +533,8 @@ function TaskItemRow({
   onRemove?: () => void;
 }) {
   const [notes, setNotes] = useState(item.notes);
+  // Sync local notes when parent bulk-updates item.notes
+  useEffect(() => { setNotes(item.notes); }, [item.notes]);
   const isReached = item.status === "dropped_off";
   const q = highlight || "";
 
