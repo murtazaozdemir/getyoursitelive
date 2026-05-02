@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { isDeveloper } from "@/lib/users";
 import { getD1 } from "@/lib/db-d1";
+import { getVisibleStates } from "@/lib/state-visibility";
 import { DomainsView } from "./domains-view";
 
 export const metadata = {
@@ -58,21 +59,28 @@ export default async function DomainsPage() {
       domain3: string;
     }>();
 
-  const prospects: ProspectNoDomain[] = results.map((r) => ({
-    slug: r.slug,
-    shortId: r.short_id,
-    name: r.name,
-    phone: r.phone,
-    address: r.address,
-    city: r.city ?? "",
-    state: r.state ?? "",
-    googleCategory: r.google_category ?? "",
-    domain1: r.domain1,
-    domain2: r.domain2,
-    domain3: r.domain3,
-  }));
+  // Filter by visible states
+  const visibleStateSet = await getVisibleStates();
 
-  // Build filter options from all prospects (no state visibility filtering — this is a developer tool)
+  const prospects: ProspectNoDomain[] = results
+    .filter((r) => {
+      if (visibleStateSet.size === 0) return true;
+      return r.state ? visibleStateSet.has(r.state.toUpperCase()) : false;
+    })
+    .map((r) => ({
+      slug: r.slug,
+      shortId: r.short_id,
+      name: r.name,
+      phone: r.phone,
+      address: r.address,
+      city: r.city ?? "",
+      state: r.state ?? "",
+      googleCategory: r.google_category ?? "",
+      domain1: r.domain1,
+      domain2: r.domain2,
+      domain3: r.domain3,
+    }));
+
   const states = [...new Set(prospects.map((p) => p.state).filter(Boolean))].sort();
   const cities = [...new Set(prospects.map((p) => p.city).filter(Boolean))].sort();
 
