@@ -118,13 +118,11 @@ export function AdminHeader({ user, isDeveloper }: { user: SessionUser; isDevelo
                   <HelpCircle className="admin-account-dropdown-icon" /> Help &amp; Guide
                 </Link>
                 {isDeveloper && (
-                  <Link href="/developer/help" className="admin-account-dropdown-item">
-                    <HelpCircle className="admin-account-dropdown-icon" /> Developer Only Help
-                  </Link>
-                )}
-                {isDeveloper && (
                   <>
                     <div className="admin-account-dropdown-divider" />
+                    <Link href="/developer/help" className="admin-account-dropdown-item">
+                      <HelpCircle className="admin-account-dropdown-icon" /> Developer Only Help
+                    </Link>
                     <Link href="/developer/users" className="admin-account-dropdown-item">
                       <Users className="admin-account-dropdown-icon" /> Users
                     </Link>
