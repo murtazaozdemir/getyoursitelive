@@ -72,6 +72,9 @@ export function TaskDetailClient({
   const reachedItems = filteredItems.filter((i) => i.status === "dropped_off");
   const totalCount = items.length;
   const remainingCount = items.filter((i) => i.status === "pending").length;
+  const [taskStatus, setTaskStatus] = useState(task.status);
+  // Auto-complete when all items are reached
+  const effectiveStatus = (totalCount > 0 && remainingCount === 0) ? "completed" : taskStatus;
 
   function handleRename() {
     if (!taskName.trim()) return;
@@ -134,12 +137,14 @@ export function TaskDetailClient({
   }
 
   function handleComplete() {
+    setTaskStatus("completed");
     startTransition(() => {
       completeTaskAction(task.id).then(() => router.refresh());
     });
   }
 
   function handleReopen() {
+    setTaskStatus("active");
     startTransition(() => {
       reopenTaskAction(task.id).then(() => router.refresh());
     });
@@ -285,15 +290,15 @@ export function TaskDetailClient({
           ) : (
             <h1
               className="task-detail-name"
-              onClick={() => task.status === "active" && setEditingName(true)}
-              title={task.status === "active" ? "Click to rename" : undefined}
+              onClick={() => effectiveStatus === "active" && setEditingName(true)}
+              title={effectiveStatus === "active" ? "Click to rename" : undefined}
             >
               {taskName}
             </h1>
           )}
 
-          <span className={`task-status-badge task-status-badge--${task.status}`}>
-            {task.status === "active" ? "Active" : "Completed"}
+          <span className={`task-status-badge task-status-badge--${effectiveStatus}`}>
+            {effectiveStatus === "active" ? "Active" : "Completed ✓"}
           </span>
         </div>
 
@@ -320,7 +325,7 @@ export function TaskDetailClient({
       </div>
 
       {/* Toolbar */}
-      {task.status === "active" && (
+      {effectiveStatus === "active" && (
         <div className="task-detail-toolbar">
           <button type="button" className="admin-btn admin-btn--primary" onClick={() => setShowAddLeads(!showAddLeads)} disabled={isPending}>
             + Add leads
@@ -452,7 +457,7 @@ export function TaskDetailClient({
                 onToggle={() => handleToggleItem(item.id, item.status)}
                 onNotesBlur={(notes) => handleNotesBlur(item.id, notes)}
                 onContactMethodChange={(method) => handleContactMethodChange(item.id, method)}
-                onRemove={task.status === "active" ? () => handleRemoveItem(item.id, item.prospectName) : undefined}
+                onRemove={effectiveStatus === "active" ? () => handleRemoveItem(item.id, item.prospectName) : undefined}
               />
             ))}
           </div>
@@ -469,7 +474,7 @@ export function TaskDetailClient({
                 onToggle={() => handleToggleItem(item.id, item.status)}
                 onNotesBlur={(notes) => handleNotesBlur(item.id, notes)}
                 onContactMethodChange={(method) => handleContactMethodChange(item.id, method)}
-                onRemove={task.status === "active" ? () => handleRemoveItem(item.id, item.prospectName) : undefined}
+                onRemove={effectiveStatus === "active" ? () => handleRemoveItem(item.id, item.prospectName) : undefined}
               />
             ))}
           </div>
@@ -478,7 +483,7 @@ export function TaskDetailClient({
 
       {/* Actions */}
       <div className="task-detail-actions">
-        {task.status === "active" ? (
+        {effectiveStatus === "active" ? (
           <button type="button" className="admin-btn admin-btn--primary" onClick={handleComplete} disabled={isPending}>
             Mark as complete
           </button>
