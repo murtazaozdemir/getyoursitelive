@@ -446,6 +446,25 @@
   opacity: 0.5;
 }
 
+/* Select All */
+.task-select-all {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  margin-bottom: 4px;
+}
+.task-select-all-check {
+  width: 22px;
+  height: 22px;
+}
+.task-select-all-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-text-soft);
+  cursor: default;
+}
+
 /* Contact method dropdown on each task item */
 .task-item-method {
   font-size: 12px;

@@ -73,8 +73,9 @@ export function TaskDetailClient({
   const totalCount = items.length;
   const remainingCount = items.filter((i) => i.status === "pending").length;
   const [taskStatus, setTaskStatus] = useState(task.status);
-  // Auto-complete when all items are reached
-  const effectiveStatus = (totalCount > 0 && remainingCount === 0) ? "completed" : taskStatus;
+  const [wasReopened, setWasReopened] = useState(false);
+  // Auto-complete when all items are reached, unless explicitly reopened
+  const effectiveStatus = (totalCount > 0 && remainingCount === 0 && !wasReopened) ? "completed" : taskStatus;
 
   function handleRename() {
     if (!taskName.trim()) return;
@@ -86,12 +87,32 @@ export function TaskDetailClient({
 
   function handleToggleItem(itemId: string, currentStatus: string) {
     const newStatus = currentStatus === "pending" ? "dropped_off" : "pending";
+    if (newStatus === "pending") setWasReopened(false);
     setItems((prev) =>
       prev.map((i) => (i.id === itemId ? { ...i, status: newStatus as "pending" | "dropped_off" } : i))
     );
     startTransition(() => {
       toggleItemDroppedOffAction(itemId, newStatus === "dropped_off");
     });
+  }
+
+  function handleSelectAll() {
+    const allReached = pendingItems.length === 0 && reachedItems.length > 0;
+    if (allReached) {
+      // Uncheck all
+      setWasReopened(false);
+      setItems((prev) => prev.map((i) => ({ ...i, status: "pending" as const })));
+      items.forEach((i) => {
+        startTransition(() => { toggleItemDroppedOffAction(i.id, false); });
+      });
+    } else {
+      // Check all
+      const pending = items.filter((i) => i.status === "pending");
+      setItems((prev) => prev.map((i) => ({ ...i, status: "dropped_off" as const })));
+      pending.forEach((i) => {
+        startTransition(() => { toggleItemDroppedOffAction(i.id, true); });
+      });
+    }
   }
 
   function handleContactMethodChange(itemId: string, method: string) {
@@ -145,6 +166,7 @@ export function TaskDetailClient({
 
   function handleReopen() {
     setTaskStatus("active");
+    setWasReopened(true);
     startTransition(() => {
       reopenTaskAction(task.id).then(() => router.refresh());
     });
@@ -423,6 +445,27 @@ export function TaskDetailClient({
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Select All */}
+      {items.length > 0 && effectiveStatus === "active" && (
+        <div className="task-select-all">
+          <button
+            type="button"
+            className="task-item-check task-select-all-check"
+            onClick={handleSelectAll}
+            aria-label={pendingItems.length === 0 ? "Uncheck all" : "Check all"}
+          >
+            {pendingItems.length === 0 && items.length > 0 && (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2 7l3.5 3.5L12 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </button>
+          <span className="task-select-all-label">
+            {pendingItems.length === 0 ? "Uncheck all" : "Select all"}
+          </span>
         </div>
       )}
 
