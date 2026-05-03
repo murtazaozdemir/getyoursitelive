@@ -296,6 +296,35 @@ export function LandingPageClient({
         </div>
       </section>
 
+      {/* ── PRICING ── */}
+      <section className="border-t border-slate-100 px-6 py-14 md:py-16">
+        <div className="mx-auto max-w-3xl text-center">
+          <span className="lp-mono text-[10px] uppercase tracking-[0.25em] text-[#E85D29]">
+            ✦ May 2026 Special
+          </span>
+          <h2 className="lp-display-heading mt-3 text-[clamp(1.75rem,3.5vw,2.75rem)] leading-tight tracking-[-0.02em]">
+            One price. Everything included.
+          </h2>
+          <div className="mt-8 inline-flex items-baseline gap-3">
+            <span className="text-2xl font-medium text-slate-400 line-through decoration-slate-300 decoration-2 md:text-3xl">$750</span>
+            <span className="lp-display-heading text-[clamp(3rem,8vw,5.5rem)] leading-none tracking-[-0.03em]">$500</span>
+          </div>
+          <p className="mt-2 text-sm font-medium text-[#E85D29]">
+            May only — save $250
+          </p>
+          <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-slate-500">
+            One-time payment. No monthly fees, no contracts, no surprises.
+            Domain, design, hosting, and admin panel — all included.
+          </p>
+          <div className="mt-8">
+            <ContactModal
+              label="Get your site for $500 →"
+              className="rounded-full bg-[#E85D29] px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#cf4e20]"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA ── */}
       <section className="border-t border-slate-100 bg-[#0F172A] px-6 py-14 text-white md:py-16">
         <div className="mx-auto max-w-6xl">
