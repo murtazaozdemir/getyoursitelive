@@ -117,26 +117,22 @@ export function TaskDetailClient({
   }
 
   function handleContactMethodChange(itemId: string, method: string) {
-    console.log(`[contact-method] change itemId=${itemId} method=${method}`);
     setItems((prev) =>
       prev.map((i) => (i.id === itemId ? { ...i, prospectContactMethod: method } : i))
     );
-    // Fire-and-forget — don't use startTransition to avoid React re-render
-    updateContactMethodAction(itemId, method).then(() => {
-      console.log(`[contact-method] saved itemId=${itemId} method=${method}`);
+    startTransition(() => {
+      updateContactMethodAction(itemId, method);
     });
   }
 
   function handleBulkContactMethod(method: string) {
     if (!method) return;
-    console.log(`[contact-method] bulk method=${method} count=${items.length}`);
     setItems((prev) =>
       prev.map((i) => ({ ...i, prospectContactMethod: method }))
     );
     const allItemIds = items.map((i) => i.id);
-    // Fire-and-forget
-    bulkUpdateContactMethodAction(allItemIds, method).then(() => {
-      console.log(`[contact-method] bulk saved count=${allItemIds.length}`);
+    startTransition(() => {
+      bulkUpdateContactMethodAction(allItemIds, method);
     });
   }
 
@@ -589,12 +585,8 @@ function TaskItemRow({
 }) {
   const [notes, setNotes] = useState(item.notes);
   const [contactMethod, setContactMethod] = useState(item.prospectContactMethod || "");
-  // Sync local state when parent bulk-updates
   useEffect(() => { setNotes(item.notes); }, [item.notes]);
-  useEffect(() => {
-    console.log(`[contact-method-row] sync prop=${item.prospectContactMethod} local=${contactMethod} slug=${item.prospectSlug}`);
-    setContactMethod(item.prospectContactMethod || "");
-  }, [item.prospectContactMethod]);
+  useEffect(() => { setContactMethod(item.prospectContactMethod || ""); }, [item.prospectContactMethod]);
   const isReached = item.status === "dropped_off";
   const q = highlight || "";
 
@@ -629,11 +621,7 @@ function TaskItemRow({
         <select
           className="task-item-method"
           value={contactMethod}
-          onChange={(e) => {
-            console.log(`[contact-method-row] onChange val=${e.target.value} slug=${item.prospectSlug}`);
-            setContactMethod(e.target.value);
-            onContactMethodChange?.(e.target.value);
-          }}
+          onChange={(e) => { setContactMethod(e.target.value); onContactMethodChange?.(e.target.value); }}
         >
           <option value="">Contact method...</option>
           {CONTACT_METHODS.map((m) => (
