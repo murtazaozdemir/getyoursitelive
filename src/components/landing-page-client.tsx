@@ -309,7 +309,7 @@ export function LandingPageClient({
             <span className="text-2xl font-medium text-slate-400 line-through decoration-slate-300 decoration-2 md:text-3xl">$750</span>
             <span className="lp-display-heading text-[clamp(3rem,8vw,5.5rem)] leading-none tracking-[-0.03em]">$500</span>
           </div>
-          <p className="mt-2 text-sm font-medium text-[#E85D29]">
+          <p className="mt-2 inline-block rounded-full border border-slate-900 px-4 py-1 text-sm font-semibold uppercase tracking-wide text-slate-900">
             May only — save $250
           </p>
           <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-slate-500">
