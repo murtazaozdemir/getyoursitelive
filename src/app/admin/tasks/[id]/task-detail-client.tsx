@@ -19,8 +19,6 @@ import {
   reopenTaskAction,
   toggleItemDroppedOffAction,
   saveItemNotesAction,
-  updateContactMethodAction,
-  bulkUpdateContactMethodAction,
   bulkUpdateNotesAction,
   searchProspectsAction,
   addItemsAction,
@@ -120,8 +118,11 @@ export function TaskDetailClient({
     setItems((prev) =>
       prev.map((i) => (i.id === itemId ? { ...i, prospectContactMethod: method } : i))
     );
-    startTransition(() => {
-      updateContactMethodAction(itemId, method);
+    // Use fetch instead of server action to avoid Next.js re-rendering the page
+    fetch("/api/admin/contact-method", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemIds: [itemId], contactMethod: method }),
     });
   }
 
@@ -130,9 +131,10 @@ export function TaskDetailClient({
     setItems((prev) =>
       prev.map((i) => ({ ...i, prospectContactMethod: method }))
     );
-    const allItemIds = items.map((i) => i.id);
-    startTransition(() => {
-      bulkUpdateContactMethodAction(allItemIds, method);
+    fetch("/api/admin/contact-method", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemIds: items.map((i) => i.id), contactMethod: method }),
     });
   }
 
