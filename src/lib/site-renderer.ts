@@ -21,6 +21,9 @@ import type { Business, BusinessVisibility, HoursSchedule, DaySchedule } from ".
 
 const ICONS = {
   wrench: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+  baby: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/></svg>',
+  scissors: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg>',
+  utensils: '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>',
   shield: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>',
   phone: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
   mapPin: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
@@ -43,6 +46,14 @@ function esc(str: string | undefined | null): string {
 
 function E(path: string): string { return `data-edit="${path}"`; }
 function EI(path: string): string { return `data-edit-image="${path}"`; }
+
+function brandIconForCategory(category: string): string {
+  const c = (category || "").toLowerCase();
+  if (c.includes("day care") || c.includes("daycare") || c.includes("child care") || c.includes("preschool") || c.includes("kindergarten") || c.includes("nursery") || c.includes("after school") || c.includes("montessori")) return ICONS.baby;
+  if (c.includes("barber") || c.includes("salon") || c.includes("hair")) return ICONS.scissors;
+  if (c.includes("restaurant") || c.includes("diner") || c.includes("café") || c.includes("pizza") || c.includes("bakery")) return ICONS.utensils;
+  return ICONS.wrench;
+}
 
 function extractCity(address: string): string {
   if (!address) return "";
@@ -155,9 +166,10 @@ function renderTopbar(b: Business, v: BusinessVisibility): string {
 function renderHeader(b: Business): string {
   const info = b.businessInfo;
   const nav = b.navLabels || { home: "Home", about: "About", services: "Services", technicians: "Team", contact: "Contact" };
+  const defaultIcon = brandIconForCategory(b.category);
   const logoHtml = info.logoUrl
     ? `<img src="${esc(info.logoUrl)}" alt="${esc(info.name)} logo" class="brand-logo" ${EI("businessInfo.logoUrl")}>`
-    : `<span class="brand-icon">${ICONS.wrench}</span>`;
+    : `<span class="brand-icon">${defaultIcon}</span>`;
 
   return `
     <header class="site-header">
