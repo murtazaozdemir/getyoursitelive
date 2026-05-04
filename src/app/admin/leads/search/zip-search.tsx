@@ -137,7 +137,6 @@ export function ZipSearch() {
 
   function removeCategory(query: string) {
     setSelectedCategories((prev) => {
-      if (prev.size <= 1) return prev; // keep at least 1
       const next = new Set(prev);
       next.delete(query);
       return next;
@@ -287,6 +286,10 @@ export function ZipSearch() {
       setError("Select a city.");
       return;
     }
+    if (selectedCategories.size === 0) {
+      setError("Select at least one category.");
+      return;
+    }
 
     setSearching(true);
     setError("");
@@ -326,6 +329,10 @@ export function ZipSearch() {
   async function handleSingleZipSearch() {
     if (!manualZip || !/^\d{5}$/.test(manualZip)) {
       setError("Enter a valid 5-digit zip code.");
+      return;
+    }
+    if (selectedCategories.size === 0) {
+      setError("Select at least one category.");
       return;
     }
 
