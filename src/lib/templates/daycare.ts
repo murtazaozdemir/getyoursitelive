@@ -89,7 +89,7 @@ export const daycareTemplate: VerticalTemplate = {
         secondaryCta: "Schedule a Tour",
         whyTitle: "Why families choose us",
         heroImage:
-          "https://images.pexels.com/photos/8613089/pexels-photo-8613089.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          "/images/bbc-creative-1w20Cysy1cg-unsplash.jpg",
         whyBullets: [
           "Licensed and certified staff.",
           "Low teacher-to-child ratios.",
@@ -106,9 +106,9 @@ export const daycareTemplate: VerticalTemplate = {
           "Nutritious meals and snacks included",
         ],
         primaryImage:
-          "https://images.pexels.com/photos/8612993/pexels-photo-8612993.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          "/images/gautam-arora-OVDtgUhUPBY-unsplash.jpg",
         secondaryImage:
-          "https://images.pexels.com/photos/8613319/pexels-photo-8613319.jpeg?auto=compress&cs=tinysrgb&w=1400",
+          "/images/erika-fletcher-YfNWGrQI3a4-unsplash.jpg",
         whyUsCards: [
           { title: "Licensed & Certified", description: "Fully licensed facility meeting all state requirements." },
           { title: "Low Ratios", description: "Small class sizes so every child gets attention." },
@@ -203,21 +203,21 @@ export const daycareTemplate: VerticalTemplate = {
           role: "Director",
           experience: "15+ years",
           specialty: "Early childhood education",
-          image: "https://images.pexels.com/photos/5905709/pexels-photo-5905709.jpeg?auto=compress&cs=tinysrgb&w=800",
+          image: "",
         },
         {
           name: "Ms. Linda",
           role: "Lead Preschool Teacher",
           experience: "10+ years",
           specialty: "Kindergarten readiness",
-          image: "https://images.pexels.com/photos/8613146/pexels-photo-8613146.jpeg?auto=compress&cs=tinysrgb&w=800",
+          image: "",
         },
         {
           name: "Mr. James",
           role: "Toddler Room Lead",
           experience: "6+ years",
           specialty: "Play-based learning",
-          image: "https://images.pexels.com/photos/8612927/pexels-photo-8612927.jpeg?auto=compress&cs=tinysrgb&w=800",
+          image: "",
         },
       ],
       testimonials: [
@@ -270,12 +270,13 @@ export const daycareTemplate: VerticalTemplate = {
         },
       ],
       photos: [
-        { id: "p1", url: "https://images.pexels.com/photos/8613089/pexels-photo-8613089.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Learning through play" },
-        { id: "p2", url: "https://images.pexels.com/photos/8612993/pexels-photo-8612993.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Art time" },
-        { id: "p3", url: "https://images.pexels.com/photos/8613319/pexels-photo-8613319.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Story time" },
-        { id: "p4", url: "https://images.pexels.com/photos/8612927/pexels-photo-8612927.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Outdoor play" },
-        { id: "p5", url: "https://images.pexels.com/photos/8535214/pexels-photo-8535214.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Snack time" },
-        { id: "p6", url: "https://images.pexels.com/photos/8613146/pexels-photo-8613146.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Circle time" },
+        { id: "p1", url: "/images/tanaphong-toochinda-GagC07wVvck-unsplash.jpg", caption: "Playtime" },
+        { id: "p2", url: "/images/markus-spiske-OO89_95aUC0-unsplash.jpg", caption: "Block building" },
+        { id: "p3", url: "/images/markus-spiske-IFCloi6PYOA-unsplash.jpg", caption: "Art supplies" },
+        { id: "p4", url: "/images/markus-spiske-DzgLAZXNFRo-unsplash.jpg", caption: "Outdoor exploration" },
+        { id: "p5", url: "/images/markus-spiske-ipYwpFUwC-I-unsplash.jpg", caption: "Sidewalk chalk" },
+        { id: "p6", url: "/images/markus-spiske-6dY9cFY-qTo-unsplash.jpg", caption: "Kids' artwork" },
+        { id: "p7", url: "/images/markus-spiske-vZtJIjiqGD8-unsplash.jpg", caption: "Coloring time" },
       ],
       emergency: {
         heading: "Need Last-Minute Care? Call Us.",
@@ -334,7 +335,7 @@ export const daycareTemplate: VerticalTemplate = {
         primaryCta: "Our Programs",
         secondaryCta: "Schedule a Tour",
         whyTitle: "Why families choose us",
-        heroImage: "https://images.pexels.com/photos/8613089/pexels-photo-8613089.jpeg?auto=compress&cs=tinysrgb&w=1400",
+        heroImage: "/images/bbc-creative-1w20Cysy1cg-unsplash.jpg",
         whyBullets: [
           "Licensed and certified staff.",
           "Low teacher-to-child ratios.",
@@ -350,8 +351,8 @@ export const daycareTemplate: VerticalTemplate = {
           "Age-appropriate curriculum",
           "Nutritious meals included",
         ],
-        primaryImage: "https://images.pexels.com/photos/8612993/pexels-photo-8612993.jpeg?auto=compress&cs=tinysrgb&w=1400",
-        secondaryImage: "https://images.pexels.com/photos/8613319/pexels-photo-8613319.jpeg?auto=compress&cs=tinysrgb&w=1400",
+        primaryImage: "/images/gautam-arora-OVDtgUhUPBY-unsplash.jpg",
+        secondaryImage: "/images/erika-fletcher-YfNWGrQI3a4-unsplash.jpg",
         whyUsCards: [
           { title: "Licensed & Certified", description: "Fully licensed facility." },
           { title: "Low Ratios", description: "Small class sizes." },
