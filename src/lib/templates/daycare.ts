@@ -89,7 +89,7 @@ export const daycareTemplate: VerticalTemplate = {
         secondaryCta: "Schedule a Tour",
         whyTitle: "Why families choose us",
         heroImage:
-          "/images/bbc-creative-1w20Cysy1cg-unsplash.jpg",
+          "https://images.unsplash.com/photo-1587654780759-e74d03e0f1bc?auto=format&fit=crop&w=1400&q=80",
         whyBullets: [
           "Licensed and certified staff.",
           "Low teacher-to-child ratios.",
@@ -106,9 +106,9 @@ export const daycareTemplate: VerticalTemplate = {
           "Nutritious meals and snacks included",
         ],
         primaryImage:
-          "/images/gautam-arora-OVDtgUhUPBY-unsplash.jpg",
+          "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1400&q=80",
         secondaryImage:
-          "/images/erika-fletcher-YfNWGrQI3a4-unsplash.jpg",
+          "https://images.unsplash.com/photo-1560541919-eb5c2da6a5a3?auto=format&fit=crop&w=1400&q=80",
         whyUsCards: [
           { title: "Licensed & Certified", description: "Fully licensed facility meeting all state requirements." },
           { title: "Low Ratios", description: "Small class sizes so every child gets attention." },
@@ -270,13 +270,12 @@ export const daycareTemplate: VerticalTemplate = {
         },
       ],
       photos: [
-        { id: "p1", url: "/images/tanaphong-toochinda-GagC07wVvck-unsplash.jpg", caption: "Playtime" },
-        { id: "p2", url: "/images/markus-spiske-OO89_95aUC0-unsplash.jpg", caption: "Block building" },
-        { id: "p3", url: "/images/markus-spiske-IFCloi6PYOA-unsplash.jpg", caption: "Art supplies" },
-        { id: "p4", url: "/images/markus-spiske-DzgLAZXNFRo-unsplash.jpg", caption: "Outdoor exploration" },
-        { id: "p5", url: "/images/markus-spiske-ipYwpFUwC-I-unsplash.jpg", caption: "Sidewalk chalk" },
-        { id: "p6", url: "/images/markus-spiske-6dY9cFY-qTo-unsplash.jpg", caption: "Kids' artwork" },
-        { id: "p7", url: "/images/markus-spiske-vZtJIjiqGD8-unsplash.jpg", caption: "Coloring time" },
+        { id: "p1", url: "https://images.unsplash.com/photo-1587654780759-e74d03e0f1bc?auto=format&fit=crop&w=800&q=80", caption: "Playtime" },
+        { id: "p2", url: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=800&q=80", caption: "Learning" },
+        { id: "p3", url: "https://images.unsplash.com/photo-1560541919-eb5c2da6a5a3?auto=format&fit=crop&w=800&q=80", caption: "Art time" },
+        { id: "p4", url: "https://images.unsplash.com/photo-1544776193-352d25ca82cd?auto=format&fit=crop&w=800&q=80", caption: "Outdoor play" },
+        { id: "p5", url: "https://images.unsplash.com/photo-1596464716127-f2a82984de30?auto=format&fit=crop&w=800&q=80", caption: "Building blocks" },
+        { id: "p6", url: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80", caption: "Circle time" },
       ],
       emergency: {
         heading: "Need Last-Minute Care? Call Us.",
@@ -335,7 +334,7 @@ export const daycareTemplate: VerticalTemplate = {
         primaryCta: "Our Programs",
         secondaryCta: "Schedule a Tour",
         whyTitle: "Why families choose us",
-        heroImage: "/images/bbc-creative-1w20Cysy1cg-unsplash.jpg",
+        heroImage: "https://images.unsplash.com/photo-1587654780759-e74d03e0f1bc?auto=format&fit=crop&w=1400&q=80",
         whyBullets: [
           "Licensed and certified staff.",
           "Low teacher-to-child ratios.",
@@ -351,8 +350,8 @@ export const daycareTemplate: VerticalTemplate = {
           "Age-appropriate curriculum",
           "Nutritious meals included",
         ],
-        primaryImage: "/images/gautam-arora-OVDtgUhUPBY-unsplash.jpg",
-        secondaryImage: "/images/erika-fletcher-YfNWGrQI3a4-unsplash.jpg",
+        primaryImage: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1400&q=80",
+        secondaryImage: "https://images.unsplash.com/photo-1560541919-eb5c2da6a5a3?auto=format&fit=crop&w=1400&q=80",
         whyUsCards: [
           { title: "Licensed & Certified", description: "Fully licensed facility." },
           { title: "Low Ratios", description: "Small class sizes." },
