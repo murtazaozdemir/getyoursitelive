@@ -82,7 +82,7 @@ export const daycareTemplate: VerticalTemplate = {
         sun: null,
       },
       hero: {
-        eyebrowPrefix: `Caring for families since ${founded}`,
+        eyebrowPrefix: "Where little ones learn, play, and grow",
         headline: "A Safe Place to Learn & Grow.",
         lead: "Licensed child care with nurturing teachers, structured programs, and a focus on early development.",
         primaryCta: "See Our Programs",
@@ -211,21 +211,21 @@ export const daycareTemplate: VerticalTemplate = {
           role: "Director",
           experience: "15+ years",
           specialty: "Early childhood education",
-          image: "",
+          image: "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=400",
         },
         {
           name: "Ms. Linda",
           role: "Lead Preschool Teacher",
           experience: "10+ years",
           specialty: "Kindergarten readiness",
-          image: "",
+          image: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400",
         },
         {
           name: "Mr. James",
           role: "Toddler Room Lead",
           experience: "6+ years",
           specialty: "Play-based learning",
-          image: "",
+          image: "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400",
         },
       ],
       testimonials: [
@@ -344,7 +344,7 @@ export const daycareTemplate: VerticalTemplate = {
         sun: null,
       },
       hero: {
-        eyebrowPrefix: "Caring for families since",
+        eyebrowPrefix: "Where little ones learn, play, and grow",
         headline: "A safe place to learn and grow.",
         lead: "Licensed child care with nurturing teachers.",
         primaryCta: "Our Programs",

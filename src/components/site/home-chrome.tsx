@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  Baby,
   Check,
   ChevronDown,
   Cloud,
@@ -11,9 +12,11 @@ import {
   MapPin,
   Menu,
   Phone,
+  Scissors,
   Smile,
   Sparkles,
   Sun,
+  UtensilsCrossed,
   Wrench,
   X,
 } from "lucide-react";
@@ -38,15 +41,27 @@ const THEME_OPTIONS: Array<{ value: ThemeName; label: string; Icon: LucideIcon }
 ];
 
 /**
- * Brand mark — uses the shop's custom logo image if `logoUrl` is set,
- * otherwise falls back to the default wrench icon.
+ * Pick a default icon based on business category when no custom logo is set.
  */
-function BrandMark({ logoUrl, name }: { logoUrl: string; name: string }) {
+function defaultIconForCategory(category: string): LucideIcon {
+  const c = category.toLowerCase();
+  if (c.includes("day care") || c.includes("daycare") || c.includes("child care") || c.includes("preschool") || c.includes("kindergarten") || c.includes("nursery") || c.includes("after school") || c.includes("montessori")) return Baby;
+  if (c.includes("barber") || c.includes("salon") || c.includes("hair")) return Scissors;
+  if (c.includes("restaurant") || c.includes("diner") || c.includes("café") || c.includes("pizza") || c.includes("bakery")) return UtensilsCrossed;
+  return Wrench;
+}
+
+/**
+ * Brand mark — uses the shop's custom logo image if `logoUrl` is set,
+ * otherwise falls back to a category-appropriate icon.
+ */
+function BrandMark({ logoUrl, name, category }: { logoUrl: string; name: string; category: string }) {
   if (logoUrl) {
     /* eslint-disable-next-line @next/next/no-img-element */
     return <img src={logoUrl} alt={`${name} logo`} className="brand-logo" />;
   }
-  return <Wrench className="brand-icon" aria-hidden />;
+  const Icon = defaultIconForCategory(category);
+  return <Icon className="brand-icon" aria-hidden />;
 }
 
 export function LoadingOverlay({ loading }: { loading: boolean }) {
@@ -196,7 +211,8 @@ export function SiteHeader({
   mobileOpen: boolean;
   onMobileToggle: (open: boolean) => void;
 }) {
-  const { businessInfo, navLabels } = useBusiness();
+  const biz = useBusiness();
+  const { businessInfo, navLabels } = biz;
   const edit = useEditMode();
 
   function patchInfo<K extends keyof typeof businessInfo>(
@@ -221,7 +237,7 @@ export function SiteHeader({
                 uploadLabel={businessInfo.logoUrl ? "Replace logo" : "Upload logo"}
                 removeLabel="Remove logo (revert to wrench icon)"
               >
-                <BrandMark logoUrl={businessInfo.logoUrl} name={businessInfo.name} />
+                <BrandMark logoUrl={businessInfo.logoUrl} name={businessInfo.name} category={biz.category} />
               </EditableImage>
               <span className="brand-name">
                 <EditableText
@@ -233,7 +249,7 @@ export function SiteHeader({
             </span>
           ) : (
             <a href="#home" className="brand">
-              <BrandMark logoUrl={businessInfo.logoUrl} name={businessInfo.name} />
+              <BrandMark logoUrl={businessInfo.logoUrl} name={businessInfo.name} category={biz.category} />
               <span className="brand-name">{businessInfo.name}</span>
             </a>
           )}

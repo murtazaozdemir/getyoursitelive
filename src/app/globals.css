@@ -187,7 +187,9 @@
 [data-theme="sunshine"] .hero-headline,
 [data-theme="sunshine"] .hero-card-title,
 [data-theme="sunshine"] .brand-name,
-[data-theme="sunshine"] .section-title {
+[data-theme="sunshine"] .section-title,
+[data-theme="sunshine"] .deals-title,
+[data-theme="sunshine"] .deal-title {
   font-family: var(--font-nunito), "Nunito", system-ui, sans-serif;
   font-weight: 800;
   letter-spacing: -0.01em;
@@ -218,7 +220,9 @@
 [data-theme="garden"] .hero-headline,
 [data-theme="garden"] .hero-card-title,
 [data-theme="garden"] .brand-name,
-[data-theme="garden"] .section-title {
+[data-theme="garden"] .section-title,
+[data-theme="garden"] .deals-title,
+[data-theme="garden"] .deal-title {
   font-family: var(--font-nunito), "Nunito", system-ui, sans-serif;
   font-weight: 800;
   letter-spacing: -0.01em;
@@ -249,7 +253,9 @@
 [data-theme="sky"] .hero-headline,
 [data-theme="sky"] .hero-card-title,
 [data-theme="sky"] .brand-name,
-[data-theme="sky"] .section-title {
+[data-theme="sky"] .section-title,
+[data-theme="sky"] .deals-title,
+[data-theme="sky"] .deal-title {
   font-family: var(--font-nunito), "Nunito", system-ui, sans-serif;
   font-weight: 800;
   letter-spacing: -0.01em;
