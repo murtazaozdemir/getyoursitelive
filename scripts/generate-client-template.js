@@ -12,7 +12,7 @@
  * Example:
  *   node scripts/generate-client-template.js "Star Auto" "(555) 123-4567" "78 Arlington Ave, Clifton, NJ 07011" /Users/Shared/client-template-2 https://auto-repair-api.getyoursitelive.workers.dev/api auto-repair
  *
- * Available verticals: auto-repair (default), auto-body, barber, restaurant, plumber
+ * Available verticals: auto-repair (default), auto-body, barber, restaurant, plumber, daycare
  */
 
 const fs = require("fs");
@@ -226,7 +226,7 @@ function main() {
   if (args.length < 4) {
     console.error("Usage: node generate-client-template.js <name> <phone> <address> <output-dir> [worker-url] [vertical]");
     console.error('Example: node generate-client-template.js "Star Auto" "(555) 123-4567" "78 Arlington Ave, Clifton, NJ 07011" /Users/Shared/client-template-2 https://auto-repair-api.workers.dev/api auto-repair');
-    console.error("\nAvailable verticals: auto-repair (default), auto-body, barber, restaurant, plumber");
+    console.error("\nAvailable verticals: auto-repair (default), auto-body, barber, restaurant, plumber, daycare");
     process.exit(1);
   }
 

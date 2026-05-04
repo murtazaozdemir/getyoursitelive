@@ -14,6 +14,7 @@ import { autoBodyTemplate } from "../src/lib/templates/auto-body";
 import { barberTemplate } from "../src/lib/templates/barber";
 import { restaurantTemplate } from "../src/lib/templates/restaurant";
 import { plumberTemplate } from "../src/lib/templates/plumber";
+import { daycareTemplate } from "../src/lib/templates/daycare";
 
 const TEMPLATES: Record<string, typeof autoRepairTemplate> = {
   "auto-repair": autoRepairTemplate,
@@ -21,6 +22,7 @@ const TEMPLATES: Record<string, typeof autoRepairTemplate> = {
   "barber": barberTemplate,
   "restaurant": restaurantTemplate,
   "plumber": plumberTemplate,
+  "daycare": daycareTemplate,
 };
 
 const [vertical, slug, name, phone, address] = process.argv.slice(2);
