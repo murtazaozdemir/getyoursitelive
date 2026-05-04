@@ -6,7 +6,7 @@ import type { Business } from "@/lib/business-types";
  */
 
 const SLUG_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/;
-const VALID_THEMES = ["industrial", "modern", "luxury", "friendly"] as const;
+const VALID_THEMES = ["industrial", "modern", "luxury", "friendly", "sunshine", "garden", "sky"] as const;
 
 export type ValidationResult = { ok: true } | { ok: false; error: string };
 

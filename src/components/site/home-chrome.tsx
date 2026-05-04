@@ -4,13 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import {
   Check,
   ChevronDown,
+  Cloud,
   Cog,
+  Flower2,
   Gem,
   MapPin,
   Menu,
   Phone,
   Smile,
   Sparkles,
+  Sun,
   Wrench,
   X,
 } from "lucide-react";
@@ -29,6 +32,9 @@ const THEME_OPTIONS: Array<{ value: ThemeName; label: string; Icon: LucideIcon }
   { value: "modern", label: "Modern", Icon: Sparkles },
   { value: "luxury", label: "Luxury", Icon: Gem },
   { value: "friendly", label: "Friendly", Icon: Smile },
+  { value: "sunshine", label: "Sunshine", Icon: Sun },
+  { value: "garden", label: "Garden", Icon: Flower2 },
+  { value: "sky", label: "Sky", Icon: Cloud },
 ];
 
 /**

@@ -161,6 +161,97 @@
   --font-accent: var(--font-geist-mono);
 }
 
+/* ----- SUNSHINE (daycare — warm yellow, cheerful) ----------------- */
+:root[data-theme="sunshine"],
+[data-theme="sunshine"] {
+  --bg: #FFFBF0;              /* warm cream-yellow */
+  --surface: #FFFFFF;
+  --surface-2: #FFF5E1;       /* soft golden band */
+  --surface-elevated: #FFFFFF;
+  --text: #2D2215;             /* warm dark brown */
+  --muted: #6B5D4A;
+  --text-secondary: #4A3F30;
+  --border: #F0E4CC;
+  --accent: #E8703A;           /* warm coral-orange */
+  --accent-ink: #FFFFFF;
+  --accent-soft: color-mix(in srgb, #E8703A 12%, transparent);
+  --accent-glow: color-mix(in srgb, #E8703A 20%, transparent);
+  --shadow-color: 35 30% 25%;
+  --shadow-strength: 0.08;
+  --font-display: var(--font-nunito);
+  --font-body: var(--font-nunito);
+  --font-accent: var(--font-nunito);
+}
+
+/* Sunshine display headings get the rounded friendly weight */
+[data-theme="sunshine"] .hero-headline,
+[data-theme="sunshine"] .hero-card-title,
+[data-theme="sunshine"] .brand-name {
+  font-family: var(--font-nunito), "Nunito", system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* ----- GARDEN (daycare — soft green, calm nature) ----------------- */
+:root[data-theme="garden"],
+[data-theme="garden"] {
+  --bg: #F5FAF5;              /* whisper mint */
+  --surface: #FFFFFF;
+  --surface-2: #E8F3E8;       /* soft green band */
+  --surface-elevated: #FFFFFF;
+  --text: #1A2E1A;             /* deep forest */
+  --muted: #4A6B4A;
+  --text-secondary: #2D4A2D;
+  --border: #D0E4D0;
+  --accent: #7B5EA7;           /* soft purple */
+  --accent-ink: #FFFFFF;
+  --accent-soft: color-mix(in srgb, #7B5EA7 12%, transparent);
+  --accent-glow: color-mix(in srgb, #7B5EA7 20%, transparent);
+  --shadow-color: 120 15% 20%;
+  --shadow-strength: 0.08;
+  --font-display: var(--font-nunito);
+  --font-body: var(--font-nunito);
+  --font-accent: var(--font-nunito);
+}
+
+[data-theme="garden"] .hero-headline,
+[data-theme="garden"] .hero-card-title,
+[data-theme="garden"] .brand-name {
+  font-family: var(--font-nunito), "Nunito", system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* ----- SKY (daycare — pale blue, gentle airy) --------------------- */
+:root[data-theme="sky"],
+[data-theme="sky"] {
+  --bg: #F0F7FF;              /* lightest sky blue */
+  --surface: #FFFFFF;
+  --surface-2: #E3F0FC;       /* soft blue band */
+  --surface-elevated: #FFFFFF;
+  --text: #1A2233;             /* deep navy */
+  --muted: #526380;
+  --text-secondary: #334155;
+  --border: #CCE0F5;
+  --accent: #D4577A;           /* warm rose-pink */
+  --accent-ink: #FFFFFF;
+  --accent-soft: color-mix(in srgb, #D4577A 12%, transparent);
+  --accent-glow: color-mix(in srgb, #D4577A 20%, transparent);
+  --shadow-color: 210 20% 25%;
+  --shadow-strength: 0.08;
+  --font-display: var(--font-nunito);
+  --font-body: var(--font-nunito);
+  --font-accent: var(--font-nunito);
+}
+
+[data-theme="sky"] .hero-headline,
+[data-theme="sky"] .hero-card-title,
+[data-theme="sky"] .brand-name {
+  font-family: var(--font-nunito), "Nunito", system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
 /* ==================================================================
    BASE
    ================================================================== */

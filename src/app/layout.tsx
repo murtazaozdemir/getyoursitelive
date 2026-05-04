@@ -6,6 +6,7 @@ import {
   Geist_Mono,
   Instrument_Sans,
   JetBrains_Mono,
+  Nunito,
 } from "next/font/google";
 import "./globals.css";
 
@@ -37,6 +38,13 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
+// Nunito — rounded, friendly display font for daycare/kid-friendly themes
+const nunito = Nunito({
+  variable: "--font-nunito",
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
+});
+
 // Chakra Petch — mechanical/technical display font for the Industrial theme
 const chakraPetch = Chakra_Petch({
   variable: "--font-chakra-petch",
@@ -65,7 +73,7 @@ export default function RootLayout({
       lang="en"
       data-theme="industrial"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${instrumentSans.variable} ${jetbrainsMono.variable} ${chakraPetch.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${instrumentSans.variable} ${jetbrainsMono.variable} ${chakraPetch.variable} ${nunito.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>{children}</body>
     </html>

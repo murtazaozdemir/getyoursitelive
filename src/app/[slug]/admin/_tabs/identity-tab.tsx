@@ -4,7 +4,7 @@ import type { Business } from "@/lib/business-types";
 import type { UserRole } from "@/lib/users";
 import type { ThemeName } from "@/types/site";
 
-const THEMES: ThemeName[] = ["industrial", "modern", "luxury", "friendly"];
+const THEMES: ThemeName[] = ["industrial", "modern", "luxury", "friendly", "sunshine", "garden", "sky"];
 
 export function IdentityTab({
   business,

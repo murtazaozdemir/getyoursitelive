@@ -1,4 +1,4 @@
-export type ThemeName = "industrial" | "modern" | "luxury" | "friendly";
+export type ThemeName = "industrial" | "modern" | "luxury" | "friendly" | "sunshine" | "garden" | "sky";
 
 export interface BusinessInfo {
   name: string;

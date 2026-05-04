@@ -6,7 +6,7 @@ import { createBusinessAction } from "@/app/admin/actions";
 import type { ThemeName } from "@/types/site";
 import { getTemplateForCategory, getAllCategories } from "@/lib/templates/registry";
 
-const THEMES: ThemeName[] = ["industrial", "modern", "luxury", "friendly"];
+const THEMES: ThemeName[] = ["industrial", "modern", "luxury", "friendly", "sunshine", "garden", "sky"];
 const CATEGORIES = getAllCategories();
 
 export function NewBusinessForm() {

@@ -52,7 +52,7 @@ export const daycareTemplate: VerticalTemplate = {
   serviceIcons: SERVICE_ICONS,
 
   buildProspectBusiness(slug: string, name: string, phone: string, address: string): Business {
-    const theme: ThemeName = "modern";
+    const theme: ThemeName = "sunshine";
     const founded = new Date().getFullYear() - 10;
     const years = new Date().getFullYear() - founded;
 
