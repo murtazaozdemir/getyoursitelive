@@ -1,0 +1,397 @@
+import {
+  Heart,
+  BookOpen,
+  Baby,
+  Clock,
+  Shield,
+  Users,
+  Palette,
+  Apple,
+  Star,
+  type LucideIcon,
+} from "lucide-react";
+import type { Business } from "@/lib/business-types";
+import type { ThemeName } from "@/types/site";
+import type { VerticalTemplate } from "./types";
+import {
+  defaultFooter,
+  defaultNavLabels,
+  defaultSectionTitles,
+  prospectVisibility,
+  blankVisibility,
+} from "./shared";
+
+const SERVICE_ICONS: Record<string, LucideIcon> = {
+  "infant-care": Baby,
+  "toddler-program": Heart,
+  "preschool": BookOpen,
+  "pre-k": Star,
+  "after-school": Clock,
+  "summer-camp": Palette,
+  "enrichment": Palette,
+  "meals": Apple,
+  "safety": Shield,
+  general: Users,
+};
+
+export const daycareTemplate: VerticalTemplate = {
+  id: "daycare",
+  label: "Daycare / Child Care",
+  categories: [
+    "Child care agency",
+    "Day care center",
+    "Preschool",
+    "Kindergarten",
+    "Family day care service",
+    "After school program",
+    "Child day care service",
+    "Montessori school",
+    "Nursery school",
+  ],
+  testimonialContextLabel: "Program",
+  serviceIcons: SERVICE_ICONS,
+
+  buildProspectBusiness(slug: string, name: string, phone: string, address: string): Business {
+    const theme: ThemeName = "friendly";
+    const founded = new Date().getFullYear() - 10;
+    const years = new Date().getFullYear() - founded;
+
+    return {
+      slug,
+      category: "Day care center",
+      theme,
+      businessInfo: {
+        name,
+        tagline: "Where little ones learn, play, and grow.",
+        founded,
+        phone,
+        email: "",
+        address,
+        hours: "Mon-Fri: 6:30am-6:30pm",
+        emergencyPhone: phone,
+        logoUrl: "",
+        social: { facebook: "", instagram: "", linkedin: "", youtube: "" },
+      },
+      hoursSchedule: {
+        mon: { open: "06:30", close: "18:30" },
+        tue: { open: "06:30", close: "18:30" },
+        wed: { open: "06:30", close: "18:30" },
+        thu: { open: "06:30", close: "18:30" },
+        fri: { open: "06:30", close: "18:30" },
+        sat: null,
+        sun: null,
+      },
+      hero: {
+        eyebrowPrefix: `Caring for families since ${founded}`,
+        headline: "A Safe Place to Learn & Grow.",
+        lead: "Licensed child care with nurturing teachers, structured programs, and a focus on early development.",
+        primaryCta: "See Our Programs",
+        secondaryCta: "Schedule a Tour",
+        whyTitle: "Why families choose us",
+        heroImage:
+          "https://images.pexels.com/photos/8613089/pexels-photo-8613089.jpeg?auto=compress&cs=tinysrgb&w=1400",
+        whyBullets: [
+          "Licensed and certified staff.",
+          "Low teacher-to-child ratios.",
+          "Safe, clean, and welcoming environment.",
+          "Structured curriculum with play-based learning.",
+        ],
+      },
+      about: {
+        heading: "More Than Just Child Care",
+        narrative: `${name} has been a trusted part of the community for over ${years} years. We provide a warm, structured environment where children develop confidence, curiosity, and social skills through age-appropriate activities, creative play, and guided learning.`,
+        bullets: [
+          "State-licensed facility with trained caregivers",
+          "Age-appropriate curriculum for every stage",
+          "Nutritious meals and snacks included",
+        ],
+        primaryImage:
+          "https://images.pexels.com/photos/8612993/pexels-photo-8612993.jpeg?auto=compress&cs=tinysrgb&w=1400",
+        secondaryImage:
+          "https://images.pexels.com/photos/8613319/pexels-photo-8613319.jpeg?auto=compress&cs=tinysrgb&w=1400",
+        whyUsCards: [
+          { title: "Licensed & Certified", description: "Fully licensed facility meeting all state requirements." },
+          { title: "Low Ratios", description: "Small class sizes so every child gets attention." },
+          { title: "Nutritious Meals", description: "Breakfast, lunch, and snacks prepared daily." },
+          { title: "Safe & Secure", description: "Controlled access, cameras, and trained staff." },
+        ],
+      },
+      stats: [
+        { label: "Years Serving Families", value: years, suffix: "+" },
+        { label: "Children Enrolled", value: 120, suffix: "+" },
+        { label: "Certified Teachers", value: 15, suffix: "" },
+        { label: "Family Satisfaction", value: 98, suffix: "%" },
+      ],
+      services: [
+        {
+          id: "infant-care",
+          name: "Infant Care",
+          priceRange: "6 weeks – 12 months",
+          duration: "Full day",
+          description: "Gentle, responsive care for your youngest family members in a safe and nurturing setting.",
+          features: ["Individual care plans", "Tummy time and sensory play", "Daily parent updates", "Flexible scheduling"],
+        },
+        {
+          id: "toddler-program",
+          name: "Toddler Program",
+          priceRange: "1 – 2 years",
+          duration: "Full day",
+          description: "Hands-on exploration and guided activities that build language, motor, and social skills.",
+          features: ["Play-based learning", "Language development focus", "Art and music time", "Outdoor play daily"],
+        },
+        {
+          id: "preschool",
+          name: "Preschool",
+          priceRange: "3 – 4 years",
+          duration: "Full or half day",
+          description: "A structured curriculum that prepares children for kindergarten through interactive learning.",
+          features: ["Early literacy and math", "Science exploration", "Social-emotional learning", "Creative arts"],
+        },
+        {
+          id: "pre-k",
+          name: "Pre-Kindergarten",
+          priceRange: "4 – 5 years",
+          duration: "Full day",
+          description: "Kindergarten readiness program with a focus on academic and social preparation.",
+          features: ["Reading readiness", "Math foundations", "Writing practice", "Group collaboration"],
+        },
+        {
+          id: "after-school",
+          name: "After-School Care",
+          priceRange: "5 – 12 years",
+          duration: "Until 6:30 PM",
+          description: "A safe, fun place for school-age children with homework help and enrichment activities.",
+          features: ["Homework assistance", "Indoor and outdoor activities", "Healthy snacks", "Pick-up from local schools"],
+        },
+        {
+          id: "summer-camp",
+          name: "Summer Camp",
+          priceRange: "3 – 12 years",
+          duration: "Full day, seasonal",
+          description: "Themed weekly adventures with field trips, arts, sports, and STEM activities.",
+          features: ["Weekly themes", "Field trips", "Water play days", "Arts and crafts"],
+        },
+      ],
+      deals: [
+        {
+          id: "d1",
+          title: "Sibling Discount",
+          badge: "Families",
+          originalPrice: "",
+          price: "10% off",
+          description: "Enroll two or more children and receive 10% off your total tuition.",
+        },
+        {
+          id: "d2",
+          title: "Free Trial Day",
+          badge: "New Families",
+          originalPrice: "",
+          price: "Free",
+          description: "Schedule a complimentary full-day trial so your child can experience our program.",
+        },
+      ],
+      pricing: [
+        { id: "infant", name: "Infant Care", price: "$300/wk", note: "6 weeks – 12 months, full day", popular: false },
+        { id: "toddler", name: "Toddler Program", price: "$275/wk", note: "Ages 1–2, full day", popular: false },
+        { id: "preschool", name: "Preschool", price: "$250/wk", note: "Ages 3–4, full day", popular: true },
+        { id: "prek", name: "Pre-K", price: "$250/wk", note: "Ages 4–5, full day", popular: false },
+        { id: "afterschool", name: "After-School", price: "$150/wk", note: "Ages 5–12, pick-up included", popular: false },
+      ],
+      teamMembers: [
+        {
+          name: "Ms. Sarah",
+          role: "Director",
+          experience: "15+ years",
+          specialty: "Early childhood education",
+          image: "https://images.pexels.com/photos/5905709/pexels-photo-5905709.jpeg?auto=compress&cs=tinysrgb&w=800",
+        },
+        {
+          name: "Ms. Linda",
+          role: "Lead Preschool Teacher",
+          experience: "10+ years",
+          specialty: "Kindergarten readiness",
+          image: "https://images.pexels.com/photos/8613146/pexels-photo-8613146.jpeg?auto=compress&cs=tinysrgb&w=800",
+        },
+        {
+          name: "Mr. James",
+          role: "Toddler Room Lead",
+          experience: "6+ years",
+          specialty: "Play-based learning",
+          image: "https://images.pexels.com/photos/8612927/pexels-photo-8612927.jpeg?auto=compress&cs=tinysrgb&w=800",
+        },
+      ],
+      testimonials: [
+        {
+          name: "Maria R.",
+          context: "Preschool",
+          quote: "My daughter has blossomed since starting here. The teachers are patient, loving, and truly invested in every child's growth.",
+        },
+        {
+          name: "Kevin L.",
+          context: "Infant care",
+          quote: "Leaving our baby in someone else's care was scary, but the staff made us feel completely at ease from day one.",
+        },
+        {
+          name: "Aisha T.",
+          context: "After-school program",
+          quote: "My son loves going to after-school care. They help with homework, have great activities, and he's always happy when I pick him up.",
+        },
+      ],
+      faqs: [
+        {
+          id: "f1",
+          question: "What ages do you accept?",
+          answer: "We accept children from 6 weeks through 12 years old, with programs tailored to each age group.",
+        },
+        {
+          id: "f2",
+          question: "Are you licensed?",
+          answer: "Yes, we are fully licensed by the state and meet all health, safety, and staffing requirements.",
+        },
+        {
+          id: "f3",
+          question: "Do you provide meals?",
+          answer: "Yes, breakfast, lunch, and afternoon snacks are included in tuition. We accommodate allergies and dietary needs.",
+        },
+        {
+          id: "f4",
+          question: "What are your teacher-to-child ratios?",
+          answer: "We maintain low ratios: 1:4 for infants, 1:6 for toddlers, and 1:10 for preschool and pre-K.",
+        },
+        {
+          id: "f5",
+          question: "Can I tour the facility before enrolling?",
+          answer: "Absolutely. We encourage all families to schedule a tour. You can also request a free trial day for your child.",
+        },
+        {
+          id: "f6",
+          question: "What is your sick child policy?",
+          answer: "Children with a fever, vomiting, or contagious illness must stay home until symptom-free for 24 hours. This keeps all children safe.",
+        },
+      ],
+      photos: [
+        { id: "p1", url: "https://images.pexels.com/photos/8613089/pexels-photo-8613089.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Learning through play" },
+        { id: "p2", url: "https://images.pexels.com/photos/8612993/pexels-photo-8612993.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Art time" },
+        { id: "p3", url: "https://images.pexels.com/photos/8613319/pexels-photo-8613319.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Story time" },
+        { id: "p4", url: "https://images.pexels.com/photos/8612927/pexels-photo-8612927.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Outdoor play" },
+        { id: "p5", url: "https://images.pexels.com/photos/8535214/pexels-photo-8535214.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Snack time" },
+        { id: "p6", url: "https://images.pexels.com/photos/8613146/pexels-photo-8613146.jpeg?auto=compress&cs=tinysrgb&w=800", caption: "Circle time" },
+      ],
+      emergency: {
+        heading: "Need Last-Minute Care? Call Us.",
+        description: "We may have drop-in availability. Contact us to check.",
+        ctaLabel: "Call Now",
+      },
+      contact: {
+        heading: "Schedule a Tour",
+        description: "Come see our facility, meet our teachers, and learn about our programs.",
+        bookButtonLabel: "Request a Tour",
+        extraServiceOptions: ["Enrollment Inquiry", "Schedule a Tour", "Other"],
+      },
+      footer: defaultFooter(),
+      sectionTitles: defaultSectionTitles({
+        services: "Our Programs",
+        dealsLede: "Special offers for new and growing families.",
+        team: "Meet Our Teachers",
+        testimonials: "What Parents Say",
+        faq: "Parent Questions",
+      }),
+      navLabels: defaultNavLabels("Teachers"),
+      visibility: prospectVisibility(),
+    };
+  },
+
+  buildBlankBusiness(slug: string, name: string, theme: ThemeName): Business {
+    return {
+      slug,
+      category: "Day care center",
+      theme,
+      businessInfo: {
+        name,
+        tagline: "",
+        founded: new Date().getFullYear(),
+        phone: "",
+        email: "",
+        address: "",
+        hours: "Mon-Fri: 6:30am-6:30pm",
+        emergencyPhone: "",
+        logoUrl: "",
+        social: { facebook: "", instagram: "", linkedin: "", youtube: "" },
+      },
+      hoursSchedule: {
+        mon: { open: "06:30", close: "18:30" },
+        tue: { open: "06:30", close: "18:30" },
+        wed: { open: "06:30", close: "18:30" },
+        thu: { open: "06:30", close: "18:30" },
+        fri: { open: "06:30", close: "18:30" },
+        sat: null,
+        sun: null,
+      },
+      hero: {
+        eyebrowPrefix: "Caring for families since",
+        headline: "A safe place to learn and grow.",
+        lead: "Licensed child care with nurturing teachers.",
+        primaryCta: "Our Programs",
+        secondaryCta: "Schedule a Tour",
+        whyTitle: "Why families choose us",
+        heroImage: "https://images.pexels.com/photos/8613089/pexels-photo-8613089.jpeg?auto=compress&cs=tinysrgb&w=1400",
+        whyBullets: [
+          "Licensed and certified staff.",
+          "Low teacher-to-child ratios.",
+          "Safe and welcoming environment.",
+          "Structured learning through play.",
+        ],
+      },
+      about: {
+        heading: `${name} - More Than Child Care`,
+        narrative: "Add a short paragraph about your center.",
+        bullets: [
+          "State-licensed facility",
+          "Age-appropriate curriculum",
+          "Nutritious meals included",
+        ],
+        primaryImage: "https://images.pexels.com/photos/8612993/pexels-photo-8612993.jpeg?auto=compress&cs=tinysrgb&w=1400",
+        secondaryImage: "https://images.pexels.com/photos/8613319/pexels-photo-8613319.jpeg?auto=compress&cs=tinysrgb&w=1400",
+        whyUsCards: [
+          { title: "Licensed & Certified", description: "Fully licensed facility." },
+          { title: "Low Ratios", description: "Small class sizes." },
+          { title: "Nutritious Meals", description: "Meals and snacks daily." },
+          { title: "Safe & Secure", description: "Controlled access, trained staff." },
+        ],
+      },
+      stats: [
+        { label: "Years Experience", value: 10, suffix: "+" },
+        { label: "Children Enrolled", value: 50, suffix: "+" },
+        { label: "Teachers", value: 8, suffix: "" },
+        { label: "Family Satisfaction", value: 98, suffix: "%" },
+      ],
+      services: [],
+      deals: [],
+      pricing: [],
+      teamMembers: [],
+      testimonials: [],
+      faqs: [],
+      photos: [],
+      emergency: {
+        heading: "Need Last-Minute Care?",
+        description: "Contact us to check drop-in availability.",
+        ctaLabel: "Call Now",
+      },
+      contact: {
+        heading: "Schedule a Tour",
+        description: "Come visit our facility and meet our teachers.",
+        bookButtonLabel: "Request a Tour",
+        extraServiceOptions: ["Enrollment Inquiry", "Other"],
+      },
+      footer: defaultFooter(),
+      sectionTitles: defaultSectionTitles({
+        services: "Our Programs",
+        team: "Meet Our Teachers",
+        testimonials: "What Parents Say",
+        faq: "Parent Questions",
+      }),
+      navLabels: defaultNavLabels("Teachers"),
+      visibility: blankVisibility(),
+    };
+  },
+};

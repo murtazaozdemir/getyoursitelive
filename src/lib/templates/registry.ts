@@ -4,6 +4,7 @@ import { autoBodyTemplate } from "./auto-body";
 import { barberTemplate } from "./barber";
 import { restaurantTemplate } from "./restaurant";
 import { plumberTemplate } from "./plumber";
+import { daycareTemplate } from "./daycare";
 import { genericTemplate } from "./generic";
 
 const ALL_TEMPLATES: VerticalTemplate[] = [
@@ -12,6 +13,7 @@ const ALL_TEMPLATES: VerticalTemplate[] = [
   barberTemplate,
   restaurantTemplate,
   plumberTemplate,
+  daycareTemplate,
 ];
 
 const categoryIndex = new Map<string, VerticalTemplate>();
