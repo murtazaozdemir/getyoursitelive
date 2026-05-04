@@ -47,13 +47,11 @@ const ALL_CATEGORIES: { label: string; query: string }[] = allGoogleCategories.m
   }),
 );
 
-const US_STATES = ["NJ", "CO", "VA"];
-
 type ZipStatus = "idle" | "searching" | "cached" | "done";
 
-export function ZipSearch() {
+export function ZipSearch({ allowedStates }: { allowedStates: string[] }) {
   // City mode
-  const [state, setState] = useState("NJ");
+  const [state, setState] = useState(allowedStates.includes("NJ") ? "NJ" : allowedStates[0] || "NJ");
   const [city, setCity] = useState("");
   const [cities, setCities] = useState<string[]>([]);
   const [loadingCities, setLoadingCities] = useState(false);
@@ -519,7 +517,7 @@ export function ZipSearch() {
                 value={state}
                 onChange={(e) => setState(e.target.value)}
               >
-                {US_STATES.map((s) => (
+                {allowedStates.map((s) => (
                   <option key={s} value={s}>{s}</option>
                 ))}
               </select>

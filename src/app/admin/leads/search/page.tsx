@@ -1,12 +1,16 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { canManageBusinesses, isDeveloper } from "@/lib/users";
+import { getVisibleStates } from "@/lib/state-visibility";
 import { ZipSearch } from "./zip-search";
 
 export default async function SearchPage() {
   const user = await getCurrentUser();
   if (!user) return null;
   if (!canManageBusinesses(user) || !isDeveloper(user)) redirect("/admin/leads");
+
+  const visibleStates = await getVisibleStates();
+  const states = Array.from(visibleStates).sort();
 
   return (
     <div className="admin-page">
@@ -21,7 +25,7 @@ export default async function SearchPage() {
         </div>
       </div>
 
-      <ZipSearch />
+      <ZipSearch allowedStates={states} />
     </div>
   );
 }
