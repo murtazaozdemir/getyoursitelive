@@ -68,7 +68,7 @@ export function ZipSearch() {
   const [manualZip, setManualZip] = useState("");
 
   // Search — multi-category
-  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set(["auto repair"]));
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
   const [catInputValue, setCatInputValue] = useState("");
   const [catDropdownOpen, setCatDropdownOpen] = useState(false);
   const catDropdownRef = useRef<HTMLDivElement>(null);
