@@ -49,6 +49,7 @@ export const autoBodyTemplate: VerticalTemplate = {
     "Car detailing service",
     "Car Detailing",
     "Auto painting service",
+    "Car wash",
   ],
   testimonialContextLabel: "Vehicle",
   serviceIcons: SERVICE_ICONS,
