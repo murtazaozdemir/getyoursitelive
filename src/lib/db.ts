@@ -44,6 +44,14 @@ function rowToBusiness(row: BusinessRow): Business {
       biz.businessInfo?.address ?? "",
     );
 
+    // Fill empty businessInfo fields from template defaults.
+    if (biz.businessInfo && defaults.businessInfo) {
+      const bi = biz.businessInfo;
+      const di = defaults.businessInfo;
+      if (!bi.tagline) bi.tagline = di.tagline;
+      if (!bi.hours) bi.hours = di.hours;
+    }
+
     // Fill missing sections from template defaults.
     // If the section is missing entirely, use the template's version.
     // Individual fields within a section are filled only if empty.
